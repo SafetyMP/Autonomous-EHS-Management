@@ -13,6 +13,7 @@
     "lint": "eslint",
     "verify": "npm run lint && npx tsc --noEmit && npm test",
     "verify:all": "npm run verify && npm run test:e2e:smoke",
+    "audit:matrix-greps": "bash scripts/audit-matrix-greps.sh",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",
     "demo:up": "tsx scripts/demo-up.ts",
@@ -23,7 +24,8 @@
     "db:seed:demo:reset": "tsx scripts/reset-demo-org.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "test:e2e:smoke": "playwright test tests/e2e/smoke --grep @smoke"
+    "test:e2e:smoke": "playwright test tests/e2e --grep @smoke",
+    "job:worker": "tsx scripts/job-worker.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -39,6 +41,7 @@
     "drizzle-orm": "^0.45.2",
     "next": "16.2.4",
     "pg": "^8.20.0",
+    "pg-boss": "^10.4.2",
     "react": "19.2.5",
     "react-dom": "19.2.5",
     "server-only": "^0.0.1",
@@ -48,7 +51,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@playwright/test": "^1.59.1",
+    "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.6",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "@tailwindcss/postcss": "^4",

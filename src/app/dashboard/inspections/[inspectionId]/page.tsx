@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useId, useState } from "react";
+import { useNavigatorOnline } from "@/hooks/useNavigatorOnline";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -12,6 +13,7 @@ import {
   dfSecondaryOutline,
   dfSectionHeading,
 } from "@/lib/dashboard-field-styles";
+import { enqueueFieldOutbox, isFieldOutboxEnabled } from "@/lib/offline/fieldOutbox";
 import { trpc } from "@/trpc/react";
 
 const inputClass =
@@ -22,6 +24,8 @@ export default function InspectionDetailPage() {
   const inspectionId = params.inspectionId as string;
   const formId = useId();
   const { organizationId } = useOrg();
+  const online = useNavigatorOnline();
+  const [outboxStatus, setOutboxStatus] = useState<string | null>(null);
 
   const utils = trpc.useUtils();
   const { data: row, isLoading } = trpc.inspection.get.useQuery(
@@ -41,6 +45,27 @@ export default function InspectionDetailPage() {
       void utils.inspection.list.invalidate();
     },
   });
+
+  async function queueStatusTransition(
+    status: "in_progress" | "completed" | "cancelled" | "scheduled",
+  ) {
+    if (!organizationId) return;
+    if (!online && isFieldOutboxEnabled()) {
+      setOutboxStatus(null);
+      try {
+        await enqueueFieldOutbox({
+          procedure: "inspection.updateStatus",
+          organizationId,
+          payloadJson: JSON.stringify({ organizationId, inspectionId, status }),
+        });
+        setOutboxStatus("Saved in this browser. It will send when you are back online.");
+      } catch {
+        setOutboxStatus("Could not queue offline update in this browser.");
+      }
+      return;
+    }
+    updateStatus.mutate({ organizationId, inspectionId, status });
+  }
 
   if (!organizationId) {
     return (
@@ -82,6 +107,12 @@ export default function InspectionDetailPage() {
         <OrgSwitcher />
       </div>
 
+      {outboxStatus ? (
+        <p role="status" className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          {outboxStatus}
+        </p>
+      ) : null}
+
       {row.status !== "completed" && row.status !== "cancelled" ? (
         <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm" aria-labelledby="prog-h">
           <h2 id="prog-h" className="text-base font-semibold text-zinc-900">
@@ -93,13 +124,7 @@ export default function InspectionDetailPage() {
                 type="button"
                 className={dfPrimarySubmit}
                 disabled={updateStatus.isPending}
-                onClick={() =>
-                  updateStatus.mutate({
-                    organizationId,
-                    inspectionId,
-                    status: "in_progress",
-                  })
-                }
+                onClick={() => void queueStatusTransition("in_progress")}
               >
                 Start inspection
               </button>
@@ -110,13 +135,7 @@ export default function InspectionDetailPage() {
                   type="button"
                   className={dfPrimarySubmit}
                   disabled={updateStatus.isPending}
-                  onClick={() =>
-                    updateStatus.mutate({
-                      organizationId,
-                      inspectionId,
-                      status: "completed",
-                    })
-                  }
+                  onClick={() => void queueStatusTransition("completed")}
                 >
                   Mark complete
                 </button>
@@ -124,13 +143,7 @@ export default function InspectionDetailPage() {
                   type="button"
                   className={dfSecondaryOutline}
                   disabled={updateStatus.isPending}
-                  onClick={() =>
-                    updateStatus.mutate({
-                      organizationId,
-                      inspectionId,
-                      status: "cancelled",
-                    })
-                  }
+                  onClick={() => void queueStatusTransition("cancelled")}
                 >
                   Cancel inspection
                 </button>
@@ -141,13 +154,7 @@ export default function InspectionDetailPage() {
                 type="button"
                 className={dfSecondaryOutline}
                 disabled={updateStatus.isPending}
-                onClick={() =>
-                  updateStatus.mutate({
-                    organizationId,
-                    inspectionId,
-                    status: "cancelled",
-                  })
-                }
+                onClick={() => void queueStatusTransition("cancelled")}
               >
                 Cancel
               </button>

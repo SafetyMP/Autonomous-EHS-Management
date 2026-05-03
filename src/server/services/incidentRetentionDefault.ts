@@ -63,3 +63,35 @@ export async function computeDefaultRetainUntilForNewIncident(
   );
   return new Date(Math.max(...candidates.map((d) => d.getTime())));
 }
+
+/**
+ * Default `retain_until` from org policies for program records (observations / work permits).
+ * Returns null when no matching `data_retention_policy` rows exist.
+ */
+export async function computeDefaultRetainUntilForProgramRecord(
+  db: Db,
+  organizationId: string,
+  referenceDate: Date,
+  recordClass:
+    | "safety_observation_program"
+    | "work_permit_program"
+    | "environmental_regulatory_permit_program"
+    | "risk_assessment_program",
+): Promise<Date | null> {
+  const rows = await db
+    .select({
+      years: dataRetentionPolicy.minimumYears,
+      anchor: dataRetentionPolicy.retentionDateAnchor,
+    })
+    .from(dataRetentionPolicy)
+    .where(
+      and(eq(dataRetentionPolicy.organizationId, organizationId), eq(dataRetentionPolicy.recordClass, recordClass)),
+    );
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  const candidates = rows.map((r) => retainUntilFromPolicyRow(referenceDate, r.years, r.anchor));
+  return new Date(Math.max(...candidates.map((d) => d.getTime())));
+}

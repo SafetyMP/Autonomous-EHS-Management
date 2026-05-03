@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { incidentStatusEnum } from "@/server/db/schema";
-import { allowedIncidentTransition } from "@/lib/workflow/incidentTransitions";
+import {
+  allowedIncidentAdminReopen,
+  allowedIncidentTransition,
+} from "@/lib/workflow/incidentTransitions";
 
 const statuses = incidentStatusEnum.enumValues;
 
@@ -51,5 +54,15 @@ describe("allowedIncidentTransition", () => {
   it("treats unknown runtime `to` as disallowed unless in map for known from", () => {
     expect(allowedIncidentTransition("open", "deleted" as (typeof statuses)[number])).toBe(false);
     expect(allowedIncidentTransition("investigating", "open" as (typeof statuses)[number])).toBe(false);
+  });
+});
+
+describe("allowedIncidentAdminReopen", () => {
+  it("allows closed → investigating only", () => {
+    expect(allowedIncidentAdminReopen("closed", "investigating")).toBe(true);
+    expect(allowedIncidentAdminReopen("closed", "open")).toBe(false);
+    expect(allowedIncidentAdminReopen("closed", "closed")).toBe(false);
+    expect(allowedIncidentAdminReopen("investigating", "investigating")).toBe(false);
+    expect(allowedIncidentAdminReopen("open", "investigating")).toBe(false);
   });
 });

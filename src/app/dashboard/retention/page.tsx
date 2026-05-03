@@ -19,6 +19,48 @@ import {
 } from "@/lib/dashboard-field-styles";
 import { trpc } from "@/trpc/react";
 
+function AgencyReferenceCsvDownload({ organizationId }: { organizationId: string }) {
+  const sampleQuery = trpc.compliance.regulatoryOsha.agencyReferenceCsvSample.useQuery(
+    { organizationId },
+    { enabled: false },
+  );
+
+  return (
+    <div className="mt-4 rounded-md border border-amber-300/80 bg-amber-100/40 p-3 text-sm text-amber-950">
+      <p className="font-medium">Reference CSV sample (not a filing)</p>
+      <p className={`mt-1 ${dfHelperXs}`}>
+        Download contains column headers plus one synthetic example row for layout review only. It is
+        not OSHA-, state-plan-, or other agency-ready output. Consult counsel before any regulatory
+        submission.
+      </p>
+      <button
+        type="button"
+        className={`${dfSecondaryOutline} mt-3`}
+        disabled={sampleQuery.isFetching}
+        onClick={() => {
+          void sampleQuery.refetch().then((res) => {
+            const data = res.data;
+            if (!data) return;
+            const blob = new Blob([data.csv], { type: "text/csv;charset=utf-8" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `osha-agency-reference-sample-${organizationId.slice(0, 8)}.csv`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+          });
+        }}
+      >
+        {sampleQuery.isFetching ? "Preparing…" : "Download reference CSV sample"}
+      </button>
+      {sampleQuery.error ? (
+        <p className="mt-2 text-sm text-red-800" role="alert">
+          {sampleQuery.error.message}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 export default function DataRetentionPage() {
   const { organizationId } = useOrg();
   const org = organizationId!;
@@ -245,6 +287,7 @@ export default function DataRetentionPage() {
           Separate from the JSON snapshot above. Filing-ready CSV/XML has{" "}
           <strong className="font-medium">not</strong> been implemented.
         </p>
+        <AgencyReferenceCsvDownload organizationId={org} />
         {agencyPlaceholder.isLoading ? (
           <p className={dfMuted}>Loading…</p>
         ) : agencyPlaceholder.data ? (

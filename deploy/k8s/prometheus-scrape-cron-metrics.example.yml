@@ -1,0 +1,47 @@
+# =============================================================================
+# REFERENCE ONLY — DO NOT kubectl apply this file.
+# Paste the scrape_configs snippet into Prometheus (or your vendor's equivalent).
+# Kubernetes CronJobs for reminders/data-retention are separate; metrics is pull-only.
+#
+# Endpoint: GET /api/cron/metrics
+# Auth: Authorization: Bearer <CRON_SECRET> (same secret as CronJob curl jobs — see cronjob-*.yaml)
+#
+# Optional query params (not required for scraping):
+#   ?format=json     — JSON instead of Prometheus text
+#   ?windowHours=N   — rollup window 1–8760 (defaults in app code)
+#
+# In-cluster scrape target (recommended: stays on ClusterIP behind the Service named in service.yaml).
+# Matches namespace in kustomization.yaml (default ehs-prod); adjust namespace/service if yours differ.
+#
+# Targets:
+#   Short form (same cluster/namespace as Prometheus pod): ehs-web:3000
+#   FQDN: ehs-web.ehs-prod.svc.cluster.local:3000
+#
+# SECURITY: Prefer bearer_token_file over credentials in plaintext config. Rotate CRON_SECRET with your process.
+#
+# -----------------------------------------------------------------------------
+# Prometheus 2.x+ scrape_configs fragment (merge under scrape_configs: in prometheus.yml).
+#
+# Bearer auth: provision a file whose *contents* are the raw token (no "Bearer " prefix).
+# Example: kubectl create secret generic prom-ehs-cron-bearer ...
+#           mount at /etc/prometheus/secrets/ehs-cron-bearer/token and wire bearer_token_file below.
+#
+# Prometheus sends: Authorization: Bearer <file contents>. File must contain the raw token only.
+# -----------------------------------------------------------------------------
+scrape_configs:
+  # Interval 60s is usually enough: cron jobs run daily/hourly, not per-second.
+  # If you shorten it, Prometheus still only reflects DB rollups updated per scrape —
+  # use ?windowHours= on the URL for longer error-budget windows.
+  - job_name: ehs_cron_metrics
+    scrape_interval: 60s
+    # Example: weekly rollup aligns with PromQL alerts using 7d lookbacks when combined with scrape.
+    params:
+      windowHours: ["168"]
+    metrics_path: /api/cron/metrics
+    scheme: http
+    # Mounted from Kubernetes Secret — do not paste tokens into git-managed YAML.
+    bearer_token_file: /etc/prometheus/secrets/ehs-cron-bearer/token
+    static_configs:
+      - targets:
+          # Namespace matches deploy/k8s/kustomization.yaml default (ehs-prod).
+          - "ehs-web.ehs-prod.svc.cluster.local:3000"

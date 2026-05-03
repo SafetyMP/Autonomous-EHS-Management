@@ -10,7 +10,7 @@ npm run verify
 
 Defined as: **`eslint` → `tsc --noEmit` → `vitest run`**. Same as CI `verify` job (without Playwright).
 
-**Enterprise / technical diligence:** keep [docs/architecture-map.md](docs/architecture-map.md), [docs/workflow-depth.md](docs/workflow-depth.md), [docs/procurement-readiness.md](docs/procurement-readiness.md), and [docs/approval-workflow.md](docs/approval-workflow.md) aligned with real behavior when you change workflows, RBAC, retention, approvals, or integrations.
+**Enterprise / technical diligence:** keep [docs/architecture-map.md](docs/architecture-map.md), [docs/workflow-depth.md](docs/workflow-depth.md), [docs/procurement-readiness.md](docs/procurement-readiness.md), and [docs/approval-workflow.md](docs/approval-workflow.md) aligned with real behavior when you change workflows, RBAC, retention, approvals, or integrations. For **staging / business UAT**, use [docs/qa/staging-uat-desk-to-field.md](docs/qa/staging-uat-desk-to-field.md); for **transactional `writeAuditLog` completeness**, maintain [docs/qa/mutation-auditability-matrix.md](docs/qa/mutation-auditability-matrix.md) when adding regulated mutations. After large router or delegation refactors, run **`npm run audit:matrix-greps`** (`scripts/audit-matrix-greps.sh`; **ripgrep** preferred, `find`+`grep` fallback) and refresh the matrix prose if counts shift. **Cursor MCP vs ship path:** contributors using IDE tool connections should follow [docs/cursor-tool-connections-deployment.md](docs/cursor-tool-connections-deployment.md) so staging/prod stay GitHub-/Vercel-/EKS-authoritative—not MCP-authoritative.
 
 **Enterprise SSO (OIDC):** optional Better Auth Generic OAuth—see README “Enterprise SSO”; sign-in button is gated by `NEXT_PUBLIC_ENTERPRISE_SSO=1`. Smoke tests do not require IdP.
 
@@ -22,7 +22,7 @@ npm run verify:all
 
 ## Smoke E2E (must stay green on PR)
 
-These live in `tests/e2e/smoke/` and are the **minimum** UI checks in CI:
+These are selected with **`@smoke`** and run from the full `tests/e2e` tree in CI (`npm run test:e2e:smoke`):
 
 | Flow | Spec | Intent |
 |------|------|--------|
@@ -30,7 +30,14 @@ These live in `tests/e2e/smoke/` and are the **minimum** UI checks in CI:
 | Sign-in surface | `smoke/sign-in.spec.ts` | `/sign-in` loads and shows the form |
 | Dashboard gate | `smoke/dashboard-gate.spec.ts` | Unauthenticated `/dashboard` redirects to sign-in |
 | Signed-in dashboard | `smoke/signed-in-dashboard.spec.ts` | **In CI:** always runs (Postgres service + `db:seed:ci`). **Locally:** skipped unless `PLAYWRIGHT_E2E_EMAIL` / `PLAYWRIGHT_E2E_PASSWORD` are set and DB is migrated + seeded. |
-| Incident submit (optional) | `auth/incident-intake.spec.ts` | Same env as signed-in; expects `db:seed` org for the user |
+| Offline banner (signed-in) | `smoke/offline-dashboard-banner.spec.ts` | **In CI:** same creds gate as signed-in dashboard; asserts global offline banner appears when the browser reports offline after login. |
+| Cron metrics scrape | `smoke/cron-metrics.spec.ts` | 401 scrape always; Prometheus body asserted in **GitHub Actions** (or set `FORCE_CRON_METRICS_SMOKE=1` locally with migrated Postgres). DB failures return **503** `metrics_unavailable`. |
+| Context Sync REST anon gate | `smoke/contextsync-rest-auth.spec.ts` | **In CI:** `@smoke` rejects anonymous **`GET /api/contextsync/artifacts/list`** with **`401`** `sign_in_required`. |
+| Incident intake | `auth/incident-intake.spec.ts` | **In CI:** `@smoke` flow creates a minimal incident via `/dashboard/incidents/new` (same creds as signed-in smoke). |
+| Observation intake | `auth/observation-intake.spec.ts` | **In CI:** `@smoke` flow creates a minimal observation via `/dashboard/observations/new`. |
+| Inspection intake | `auth/inspection-intake.spec.ts` | **In CI:** `@smoke` flow creates a minimal inspection via `/dashboard/inspections/new`. |
+| Environmental regulatory permit | `auth/environmental-permit-intake.spec.ts` | **In CI:** `@smoke` flow creates a minimal permit via `/dashboard/environmental-permits/new`. |
+| Risk assessment (planning) | `auth/risk-assessment-intake.spec.ts` | **In CI:** `@smoke` flow records a minimal assessment on `/dashboard/planning` and from **`/dashboard/risk-assessments/new`** (roster). |
 
 Run locally:
 
@@ -44,13 +51,17 @@ Optional full E2E (includes skipped auth flow unless env is set):
 npx playwright test tests/e2e
 ```
 
-**Note:** Full authenticated CRUD (e.g. incident create) requires a seeded user and stable test credentials; use `db:seed` plus the optional auth spec env vars—do not weaken the auth gate smoke tests.
+**Note:** Incident intake smoke requires seeded org + Playwright credentials (CI uses `db:seed:ci`). Do not weaken the auth gate smoke tests.
 
 ## Product UAT (business / compliance)
 
 Smoke E2E proves **minimal technical health** (pages load, auth gate). It does **not** replace **business acceptance**: whether workflows hold up for field use, regulatory auditability, CAPA/escalation, and real-world friction.
 
 For that, invoke the project skill at [`.cursor/skills/ehs-program-director-uat/SKILL.md`](.cursor/skills/ehs-program-director-uat/SKILL.md) when reviewing UX/workflows for compliance, auditability, and field usability (User Acceptance Testing from an EHS Program Director perspective).
+
+For **QA strategy**—risk-based test plans, acceptance matrices, exploratory charters, defect triage, staging sign-off—use [`.cursor/skills/qa-engineer/SKILL.md`](.cursor/skills/qa-engineer/SKILL.md). For **authoring or extending automated tests** (Vitest integration/tRPC callers, Drizzle fakes, hostile-input coverage, Playwright complements), use [`.cursor/skills/senior-qa-automation/SKILL.md`](.cursor/skills/senior-qa-automation/SKILL.md). Repo-maintained area × automation matrix: [docs/qa/risk-based-coverage-matrix.md](docs/qa/risk-based-coverage-matrix.md) (see also staging checklist and [mutation auditability matrix](docs/qa/mutation-auditability-matrix.md) for regulated writes).
+
+For **innovation / modernization reviews** against current platform patterns (agentic boundaries, adaptive AI, optional edge or local SLM, data-plane efficiency)—with ROI and without replacing auditable workflow state machines—use [`.cursor/skills/2026-innovation-auditor/SKILL.md`](.cursor/skills/2026-innovation-auditor/SKILL.md).
 
 For **staff-level code review and behavior-preserving refactors** (DRY/SOLID, Big O and readability passes, smells-first output), use [`.cursor/skills/staff-engineer-code-review/SKILL.md`](.cursor/skills/staff-engineer-code-review/SKILL.md).
 
@@ -67,6 +78,8 @@ For **DevOps / SRE**—Docker/Kubernetes, Terraform or Vercel-aligned delivery, 
 For **Staff Release Engineer / GitOps**—repository rulesets, workflow design, OIDC-based promotion, semantic versioning, Dependabot/supply-chain and [`REPO_SETUP.md`](REPO_SETUP.md)—use [`.cursor/skills/staff-release-gitops-architect/SKILL.md`](.cursor/skills/staff-release-gitops-architect/SKILL.md).
 
 For **developer experience**—local/demo Postgres (`docker-compose.demo.yml`), Codespaces devcontainer, realistic `db:seed:demo` data, `DEMO_MODE` / read-only sandbox patterns, and README quick-start “storefront” updates without weakening production auth—use [`.cursor/skills/devex-engineer/SKILL.md`](.cursor/skills/devex-engineer/SKILL.md).
+
+For **competitive intelligence and AI market analysis**—repo-grounded positioning vs named competitors, feature gap vs EHS/EHSQ/IMS market, engineering-focused attack vectors (not generic GTM advice)—use [`.cursor/skills/competitive-intelligence-strategist/SKILL.md`](.cursor/skills/competitive-intelligence-strategist/SKILL.md).
 
 ## CI and containers
 

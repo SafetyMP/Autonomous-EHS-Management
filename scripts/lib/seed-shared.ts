@@ -66,7 +66,7 @@ export async function ensureRbacForUser(
     .limit(1);
 
   if (!org) {
-    [org] = await db.insert(organization).values({ name: orgName }).returning();
+    [org] = await db.insert(organization).values({ name: orgName, contextSyncEnabled: true }).returning();
   }
 
   let [mainSite] = await db

@@ -1,6 +1,9 @@
 # Pushes the production Dockerfile to GHCR on every push to main/master.
 # CI: [.github/workflows/ci.yml](ci.yml); promote: [.github/workflows/cd-promote-production.yml](cd-promote-production.yml).
 #
+# path filters include root build inputs so `npm run build` changes do not leave a stale `:latest`
+# GHCR tag when commits only touch tooling outside src/ (still cheap vs building on every commit).
+#
 # Image coordinates: ghcr.io/<lowercase owner>/<lowercase repo name>/ehs-web:<sha>
 #
 name: Container image
@@ -14,6 +17,10 @@ on:
       - "package.json"
       - "package-lock.json"
       - "next.config.ts"
+      - "tsconfig.json"
+      - "eslint.config.mjs"
+      - "postcss.config.mjs"
+      - "drizzle.config.ts"
       - "src/**"
       - "public/**"
       - ".github/workflows/docker-publish.yml"

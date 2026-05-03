@@ -3,11 +3,20 @@ import type { Db } from "@/server/db";
 import { externalPartyCredential } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
 
+export type ExpiredCredentialOrgBatch = {
+  organizationId: string;
+  count: number;
+  credentialIdsSample: string[];
+};
+
 /**
  * Marks credentials past `valid_to` as expired. Single batched `audit_log` row per run
  * (payload summarizes count + sample ids) to avoid one row per credential.
  */
-export async function markExpiredCredentials(db: Db): Promise<{ updated: number }> {
+export async function markExpiredCredentials(db: Db): Promise<{
+  updated: number;
+  affectedByOrg: ExpiredCredentialOrgBatch[];
+}> {
   const now = new Date();
 
   const stale = await db
@@ -26,7 +35,7 @@ export async function markExpiredCredentials(db: Db): Promise<{ updated: number 
     .limit(2000);
 
   if (stale.length === 0) {
-    return { updated: 0 };
+    return { updated: 0, affectedByOrg: [] };
   }
 
   const orgIds = [...new Set(stale.map((r) => r.organizationId))];
@@ -37,9 +46,13 @@ export async function markExpiredCredentials(db: Db): Promise<{ updated: number 
     .set({ updatedAt: now, status: "expired" })
     .where(inArray(externalPartyCredential.id, ids));
 
+  const affectedByOrg: ExpiredCredentialOrgBatch[] = [];
+
   for (const organizationId of orgIds) {
-    const orgCount = stale.filter((r) => r.organizationId === organizationId).length;
-    const sample = stale.filter((r) => r.organizationId === organizationId).slice(0, 5).map((r) => r.id);
+    const orgStale = stale.filter((r) => r.organizationId === organizationId);
+    const orgCount = orgStale.length;
+    const sample = orgStale.slice(0, 5).map((r) => r.id);
+    affectedByOrg.push({ organizationId, count: orgCount, credentialIdsSample: sample });
     await writeAuditLog(db, {
       organizationId,
       actorUserId: null,
@@ -50,5 +63,5 @@ export async function markExpiredCredentials(db: Db): Promise<{ updated: number 
     });
   }
 
-  return { updated: stale.length };
+  return { updated: stale.length, affectedByOrg };
 }

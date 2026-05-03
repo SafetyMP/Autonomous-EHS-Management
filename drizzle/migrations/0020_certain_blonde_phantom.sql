@@ -1,0 +1,2 @@
+ALTER TYPE "public"."approval_entity_type" ADD VALUE 'environmental_regulatory_permit';--> statement-breakpoint
+ALTER TYPE "public"."environmental_regulatory_permit_status" ADD VALUE 'pending_approval' BEFORE 'active';

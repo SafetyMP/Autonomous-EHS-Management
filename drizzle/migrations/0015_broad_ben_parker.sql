@@ -1,0 +1,4 @@
+ALTER TABLE "safety_observation" ADD COLUMN "assignee_user_id" text;--> statement-breakpoint
+ALTER TABLE "safety_observation" ADD COLUMN "follow_up_due_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "safety_observation" ADD CONSTRAINT "safety_observation_assignee_user_id_user_id_fk" FOREIGN KEY ("assignee_user_id") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "safety_observation_org_followup_due_partial_idx" ON "safety_observation" USING btree ("organization_id","follow_up_due_at") WHERE "safety_observation"."status" IN ('open', 'acknowledged') AND "safety_observation"."follow_up_due_at" IS NOT NULL;

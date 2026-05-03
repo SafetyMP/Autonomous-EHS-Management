@@ -9,6 +9,7 @@ import {
   correctiveAction,
   correctiveActionStatusEnum,
   environmentalAspect,
+  environmentalRegulatoryPermit,
   incident,
   managementReview,
   workflowTransition,
@@ -31,6 +32,7 @@ function countCapaSources(input: {
   environmentalAspectId?: string | undefined;
   complianceObligationId?: string | undefined;
   managementReviewId?: string | undefined;
+  environmentalRegulatoryPermitId?: string | undefined;
 }): number {
   let n = 0;
   if (input.incidentId) n++;
@@ -38,6 +40,7 @@ function countCapaSources(input: {
   if (input.environmentalAspectId) n++;
   if (input.complianceObligationId) n++;
   if (input.managementReviewId) n++;
+  if (input.environmentalRegulatoryPermitId) n++;
   return n;
 }
 
@@ -65,6 +68,7 @@ export const capaRouter = router({
         environmentalAspectId: z.string().uuid().optional(),
         complianceObligationId: z.string().uuid().optional(),
         managementReviewId: z.string().uuid().optional(),
+        environmentalRegulatoryPermitId: z.string().uuid().optional(),
         title: z.string().min(3).max(512),
         details: z.string().max(50_000).optional(),
         dueDate: z.coerce.date().optional(),
@@ -88,7 +92,7 @@ export const capaRouter = router({
         throw new TRPCError({
           code: "BAD_REQUEST",
           message:
-            "Link at most one source: incident, audit finding, environmental aspect, compliance obligation, or management review (or none for standalone CAPA).",
+            "Link at most one source: incident, audit finding, environmental aspect, compliance obligation, environmental regulatory permit, or management review (or none for standalone CAPA).",
         });
       }
 
@@ -204,6 +208,25 @@ export const capaRouter = router({
         }
       }
 
+      if (input.environmentalRegulatoryPermitId) {
+        const [p] = await ctx.db
+          .select()
+          .from(environmentalRegulatoryPermit)
+          .where(
+            and(
+              eq(environmentalRegulatoryPermit.id, input.environmentalRegulatoryPermitId),
+              eq(environmentalRegulatoryPermit.organizationId, input.organizationId),
+            ),
+          )
+          .limit(1);
+        if (!p) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Environmental regulatory permit not found in this organization.",
+          });
+        }
+      }
+
       if (input.initialStatus === "pending_approval") {
         const approvers = input.approverUserIdsForPlan?.length
           ? [...new Set(input.approverUserIdsForPlan)]
@@ -236,6 +259,7 @@ export const capaRouter = router({
             incidentId: input.incidentId ?? null,
             environmentalAspectId: input.environmentalAspectId ?? null,
             complianceObligationId: input.complianceObligationId ?? null,
+            environmentalRegulatoryPermitId: input.environmentalRegulatoryPermitId ?? null,
             managementReviewId: input.managementReviewId ?? null,
             title: input.title,
             details: input.details ?? null,
@@ -301,6 +325,7 @@ export const capaRouter = router({
             auditFindingId: input.auditFindingId ?? null,
             environmentalAspectId: input.environmentalAspectId ?? null,
             complianceObligationId: input.complianceObligationId ?? null,
+            environmentalRegulatoryPermitId: input.environmentalRegulatoryPermitId ?? null,
             managementReviewId: input.managementReviewId ?? null,
             standalone: sourceCount === 0,
           },

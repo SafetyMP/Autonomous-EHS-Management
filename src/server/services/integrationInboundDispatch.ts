@@ -1,0 +1,144 @@
+import { and, eq } from "drizzle-orm";
+import { z } from "zod";
+import type { Db } from "@/server/db";
+import { integrationEvent } from "@/server/db/schema";
+import type { HrisMembershipSyncInput } from "@/lib/integration/inboundEnvelope";
+import { applyHrisMembershipSync, hrisPayloadForIntegrationEvent } from "@/server/services/hrisMembershipSyncIngest";
+import { dispatchOperationalWebhooks } from "@/server/services/operationalWebhookDispatch";
+
+const storedHrisPayloadSchema = z.object({
+  workerEmail: z.string().email(),
+  siteId: z.string().uuid().nullable().optional(),
+});
+
+export async function processHrisMembershipSyncInbound(
+  db: Db,
+  input: HrisMembershipSyncInput,
+): Promise<{ id: string; processingStatus: string; error?: string }> {
+  const [inserted] = await db
+    .insert(integrationEvent)
+    .values({
+      organizationId: input.organizationId,
+      eventType: "hris_membership_sync",
+      payload: hrisPayloadForIntegrationEvent(input),
+      processingStatus: "pending",
+    })
+    .returning({ id: integrationEvent.id });
+
+  if (!inserted) {
+    throw new Error("Failed to insert integration event.");
+  }
+
+  try {
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      await applyHrisMembershipSync(tx, input, inserted.id, null);
+      await tx
+        .update(integrationEvent)
+        .set({
+          processingStatus: "applied",
+          appliedAt: now,
+          processingError: null,
+        })
+        .where(eq(integrationEvent.id, inserted.id));
+    });
+    return { id: inserted.id, processingStatus: "applied" };
+  } catch (e) {
+    const msg = (e instanceof Error ? e.message : String(e)).slice(0, 2000);
+    await db
+      .update(integrationEvent)
+      .set({
+        processingStatus: "failed",
+        processingError: msg,
+      })
+      .where(eq(integrationEvent.id, inserted.id));
+
+    dispatchOperationalWebhooks({
+      db,
+      organizationId: input.organizationId,
+      eventType: "integration.processing_failed",
+      data: {
+        integrationEventId: inserted.id,
+        sourceEventType: "hris_membership_sync",
+        processingErrorPreview: msg.slice(0, 400),
+      },
+    }).catch(() => undefined);
+
+    return { id: inserted.id, processingStatus: "failed", error: msg };
+  }
+}
+
+export async function reprocessFailedIntegrationEvent(
+  db: Db,
+  args: { organizationId: string; eventId: string; actorUserId: string },
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const [ev] = await db
+    .select()
+    .from(integrationEvent)
+    .where(
+      and(
+        eq(integrationEvent.id, args.eventId),
+        eq(integrationEvent.organizationId, args.organizationId),
+      ),
+    )
+    .limit(1);
+
+  if (!ev) {
+    return { ok: false, message: "Event not found." };
+  }
+  if (ev.processingStatus !== "failed") {
+    return { ok: false, message: "Only failed events can be reprocessed." };
+  }
+
+  if (ev.eventType === "hris_membership_sync") {
+    const parsed = storedHrisPayloadSchema.safeParse(ev.payload);
+    if (!parsed.success) {
+      return { ok: false, message: "Invalid stored HRIS payload." };
+    }
+    const input: HrisMembershipSyncInput = {
+      organizationId: ev.organizationId,
+      workerEmail: parsed.data.workerEmail,
+      siteId: parsed.data.siteId ?? null,
+    };
+    try {
+      const now = new Date();
+      await db.transaction(async (tx) => {
+        await applyHrisMembershipSync(tx, input, ev.id, args.actorUserId);
+        await tx
+          .update(integrationEvent)
+          .set({
+            processingStatus: "applied",
+            appliedAt: now,
+            processingError: null,
+          })
+          .where(eq(integrationEvent.id, ev.id));
+      });
+      return { ok: true };
+    } catch (e) {
+      const msg = (e instanceof Error ? e.message : String(e)).slice(0, 2000);
+      await db
+        .update(integrationEvent)
+        .set({
+          processingStatus: "failed",
+          processingError: msg,
+        })
+        .where(eq(integrationEvent.id, ev.id));
+      return { ok: false, message: msg };
+    }
+  }
+
+  if (ev.eventType === "training_completion") {
+    const now = new Date();
+    await db
+      .update(integrationEvent)
+      .set({
+        processingStatus: "applied",
+        appliedAt: now,
+        processingError: null,
+      })
+      .where(eq(integrationEvent.id, ev.id));
+    return { ok: true };
+  }
+
+  return { ok: false, message: `Unsupported eventType: ${ev.eventType}` };
+}

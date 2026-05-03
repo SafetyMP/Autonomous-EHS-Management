@@ -115,6 +115,11 @@ export const authAccountRelations = relations(authAccount, ({ one }) => ({
 export const organization = pgTable("organization", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 256 }).notNull(),
+  /**
+   * Tenant master switch for REST `/api/contextsync/*` + `contextSyncProtocol` tRPC.
+   * Existing orgs are backfilled true in migration; new rows default false at DB level.
+   */
+  contextSyncEnabled: boolean("context_sync_enabled").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
     .notNull()
     .defaultNow(),
@@ -213,25 +218,84 @@ export const membershipRelations = relations(membership, ({ one }) => ({
 }));
 
 /* ——— Audit trail ——— */
-export const auditLog = pgTable("audit_log", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  organizationId: uuid("organization_id").references(() => organization.id, {
-    onDelete: "set null",
-  }),
-  actorUserId: text("actor_user_id").references(() => authUser.id, {
-    onDelete: "set null",
-  }),
-  action: varchar("action", { length: 128 }).notNull(),
-  entityType: varchar("entity_type", { length: 128 }).notNull(),
-  entityId: varchar("entity_id", { length: 256 }).notNull(),
-  payload: jsonb("payload").$type<Record<string, unknown>>(),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
-    .notNull()
-    .defaultNow(),
-});
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id").references(() => organization.id, {
+      onDelete: "set null",
+    }),
+    actorUserId: text("actor_user_id").references(() => authUser.id, {
+      onDelete: "set null",
+    }),
+    action: varchar("action", { length: 128 }).notNull(),
+    entityType: varchar("entity_type", { length: 128 }).notNull(),
+    entityId: varchar("entity_id", { length: 256 }).notNull(),
+    payload: jsonb("payload").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("audit_log_organization_created_idx").on(t.organizationId, t.createdAt),
+    index("audit_log_organization_entity_type_idx").on(t.organizationId, t.entityType),
+  ],
+);
+
+/**
+ * Platform cron executions for observability (Prometheus scrape, SLO tracking).
+ * Not org-scoped — jobs are deployment-wide.
+ */
+export const cronJobRun = pgTable(
+  "cron_job_run",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    jobKey: varchar("job_key", { length: 64 }).notNull(),
+    startedAt: timestamp("started_at", { withTimezone: true, mode: "date" }).notNull(),
+    finishedAt: timestamp("finished_at", { withTimezone: true, mode: "date" }).notNull(),
+    ok: boolean("ok").notNull(),
+    durationMs: integer("duration_ms").notNull(),
+    errorMessage: text("error_message"),
+  },
+  (t) => [index("cron_job_run_job_started_idx").on(t.jobKey, t.startedAt)],
+);
+
+/**
+ * Client-supplied keys (e.g. offline outbox `localId`) for exactly-once mutations per actor.
+ * Stored JSON replays may contain date fields as ISO strings.
+ */
+export const mutationIdempotency = pgTable(
+  "mutation_idempotency",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    actorUserId: text("actor_user_id")
+      .notNull()
+      .references(() => authUser.id, { onDelete: "cascade" }),
+    clientKey: varchar("client_key", { length: 128 }).notNull(),
+    procedure: varchar("procedure", { length: 128 }).notNull(),
+    responseJson: jsonb("response_json").notNull().$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("mutation_idempotency_org_actor_client_uq").on(
+      t.organizationId,
+      t.actorUserId,
+      t.clientKey,
+    ),
+    index("mutation_idempotency_org_created_idx").on(t.organizationId, t.createdAt),
+  ],
+);
 
 /* ——— ISO 14001 §4 context of the organization ——— */
 export const contextIssueKindEnum = pgEnum("context_issue_kind", ["internal", "external"]);
+
+/** ContextSync provenance operations (subset of protocol semantics). */
+export const contextSyncProvOpEnum = pgEnum("context_sync_prov_operation", ["read", "write"]);
 
 export const managementSystemScope = pgTable("management_system_scope", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -459,6 +523,10 @@ export const dataRetentionRecordClassEnum = pgEnum("data_retention_record_class"
   "osha_record",
   "gdpr_personal_data",
   "controlled_document",
+  "safety_observation_program",
+  "work_permit_program",
+  "environmental_regulatory_permit_program",
+  "risk_assessment_program",
 ]);
 
 /** How `minimum_years` maps to `retain_until` for incidents (per jurisdiction row). */
@@ -507,7 +575,42 @@ export const incident = pgTable(
     pseudonymId: varchar("pseudonym_id", { length: 64 }),
     /** Structured 5-Whys steps (ISO investigation support); max length enforced in API. */
     rcaFiveWhys: jsonb("rca_five_whys").$type<{ why: string; answer: string }[]>(),
+    /** Ishikawa (fishbone) branches: six canonical categories, causes per bone (API-normalized). */
+    rcaFishbone: jsonb("rca_fishbone").$type<
+      { categoryId: string; causes: string[] }[]
+    >(),
     contributingFactors: jsonb("contributing_factors").$type<string[]>(),
+    /** Bow-tie barrier model: top event, threats with preventive barriers, consequences with mitigative barriers. */
+    investigationBowTie: jsonb("investigation_bow_tie").$type<{
+      topEvent: string;
+      threats: {
+        description: string;
+        preventiveBarriers: { description: string; outcome: string }[];
+      }[];
+      consequences: {
+        description: string;
+        mitigativeBarriers: { description: string; outcome: string }[];
+      }[];
+      notes: string | null;
+    } | null>(),
+    /** Ordered event sequence for investigation traceability. */
+    investigationChronology: jsonb("investigation_chronology").$type<
+      | {
+          sortOrder: number;
+          occurredAt: Date | null;
+          description: string;
+        }[]
+      | null
+    >(),
+    /** Generic causal-factor rows (defenses/barriers failed, etc.). */
+    investigationCausalFactors: jsonb("investigation_causal_factors").$type<
+      | {
+          summary: string;
+          category: string | null;
+          barriersFailed: string[];
+        }[]
+      | null
+    >(),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .notNull()
       .defaultNow(),
@@ -616,6 +719,34 @@ export const establishmentYearMetrics = pgTable(
       .defaultNow(),
   },
   (t) => [unique("establishment_year_metrics_uniq").on(t.establishmentId, t.calendarYear)],
+);
+
+/** Monthly hours roll-up for incidence-rate denominators (payroll-style entry). */
+export const establishmentMonthMetrics = pgTable(
+  "establishment_month_metrics",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    establishmentId: uuid("establishment_id")
+      .notNull()
+      .references(() => establishment.id, { onDelete: "cascade" }),
+    calendarYear: integer("calendar_year").notNull(),
+    calendarMonth: integer("calendar_month").notNull(),
+    hoursWorked: integer("hours_worked"),
+    avgEmployees: integer("avg_employees"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("establishment_month_metrics_uniq").on(
+      t.establishmentId,
+      t.calendarYear,
+      t.calendarMonth,
+    ),
+  ],
 );
 
 /**
@@ -843,6 +974,10 @@ export const correctiveAction = pgTable("corrective_action", {
   incidentId: uuid("incident_id").references(() => incident.id, { onDelete: "set null" }),
   environmentalAspectId: uuid("environmental_aspect_id"),
   complianceObligationId: uuid("compliance_obligation_id"),
+  environmentalRegulatoryPermitId: uuid("environmental_regulatory_permit_id").references(
+    () => environmentalRegulatoryPermit.id,
+    { onDelete: "set null" },
+  ),
   managementReviewId: uuid("management_review_id"),
   title: varchar("title", { length: 512 }).notNull(),
   details: text("details"),
@@ -934,11 +1069,19 @@ export const establishmentRelations = relations(establishment, ({ one, many }) =
     references: [site.id],
   }),
   yearMetrics: many(establishmentYearMetrics),
+  monthMetrics: many(establishmentMonthMetrics),
 }));
 
 export const establishmentYearMetricsRelations = relations(establishmentYearMetrics, ({ one }) => ({
   establishment: one(establishment, {
     fields: [establishmentYearMetrics.establishmentId],
+    references: [establishment.id],
+  }),
+}));
+
+export const establishmentMonthMetricsRelations = relations(establishmentMonthMetrics, ({ one }) => ({
+  establishment: one(establishment, {
+    fields: [establishmentMonthMetrics.establishmentId],
     references: [establishment.id],
   }),
 }));
@@ -1198,6 +1341,76 @@ export const obligationAspectLink = pgTable(
   (t) => [primaryKey({ columns: [t.obligationId, t.aspectId] })],
 );
 
+export const environmentalRegulatoryPermitMediaEnum = pgEnum(
+  "environmental_regulatory_permit_media",
+  ["air", "water", "waste", "general"],
+);
+
+export const environmentalRegulatoryPermitStatusEnum = pgEnum(
+  "environmental_regulatory_permit_status",
+  ["draft", "pending_approval", "active", "suspended", "expired", "closed"],
+);
+
+/** Air / water / waste (etc.) **regulatory** permit register — program record; not claimed as agency filing. */
+export const environmentalRegulatoryPermit = pgTable(
+  "environmental_regulatory_permit",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    siteId: uuid("site_id").references(() => site.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 512 }).notNull(),
+    permitIdentifier: varchar("permit_identifier", { length: 256 }).notNull(),
+    agency: varchar("agency", { length: 256 }),
+    jurisdiction: varchar("jurisdiction", { length: 256 }),
+    media: environmentalRegulatoryPermitMediaEnum("media").notNull().default("general"),
+    status: environmentalRegulatoryPermitStatusEnum("status").notNull().default("draft"),
+    issuedAt: timestamp("issued_at", { withTimezone: true, mode: "date" }),
+    effectiveFrom: timestamp("effective_from", { withTimezone: true, mode: "date" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }),
+    legalCitations: text("legal_citations"),
+    /** Structured limits / parameters — validate at API layer (Zod). */
+    limits: jsonb("limits").$type<Record<string, unknown>>(),
+    complianceObligationId: uuid("compliance_obligation_id").references(
+      () => complianceObligation.id,
+      { onDelete: "set null" },
+    ),
+    ownerUserId: text("owner_user_id").references(() => authUser.id, { onDelete: "set null" }),
+    /** When past, processed by retention cron (`environmental_regulatory_permit_program` policies). */
+    retainUntil: timestamp("retain_until", { withTimezone: true, mode: "date" }),
+    legalHold: boolean("legal_hold").notNull().default(false),
+    anonymizedAt: timestamp("anonymized_at", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("env_reg_permit_org_status_idx").on(t.organizationId, t.status),
+    index("env_reg_permit_org_expires_idx").on(t.organizationId, t.expiresAt),
+  ],
+);
+
+export const environmentalRegulatoryPermitCondition = pgTable(
+  "environmental_regulatory_permit_condition",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    permitId: uuid("permit_id")
+      .notNull()
+      .references(() => environmentalRegulatoryPermit.id, { onDelete: "cascade" }),
+    sortOrder: integer("sort_order").notNull().default(0),
+    conditionText: text("condition_text").notNull(),
+    referenceCode: varchar("reference_code", { length: 256 }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("env_reg_permit_condition_permit_idx").on(t.permitId)],
+);
+
 export const environmentalMonitoringResult = pgTable("environmental_monitoring_result", {
   id: uuid("id").defaultRandom().primaryKey(),
   organizationId: uuid("organization_id")
@@ -1210,6 +1423,10 @@ export const environmentalMonitoringResult = pgTable("environmental_monitoring_r
   ),
   complianceObligationId: uuid("compliance_obligation_id").references(
     () => complianceObligation.id,
+    { onDelete: "set null" },
+  ),
+  environmentalRegulatoryPermitId: uuid("environmental_regulatory_permit_id").references(
+    () => environmentalRegulatoryPermit.id,
     { onDelete: "set null" },
   ),
   parameterName: varchar("parameter_name", { length: 256 }).notNull(),
@@ -1305,6 +1522,45 @@ export const environmentalMonitoringResultRelations = relations(
     complianceObligation: one(complianceObligation, {
       fields: [environmentalMonitoringResult.complianceObligationId],
       references: [complianceObligation.id],
+    }),
+    regulatoryPermit: one(environmentalRegulatoryPermit, {
+      fields: [environmentalMonitoringResult.environmentalRegulatoryPermitId],
+      references: [environmentalRegulatoryPermit.id],
+    }),
+  }),
+);
+
+export const environmentalRegulatoryPermitRelations = relations(
+  environmentalRegulatoryPermit,
+  ({ one, many }) => ({
+    organization: one(organization, {
+      fields: [environmentalRegulatoryPermit.organizationId],
+      references: [organization.id],
+    }),
+    site: one(site, {
+      fields: [environmentalRegulatoryPermit.siteId],
+      references: [site.id],
+    }),
+    complianceObligation: one(complianceObligation, {
+      fields: [environmentalRegulatoryPermit.complianceObligationId],
+      references: [complianceObligation.id],
+    }),
+    owner: one(authUser, {
+      fields: [environmentalRegulatoryPermit.ownerUserId],
+      references: [authUser.id],
+    }),
+    conditions: many(environmentalRegulatoryPermitCondition),
+    monitoringResults: many(environmentalMonitoringResult),
+    correctiveActions: many(correctiveAction),
+  }),
+);
+
+export const environmentalRegulatoryPermitConditionRelations = relations(
+  environmentalRegulatoryPermitCondition,
+  ({ one }) => ({
+    permit: one(environmentalRegulatoryPermit, {
+      fields: [environmentalRegulatoryPermitCondition.permitId],
+      references: [environmentalRegulatoryPermit.id],
     }),
   }),
 );
@@ -1473,12 +1729,31 @@ export const riskRatingEnum = pgEnum("risk_rating", [
   "very_high",
 ]);
 
+export const riskAssessmentKindEnum = pgEnum("risk_assessment_kind", [
+  "general",
+  "task_based",
+  "site_based",
+]);
+
+export const riskAssessmentStatusEnum = pgEnum("risk_assessment_status", [
+  "draft",
+  "active",
+  "under_review",
+  "archived",
+]);
+
 export const riskAssessment = pgTable("risk_assessment", {
   id: uuid("id").defaultRandom().primaryKey(),
   organizationId: uuid("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
+  siteId: uuid("site_id").references(() => site.id, { onDelete: "set null" }),
   hazardId: uuid("hazard_id").references(() => hazard.id, { onDelete: "set null" }),
+  /** Roster label (optional; legacy rows may use hazard title only). */
+  summaryTitle: varchar("summary_title", { length: 512 }),
+  assessmentKind: riskAssessmentKindEnum("assessment_kind").notNull().default("general"),
+  status: riskAssessmentStatusEnum("status").notNull().default("active"),
+  reviewDueAt: timestamp("review_due_at", { withTimezone: true, mode: "date" }),
   context: text("context").notNull(),
   existingControls: text("existing_controls"),
   inherentRating: riskRatingEnum("inherent_rating"),
@@ -1491,10 +1766,40 @@ export const riskAssessment = pgTable("risk_assessment", {
   assessedAt: timestamp("assessed_at", { withTimezone: true, mode: "date" })
     .notNull()
     .defaultNow(),
+  retainUntil: timestamp("retain_until", { withTimezone: true, mode: "date" }),
+  legalHold: boolean("legal_hold").notNull().default(false),
+  anonymizedAt: timestamp("anonymized_at", { withTimezone: true, mode: "date" }),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
     .notNull()
     .defaultNow(),
-});
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+    .notNull()
+    .defaultNow(),
+},
+(t) => [
+  index("risk_assessment_org_kind_status_idx").on(t.organizationId, t.assessmentKind, t.status),
+  index("risk_assessment_org_site_idx").on(t.organizationId, t.siteId),
+]);
+
+export const riskAssessmentStep = pgTable(
+  "risk_assessment_step",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    riskAssessmentId: uuid("risk_assessment_id")
+      .notNull()
+      .references(() => riskAssessment.id, { onDelete: "cascade" }),
+    sortOrder: integer("sort_order").notNull().default(0),
+    taskDescription: text("task_description").notNull(),
+    hazardText: text("hazard_text").notNull(),
+    controlsText: text("controls_text"),
+    inherentRating: riskRatingEnum("inherent_rating"),
+    residualRating: riskRatingEnum("residual_rating"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("risk_assessment_step_parent_idx").on(t.riskAssessmentId)],
+);
 
 export const objectiveTypeEnum = pgEnum("objective_type", [
   "oh_safety",
@@ -1619,10 +1924,14 @@ export const hazardRelations = relations(hazard, ({ one, many }) => ({
   operationalControls: many(operationalControl),
 }));
 
-export const riskAssessmentRelations = relations(riskAssessment, ({ one }) => ({
+export const riskAssessmentRelations = relations(riskAssessment, ({ one, many }) => ({
   organization: one(organization, {
     fields: [riskAssessment.organizationId],
     references: [organization.id],
+  }),
+  site: one(site, {
+    fields: [riskAssessment.siteId],
+    references: [site.id],
   }),
   hazard: one(hazard, {
     fields: [riskAssessment.hazardId],
@@ -1631,6 +1940,14 @@ export const riskAssessmentRelations = relations(riskAssessment, ({ one }) => ({
   assessedBy: one(authUser, {
     fields: [riskAssessment.assessedByUserId],
     references: [authUser.id],
+  }),
+  steps: many(riskAssessmentStep),
+}));
+
+export const riskAssessmentStepRelations = relations(riskAssessmentStep, ({ one }) => ({
+  assessment: one(riskAssessment, {
+    fields: [riskAssessmentStep.riskAssessmentId],
+    references: [riskAssessment.id],
   }),
 }));
 
@@ -1899,6 +2216,179 @@ export const inspectionRelations = relations(inspection, ({ one }) => ({
   }),
   lead: one(authUser, {
     fields: [inspection.leadUserId],
+    references: [authUser.id],
+  }),
+}));
+
+/** Permit to work — controlled hazardous work authorization (supports ISO operational control linkage). */
+export const workPermitStatusEnum = pgEnum("work_permit_status", [
+  "draft",
+  "pending_approval",
+  "active",
+  "rejected",
+  "completed",
+  "cancelled",
+  "expired",
+]);
+
+export const workPermitTypeEnum = pgEnum("work_permit_type", [
+  "hot_work",
+  "confined_space",
+  "work_at_height",
+  "other",
+]);
+
+export const workPermit = pgTable(
+  "work_permit",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    siteId: uuid("site_id").references(() => site.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 512 }).notNull(),
+    permitType: workPermitTypeEnum("permit_type").notNull().default("other"),
+    status: workPermitStatusEnum("status").notNull().default("draft"),
+    requesterUserId: text("requester_user_id")
+      .notNull()
+      .references(() => authUser.id, { onDelete: "restrict" }),
+    validFrom: timestamp("valid_from", { withTimezone: true, mode: "date" }).notNull(),
+    validTo: timestamp("valid_to", { withTimezone: true, mode: "date" }).notNull(),
+    workSummary: text("work_summary").notNull(),
+    hazardsControls: text("hazards_controls"),
+    approvedByUserId: text("approved_by_user_id").references(() => authUser.id, {
+      onDelete: "set null",
+    }),
+    approvedAt: timestamp("approved_at", { withTimezone: true, mode: "date" }),
+    completedAt: timestamp("completed_at", { withTimezone: true, mode: "date" }),
+    cancelReason: text("cancel_reason"),
+    /** When past, processed by retention cron (`data_retention_policy` for record class work_permit_program). */
+    retainUntil: timestamp("retain_until", { withTimezone: true, mode: "date" }),
+    legalHold: boolean("legal_hold").notNull().default(false),
+    anonymizedAt: timestamp("anonymized_at", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("work_permit_org_status_idx").on(t.organizationId, t.status),
+    index("work_permit_org_valid_to_idx").on(t.organizationId, t.validTo),
+  ],
+);
+
+export const workPermitRelations = relations(workPermit, ({ one }) => ({
+  organization: one(organization, {
+    fields: [workPermit.organizationId],
+    references: [organization.id],
+  }),
+  site: one(site, {
+    fields: [workPermit.siteId],
+    references: [site.id],
+  }),
+  requester: one(authUser, {
+    fields: [workPermit.requesterUserId],
+    references: [authUser.id],
+  }),
+  approvedBy: one(authUser, {
+    fields: [workPermit.approvedByUserId],
+    references: [authUser.id],
+  }),
+}));
+
+/** Field safety observations — leading indicators / BBS-style capture; not a substitute for regulatory incident logs. */
+export const safetyObservationStatusEnum = pgEnum("safety_observation_status", [
+  "open",
+  "acknowledged",
+  "closed",
+]);
+
+export const safetyObservationCategoryEnum = pgEnum("safety_observation_category", [
+  "positive_behavior",
+  "at_risk_behavior",
+  "unsafe_condition",
+  "other",
+]);
+
+export const safetyObservationSeverityEnum = pgEnum("safety_observation_severity", [
+  "low",
+  "medium",
+  "high",
+  "critical",
+]);
+
+export const safetyObservation = pgTable(
+  "safety_observation",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    siteId: uuid("site_id").references(() => site.id, { onDelete: "set null" }),
+    observedAt: timestamp("observed_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    category: safetyObservationCategoryEnum("category").notNull().default("other"),
+    severity: safetyObservationSeverityEnum("severity").notNull().default("medium"),
+    summary: varchar("summary", { length: 512 }).notNull(),
+    details: text("details"),
+    status: safetyObservationStatusEnum("status").notNull().default("open"),
+    reporterUserId: text("reporter_user_id")
+      .notNull()
+      .references(() => authUser.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    linkedCorrectiveActionId: uuid("linked_corrective_action_id").references(
+      () => correctiveAction.id,
+      { onDelete: "set null" },
+    ),
+    /** Nullable: field follow-up owner (org member). */
+    assigneeUserId: text("assignee_user_id").references(() => authUser.id, {
+      onDelete: "set null",
+    }),
+    /** When set, overdue follow-up records `escalation_event` (entityType `safety_observation`) via cron. */
+    followUpDueAt: timestamp("follow_up_due_at", { withTimezone: true, mode: "date" }),
+    /** When past, processed by retention cron (`data_retention_policy` for record class safety_observation_program). */
+    retainUntil: timestamp("retain_until", { withTimezone: true, mode: "date" }),
+    legalHold: boolean("legal_hold").notNull().default(false),
+    anonymizedAt: timestamp("anonymized_at", { withTimezone: true, mode: "date" }),
+  },
+  (t) => [
+    index("safety_observation_org_status_idx").on(t.organizationId, t.status),
+    index("safety_observation_org_observed_idx").on(t.organizationId, t.observedAt),
+    index("safety_observation_org_followup_due_partial_idx")
+      .on(t.organizationId, t.followUpDueAt)
+      .where(
+        sql`${t.status} IN ('open', 'acknowledged') AND ${t.followUpDueAt} IS NOT NULL`,
+      ),
+  ],
+);
+
+export const safetyObservationRelations = relations(safetyObservation, ({ one }) => ({
+  organization: one(organization, {
+    fields: [safetyObservation.organizationId],
+    references: [organization.id],
+  }),
+  site: one(site, {
+    fields: [safetyObservation.siteId],
+    references: [site.id],
+  }),
+  reporter: one(authUser, {
+    fields: [safetyObservation.reporterUserId],
+    references: [authUser.id],
+  }),
+  linkedCorrectiveAction: one(correctiveAction, {
+    fields: [safetyObservation.linkedCorrectiveActionId],
+    references: [correctiveAction.id],
+  }),
+  assignee: one(authUser, {
+    fields: [safetyObservation.assigneeUserId],
     references: [authUser.id],
   }),
 }));
@@ -2202,6 +2692,10 @@ export const correctiveActionRelations = relations(
       fields: [correctiveAction.managementReviewId],
       references: [managementReview.id],
     }),
+    environmentalRegulatoryPermit: one(environmentalRegulatoryPermit, {
+      fields: [correctiveAction.environmentalRegulatoryPermitId],
+      references: [environmentalRegulatoryPermit.id],
+    }),
   }),
 );
 
@@ -2328,7 +2822,12 @@ export const workflowTransition = pgTable("workflow_transition", {
 });
 
 /** Generic approval gate for regulated workflow (CAPA-first; extend entity types over time). */
-export const approvalEntityTypeEnum = pgEnum("approval_entity_type", ["capa", "incident"]);
+export const approvalEntityTypeEnum = pgEnum("approval_entity_type", [
+  "capa",
+  "incident",
+  "work_permit",
+  "environmental_regulatory_permit",
+]);
 
 export const approvalRequestStatusEnum = pgEnum("approval_request_status", [
   "open",
@@ -2421,10 +2920,121 @@ export const integrationEvent = pgTable("integration_event", {
   eventType: varchar("event_type", { length: 128 }).notNull(),
   payload: jsonb("payload").$type<Record<string, unknown>>().notNull(),
   deliveredAt: timestamp("delivered_at", { withTimezone: true, mode: "date" }),
+  /** pending → applied | failed; supports DLQ replay without losing raw payload. */
+  processingStatus: varchar("processing_status", { length: 24 })
+    .notNull()
+    .default("pending"),
+  processingError: text("processing_error"),
+  appliedAt: timestamp("applied_at", { withTimezone: true, mode: "date" }),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
     .notNull()
     .defaultNow(),
 });
+
+/**
+ * Idempotent webhook delivery per org + connector key (`idempotencyKey` on inbound JSON body).
+ * Caches outbound JSON bodies for HTTP replays until manual deletion (retention handled separately).
+ */
+export const integrationInboundIdempotency = pgTable(
+  "integration_inbound_idempotency",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    inboundKey: varchar("inbound_key", { length: 512 }).notNull(),
+    httpStatus: integer("http_status").notNull(),
+    responseJson: jsonb("response_json").notNull().$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [unique("integration_inbound_idempotency_org_key_uq").on(t.organizationId, t.inboundKey)],
+);
+
+/**
+ * Tenant-configured HTTPS webhooks for operational signals (cron / inbound integration outcomes).
+ * Mutations restricted to org admins; payloads are documented in docs/operational-webhooks.md.
+ */
+export const operationalWebhookEndpoint = pgTable(
+  "operational_webhook_endpoint",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    /** HTTPS POST receiver (Teams/Slack/generic). */
+    targetUrl: varchar("target_url", { length: 2048 }).notNull(),
+    /** Optional shared secret — HMAC-SHA256 over raw JSON body (`X-EHS-Signature`). */
+    secret: varchar("secret", { length: 256 }),
+    /** Subscribed canonical event ids, e.g. `observation.follow_up_escalated`. */
+    subscribedEvents: jsonb("subscribed_events").$type<string[]>().notNull().$defaultFn(() => []),
+    enabled: boolean("enabled").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("operational_webhook_endpoint_org_idx").on(t.organizationId),
+  ],
+);
+
+/**
+ * Tenant field-mapping hints for LMS/HRIS inbound envelopes (`POST /api/integration/inbound`).
+ * Does not mutate inbound routing — referenced by operators and outbound warehouse exports.
+ */
+export const integrationConnectorMapping = pgTable(
+  "integration_connector_mapping",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    connectorKey: varchar("connector_key", { length: 64 }).notNull(),
+    mappingJson: jsonb("mapping_json").notNull().$type<Record<string, unknown>>(),
+    schemaVersion: integer("schema_version").notNull().default(1),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("integration_connector_mapping_org_connector_uq").on(
+      t.organizationId,
+      t.connectorKey,
+    ),
+    index("integration_connector_mapping_org_idx").on(t.organizationId),
+  ],
+);
+
+/** Persisted OSHA-style incidence rate calculations for audit defensibility. */
+export const complianceMetricSnapshot = pgTable(
+  "compliance_metric_snapshot",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    establishmentId: uuid("establishment_id").references(() => establishment.id, {
+      onDelete: "set null",
+    }),
+    metricKey: varchar("metric_key", { length: 64 }).notNull(),
+    calendarYear: integer("calendar_year").notNull(),
+    formulaVersion: integer("formula_version").notNull(),
+    inputsHash: varchar("inputs_hash", { length: 64 }).notNull(),
+    inputsJson: jsonb("inputs_json").notNull().$type<Record<string, unknown>>(),
+    resultJson: jsonb("result_json").notNull().$type<Record<string, unknown>>(),
+    computedByUserId: text("computed_by_user_id").references(() => authUser.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("compliance_metric_snapshot_org_year_idx").on(
+      t.organizationId,
+      t.calendarYear,
+      t.metricKey,
+    ),
+  ],
+);
 
 export const slaPolicy = pgTable("sla_policy", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -2496,12 +3106,225 @@ export const escalationEventRelations = relations(escalationEvent, ({ one }) => 
   }),
 }));
 
+export const operationalWebhookEndpointRelations = relations(operationalWebhookEndpoint, ({ one }) => ({
+  organization: one(organization, {
+    fields: [operationalWebhookEndpoint.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const integrationConnectorMappingRelations = relations(integrationConnectorMapping, ({ one }) => ({
+  organization: one(organization, {
+    fields: [integrationConnectorMapping.organizationId],
+    references: [organization.id],
+  }),
+}));
+
 export const organizationSetupStepRelations = relations(organizationSetupStep, ({ one }) => ({
   organization: one(organization, {
     fields: [organizationSetupStep.organizationId],
     references: [organization.id],
   }),
 }));
+
+/* ——— ContextSync protocol (subset: artifacts, versions, grants, provenance; SSE deferred) ——— */
+export const contextSyncArtifact = pgTable(
+  "context_sync_artifact",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    /** Full ContextSync URI, e.g. ctx://{org_uuid}/{domain}/{artifact_path} */
+    uri: varchar("uri", { length: 2048 }).notNull().unique(),
+    domainSegment: varchar("domain_segment", { length: 128 }).notNull(),
+    artifactPath: varchar("artifact_path", { length: 1024 }).notNull(),
+    name: varchar("name", { length: 512 }).notNull(),
+    contentType: varchar("content_type", { length: 256 }).notNull().default("text/plain"),
+    headVersion: integer("head_version").notNull().default(1),
+    deletedAt: timestamp("deleted_at", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    orgDomainIdx: index("context_sync_artifact_org_domain_idx").on(
+      t.organizationId,
+      t.domainSegment,
+    ),
+  }),
+);
+
+export const contextSyncArtifactVersion = pgTable(
+  "context_sync_artifact_version",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    artifactId: uuid("artifact_id")
+      .notNull()
+      .references(() => contextSyncArtifact.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    content: text("content").notNull(),
+    contentSha256: varchar("content_sha256", { length: 64 }).notNull(),
+    summary: varchar("summary", { length: 1024 }),
+    /** Declared actor id (e.g. human:{userId}) at write time */
+    authorActorId: varchar("author_actor_id", { length: 256 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    artifactVersionUnique: unique("context_sync_artifact_version_artifact_ver_uq").on(
+      t.artifactId,
+      t.version,
+    ),
+    artifactVersionIdx: index("context_sync_artifact_version_artifact_idx").on(t.artifactId),
+  }),
+);
+
+export const contextSyncProvenance = pgTable(
+  "context_sync_provenance",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    actorId: varchar("actor_id", { length: 256 }).notNull(),
+    operation: contextSyncProvOpEnum("operation").notNull(),
+    artifactUri: varchar("artifact_uri", { length: 2048 }).notNull(),
+    versionTouched: integer("version_touched").notNull(),
+    downstreamUri: varchar("downstream_uri", { length: 2048 }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    provOrgCreatedIdx: index("context_sync_provenance_org_created_idx").on(
+      t.organizationId,
+      t.createdAt,
+    ),
+    provArtifactIdx: index("context_sync_provenance_artifact_idx").on(t.artifactUri),
+  }),
+);
+
+export const contextSyncGrant = pgTable(
+  "context_sync_grant",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    actorId: varchar("actor_id", { length: 256 }),
+    agentClass: varchar("agent_class", { length: 128 }),
+    artifactPattern: varchar("artifact_pattern", { length: 2048 }).notNull(),
+    operations: jsonb("operations").$type<string[]>().notNull(),
+    createdByUserId: text("created_by_user_id").references(() => authUser.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    grantOrgIdx: index("context_sync_grant_org_idx").on(t.organizationId),
+  }),
+);
+
+export const contextSyncActor = pgTable(
+  "context_sync_actor",
+  {
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    actorId: varchar("actor_id", { length: 256 }).notNull(),
+    actorType: varchar("actor_type", { length: 16 }).notNull(),
+    name: varchar("name", { length: 512 }).notNull(),
+    agentClass: varchar("agent_class", { length: 128 }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.organizationId, t.actorId] }),
+  }),
+);
+
+/** Binds Better Auth human users who may legally assert X-Agent-Class for scoped protocol grants */
+export const contextSyncAgentClassClaim = pgTable(
+  "context_sync_agent_class_claim",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => authUser.id, { onDelete: "cascade" }),
+    agentClass: varchar("agent_class", { length: 128 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    orgUserClassUq: unique("context_sync_agent_class_claim_org_user_class_uq").on(
+      t.organizationId,
+      t.userId,
+      t.agentClass,
+    ),
+    claimOrgIdx: index("context_sync_agent_class_claim_org_idx").on(t.organizationId),
+  }),
+);
+
+export const contextSyncArtifactRelations = relations(contextSyncArtifact, ({ one, many }) => ({
+  organization: one(organization, {
+    fields: [contextSyncArtifact.organizationId],
+    references: [organization.id],
+  }),
+  versions: many(contextSyncArtifactVersion),
+}));
+
+export const contextSyncArtifactVersionRelations = relations(
+  contextSyncArtifactVersion,
+  ({ one }) => ({
+    artifact: one(contextSyncArtifact, {
+      fields: [contextSyncArtifactVersion.artifactId],
+      references: [contextSyncArtifact.id],
+    }),
+  }),
+);
+
+export const contextSyncProvenanceRelations = relations(contextSyncProvenance, ({ one }) => ({
+  organization: one(organization, {
+    fields: [contextSyncProvenance.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const contextSyncGrantRelations = relations(contextSyncGrant, ({ one }) => ({
+  organization: one(organization, {
+    fields: [contextSyncGrant.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const contextSyncActorRelations = relations(contextSyncActor, ({ one }) => ({
+  organization: one(organization, {
+    fields: [contextSyncActor.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const contextSyncAgentClassClaimRelations = relations(
+  contextSyncAgentClassClaim,
+  ({ one }) => ({
+    organization: one(organization, {
+      fields: [contextSyncAgentClassClaim.organizationId],
+      references: [organization.id],
+    }),
+  }),
+);
 
 /* ——— RAG / document intelligence (chunked corpus, optional embeddings) ——— */
 export const ragSource = pgTable("rag_source", {

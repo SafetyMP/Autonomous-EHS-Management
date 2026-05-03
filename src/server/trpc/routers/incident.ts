@@ -13,8 +13,24 @@ import {
   workflowTransition,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { runWithMutationIdempotency } from "@/server/services/mutationIdempotency";
 import { computeDefaultRetainUntilForNewIncident } from "@/server/services/incidentRetentionDefault";
-import { allowedIncidentTransition } from "@/lib/workflow/incidentTransitions";
+import {
+  allowedIncidentAdminReopen,
+  allowedIncidentTransition,
+} from "@/lib/workflow/incidentTransitions";
+import {
+  normalizeRcaFishboneForStore,
+  rcaFishboneInputSchema,
+} from "@/lib/rcaFishbone";
+import {
+  finalizeInvestigationBowTieForStore,
+  finalizeInvestigationCausalFactorsForStore,
+  finalizeInvestigationChronologyForStore,
+  investigationBowTieUpdateSchema,
+  investigationCausalFactorsUpdateSchema,
+  investigationChronologyUpdateSchema,
+} from "@/lib/investigation/structuredInvestigation";
 import {
   assertAspectInOrg,
   assertExternalPartyInOrg,
@@ -119,8 +135,17 @@ export const incidentRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Incident not found." });
       }
 
+      const canAdminReopenIncident =
+        row.status === "closed" &&
+        (await userHasPermission(
+          ctx.db,
+          ctx.user.id,
+          input.organizationId,
+          PERMISSIONS.ORG_ADMIN,
+        ));
+
       if (readSensitive) {
-        return row;
+        return { ...row, canAdminReopenIncident };
       }
 
       return {
@@ -141,6 +166,7 @@ export const incidentRouter = router({
         retainUntil: row.retainUntil,
         anonymizedAt: row.anonymizedAt,
         pseudonymId: row.pseudonymId,
+        canAdminReopenIncident,
       };
     }),
 
@@ -267,6 +293,8 @@ export const incidentRouter = router({
         linkedEnvironmentalAspectId: z.string().uuid().optional(),
         /** Override org default from `data_retention_policy` (`incident_general`). */
         retainUntil: z.coerce.date().optional(),
+        /** Offline outbox replay / retries: stable UUID per queued mutation. */
+        idempotencyKey: z.string().uuid().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -300,50 +328,65 @@ export const incidentRouter = router({
           referenceDate,
         ));
 
-      return ctx.db.transaction(async (tx) => {
-        const [created] = await tx
-          .insert(incident)
-          .values({
+      const { idempotencyKey, ...incidentInput } = input;
+
+      return ctx.db.transaction(async (tx) =>
+        runWithMutationIdempotency(
+          tx,
+          {
             organizationId: input.organizationId,
-            siteId: input.siteId ?? null,
-            title: input.title,
-            description: input.description,
-            incidentType: (input.incidentType ??
-              "other") as (typeof incidentTypeEnum.enumValues)[number],
-            severity: input.severity as (typeof incidentSeverityEnum.enumValues)[number],
-            status: "open" as (typeof incidentStatusEnum.enumValues)[number],
-            reportedByUserId: ctx.user.id,
-            investigationOwnerUserId: input.investigationOwnerUserId ?? null,
-            occurredAt: input.occurredAt ?? null,
-            externalPartyId: input.externalPartyId ?? null,
-            immediateActions: input.immediateActions ?? null,
-            regulatoryNotificationRequired: input.regulatoryNotificationRequired ?? false,
-            investigationNotes: input.investigationNotes ?? null,
-            rootCauseSummary: input.rootCauseSummary ?? null,
-            linkedHazardId: input.linkedHazardId ?? null,
-            linkedEnvironmentalAspectId: input.linkedEnvironmentalAspectId ?? null,
-            retainUntil: retainUntilDefault,
-          })
-          .returning();
+            actorUserId: ctx.user.id,
+            idempotencyKey,
+            procedure: "incident.create",
+          },
+          async () => {
+            const [created] = await tx
+              .insert(incident)
+              .values({
+                organizationId: incidentInput.organizationId,
+                siteId: incidentInput.siteId ?? null,
+                title: incidentInput.title,
+                description: incidentInput.description,
+                incidentType: (incidentInput.incidentType ??
+                  "other") as (typeof incidentTypeEnum.enumValues)[number],
+                severity: incidentInput.severity as (typeof incidentSeverityEnum.enumValues)[number],
+                status: "open" as (typeof incidentStatusEnum.enumValues)[number],
+                reportedByUserId: ctx.user.id,
+                investigationOwnerUserId: incidentInput.investigationOwnerUserId ?? null,
+                occurredAt: incidentInput.occurredAt ?? null,
+                externalPartyId: incidentInput.externalPartyId ?? null,
+                immediateActions: incidentInput.immediateActions ?? null,
+                regulatoryNotificationRequired:
+                  incidentInput.regulatoryNotificationRequired ?? false,
+                investigationNotes: incidentInput.investigationNotes ?? null,
+                rootCauseSummary: incidentInput.rootCauseSummary ?? null,
+                linkedHazardId: incidentInput.linkedHazardId ?? null,
+                linkedEnvironmentalAspectId:
+                  incidentInput.linkedEnvironmentalAspectId ?? null,
+                retainUntil: retainUntilDefault,
+              })
+              .returning();
 
-        if (!created) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create incident.",
-          });
-        }
+            if (!created) {
+              throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to create incident.",
+              });
+            }
 
-        await writeAuditLog(tx, {
-          organizationId: input.organizationId,
-          actorUserId: ctx.user.id,
-          action: "incident.create",
-          entityType: "incident",
-          entityId: created.id,
-          payload: { title: input.title, severity: input.severity },
-        });
+            await writeAuditLog(tx, {
+              organizationId: incidentInput.organizationId,
+              actorUserId: ctx.user.id,
+              action: "incident.create",
+              entityType: "incident",
+              entityId: created.id,
+              payload: { title: incidentInput.title, severity: incidentInput.severity },
+            });
 
-        return created;
-      });
+            return created;
+          },
+        ),
+      );
     }),
 
   updateStatus: protectedMutation
@@ -352,6 +395,7 @@ export const incidentRouter = router({
         incidentId: z.string().uuid(),
         status: z.enum(incidentStatuses),
         closureJustification: z.string().min(20).max(4000).optional(),
+        reopenJustification: z.string().min(20).max(4000).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -377,16 +421,33 @@ export const incidentRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Incident not found." });
       }
 
-      if (
-        !allowedIncidentTransition(
-          existing.status,
-          input.status as (typeof incidentStatusEnum.enumValues)[number],
-        )
-      ) {
+      const nextStatus = input.status as (typeof incidentStatusEnum.enumValues)[number];
+      const standardOk = allowedIncidentTransition(existing.status, nextStatus);
+      const isOrgAdmin = await userHasPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.ORG_ADMIN,
+      );
+      const adminReopenOk =
+        isOrgAdmin && allowedIncidentAdminReopen(existing.status, nextStatus);
+
+      if (!standardOk && !adminReopenOk) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: `Invalid status transition: ${existing.status} → ${input.status}`,
         });
+      }
+
+      if (adminReopenOk) {
+        const rj = (input.reopenJustification ?? "").trim();
+        if (rj.length < 20) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "Reopening a closed incident requires a reopen justification (at least 20 characters). Org administrators only.",
+          });
+        }
       }
 
       if (input.status === "closed") {
@@ -439,6 +500,9 @@ export const incidentRouter = router({
             ...(input.status === "closed" && input.closureJustification
               ? { closureJustification: input.closureJustification }
               : {}),
+            ...(adminReopenOk && input.reopenJustification
+              ? { reopenJustification: input.reopenJustification.trim(), adminReopen: true }
+              : {}),
           },
         });
 
@@ -467,7 +531,11 @@ export const incidentRouter = router({
         legalHold: z.boolean().optional(),
         retainUntil: z.coerce.date().optional().nullable(),
         rcaFiveWhys: z.array(rcaFiveWhyStepSchema).max(5).optional(),
+        rcaFishbone: rcaFishboneInputSchema.optional(),
         contributingFactors: z.array(z.string().max(500)).max(24).optional(),
+        investigationBowTie: investigationBowTieUpdateSchema,
+        investigationChronology: investigationChronologyUpdateSchema,
+        investigationCausalFactors: investigationCausalFactorsUpdateSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -557,10 +625,26 @@ export const incidentRouter = router({
               input.retainUntil !== undefined ? input.retainUntil : existing.retainUntil,
             rcaFiveWhys:
               input.rcaFiveWhys !== undefined ? input.rcaFiveWhys : existing.rcaFiveWhys,
+            rcaFishbone:
+              input.rcaFishbone !== undefined
+                ? normalizeRcaFishboneForStore(input.rcaFishbone)
+                : existing.rcaFishbone,
             contributingFactors:
               input.contributingFactors !== undefined
                 ? input.contributingFactors
                 : existing.contributingFactors,
+            investigationBowTie:
+              input.investigationBowTie !== undefined
+                ? finalizeInvestigationBowTieForStore(input.investigationBowTie)
+                : existing.investigationBowTie,
+            investigationChronology:
+              input.investigationChronology !== undefined
+                ? finalizeInvestigationChronologyForStore(input.investigationChronology)
+                : existing.investigationChronology,
+            investigationCausalFactors:
+              input.investigationCausalFactors !== undefined
+                ? finalizeInvestigationCausalFactorsForStore(input.investigationCausalFactors)
+                : existing.investigationCausalFactors,
             updatedAt: new Date(),
           })
           .where(eq(incident.id, input.incidentId))

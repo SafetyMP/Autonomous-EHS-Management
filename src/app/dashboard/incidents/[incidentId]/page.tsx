@@ -22,6 +22,18 @@ import {
   dfSecondaryOutline,
   dfSectionHeading,
 } from "@/lib/dashboard-field-styles";
+import {
+  RCA_FISHBONE_CATEGORY_IDS,
+  RCA_FISHBONE_LABELS,
+  type RcaFishboneBranch,
+  type RcaFishboneCategoryId,
+} from "@/lib/rcaFishbone";
+import {
+  bowTieBarrierOutcomeEnum,
+  causalFactorCategoryEnum,
+  type BowTieBarrierOutcome,
+  type InvestigationBowTieInput,
+} from "@/lib/investigation/structuredInvestigation";
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type CapaRow = RouterOutputs["capa"]["list"][number];
@@ -50,6 +62,34 @@ function parseRcaFiveWhys(incident: IncidentGet): { why: string; answer: string 
   });
 }
 
+function parseRcaFishbone(incident: IncidentGet): RcaFishboneBranch[] {
+  const raw = (incident as { rcaFishbone?: unknown }).rcaFishbone;
+  const map = new Map<RcaFishboneCategoryId, string[]>();
+  for (const id of RCA_FISHBONE_CATEGORY_IDS) {
+    map.set(id, []);
+  }
+  if (Array.isArray(raw)) {
+    for (const item of raw) {
+      if (item && typeof item === "object" && "categoryId" in item && "causes" in item) {
+        const id = String((item as { categoryId: unknown }).categoryId);
+        if (!RCA_FISHBONE_CATEGORY_IDS.includes(id as RcaFishboneCategoryId)) continue;
+        const causes = (item as { causes: unknown }).causes;
+        if (!Array.isArray(causes)) continue;
+        const list = causes
+          .filter((c): c is string => typeof c === "string")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .slice(0, 12);
+        map.set(id as RcaFishboneCategoryId, list);
+      }
+    }
+  }
+  return RCA_FISHBONE_CATEGORY_IDS.map((categoryId) => ({
+    categoryId,
+    causes: map.get(categoryId) ?? [],
+  }));
+}
+
 function parseContributingFactors(incident: IncidentGet): string[] {
   const raw = (incident as { contributingFactors?: unknown }).contributingFactors;
   if (!Array.isArray(raw)) return [];
@@ -57,6 +97,162 @@ function parseContributingFactors(incident: IncidentGet): string[] {
     .filter((x): x is string => typeof x === "string")
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+function isBowTieBarrierOutcome(x: string): x is BowTieBarrierOutcome {
+  return (bowTieBarrierOutcomeEnum as readonly string[]).includes(x);
+}
+
+function toDatetimeLocalValue(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function parseInvestigationBowTie(incident: IncidentGet): InvestigationBowTieInput {
+  const raw = (incident as { investigationBowTie?: unknown }).investigationBowTie;
+  if (!raw || typeof raw !== "object") {
+    return { topEvent: "", threats: [], consequences: [], notes: null };
+  }
+  const o = raw as Record<string, unknown>;
+  const topEvent = typeof o.topEvent === "string" ? o.topEvent : "";
+  const notes =
+    o.notes == null
+      ? null
+      : typeof o.notes === "string"
+        ? o.notes
+        : null;
+  const threats: InvestigationBowTieInput["threats"] = [];
+  if (Array.isArray(o.threats)) {
+    for (const t of o.threats) {
+      if (!t || typeof t !== "object") continue;
+      const desc = typeof (t as { description?: unknown }).description === "string" ? (t as { description: string }).description : "";
+      const pb = (t as { preventiveBarriers?: unknown }).preventiveBarriers;
+      const preventiveBarriers: { description: string; outcome: BowTieBarrierOutcome }[] = [];
+      if (Array.isArray(pb)) {
+        for (const b of pb) {
+          if (!b || typeof b !== "object") continue;
+          const bd =
+            typeof (b as { description?: unknown }).description === "string"
+              ? (b as { description: string }).description
+              : "";
+          const oc = String((b as { outcome?: unknown }).outcome ?? "unknown");
+          const outcome = isBowTieBarrierOutcome(oc) ? oc : "unknown";
+          preventiveBarriers.push({ description: bd, outcome });
+        }
+      }
+      threats.push({ description: desc, preventiveBarriers });
+    }
+  }
+  const consequences: InvestigationBowTieInput["consequences"] = [];
+  if (Array.isArray(o.consequences)) {
+    for (const c of o.consequences) {
+      if (!c || typeof c !== "object") continue;
+      const desc = typeof (c as { description?: unknown }).description === "string" ? (c as { description: string }).description : "";
+      const mb = (c as { mitigativeBarriers?: unknown }).mitigativeBarriers;
+      const mitigativeBarriers: { description: string; outcome: BowTieBarrierOutcome }[] = [];
+      if (Array.isArray(mb)) {
+        for (const b of mb) {
+          if (!b || typeof b !== "object") continue;
+          const bd =
+            typeof (b as { description?: unknown }).description === "string"
+              ? (b as { description: string }).description
+              : "";
+          const oc = String((b as { outcome?: unknown }).outcome ?? "unknown");
+          const outcome = isBowTieBarrierOutcome(oc) ? oc : "unknown";
+          mitigativeBarriers.push({ description: bd, outcome });
+        }
+      }
+      consequences.push({ description: desc, mitigativeBarriers });
+    }
+  }
+  return { topEvent, threats, consequences, notes };
+}
+
+type ChronologyFormRow = { occurredAtInput: string; description: string };
+
+function parseInvestigationChronology(incident: IncidentGet): ChronologyFormRow[] {
+  const raw = (incident as { investigationChronology?: unknown }).investigationChronology;
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return [{ occurredAtInput: "", description: "" }];
+  }
+  return raw.map((item) => {
+    let occurredAtInput = "";
+    if (item && typeof item === "object" && "occurredAt" in item) {
+      const d = (item as { occurredAt: unknown }).occurredAt;
+      if (d instanceof Date && !Number.isNaN(d.getTime())) {
+        occurredAtInput = toDatetimeLocalValue(d);
+      } else if (typeof d === "string" && d) {
+        const parsed = new Date(d);
+        if (!Number.isNaN(parsed.getTime())) occurredAtInput = toDatetimeLocalValue(parsed);
+      }
+    }
+    const description =
+      item && typeof item === "object" && typeof (item as { description?: unknown }).description === "string"
+        ? (item as { description: string }).description
+        : "";
+    return { occurredAtInput, description };
+  });
+}
+
+type CausalFactorFormRow = {
+  summary: string;
+  category: string;
+  barriersFailed: string[];
+};
+
+function parseInvestigationCausalFactors(incident: IncidentGet): CausalFactorFormRow[] {
+  const raw = (incident as { investigationCausalFactors?: unknown }).investigationCausalFactors;
+  if (!Array.isArray(raw) || raw.length === 0) return [];
+  return raw.map((item) => {
+    if (!item || typeof item !== "object") {
+      return { summary: "", category: "", barriersFailed: [] };
+    }
+    const summary = typeof (item as { summary?: unknown }).summary === "string" ? (item as { summary: string }).summary : "";
+    const cat = (item as { category?: unknown }).category;
+    const category = typeof cat === "string" ? cat : "";
+    const bf = (item as { barriersFailed?: unknown }).barriersFailed;
+    const barriersFailed = Array.isArray(bf)
+      ? bf.filter((x): x is string => typeof x === "string").map((s) => s.trim()).filter(Boolean)
+      : [];
+    return { summary, category, barriersFailed };
+  });
+}
+
+const BARRIER_OUTCOME_LABELS: Record<BowTieBarrierOutcome, string> = {
+  effective: "Effective / in place",
+  failed_degraded: "Failed or degraded",
+  unknown: "Unknown",
+};
+
+function CausalBarrierFailedAddRow({
+  rowIndex,
+  onAdd,
+}: {
+  rowIndex: number;
+  onAdd: (label: string) => void;
+}) {
+  const [draft, setDraft] = useState("");
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      <input
+        aria-label={`New barrier failed label for causal factor ${rowIndex + 1}`}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        className={`${dfControlFlexible} min-w-[12rem] flex-1`}
+        placeholder="Add barrier label"
+      />
+      <button
+        type="button"
+        className={dfSecondaryOutline}
+        onClick={() => {
+          onAdd(draft);
+          setDraft("");
+        }}
+      >
+        Add
+      </button>
+    </div>
+  );
 }
 
 function IncidentWorkspaceSection({
@@ -125,6 +321,43 @@ function IncidentWorkspaceSection({
             </ul>
           )}
         </li>
+      </ul>
+    </div>
+  );
+}
+
+function IncidentRelatedCapasSection({
+  organizationId,
+  incidentId,
+}: {
+  organizationId: string;
+  incidentId: string;
+}) {
+  const { data: capas } = trpc.capa.list.useQuery(
+    { organizationId },
+    { enabled: !!organizationId },
+  );
+
+  const related = useMemo(
+    () => capas?.filter((c) => c.incidentId === incidentId) ?? [],
+    [capas, incidentId],
+  );
+
+  if (related.length === 0) return null;
+
+  return (
+    <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-6 shadow-sm">
+      <h2 className={dfSectionHeading}>Related corrective actions</h2>
+      <p className="mt-1 text-base text-zinc-600">CAPAs opened from this incident.</p>
+      <ul className="mt-3 space-y-2 text-base">
+        {related.map((c) => (
+          <li key={c.id}>
+            <Link href={`/dashboard/capa#capa-row-${c.id}`} className={dfInlineNavLink}>
+              {c.title}
+            </Link>
+            <span className={`ml-2 text-sm capitalize text-zinc-600`}>{c.status.replaceAll("_", " ")}</span>
+          </li>
+        ))}
       </ul>
     </div>
   );
@@ -290,9 +523,18 @@ function IncidentInvestigationForm({
     !!incident.regulatoryNotificationRequired,
   );
   const [rcaRows, setRcaRows] = useState(parseRcaFiveWhys(incident));
+  const [fishbone, setFishbone] = useState(parseRcaFishbone(incident));
+  const [bowTie, setBowTie] = useState(parseInvestigationBowTie(incident));
+  const [chronology, setChronology] = useState(parseInvestigationChronology(incident));
+  const [causalFactors, setCausalFactors] = useState(parseInvestigationCausalFactors(incident));
   const [factorDraft, setFactorDraft] = useState("");
   const [contributingFactors, setContributingFactors] = useState(
     parseContributingFactors(incident),
+  );
+  const [occurredAtLocal, setOccurredAtLocal] = useState(() =>
+    incident.occurredAt && !Number.isNaN(new Date(incident.occurredAt).getTime())
+      ? toDatetimeLocalValue(new Date(incident.occurredAt))
+      : "",
   );
 
   const updateIncident = trpc.incident.update.useMutation({
@@ -315,18 +557,40 @@ function IncidentInvestigationForm({
       .map((w) => ({ why: w.why.trim(), answer: w.answer.trim() }))
       .filter((w) => w.why.length > 0 || w.answer.length > 0)
       .slice(0, 5);
+    const fishbonePayload = fishbone.map((b) => ({
+      categoryId: b.categoryId,
+      causes: b.causes.map((c) => c.trim()).filter(Boolean).slice(0, 12),
+    }));
+    const chronologyPayload = chronology.map((c, i) => ({
+      sortOrder: i,
+      occurredAt: c.occurredAtInput.trim() ? new Date(c.occurredAtInput) : null,
+      description: c.description,
+    }));
+    const causalPayload = causalFactors.map((r) => ({
+      summary: r.summary,
+      category:
+        r.category && (causalFactorCategoryEnum as readonly string[]).includes(r.category)
+          ? (r.category as (typeof causalFactorCategoryEnum)[number])
+          : null,
+      barriersFailed: r.barriersFailed,
+    }));
     updateIncident.mutate({
       organizationId,
       incidentId,
       title,
       description,
+      occurredAt: occurredAtLocal.trim() ? new Date(occurredAtLocal) : null,
       investigationNotes: investigationNotes || null,
       rootCauseSummary: rootCauseSummary || null,
       immediateActions: immediateActions || null,
       regulatoryNotificationRequired,
       rcaFiveWhys: whysPayload,
+      rcaFishbone: fishbonePayload,
       contributingFactors:
         contributingFactors.length > 0 ? contributingFactors : [],
+      investigationBowTie: bowTie,
+      investigationChronology: chronologyPayload,
+      investigationCausalFactors: causalPayload,
     });
   }
 
@@ -336,6 +600,22 @@ function IncidentInvestigationForm({
       className="space-y-4 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm"
     >
       <h2 className={dfSectionHeading}>Record details</h2>
+      <div>
+        <label htmlFor="det-occurred" className={dfLabel}>
+          When it occurred (optional)
+        </label>
+        <input
+          id="det-occurred"
+          type="datetime-local"
+          value={occurredAtLocal}
+          onChange={(e) => setOccurredAtLocal(e.target.value)}
+          className={dfControlMt}
+        />
+        <p className={`mt-1 ${dfHelperXs}`}>
+          Leave blank if unknown; you can refine later. This is separate from investigation timeline
+          steps below.
+        </p>
+      </div>
       <div>
         <label htmlFor="det-title" className={dfLabel}>
           Title
@@ -433,6 +713,630 @@ function IncidentInvestigationForm({
           </button>
         ) : null}
       </div>
+      <div className="space-y-3 rounded-md border border-zinc-100 bg-zinc-50/80 p-4">
+        <h3 className={dfPanelHeading}>Fishbone (Ishikawa) — optional</h3>
+        <p className={dfHelperXs}>
+          Group possible causes under standard categories. Complements 5 Whys; it does not replace the
+          written root cause summary above.
+        </p>
+        <div className="space-y-4">
+          {fishbone.map((bone, boneIdx) => {
+            const label = RCA_FISHBONE_LABELS[bone.categoryId];
+            return (
+              <fieldset
+                key={bone.categoryId}
+                className="space-y-2 rounded border border-zinc-200 bg-white p-3"
+              >
+                <legend className={`text-sm font-semibold text-zinc-900`}>{label}</legend>
+                <p className={`${dfHelperXs} text-zinc-600`}>Causes for this branch (max 12).</p>
+                {bone.causes.map((cause, cIdx) => (
+                  <div key={cIdx} className="flex flex-wrap items-center gap-2">
+                    <label className="sr-only" htmlFor={`fb-${bone.categoryId}-${cIdx}`}>
+                      {label} cause {cIdx + 1}
+                    </label>
+                    <input
+                      id={`fb-${bone.categoryId}-${cIdx}`}
+                      value={cause}
+                      onChange={(e) => {
+                        const next = fishbone.map((b, bi) =>
+                          bi !== boneIdx
+                            ? b
+                            : {
+                                ...b,
+                                causes: b.causes.map((c, ci) => (ci === cIdx ? e.target.value : c)),
+                              },
+                        );
+                        setFishbone(next);
+                      }}
+                      className={`${dfControlFlexible} min-w-[12rem] flex-1`}
+                      placeholder="Describe a cause…"
+                    />
+                    <button
+                      type="button"
+                      className={dfSecondaryOutline}
+                      onClick={() => {
+                        setFishbone(
+                          fishbone.map((b, bi) =>
+                            bi !== boneIdx
+                              ? b
+                              : { ...b, causes: b.causes.filter((_, ci) => ci !== cIdx) },
+                          ),
+                        );
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                {bone.causes.length < 12 ? (
+                  <button
+                    type="button"
+                    className="min-h-11 touch-target rounded-md text-base font-semibold text-emerald-900 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                    onClick={() => {
+                      setFishbone(
+                        fishbone.map((b, bi) =>
+                          bi !== boneIdx ? b : { ...b, causes: [...b.causes, ""] },
+                        ),
+                      );
+                    }}
+                  >
+                    Add cause in {label}
+                  </button>
+                ) : null}
+              </fieldset>
+            );
+          })}
+        </div>
+      </div>
+      <div className="space-y-4 rounded-md border border-zinc-200 bg-white p-4 shadow-sm">
+        <h3 className={dfPanelHeading}>Structured investigation</h3>
+        <p className={dfHelperXs}>
+          Bow-tie, event sequence, and causal factors support barrier thinking and traceability. They
+          do not replace legal review or any specific commercial investigation methodology.
+        </p>
+
+        <div className="space-y-3 rounded-md border border-zinc-100 bg-zinc-50/80 p-4">
+          <h4 className={`text-sm font-semibold text-zinc-900`}>Bow-tie (barriers)</h4>
+          <div>
+            <label htmlFor="bt-top" className={dfLabel}>
+              Top event
+            </label>
+            <textarea
+              id="bt-top"
+              rows={2}
+              value={bowTie.topEvent}
+              onChange={(e) => setBowTie({ ...bowTie, topEvent: e.target.value })}
+              className={dfControlMt}
+              placeholder="Central unwanted event (loss of containment, contact with energy, etc.)"
+            />
+          </div>
+          <div>
+            <label htmlFor="bt-notes" className={dfLabel}>
+              Bow-tie notes (optional)
+            </label>
+            <textarea
+              id="bt-notes"
+              rows={2}
+              value={bowTie.notes ?? ""}
+              onChange={(e) =>
+                setBowTie({
+                  ...bowTie,
+                  notes: e.target.value.trim() === "" ? null : e.target.value,
+                })
+              }
+              className={dfControlMt}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <p className={`text-sm font-medium text-zinc-800`}>Threats / preventive side</p>
+            {bowTie.threats.map((threat, tIdx) => (
+              <fieldset
+                key={`threat-${tIdx}`}
+                className="space-y-2 rounded border border-zinc-200 bg-white p-3"
+              >
+                <legend className="sr-only">Threat scenario {tIdx + 1}</legend>
+                <p className={`${dfHelperXs} font-medium text-zinc-800`}>Threat {tIdx + 1}</p>
+                <textarea
+                  aria-label={`Threat ${tIdx + 1} description`}
+                  rows={2}
+                  value={threat.description}
+                  onChange={(e) => {
+                    const threats = bowTie.threats.map((t, i) =>
+                      i === tIdx ? { ...t, description: e.target.value } : t,
+                    );
+                    setBowTie({ ...bowTie, threats });
+                  }}
+                  className={dfControl}
+                  placeholder="Threat or pathway toward the top event…"
+                />
+                <p className={dfHelperXs}>Preventive barriers</p>
+                {threat.preventiveBarriers.map((bar, bIdx) => (
+                  <div key={bIdx} className="flex flex-wrap items-end gap-2">
+                    <div className={`min-w-[12rem] flex-1`}>
+                      <label className="sr-only" htmlFor={`bt-th-${tIdx}-bar-${bIdx}-desc`}>
+                        Preventive barrier {bIdx + 1} description
+                      </label>
+                      <input
+                        id={`bt-th-${tIdx}-bar-${bIdx}-desc`}
+                        value={bar.description}
+                        onChange={(e) => {
+                          const threats = bowTie.threats.map((th, ti) => {
+                            if (ti !== tIdx) return th;
+                            return {
+                              ...th,
+                              preventiveBarriers: th.preventiveBarriers.map((pb, pi) =>
+                                pi === bIdx ? { ...pb, description: e.target.value } : pb,
+                              ),
+                            };
+                          });
+                          setBowTie({ ...bowTie, threats });
+                        }}
+                        className={dfControl}
+                        placeholder="Barrier…"
+                      />
+                    </div>
+                    <div>
+                      <label className="sr-only" htmlFor={`bt-th-${tIdx}-bar-${bIdx}-out`}>
+                        Outcome
+                      </label>
+                      <select
+                        id={`bt-th-${tIdx}-bar-${bIdx}-out`}
+                        value={bar.outcome}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (!isBowTieBarrierOutcome(v)) return;
+                          const threats = bowTie.threats.map((th, ti) => {
+                            if (ti !== tIdx) return th;
+                            return {
+                              ...th,
+                              preventiveBarriers: th.preventiveBarriers.map((pb, pi) =>
+                                pi === bIdx ? { ...pb, outcome: v } : pb,
+                              ),
+                            };
+                          });
+                          setBowTie({ ...bowTie, threats });
+                        }}
+                        className={`${dfControl} min-w-[10rem]`}
+                      >
+                        {bowTieBarrierOutcomeEnum.map((o) => (
+                          <option key={o} value={o}>
+                            {BARRIER_OUTCOME_LABELS[o]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button
+                      type="button"
+                      className={dfSecondaryOutline}
+                      onClick={() => {
+                        const threats = bowTie.threats.map((th, ti) =>
+                          ti !== tIdx
+                            ? th
+                            : {
+                                ...th,
+                                preventiveBarriers: th.preventiveBarriers.filter((_, bi) => bi !== bIdx),
+                              },
+                        );
+                        setBowTie({ ...bowTie, threats });
+                      }}
+                    >
+                      Remove barrier
+                    </button>
+                  </div>
+                ))}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className={dfSecondaryOutline}
+                    onClick={() => {
+                      const threats = bowTie.threats.map((th, ti) =>
+                        ti !== tIdx
+                          ? th
+                          : {
+                              ...th,
+                              preventiveBarriers: [
+                                ...th.preventiveBarriers,
+                                { description: "", outcome: "unknown" as const },
+                              ],
+                            },
+                      );
+                      setBowTie({ ...bowTie, threats });
+                    }}
+                  >
+                    Add preventive barrier
+                  </button>
+                  <button
+                    type="button"
+                    className={dfSecondaryOutline}
+                    onClick={() =>
+                      setBowTie({
+                        ...bowTie,
+                        threats: bowTie.threats.filter((_, i) => i !== tIdx),
+                      })
+                    }
+                  >
+                    Remove threat
+                  </button>
+                </div>
+              </fieldset>
+            ))}
+            <button
+              type="button"
+              className="min-h-11 touch-target rounded-md text-base font-semibold text-emerald-900 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+              onClick={() =>
+                setBowTie({
+                  ...bowTie,
+                  threats: [
+                    ...bowTie.threats,
+                    { description: "", preventiveBarriers: [] },
+                  ],
+                })
+              }
+            >
+              Add threat scenario
+            </button>
+          </div>
+
+          <div className="space-y-3 border-t border-zinc-200 pt-3">
+            <p className={`text-sm font-medium text-zinc-800`}>Consequences / mitigative side</p>
+            {bowTie.consequences.map((cons, cIdx) => (
+              <fieldset
+                key={`cons-${cIdx}`}
+                className="space-y-2 rounded border border-zinc-200 bg-white p-3"
+              >
+                <legend className="sr-only">Consequence {cIdx + 1}</legend>
+                <p className={`${dfHelperXs} font-medium text-zinc-800`}>Consequence {cIdx + 1}</p>
+                <textarea
+                  aria-label={`Consequence ${cIdx + 1} description`}
+                  rows={2}
+                  value={cons.description}
+                  onChange={(e) => {
+                    const consequences = bowTie.consequences.map((co, i) =>
+                      i === cIdx ? { ...co, description: e.target.value } : co,
+                    );
+                    setBowTie({ ...bowTie, consequences });
+                  }}
+                  className={dfControl}
+                  placeholder="Consequence from the top event…"
+                />
+                <p className={dfHelperXs}>Mitigative barriers</p>
+                {cons.mitigativeBarriers.map((bar, bIdx) => (
+                  <div key={bIdx} className="flex flex-wrap items-end gap-2">
+                    <div className={`min-w-[12rem] flex-1`}>
+                      <label className="sr-only" htmlFor={`bt-co-${cIdx}-bar-${bIdx}-desc`}>
+                        Mitigative barrier {bIdx + 1} description
+                      </label>
+                      <input
+                        id={`bt-co-${cIdx}-bar-${bIdx}-desc`}
+                        value={bar.description}
+                        onChange={(e) => {
+                          const consequences = bowTie.consequences.map((co, ci) => {
+                            if (ci !== cIdx) return co;
+                            return {
+                              ...co,
+                              mitigativeBarriers: co.mitigativeBarriers.map((mb, mi) =>
+                                mi === bIdx ? { ...mb, description: e.target.value } : mb,
+                              ),
+                            };
+                          });
+                          setBowTie({ ...bowTie, consequences });
+                        }}
+                        className={dfControl}
+                        placeholder="Barrier…"
+                      />
+                    </div>
+                    <div>
+                      <label className="sr-only" htmlFor={`bt-co-${cIdx}-bar-${bIdx}-out`}>
+                        Outcome
+                      </label>
+                      <select
+                        id={`bt-co-${cIdx}-bar-${bIdx}-out`}
+                        value={bar.outcome}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (!isBowTieBarrierOutcome(v)) return;
+                          const consequences = bowTie.consequences.map((co, ci) => {
+                            if (ci !== cIdx) return co;
+                            return {
+                              ...co,
+                              mitigativeBarriers: co.mitigativeBarriers.map((mb, mi) =>
+                                mi === bIdx ? { ...mb, outcome: v } : mb,
+                              ),
+                            };
+                          });
+                          setBowTie({ ...bowTie, consequences });
+                        }}
+                        className={`${dfControl} min-w-[10rem]`}
+                      >
+                        {bowTieBarrierOutcomeEnum.map((o) => (
+                          <option key={o} value={o}>
+                            {BARRIER_OUTCOME_LABELS[o]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button
+                      type="button"
+                      className={dfSecondaryOutline}
+                      onClick={() => {
+                        const consequences = bowTie.consequences.map((co, ci) =>
+                          ci !== cIdx
+                            ? co
+                            : {
+                                ...co,
+                                mitigativeBarriers: co.mitigativeBarriers.filter((_, bi) => bi !== bIdx),
+                              },
+                        );
+                        setBowTie({ ...bowTie, consequences });
+                      }}
+                    >
+                      Remove barrier
+                    </button>
+                  </div>
+                ))}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className={dfSecondaryOutline}
+                    onClick={() => {
+                      const consequences = bowTie.consequences.map((co, ci) =>
+                        ci !== cIdx
+                          ? co
+                          : {
+                              ...co,
+                              mitigativeBarriers: [
+                                ...co.mitigativeBarriers,
+                                { description: "", outcome: "unknown" as const },
+                              ],
+                            },
+                      );
+                      setBowTie({ ...bowTie, consequences });
+                    }}
+                  >
+                    Add mitigative barrier
+                  </button>
+                  <button
+                    type="button"
+                    className={dfSecondaryOutline}
+                    onClick={() =>
+                      setBowTie({
+                        ...bowTie,
+                        consequences: bowTie.consequences.filter((_, i) => i !== cIdx),
+                      })
+                    }
+                  >
+                    Remove consequence
+                  </button>
+                </div>
+              </fieldset>
+            ))}
+            <button
+              type="button"
+              className="min-h-11 touch-target rounded-md text-base font-semibold text-emerald-900 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+              onClick={() =>
+                setBowTie({
+                  ...bowTie,
+                  consequences: [
+                    ...bowTie.consequences,
+                    { description: "", mitigativeBarriers: [] },
+                  ],
+                })
+              }
+            >
+              Add consequence scenario
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-3 rounded-md border border-zinc-100 bg-zinc-50/80 p-4">
+          <h4 className={`text-sm font-semibold text-zinc-900`}>Event sequence</h4>
+          <p className={dfHelperXs}>
+            Order matters. Optional time-of-step for each entry (local time as captured in the browser).
+          </p>
+          {chronology.map((row, idx) => (
+            <div
+              key={idx}
+              className="space-y-2 rounded border border-zinc-200 bg-white p-3"
+            >
+              <p className={`${dfHelperXs} font-medium text-zinc-800`}>Step {idx + 1}</p>
+              <div>
+                <label className={dfLabel} htmlFor={`chr-time-${idx}`}>
+                  Time (optional)
+                </label>
+                <input
+                  id={`chr-time-${idx}`}
+                  type="datetime-local"
+                  value={row.occurredAtInput}
+                  onChange={(e) => {
+                    setChronology(
+                      chronology.map((r, i) => (i === idx ? { ...r, occurredAtInput: e.target.value } : r)),
+                    );
+                  }}
+                  className={dfControlMt}
+                />
+              </div>
+              <div>
+                <label className={dfLabel} htmlFor={`chr-desc-${idx}`}>
+                  What happened
+                </label>
+                <textarea
+                  id={`chr-desc-${idx}`}
+                  rows={2}
+                  value={row.description}
+                  onChange={(e) => {
+                    setChronology(
+                      chronology.map((r, i) => (i === idx ? { ...r, description: e.target.value } : r)),
+                    );
+                  }}
+                  className={dfControlMt}
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className={dfSecondaryOutline}
+                  disabled={idx === 0}
+                  onClick={() => {
+                    if (idx === 0) return;
+                    const next = [...chronology];
+                    [next[idx - 1], next[idx]] = [next[idx]!, next[idx - 1]!];
+                    setChronology(next);
+                  }}
+                >
+                  Move up
+                </button>
+                <button
+                  type="button"
+                  className={dfSecondaryOutline}
+                  disabled={idx >= chronology.length - 1}
+                  onClick={() => {
+                    if (idx >= chronology.length - 1) return;
+                    const next = [...chronology];
+                    [next[idx], next[idx + 1]] = [next[idx + 1]!, next[idx]!];
+                    setChronology(next);
+                  }}
+                >
+                  Move down
+                </button>
+                <button
+                  type="button"
+                  className={dfSecondaryOutline}
+                  onClick={() => {
+                    const next = chronology.filter((_, i) => i !== idx);
+                    setChronology(next.length === 0 ? [{ occurredAtInput: "", description: "" }] : next);
+                  }}
+                >
+                  Remove step
+                </button>
+              </div>
+            </div>
+          ))}
+          <button
+            type="button"
+            className={dfSecondaryOutline}
+            onClick={() =>
+              setChronology([...chronology, { occurredAtInput: "", description: "" }])
+            }
+          >
+            Add event step
+          </button>
+        </div>
+
+        <div className="space-y-3 rounded-md border border-zinc-100 bg-zinc-50/80 p-4">
+          <h4 className={`text-sm font-semibold text-zinc-900`}>Causal factors</h4>
+          <p className={dfHelperXs}>
+            Summarize factors and optional defenses or barriers that did not hold (short labels).
+          </p>
+          {causalFactors.map((row, idx) => (
+            <div key={idx} className="space-y-2 rounded border border-zinc-200 bg-white p-3">
+              <div>
+                <label className={dfLabel} htmlFor={`cf-sum-${idx}`}>
+                  Summary
+                </label>
+                <textarea
+                  id={`cf-sum-${idx}`}
+                  rows={2}
+                  value={row.summary}
+                  onChange={(e) => {
+                    setCausalFactors(
+                      causalFactors.map((r, i) => (i === idx ? { ...r, summary: e.target.value } : r)),
+                    );
+                  }}
+                  className={dfControlMt}
+                />
+              </div>
+              <div>
+                <label className={dfLabel} htmlFor={`cf-cat-${idx}`}>
+                  Category (optional)
+                </label>
+                <select
+                  id={`cf-cat-${idx}`}
+                  value={row.category}
+                  onChange={(e) => {
+                    setCausalFactors(
+                      causalFactors.map((r, i) =>
+                        i === idx ? { ...r, category: e.target.value } : r,
+                      ),
+                    );
+                  }}
+                  className={dfControlMt}
+                >
+                  <option value="">—</option>
+                  {causalFactorCategoryEnum.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <p className={dfHelperXs}>Barriers or defenses failed (optional)</p>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {row.barriersFailed.map((bf, bfi) => (
+                    <span
+                      key={`${bf}-${bfi}`}
+                      className="inline-flex items-center gap-1 rounded-full bg-zinc-200 px-2 py-1 text-xs text-zinc-900"
+                    >
+                      {bf}
+                      <button
+                        type="button"
+                        aria-label={`Remove ${bf}`}
+                        className="font-bold"
+                        onClick={() => {
+                          setCausalFactors(
+                            causalFactors.map((r, i) =>
+                              i === idx
+                                ? {
+                                    ...r,
+                                    barriersFailed: r.barriersFailed.filter((_, j) => j !== bfi),
+                                  }
+                                : r,
+                            ),
+                          );
+                        }}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <CausalBarrierFailedAddRow
+                  rowIndex={idx}
+                  onAdd={(label) => {
+                    const v = label.trim();
+                    if (!v || row.barriersFailed.includes(v) || row.barriersFailed.length >= 10) return;
+                    setCausalFactors(
+                      causalFactors.map((r, i) =>
+                        i === idx ? { ...r, barriersFailed: [...r.barriersFailed, v] } : r,
+                      ),
+                    );
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                className={dfSecondaryOutline}
+                onClick={() => setCausalFactors(causalFactors.filter((_, i) => i !== idx))}
+              >
+                Remove causal factor row
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className={dfSecondaryOutline}
+            onClick={() =>
+              setCausalFactors([
+                ...causalFactors,
+                { summary: "", category: "", barriersFailed: [] },
+              ])
+            }
+          >
+            Add causal factor
+          </button>
+        </div>
+      </div>
       <div>
         <h3 className={dfPanelHeading}>Contributing factors</h3>
         <p className={dfHelperXs}>Short labels (e.g. training gap, equipment defect).</p>
@@ -509,6 +1413,8 @@ export default function IncidentDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [closureNotes, setClosureNotes] = useState("");
   const [showClose, setShowClose] = useState(false);
+  const [reopenNotes, setReopenNotes] = useState("");
+  const [showReopen, setShowReopen] = useState(false);
 
   const { data: incident, isLoading, isError, error: loadError } =
     trpc.incident.get.useQuery(
@@ -527,13 +1433,17 @@ export default function IncidentDetailPage() {
   );
 
   const updateStatus = trpc.incident.updateStatus.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void utils.incident.get.invalidate({ organizationId: organizationId!, incidentId });
       void utils.incident.list.invalidate();
       setError(null);
       setShowClose(false);
       setClosureNotes("");
-      router.push("/dashboard/incidents");
+      setShowReopen(false);
+      setReopenNotes("");
+      if (variables.status === "closed") {
+        router.push("/dashboard/incidents");
+      }
     },
     onError: (e) => setError(e.message),
   });
@@ -595,6 +1505,33 @@ export default function IncidentDetailPage() {
             {incident.status.replace("_", " ")} · {incident.severity} ·{" "}
             {String(incident.incidentType).replace("_", " ")}
           </p>
+          <dl className="mt-2 space-y-1 text-sm text-zinc-600">
+            <div>
+              <dt className="inline font-medium text-zinc-700 after:content-[':']">Recorded</dt>{" "}
+              <dd className="inline">
+                <time dateTime={new Date(incident.createdAt).toISOString()}>
+                  {new Date(incident.createdAt).toLocaleString()}
+                </time>
+              </dd>
+              <span className={`${dfHelperXs} ml-1`}>(first saved in this system)</span>
+            </div>
+            <div>
+              <dt className="inline font-medium text-zinc-700 after:content-[':']">Occurred</dt>{" "}
+              <dd className="inline">
+                {incident.occurredAt ? (
+                  <time dateTime={new Date(incident.occurredAt).toISOString()}>
+                    {new Date(incident.occurredAt).toLocaleString()}
+                  </time>
+                ) : (
+                  <span className="text-zinc-500">
+                    {canSeeNarrative
+                      ? "Not set — add under Record details"
+                      : "Not set"}
+                  </span>
+                )}
+              </dd>
+            </div>
+          </dl>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <OrgSwitcher />
@@ -620,6 +1557,8 @@ export default function IncidentDetailPage() {
       ) : null}
 
       <IncidentWorkspaceSection organizationId={organizationId} incidentId={incidentId} />
+
+      <IncidentRelatedCapasSection organizationId={organizationId} incidentId={incidentId} />
 
       <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
         <h2 className={dfSectionHeading}>Workflow</h2>
@@ -654,10 +1593,29 @@ export default function IncidentDetailPage() {
               Close incident
             </button>
           ) : null}
+          {incident.status === "closed" && incident.canAdminReopenIncident ? (
+            <button
+              type="button"
+              className={`${dfSecondaryOutline} min-h-11`}
+              onClick={() => {
+                setError(null);
+                setShowReopen(true);
+              }}
+            >
+              Reopen incident (admin)
+            </button>
+          ) : null}
         </div>
         <p className={`mt-2 ${dfHelperXs}`}>
           Incidents must move to <strong>investigating</strong> before closure. Closing requires a
           root cause summary and a closure justification (recorded in the audit trail).
+          {incident.canAdminReopenIncident ? (
+            <>
+              {" "}
+              Organization administrators can reopen a closed incident to{" "}
+              <strong>investigating</strong> with a written justification (audit-logged).
+            </>
+          ) : null}
         </p>
       </div>
 
@@ -704,6 +1662,61 @@ export default function IncidentDetailPage() {
                 onClick={() => {
                   setShowClose(false);
                   setClosureNotes("");
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {showReopen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reopen-incident-title"
+        >
+          <div className="w-full max-w-lg rounded-lg border border-zinc-200 bg-white p-6 shadow-lg">
+            <h2 id="reopen-incident-title" className="text-lg font-semibold text-zinc-900">
+              Reopen incident
+            </h2>
+            <p className="mt-2 text-sm text-zinc-600">
+              Moves this record back to <strong>investigating</strong>. Explain why (minimum 20
+              characters). This is stored in the audit log. Requires organization administrator
+              permission.
+            </p>
+            <textarea
+              className={`mt-3 min-h-[6rem] ${dfControl}`}
+              value={reopenNotes}
+              onChange={(e) => setReopenNotes(e.target.value)}
+              placeholder="e.g. Regulatory inquiry requires supplemental RCA documentation…"
+            />
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={dfPrimarySubmit}
+                disabled={updateStatus.isPending || reopenNotes.trim().length < 20}
+                aria-busy={updateStatus.isPending}
+                onClick={() => {
+                  setError(null);
+                  updateStatus.mutate({
+                    organizationId,
+                    incidentId,
+                    status: "investigating",
+                    reopenJustification: reopenNotes.trim(),
+                  });
+                }}
+              >
+                Confirm reopen
+              </button>
+              <button
+                type="button"
+                className={dfSecondaryOutline}
+                onClick={() => {
+                  setShowReopen(false);
+                  setReopenNotes("");
                 }}
               >
                 Cancel

@@ -1,0 +1,69 @@
+# =============================================================================
+# REFERENCE ONLY — adapt labels/namespace before applying.
+# PrometheusRule for prometheus-operator / kube-prometheus-stack.
+# Metrics come from scraping `GET /api/cron/metrics` (see
+# prometheus-scrape-cron-metrics.example.yml). Expressions assume metric names
+# from the scraped exposition (`ehs_cron_job_*`).
+#
+# Tune `for:` and thresholds to your error budget; daily crons may need
+# weekday-only routing in Alertmanager (not shown).
+# =============================================================================
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ehs-cron-metrics-alerts-example
+  namespace: ehs-prod
+  labels:
+    release: prometheus
+    role: alert-rules
+spec:
+  groups:
+    - name: ehs_cron_alerts
+      interval: 60s
+      rules:
+        - alert: EHSCronRemindersStaleOrFailing
+          expr: |
+            (
+              time() - ehs_cron_job_last_run_timestamp_seconds{job="reminders"}
+            ) > 172800
+            and on(job) ehs_cron_job_last_run_ok{job="reminders"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "EHS reminders cron has not succeeded recently"
+            description: >
+              Last run is stale (>48h since start timestamp) and last exit was not OK.
+              Check CronJob logs, DB connectivity, and `/api/cron/metrics` scrape.
+
+        - alert: EHSCronRemindersNoSuccessInWindow
+          expr: ehs_cron_job_runs_success_in_window{job="reminders"} == 0
+          for: 36h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Zero successful reminders runs in metrics window"
+            description: >
+              `ehs_cron_job_runs_success_in_window` is 0 — confirm `windowHours` on the
+              scrape URL covers at least one expected execution day before paging.
+
+        - alert: EHSCronDataRetentionErrors
+          expr: ehs_cron_job_runs_error_in_window{job="data-retention"} > 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Data retention cron recorded failures in window"
+            description: >
+              Inspect `cron_job_run` / app logs and `CRON_FAILURE_WEBHOOK_URL` deliveries.
+
+        - alert: EHSCronMetricsTargetMissing
+          expr: absent(up{job="ehs_cron_metrics"}) or up{job="ehs_cron_metrics"} == 0
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Prometheus is not scraping ehs_cron_metrics"
+            description: >
+              Cron SLOs depend on this scrape target — fix ServiceMonitor / static_config
+              and bearer token before trusting `_in_window` gauges.

@@ -1,10 +1,11 @@
 "use client";
 
 import type { inferRouterOutputs } from "@trpc/server";
-import { useId, useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useId, useMemo, useState } from "react";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
-import { dfMuted } from "@/lib/dashboard-field-styles";
+import { dfMuted, dfSecondaryOutline } from "@/lib/dashboard-field-styles";
 import type { AppRouter } from "@/server/trpc/root";
 import { trpc } from "@/trpc/react";
 
@@ -74,6 +75,59 @@ function isCapaOverdue(c: {
   return d < today;
 }
 
+const isoRelatedLinkClass =
+  "text-xs font-medium text-emerald-900 underline decoration-emerald-800 underline-offset-2 hover:text-emerald-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600";
+
+function CapaIsoLinks({
+  row,
+  aspectNameById,
+  obligationTitleById,
+  mgmtReviewLabelById,
+}: {
+  row: CapaRow;
+  aspectNameById: Map<string, string> | null;
+  obligationTitleById: Map<string, string> | null;
+  mgmtReviewLabelById: Map<string, string> | null;
+}) {
+  const links: { key: string; href: string; label: string }[] = [];
+  if (row.environmentalAspectId) {
+    const name = aspectNameById?.get(row.environmentalAspectId);
+    links.push({
+      key: "aspect",
+      href: "/dashboard/environment",
+      label: name ? `Aspect: ${name}` : "Linked aspect",
+    });
+  }
+  if (row.complianceObligationId) {
+    const title = obligationTitleById?.get(row.complianceObligationId);
+    links.push({
+      key: "obligation",
+      href: "/dashboard/environment",
+      label: title ? `Obligation: ${title}` : "Linked obligation",
+    });
+  }
+  if (row.managementReviewId) {
+    const review = mgmtReviewLabelById?.get(row.managementReviewId);
+    links.push({
+      key: "mgmt",
+      href: "/dashboard/management-review",
+      label: review ? `Mgmt review: ${review}` : "Linked management review",
+    });
+  }
+  if (links.length === 0) return "—";
+  return (
+    <ul className="max-w-[13rem] space-y-1 text-left" role="list">
+      {links.map((l) => (
+        <li key={l.key}>
+          <Link href={l.href} className={isoRelatedLinkClass}>
+            {l.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function CapaPage() {
   const verifyNotesFieldId = useId();
   const { organizationId } = useOrg();
@@ -96,6 +150,12 @@ export default function CapaPage() {
   const [submitApprovalCapaId, setSubmitApprovalCapaId] = useState<string | null>(null);
   const [submitApprovalApprover, setSubmitApprovalApprover] = useState("");
   const [submitApprovalApprover2, setSubmitApprovalApprover2] = useState("");
+  const [suggestError, setSuggestError] = useState<string | null>(null);
+
+  const capaContextHint = useMemo(
+    () => [title.trim(), details.trim()].filter(Boolean).join("\n").trim(),
+    [title, details],
+  );
 
   const { data: capas, isLoading } = trpc.capa.list.useQuery(
     { organizationId: organizationId! },
@@ -106,6 +166,51 @@ export default function CapaPage() {
     { organizationId: organizationId! },
     { enabled: !!organizationId },
   );
+
+  const { data: aspects } = trpc.aspect.list.useQuery(
+    { organizationId: organizationId! },
+    { enabled: !!organizationId, retry: false },
+  );
+  const { data: obligations } = trpc.obligation.list.useQuery(
+    { organizationId: organizationId! },
+    { enabled: !!organizationId, retry: false },
+  );
+  const { data: mgmtReviews } = trpc.managementReview.list.useQuery(
+    { organizationId: organizationId! },
+    { enabled: !!organizationId, retry: false },
+  );
+
+  const aspectNameById = useMemo(() => {
+    if (!aspects) return null;
+    return new Map(aspects.map((a) => [a.id, a.name]));
+  }, [aspects]);
+  const obligationTitleById = useMemo(() => {
+    if (!obligations) return null;
+    return new Map(obligations.map((o) => [o.id, o.title]));
+  }, [obligations]);
+  const mgmtReviewLabelById = useMemo(() => {
+    if (!mgmtReviews) return null;
+    return new Map(
+      mgmtReviews.map((r) => {
+        const line = r.summary.trim().split(/\n/)[0] ?? "";
+        const short = line.length > 40 ? `${line.slice(0, 39)}…` : line;
+        return [r.id, short || "Review"] as const;
+      }),
+    );
+  }, [mgmtReviews]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = window.location.hash?.slice(1);
+    if (!raw?.startsWith("capa-row-")) return;
+    if (isLoading) return;
+    queueMicrotask(() => {
+      document.getElementById(raw)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }, [isLoading, capas]);
 
   const { data: audits } = trpc.internalAudit.list.useQuery(
     { organizationId: organizationId! },
@@ -156,6 +261,15 @@ export default function CapaPage() {
       setPlanExtraApprovers([]);
       setPlanSlaDays(7);
     },
+  });
+
+  const suggestCapaDraft = trpc.aiAssistant.proposeCapaIntakeDraft.useMutation({
+    onSuccess: (out) => {
+      setTitle(out.suggestedTitle);
+      setDetails(out.suggestedDetails);
+      setSuggestError(null);
+    },
+    onError: (e) => setSuggestError(e.message),
   });
 
   const updateStatus = trpc.capa.updateStatus.useMutation({
@@ -216,6 +330,29 @@ export default function CapaPage() {
             Add a corrective action. Link to a source record when applicable (optional disclosure
             below).
           </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              className={dfSecondaryOutline}
+              disabled={suggestCapaDraft.isPending || capaContextHint.length < 10}
+              aria-busy={suggestCapaDraft.isPending}
+              onClick={() => {
+                if (!organizationId) return;
+                setSuggestError(null);
+                suggestCapaDraft.mutate({ organizationId, contextHint: capaContextHint });
+              }}
+            >
+              {suggestCapaDraft.isPending ? "Suggesting…" : "Suggest wording (AI)"}
+            </button>
+            <span className="text-sm text-zinc-600">
+              Proposal only — review before submit. Requires AI and RAG permissions.
+            </span>
+          </div>
+          {suggestError ? (
+            <p role="alert" className="mt-2 text-sm text-red-700">
+              {suggestError}
+            </p>
+          ) : null}
           <form
             className="mt-4 space-y-4"
             onSubmit={(e) => {
@@ -619,7 +756,8 @@ export default function CapaPage() {
       <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
         <table className="min-w-full divide-y divide-zinc-200 text-sm">
           <caption className="sr-only">
-            Corrective actions for the workspace with status, due date, linked incident, and actions.
+            Corrective actions for the workspace with status, due date, linked incident, environment or compliance
+            sources, and actions.
           </caption>
           <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-800">
             <tr>
@@ -642,6 +780,9 @@ export default function CapaPage() {
                 Linked incident
               </th>
               <th scope="col" className="px-4 py-3">
+                Environment &amp; ISO
+              </th>
+              <th scope="col" className="px-4 py-3">
                 Actions
               </th>
             </tr>
@@ -649,7 +790,7 @@ export default function CapaPage() {
           <tbody className="divide-y divide-zinc-100">
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="px-4 py-6">
+                <td colSpan={8} className="px-4 py-6">
                   <span role="status" aria-live="polite" className="text-base text-zinc-700">
                     Loading corrective actions…
                   </span>
@@ -657,7 +798,7 @@ export default function CapaPage() {
               </tr>
             ) : capas?.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-base text-zinc-700">
+                <td colSpan={8} className="px-4 py-6 text-base text-zinc-700">
                   No corrective actions yet.
                 </td>
               </tr>
@@ -665,6 +806,7 @@ export default function CapaPage() {
               capas?.map((c: CapaRow) => (
                 <tr
                   key={c.id}
+                  id={`capa-row-${c.id}`}
                   className={isCapaOverdue(c) ? "bg-amber-50/90" : undefined}
                 >
                   <td className="px-4 py-3 font-medium text-zinc-900">{c.title}</td>
@@ -709,9 +851,24 @@ export default function CapaPage() {
                       : "—"}
                   </td>
                   <td className="max-w-[200px] px-4 py-3 text-zinc-800">
-                    {c.incidentId
-                      ? incidents?.find((i) => i.id === c.incidentId)?.title ?? "Incident"
-                      : "—"}
+                    {c.incidentId ? (
+                      <Link
+                        href={`/dashboard/incidents/${c.incidentId}`}
+                        className="font-medium text-emerald-900 underline decoration-emerald-800 underline-offset-2 hover:text-emerald-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                      >
+                        {incidents?.find((i) => i.id === c.incidentId)?.title ?? "Open incident"}
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td className="max-w-[14rem] px-4 py-3 text-zinc-800">
+                    <CapaIsoLinks
+                      row={c}
+                      aspectNameById={aspectNameById}
+                      obligationTitleById={obligationTitleById}
+                      mgmtReviewLabelById={mgmtReviewLabelById}
+                    />
                   </td>
                   <td className="px-4 py-3">
                     {c.status === "pending_approval" &&

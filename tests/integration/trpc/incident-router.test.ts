@@ -48,7 +48,11 @@ async function callIncidentQuery<TInput>(
   });
 }
 
-async function callIncidentMutation<TInput>(ctx: TRPCContext, path: "incident.updateStatus", input: TInput) {
+async function callIncidentMutation<TInput>(
+  ctx: TRPCContext,
+  path: "incident.updateStatus" | "incident.update",
+  input: TInput,
+) {
   return callTRPCProcedure({
     router: appRouter,
     path,
@@ -143,6 +147,61 @@ describe("incidentRouter isolation (mocked DB + audit)", () => {
     ).rejects.toMatchObject({
       code: "BAD_REQUEST",
       message: "Invalid status transition: closed → open",
+    });
+  });
+
+  it("forbids closed → investigating without reopen justification (admin path)", async () => {
+    await expect(
+      callIncidentMutation(
+        ctxWith(
+          createIncidentCompositeFakeDb({
+            rbacHit: true,
+            existingIncident: {
+              id: incidentId,
+              organizationId: orgId,
+              status: "closed",
+            },
+          }),
+          authenticatedSession(userId),
+        ),
+        "incident.updateStatus",
+        {
+          organizationId: orgId,
+          incidentId,
+          status: "investigating",
+        },
+      ),
+    ).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+      message: expect.stringMatching(/reopen justification/i),
+    });
+  });
+
+  it("allows closed → investigating with reopen justification (admin path)", async () => {
+    const updated = await callIncidentMutation(
+      ctxWith(
+        createIncidentCompositeFakeDb({
+          rbacHit: true,
+          existingIncident: {
+            id: incidentId,
+            organizationId: orgId,
+            status: "closed",
+          },
+        }),
+        authenticatedSession(userId),
+      ),
+      "incident.updateStatus",
+      {
+        organizationId: orgId,
+        incidentId,
+        status: "investigating",
+        reopenJustification:
+          "Regulator request — reopen for supplemental witness statements and photo evidence.",
+      },
+    );
+    expect(updated).toMatchObject({
+      id: incidentId,
+      status: "investigating",
     });
   });
 
@@ -307,6 +366,162 @@ describe("incidentRouter isolation (mocked DB + audit)", () => {
       { organizationId: orgId, incidentId },
     );
 
-    expect(result).toEqual(existing);
+    expect(result).toEqual({ ...existing, canAdminReopenIncident: false });
+  });
+
+  it("incident.update persists normalized rcaFishbone", async () => {
+    const existing = {
+      id: incidentId,
+      organizationId: orgId,
+      title: "Spill investigation",
+      description: "Oil release at tank farm.",
+      status: "open",
+    };
+    const updated = await callIncidentMutation(
+      ctxWith(
+        createIncidentCompositeFakeDb({
+          rbacHit: true,
+          existingIncident: existing,
+        }),
+        authenticatedSession(userId),
+      ),
+      "incident.update",
+      {
+        organizationId: orgId,
+        incidentId,
+        rcaFishbone: [
+          { categoryId: "people", causes: ["  rushed handover "] },
+          { categoryId: "equipment", causes: ["valve wear"] },
+        ],
+      },
+    );
+
+    expect(updated).toMatchObject({
+      id: incidentId,
+    });
+    expect((updated as { rcaFishbone?: unknown }).rcaFishbone).toEqual([
+      { categoryId: "people", causes: ["rushed handover"] },
+      { categoryId: "process", causes: [] },
+      { categoryId: "equipment", causes: ["valve wear"] },
+      { categoryId: "materials", causes: [] },
+      { categoryId: "environment", causes: [] },
+      { categoryId: "management", causes: [] },
+    ]);
+  });
+
+  it("incident.update rejects duplicate fishbone categories", async () => {
+    await expect(
+      callIncidentMutation(
+        ctxWith(
+          createIncidentCompositeFakeDb({
+            rbacHit: true,
+            existingIncident: {
+              id: incidentId,
+              organizationId: orgId,
+              title: "Spill investigation",
+              description: "Oil release.",
+              status: "open",
+            },
+          }),
+          authenticatedSession(userId),
+        ),
+        "incident.update",
+        {
+          organizationId: orgId,
+          incidentId,
+          rcaFishbone: [
+            { categoryId: "people", causes: ["a"] },
+            { categoryId: "people", causes: ["b"] },
+          ],
+        },
+      ),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("incident.update persists investigation bow tie", async () => {
+    const updated = await callIncidentMutation(
+      ctxWith(
+        createIncidentCompositeFakeDb({
+          rbacHit: true,
+          existingIncident: {
+            id: incidentId,
+            organizationId: orgId,
+            title: "Release",
+            description: "Test",
+            status: "open",
+          },
+        }),
+        authenticatedSession(userId),
+      ),
+      "incident.update",
+      {
+        organizationId: orgId,
+        incidentId,
+        investigationBowTie: {
+          topEvent: "Loss of containment",
+          threats: [
+            {
+              description: "Material weakness",
+              preventiveBarriers: [
+                { description: "PM program", outcome: "failed_degraded" },
+              ],
+            },
+          ],
+          consequences: [
+            {
+              description: "Environmental impact",
+              mitigativeBarriers: [{ description: "Berm", outcome: "effective" }],
+            },
+          ],
+          notes: null,
+        },
+      },
+    );
+
+    expect((updated as { investigationBowTie?: unknown }).investigationBowTie).toMatchObject({
+      topEvent: "Loss of containment",
+      threats: [
+        {
+          description: "Material weakness",
+          preventiveBarriers: [{ description: "PM program", outcome: "failed_degraded" }],
+        },
+      ],
+      consequences: [
+        {
+          description: "Environmental impact",
+          mitigativeBarriers: [{ description: "Berm", outcome: "effective" }],
+        },
+      ],
+      notes: null,
+    });
+  });
+
+  it("incident.update rejects duplicate chronology sortOrder", async () => {
+    await expect(
+      callIncidentMutation(
+        ctxWith(
+          createIncidentCompositeFakeDb({
+            rbacHit: true,
+            existingIncident: {
+              id: incidentId,
+              organizationId: orgId,
+              title: "Release",
+              description: "Test",
+              status: "open",
+            },
+          }),
+          authenticatedSession(userId),
+        ),
+        "incident.update",
+        {
+          organizationId: orgId,
+          incidentId,
+          investigationChronology: [
+            { sortOrder: 2, description: "a" },
+            { sortOrder: 2, description: "b" },
+          ],
+        },
+      ),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 });

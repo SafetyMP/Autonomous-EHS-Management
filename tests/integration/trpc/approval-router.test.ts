@@ -81,6 +81,29 @@ describe("approval.listOpenCapaRequests", () => {
   });
 });
 
+describe("approval.listOpenEnvironmentalRegulatoryPermitRequests", () => {
+  it("is FORBIDDEN when RBAC denies environmental permit read", async () => {
+    await expect(
+      callTRPCProcedure({
+        router: appRouter,
+        path: "approval.listOpenEnvironmentalRegulatoryPermitRequests",
+        ctx: ctxWith(
+          createListEntityFakeDb({
+            rbacHit: false,
+            entityTable: approvalRequest,
+            listRows: [],
+          }),
+          authenticatedSession(),
+        ),
+        type: "query",
+        getRawInput: async () => ({ organizationId: orgId }),
+        signal: testAbortSignal,
+        batchIndex: 0,
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});
+
 describe("approval.listEscalations", () => {
   it("is FORBIDDEN when RBAC denies CAPA read", async () => {
     await expect(

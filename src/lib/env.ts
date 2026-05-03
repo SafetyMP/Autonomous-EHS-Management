@@ -37,14 +37,20 @@ export const env = createEnv({
     OIDC_JIT_DEFAULT_ORG_ID: z.string().uuid().optional(),
     /** Role slug within that org (default `admin`). */
     OIDC_JIT_ROLE_SLUG: z.string().min(1).max(64).optional(),
-    /** Shared secret for `POST /api/integration/inbound` (LMS webhooks). Optional until route is used. */
+    /** Shared secret for `POST /api/integration/inbound` (LMS + HRIS webhooks). Optional until route is used. */
     INTEGRATION_INBOUND_SECRET: z.string().min(16).optional(),
     /** Optional HTTPS webhook (e.g. Slack incoming) for cron handler failures. */
     CRON_FAILURE_WEBHOOK_URL: z.string().url().optional(),
     /** When `"true"`, dev logging enqueue path is active (see docs/JOB_QUEUE.md); durable queue not wired yet. */
     JOB_QUEUE_ENABLED: z.literal("true").optional(),
+    /** When `"true"`, enqueue uses pg-boss (requires worker: `npm run job:worker`). */
+    PG_BOSS_ENABLED: z.literal("true").optional(),
     /** Reserved for pg-boss schema name (documentation / future use). */
     PG_BOSS_SCHEMA: z.string().min(1).max(64).optional(),
+    /** Per-org cap on Context Sync REST reads per UTC day (requires Upstash). 0 or unset = disabled. */
+    CONTEXT_SYNC_ORG_DAILY_READ_LIMIT: z.coerce.number().int().min(0).max(10_000_000).optional(),
+    /** Hard cap on provenance API `limit` query param (default 200). */
+    CONTEXT_SYNC_PROVENANCE_MAX_LIMIT: z.coerce.number().int().min(20).max(500).optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
@@ -54,6 +60,10 @@ export const env = createEnv({
     NEXT_PUBLIC_OIDC_PROVIDER_ID: z.string().optional(),
     /** When `"1"`, sign-in shows “Try demo admin” (non-secret; credentials stay server-only). */
     NEXT_PUBLIC_DEMO_MODE: z.string().optional(),
+    /** When `"1"`, queued offline submits for incidents/observations sync when back online (`src/lib/offline/fieldOutbox.ts`). */
+    NEXT_PUBLIC_FIELD_OUTBOX: z.enum(["0", "1"]).optional(),
+    /** When `"1"`, product may use on-device / VPC SLM for intake assist (`src/lib/ai/localIntakeSlm.ts`). */
+    NEXT_PUBLIC_LOCAL_INTAKE_SLM: z.enum(["0", "1"]).optional(),
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -82,11 +92,16 @@ export const env = createEnv({
     INTEGRATION_INBOUND_SECRET: process.env.INTEGRATION_INBOUND_SECRET,
     CRON_FAILURE_WEBHOOK_URL: process.env.CRON_FAILURE_WEBHOOK_URL,
     JOB_QUEUE_ENABLED: process.env.JOB_QUEUE_ENABLED,
+    PG_BOSS_ENABLED: process.env.PG_BOSS_ENABLED,
     PG_BOSS_SCHEMA: process.env.PG_BOSS_SCHEMA,
+    CONTEXT_SYNC_ORG_DAILY_READ_LIMIT: process.env.CONTEXT_SYNC_ORG_DAILY_READ_LIMIT,
+    CONTEXT_SYNC_PROVENANCE_MAX_LIMIT: process.env.CONTEXT_SYNC_PROVENANCE_MAX_LIMIT,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_ENTERPRISE_SSO: process.env.NEXT_PUBLIC_ENTERPRISE_SSO,
     NEXT_PUBLIC_OIDC_PROVIDER_ID: process.env.NEXT_PUBLIC_OIDC_PROVIDER_ID,
     NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE,
+    NEXT_PUBLIC_FIELD_OUTBOX: process.env.NEXT_PUBLIC_FIELD_OUTBOX,
+    NEXT_PUBLIC_LOCAL_INTAKE_SLM: process.env.NEXT_PUBLIC_LOCAL_INTAKE_SLM,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 });

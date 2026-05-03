@@ -78,15 +78,27 @@ export const programRouter = router({
     .input(orgScope.extend({ name: z.string().min(1).max(512), description: z.string().max(20_000).optional() }))
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.EMERGENCY_WRITE);
-      const [row] = await ctx.db
-        .insert(emergencyScenario)
-        .values({
-          organizationId: input.organizationId,
-          name: input.name,
-          description: input.description ?? null,
-        })
-        .returning();
-      return row;
+      return ctx.db.transaction(async (tx) => {
+        const [row] = await tx
+          .insert(emergencyScenario)
+          .values({
+            organizationId: input.organizationId,
+            name: input.name,
+            description: input.description ?? null,
+          })
+          .returning();
+        if (row) {
+          await writeAuditLog(tx, {
+            organizationId: input.organizationId,
+            actorUserId: ctx.user.id,
+            action: "emergency.scenario.create",
+            entityType: "emergency_scenario",
+            entityId: row.id,
+            payload: { name: input.name },
+          });
+        }
+        return row;
+      });
     }),
 
   listEmergencyDrills: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
@@ -122,17 +134,29 @@ export const programRouter = router({
       if (!sc) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Emergency scenario not found." });
       }
-      const [row] = await ctx.db
-        .insert(emergencyDrill)
-        .values({
-          organizationId: input.organizationId,
-          scenarioId: input.scenarioId,
-          drillDate: input.drillDate,
-          outcomeSummary: input.outcomeSummary ?? null,
-          attendeesNote: input.attendeesNote ?? null,
-        })
-        .returning();
-      return row;
+      return ctx.db.transaction(async (tx) => {
+        const [row] = await tx
+          .insert(emergencyDrill)
+          .values({
+            organizationId: input.organizationId,
+            scenarioId: input.scenarioId,
+            drillDate: input.drillDate,
+            outcomeSummary: input.outcomeSummary ?? null,
+            attendeesNote: input.attendeesNote ?? null,
+          })
+          .returning();
+        if (row) {
+          await writeAuditLog(tx, {
+            organizationId: input.organizationId,
+            actorUserId: ctx.user.id,
+            action: "emergency.drill.create",
+            entityType: "emergency_drill",
+            entityId: row.id,
+            payload: { scenarioId: input.scenarioId },
+          });
+        }
+        return row;
+      });
     }),
 
   listMOC: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
@@ -155,17 +179,29 @@ export const programRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.MOC_WRITE);
-      const [row] = await ctx.db
-        .insert(managementOfChange)
-        .values({
-          organizationId: input.organizationId,
-          title: input.title,
-          description: input.description,
-          ohSafetyImpact: input.ohSafetyImpact ?? false,
-          environmentalImpactFlag: input.environmentalImpactFlag ?? false,
-        })
-        .returning();
-      return row;
+      return ctx.db.transaction(async (tx) => {
+        const [row] = await tx
+          .insert(managementOfChange)
+          .values({
+            organizationId: input.organizationId,
+            title: input.title,
+            description: input.description,
+            ohSafetyImpact: input.ohSafetyImpact ?? false,
+            environmentalImpactFlag: input.environmentalImpactFlag ?? false,
+          })
+          .returning();
+        if (row) {
+          await writeAuditLog(tx, {
+            organizationId: input.organizationId,
+            actorUserId: ctx.user.id,
+            action: "moc.create",
+            entityType: "management_of_change",
+            entityId: row.id,
+            payload: { title: input.title },
+          });
+        }
+        return row;
+      });
     }),
 
   listCbAudits: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
@@ -186,15 +222,27 @@ export const programRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.CB_AUDIT_WRITE);
-      const [row] = await ctx.db
-        .insert(certificationBodyAudit)
-        .values({
-          organizationId: input.organizationId,
-          certificationBodyName: input.certificationBodyName,
-          standardScope: input.standardScope,
-        })
-        .returning();
-      return row;
+      return ctx.db.transaction(async (tx) => {
+        const [row] = await tx
+          .insert(certificationBodyAudit)
+          .values({
+            organizationId: input.organizationId,
+            certificationBodyName: input.certificationBodyName,
+            standardScope: input.standardScope,
+          })
+          .returning();
+        if (row) {
+          await writeAuditLog(tx, {
+            organizationId: input.organizationId,
+            actorUserId: ctx.user.id,
+            action: "cb_audit.create",
+            entityType: "certification_body_audit",
+            entityId: row.id,
+            payload: { certificationBodyName: input.certificationBodyName },
+          });
+        }
+        return row;
+      });
     }),
 
   listCertificates: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
@@ -215,16 +263,31 @@ export const programRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.CERTIFICATE_WRITE);
-      const [row] = await ctx.db
-        .insert(managementCertificate)
-        .values({
-          organizationId: input.organizationId,
-          standardName: input.standardName,
-          certificationBodyName: input.certificationBodyName,
-          scopeStatement: input.scopeStatement,
-        })
-        .returning();
-      return row;
+      return ctx.db.transaction(async (tx) => {
+        const [row] = await tx
+          .insert(managementCertificate)
+          .values({
+            organizationId: input.organizationId,
+            standardName: input.standardName,
+            certificationBodyName: input.certificationBodyName,
+            scopeStatement: input.scopeStatement,
+          })
+          .returning();
+        if (row) {
+          await writeAuditLog(tx, {
+            organizationId: input.organizationId,
+            actorUserId: ctx.user.id,
+            action: "management_certificate.create",
+            entityType: "management_certificate",
+            entityId: row.id,
+            payload: {
+              standardName: input.standardName,
+              certificationBodyName: input.certificationBodyName,
+            },
+          });
+        }
+        return row;
+      });
     }),
 
   listKpis: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
@@ -239,15 +302,27 @@ export const programRouter = router({
     .input(orgScope.extend({ name: z.string().min(1).max(512), description: z.string().max(20_000).optional() }))
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.KPI_WRITE);
-      const [row] = await ctx.db
-        .insert(kpiDefinition)
-        .values({
-          organizationId: input.organizationId,
-          name: input.name,
-          description: input.description ?? null,
-        })
-        .returning();
-      return row;
+      return ctx.db.transaction(async (tx) => {
+        const [row] = await tx
+          .insert(kpiDefinition)
+          .values({
+            organizationId: input.organizationId,
+            name: input.name,
+            description: input.description ?? null,
+          })
+          .returning();
+        if (row) {
+          await writeAuditLog(tx, {
+            organizationId: input.organizationId,
+            actorUserId: ctx.user.id,
+            action: "kpi_definition.create",
+            entityType: "kpi_definition",
+            entityId: row.id,
+            payload: { name: input.name },
+          });
+        }
+        return row;
+      });
     }),
 
   listMeasurements: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
@@ -270,16 +345,32 @@ export const programRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.MEASUREMENT_WRITE);
-      const [row] = await ctx.db
-        .insert(measurementRecord)
-        .values({
-          organizationId: input.organizationId,
-          measuredAt: input.measuredAt,
-          valueNumeric: input.valueNumeric ?? null,
-          unit: input.unit ?? null,
-          notes: input.notes ?? null,
-        })
-        .returning();
-      return row;
+      return ctx.db.transaction(async (tx) => {
+        const [row] = await tx
+          .insert(measurementRecord)
+          .values({
+            organizationId: input.organizationId,
+            measuredAt: input.measuredAt,
+            valueNumeric: input.valueNumeric ?? null,
+            unit: input.unit ?? null,
+            notes: input.notes ?? null,
+          })
+          .returning();
+        if (row) {
+          await writeAuditLog(tx, {
+            organizationId: input.organizationId,
+            actorUserId: ctx.user.id,
+            action: "measurement_record.create",
+            entityType: "measurement_record",
+            entityId: row.id,
+            payload: {
+              measuredAt: input.measuredAt.toISOString(),
+              valueNumeric: input.valueNumeric ?? null,
+              unit: input.unit ?? null,
+            },
+          });
+        }
+        return row;
+      });
     }),
 });

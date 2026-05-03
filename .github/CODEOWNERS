@@ -1,20 +1,20 @@
-# Replace YOUR_ORG with your GitHub org (and create teams or substitute @username).
-# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# Canonical org: SafetyMP — each @SafetyMP/<team> must exist under that org or be replaced with
+# @username slugs before rulesets relying on CODEOWNERS behave as expected. See REPO_SETUP.md § 1.
 
-* @YOUR_ORG/ehs-maintainers
+* @SafetyMP/ehs-maintainers
 
-/.github/ @YOUR_ORG/ehs-devops
-/next.config.ts @YOUR_ORG/ehs-devops
-/Dockerfile @YOUR_ORG/ehs-devops
-/vercel.ts @YOUR_ORG/ehs-devops
+/.github/ @SafetyMP/ehs-devops
+/next.config.ts @SafetyMP/ehs-devops
+/Dockerfile @SafetyMP/ehs-devops
+/vercel.ts @SafetyMP/ehs-devops
 
-/src/server/ @YOUR_ORG/ehs-backend
-/scripts/ @YOUR_ORG/ehs-backend
-/drizzle/ @YOUR_ORG/ehs-backend
+/src/server/ @SafetyMP/ehs-backend
+/scripts/ @SafetyMP/ehs-backend
+/drizzle/ @SafetyMP/ehs-backend
 
-/src/app/ @YOUR_ORG/ehs-frontend
-/src/components/ @YOUR_ORG/ehs-frontend
+/src/app/ @SafetyMP/ehs-frontend
+/src/components/ @SafetyMP/ehs-frontend
 
-COMPLIANCE.md @YOUR_ORG/ehs-compliance
-/src/server/services/dataRetention.ts @YOUR_ORG/ehs-compliance
-/src/server/services/incidentRetentionDefault.ts @YOUR_ORG/ehs-compliance
+COMPLIANCE.md @SafetyMP/ehs-compliance
+/src/server/services/dataRetention.ts @SafetyMP/ehs-compliance
+/src/server/services/incidentRetentionDefault.ts @SafetyMP/ehs-compliance

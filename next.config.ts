@@ -25,7 +25,8 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=()",
+    // camera=(self) enables capture on intake routes; geolocation/mic stay disabled unless product enables them.
+    value: "camera=(self), microphone=(), geolocation=()",
   },
 ];
 

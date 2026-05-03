@@ -1,9 +1,11 @@
 # Runs the Next.js standalone server (see root Dockerfile + next.config output: "standalone").
 #
-# Observability (after you expose metrics):
-#   Prometheus Operator often scrapes pods annotated with prometheus.io/*. This app does not
-#   ship /metrics by default — uncomment annotations only when you add a metrics route or
-#   use a sidecar / OpenTelemetry Collector that exposes scraped endpoints.
+# Observability — Prometheus-compatible cron rollup (bearer-auth):
+#   GET /api/cron/metrics with Authorization: Bearer <CRON_SECRET> (same as CronJobs).
+#   Runbook: docs/runbooks/cron-metrics-observability.md
+#   Example ServiceMonitor-compatible scrape annotations (uncomment when your operator selects these pods):
+#   prometheus.io/scrape: "true", prometheus.io/port: "3000", prometheus.io/path: "/api/cron/metrics"
+#   See deploy/k8s/prometheus-scrape-cron-metrics.example.yml for scrape config commentary.
 #
 # map: Docker Compose "web" service → Deployment + Pods
 apiVersion: apps/v1
@@ -26,17 +28,17 @@ spec:
       # annotations:
       #   prometheus.io/scrape: "true"
       #   prometheus.io/port: "3000"
-      #   prometheus.io/path: "/metrics"
+      #   prometheus.io/path: "/api/cron/metrics"
     spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
         fsGroup: 1001
-          containers:
-            - name: ehs-web
-              # Kustomize `images` rewrites this ref (see kustomization.yaml).
-              # Private GHCR: add imagePullSecrets on the Pod (not shown — create a docker-registry secret).
-              image: ehs-web:latest
+      containers:
+        - name: ehs-web
+          # Kustomize `images` rewrites this ref (see kustomization.yaml).
+          # Private GHCR: add imagePullSecrets on the Pod (not shown — create a docker-registry secret).
+          image: ehs-web:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

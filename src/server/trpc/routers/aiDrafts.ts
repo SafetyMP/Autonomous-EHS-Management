@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
 import { environmentalAspect, aspectSignificanceEnum } from "@/server/db/schema";
+import { writeAuditLog } from "@/server/services/audit";
 import { getAiGateway } from "@/lib/ai/gateway";
 import { redactForPrompt } from "@/lib/pii/redact";
 import { orgScope } from "../schemas/orgScope";
@@ -72,18 +73,43 @@ export const aiDraftsRouter = router({
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.ASPECT_CREATE);
 
-      const [row] = await ctx.db
-        .insert(environmentalAspect)
-        .values({
+      const row = await ctx.db.transaction(async (tx) => {
+        const [inserted] = await tx
+          .insert(environmentalAspect)
+          .values({
+            organizationId: input.organizationId,
+            siteId: input.siteId ?? null,
+            name: input.draft.name,
+            activity: input.draft.activity ?? null,
+            description: input.draft.description ?? null,
+            environmentalImpact: input.draft.environmentalImpact ?? null,
+            significance: input.draft.significance as (typeof aspectSignificanceEnum.enumValues)[number],
+          })
+          .returning();
+
+        if (!inserted) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create environmental aspect from draft.",
+          });
+        }
+
+        await writeAuditLog(tx, {
           organizationId: input.organizationId,
-          siteId: input.siteId ?? null,
-          name: input.draft.name,
-          activity: input.draft.activity ?? null,
-          description: input.draft.description ?? null,
-          environmentalImpact: input.draft.environmentalImpact ?? null,
-          significance: input.draft.significance as (typeof aspectSignificanceEnum.enumValues)[number],
-        })
-        .returning();
+          actorUserId: ctx.user.id,
+          action: "ai_drafts.apply_aspect_draft",
+          entityType: "environmental_aspect",
+          entityId: inserted.id,
+          payload: {
+            organizationId: input.organizationId,
+            siteId: input.siteId ?? null,
+            significance: input.draft.significance,
+            name: input.draft.name,
+          },
+        });
+
+        return inserted;
+      });
 
       return { applied: true, aspect: row };
     }),

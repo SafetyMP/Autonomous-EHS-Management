@@ -3,8 +3,18 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
+import { IntakePhotoAttachments } from "@/components/field/intake-photo-attachments";
+import { useNavigatorOnline } from "@/hooks/useNavigatorOnline";
+import { usePersistedFormDraft } from "@/hooks/usePersistedFormDraft";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
+import { dfSecondaryOutline } from "@/lib/dashboard-field-styles";
+import {
+  buildFieldPhotoAppendix,
+  type CompressedIntakeImage,
+  wouldExceedIntakeTextLimit,
+} from "@/lib/field/compressIntakeImage";
+import { enqueueFieldOutbox, isFieldOutboxEnabled } from "@/lib/offline/fieldOutbox";
 import { trpc } from "@/trpc/react";
 import { INCIDENT_SEVERITIES, INCIDENT_TYPES } from "@/lib/ehs-enums";
 
@@ -14,33 +24,89 @@ function formatTypeLabel(t: (typeof INCIDENT_TYPES)[number]): string {
   return t.replaceAll("_", " ");
 }
 
+type IncidentDraft = {
+  title: string;
+  description: string;
+  severity: string;
+  incidentType: string;
+  siteId: string;
+  occurredAtLocal: string;
+  immediateActions: string;
+  regulatoryNotificationRequired: string;
+};
+
+const emptyDraft: IncidentDraft = {
+  title: "",
+  description: "",
+  severity: severities[1] ?? "medium",
+  incidentType: INCIDENT_TYPES[2] ?? "near_miss",
+  siteId: "",
+  occurredAtLocal: "",
+  immediateActions: "",
+  regulatoryNotificationRequired: "false",
+};
+
 export default function NewIncidentPage() {
   const router = useRouter();
+  const formId = useId();
   const formErrorId = useId();
+  const offlineHintId = useId();
+  const outboxAnnounceId = useId();
+  const suggestErrorId = useId();
+  const draftRestoredId = useId();
+  const online = useNavigatorOnline();
   const { organizationId } = useOrg();
   const utils = trpc.useUtils();
+
+  const draftStorageKey = organizationId ? `ehs:draft:incident:new:${organizationId}` : null;
+  const { draft, setDraftField, restored, clearDraft } = usePersistedFormDraft<IncidentDraft>(
+    draftStorageKey,
+    emptyDraft,
+  );
+
+  const severity = severities.includes(draft.severity as (typeof severities)[number])
+    ? (draft.severity as (typeof severities)[number])
+    : (severities[1] ?? "medium");
+  const incidentType = INCIDENT_TYPES.includes(draft.incidentType as (typeof INCIDENT_TYPES)[number])
+    ? (draft.incidentType as (typeof INCIDENT_TYPES)[number])
+    : (INCIDENT_TYPES[2] ?? "near_miss");
 
   const { data: sites } = trpc.organization.sites.useQuery(
     { organizationId: organizationId! },
     { enabled: !!organizationId },
   );
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [severity, setSeverity] = useState<string>(severities[1] ?? "medium");
-  const [incidentType, setIncidentType] = useState<string>(INCIDENT_TYPES[2] ?? "near_miss");
-  const [siteId, setSiteId] = useState<string>("");
-  const [occurredAtLocal, setOccurredAtLocal] = useState("");
-  const [immediateActions, setImmediateActions] = useState("");
-  const [regulatoryNotificationRequired, setRegulatoryNotificationRequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [outboxStatus, setOutboxStatus] = useState<string | null>(null);
+  const [suggestError, setSuggestError] = useState<string | null>(null);
+  const [intakePhotos, setIntakePhotos] = useState<CompressedIntakeImage[]>([]);
+
+  const contextHint = [draft.title.trim(), draft.description.trim(), draft.immediateActions.trim()]
+    .filter(Boolean)
+    .join("\n")
+    .trim();
 
   const create = trpc.incident.create.useMutation({
     onSuccess: (created) => {
+      clearDraft();
       void utils.incident.list.invalidate();
       router.push(`/dashboard/incidents/${created.id}`);
     },
     onError: (e) => setError(e.message),
+  });
+
+  const suggestDraft = trpc.aiAssistant.proposeIncidentIntakeDraft.useMutation({
+    onSuccess: (out) => {
+      setDraftField("title", out.suggestedTitle);
+      setDraftField("description", out.suggestedDescription);
+      if (out.suggestedImmediateActions) {
+        setDraftField("immediateActions", out.suggestedImmediateActions);
+      }
+      if (out.suggestedSeverity) setDraftField("severity", out.suggestedSeverity);
+      if (out.suggestedIncidentType) setDraftField("incidentType", out.suggestedIncidentType);
+      setSuggestError(null);
+    },
+    onError: (e) => setSuggestError(e.message),
   });
 
   if (!organizationId) {
@@ -52,25 +118,68 @@ export default function NewIncidentPage() {
     );
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!organizationId) return;
     setError(null);
+    if (!online && intakePhotos.length > 0) {
+      setError(
+        "Photos cannot be saved with an offline queued report. Remove photos or connect to the network.",
+      );
+      return;
+    }
     let occurredAt: Date | undefined;
-    if (occurredAtLocal.trim()) {
-      const d = new Date(occurredAtLocal);
+    if (draft.occurredAtLocal.trim()) {
+      const d = new Date(draft.occurredAtLocal);
       if (!Number.isNaN(d.getTime())) occurredAt = d;
     }
-    create.mutate({
+    const photoAppendix = buildFieldPhotoAppendix(intakePhotos);
+    let descriptionOut = draft.description;
+    if (photoAppendix) {
+      if (wouldExceedIntakeTextLimit(draft.description, photoAppendix)) {
+        setError(
+          "Your description and photos together exceed the server limit. Remove a photo or shorten the text.",
+        );
+        return;
+      }
+      descriptionOut = `${draft.description}${photoAppendix}`;
+    }
+    const regulatoryNotificationRequired = draft.regulatoryNotificationRequired === "true";
+    const payload = {
       organizationId,
-      title,
-      description,
-      severity: severity as (typeof INCIDENT_SEVERITIES)[number],
-      incidentType: incidentType as (typeof INCIDENT_TYPES)[number],
-      siteId: siteId || undefined,
-      occurredAt,
-      immediateActions: immediateActions.trim() || undefined,
+      title: draft.title,
+      description: descriptionOut,
+      severity,
+      incidentType,
+      siteId: draft.siteId || undefined,
+      occurredAt: occurredAt?.toISOString(),
+      immediateActions: draft.immediateActions.trim() || undefined,
       regulatoryNotificationRequired: regulatoryNotificationRequired || undefined,
+    };
+
+    if (!online) {
+      if (isFieldOutboxEnabled()) {
+        setOutboxStatus(null);
+        try {
+          await enqueueFieldOutbox({
+            procedure: "incident.create",
+            organizationId,
+            payloadJson: JSON.stringify(payload),
+          });
+          setOutboxStatus("Saved in this browser. It will send when you are back online.");
+        } catch {
+          setError("Could not save offline draft in this browser.");
+        }
+      }
+      return;
+    }
+
+    create.mutate({
+      ...payload,
+      description: descriptionOut,
+      severity,
+      incidentType,
+      occurredAt,
     });
   }
 
@@ -81,21 +190,58 @@ export default function NewIncidentPage() {
         <OrgSwitcher />
       </div>
       <form
+        id={formId}
+        suppressHydrationWarning
         onSubmit={onSubmit}
         className="space-y-4 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm"
       >
+        {restored ? (
+          <p id={draftRestoredId} role="status" aria-live="polite" className="text-sm text-zinc-800">
+            Restored a draft from this browser. It is removed after a successful save.{" "}
+            <button
+              type="button"
+              className="font-medium text-emerald-900 underline underline-offset-2"
+              onClick={() => clearDraft()}
+            >
+              Discard draft
+            </button>
+          </p>
+        ) : null}
         <p className="text-sm text-zinc-600">
           Use short phrases if you are in a hurry — you can refine details from the incident record
           after submitting.
         </p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={dfSecondaryOutline}
+            disabled={suggestDraft.isPending || contextHint.length < 10}
+            aria-busy={suggestDraft.isPending}
+            onClick={() => {
+              if (!organizationId) return;
+              setSuggestError(null);
+              suggestDraft.mutate({ organizationId, contextHint });
+            }}
+          >
+            {suggestDraft.isPending ? "Suggesting..." : "Suggest wording (AI)"}
+          </button>
+          <span className="self-center text-sm">
+            Proposal only — edit before saving. Requires AI and RAG permissions.
+          </span>
+        </div>
+        {suggestError ? (
+          <p id={suggestErrorId} role="alert" className="text-sm text-red-700">
+            {suggestError}
+          </p>
+        ) : null}
         <div>
-          <label htmlFor="itype" className="block text-sm font-medium">
+          <label htmlFor={`${formId}-itype`} className="block text-sm font-medium">
             Event type
           </label>
           <select
-            id="itype"
+            id={`${formId}-itype`}
             value={incidentType}
-            onChange={(e) => setIncidentType(e.target.value)}
+            onChange={(e) => setDraftField("incidentType", e.target.value)}
             className="mt-1 min-h-11 w-full rounded-md border border-zinc-300 px-3 py-2 text-base text-zinc-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600 sm:text-sm"
           >
             {INCIDENT_TYPES.map((t) => (
@@ -106,13 +252,13 @@ export default function NewIncidentPage() {
           </select>
         </div>
         <div>
-          <label htmlFor="site" className="block text-sm font-medium">
+          <label htmlFor={`${formId}-site`} className="block text-sm font-medium">
             Site / location
           </label>
           <select
-            id="site"
-            value={siteId}
-            onChange={(e) => setSiteId(e.target.value)}
+            id={`${formId}-site`}
+            value={draft.siteId}
+            onChange={(e) => setDraftField("siteId", e.target.value)}
             className="mt-1 min-h-11 w-full rounded-md border border-zinc-300 px-3 py-2 text-base text-zinc-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600 sm:text-sm"
           >
             <option value="">— Not specified —</option>
@@ -129,56 +275,56 @@ export default function NewIncidentPage() {
           ) : null}
         </div>
         <div>
-          <label htmlFor="when" className="block text-sm font-medium">
+          <label htmlFor={`${formId}-when`} className="block text-sm font-medium">
             When it occurred (optional)
           </label>
           <input
-            id="when"
+            id={`${formId}-when`}
             type="datetime-local"
-            value={occurredAtLocal}
-            onChange={(e) => setOccurredAtLocal(e.target.value)}
+            value={draft.occurredAtLocal}
+            onChange={(e) => setDraftField("occurredAtLocal", e.target.value)}
             className="mt-1 min-h-11 w-full rounded-md border border-zinc-300 px-3 py-2 text-base text-zinc-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600 sm:text-sm"
           />
         </div>
         <div>
-          <label htmlFor="title" className="block text-sm font-medium">
+          <label htmlFor={`${formId}-title`} className="block text-sm font-medium">
             Title
           </label>
           <input
-            id="title"
+            id={`${formId}-title`}
             required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={draft.title}
+            onChange={(e) => setDraftField("title", e.target.value)}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? formErrorId : undefined}
             className="mt-1 min-h-11 w-full rounded-md border border-zinc-300 px-3 py-2 text-base text-zinc-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600 sm:text-sm"
           />
         </div>
         <div>
-          <label htmlFor="desc" className="block text-sm font-medium">
+          <label htmlFor={`${formId}-desc`} className="block text-sm font-medium">
             What happened
           </label>
           <textarea
-            id="desc"
+            id={`${formId}-desc`}
             required
             placeholder="Where, equipment/area, people involved, immediate outcome (bullets OK)"
             rows={4}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={draft.description}
+            onChange={(e) => setDraftField("description", e.target.value)}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? formErrorId : undefined}
             className="mt-1 min-h-[6rem] w-full rounded-md border border-zinc-300 px-3 py-3 text-base text-zinc-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600 sm:text-sm"
           />
         </div>
         <div>
-          <label htmlFor="immediate" className="block text-sm font-medium">
+          <label htmlFor={`${formId}-immediate`} className="block text-sm font-medium">
             Immediate actions (optional)
           </label>
           <textarea
-            id="immediate"
+            id={`${formId}-immediate`}
             rows={2}
-            value={immediateActions}
-            onChange={(e) => setImmediateActions(e.target.value)}
+            value={draft.immediateActions}
+            onChange={(e) => setDraftField("immediateActions", e.target.value)}
             placeholder="Barricade, first aid, shutoff, notify supervisor…"
             className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-base text-zinc-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600 sm:text-sm"
           />
@@ -186,19 +332,29 @@ export default function NewIncidentPage() {
         <label className="flex items-center gap-2 text-sm font-normal text-zinc-800">
           <input
             type="checkbox"
-            checked={regulatoryNotificationRequired}
-            onChange={(e) => setRegulatoryNotificationRequired(e.target.checked)}
+            checked={draft.regulatoryNotificationRequired === "true"}
+            onChange={(e) =>
+              setDraftField("regulatoryNotificationRequired", e.target.checked ? "true" : "false")
+            }
           />
           Regulatory notification may be required
         </label>
+        <IntakePhotoAttachments
+          images={intakePhotos}
+          onChange={setIntakePhotos}
+          disabled={create.isPending}
+        />
+        <p className="text-xs text-zinc-500">
+          Photos are not stored in the local draft — they stay in memory until you submit.
+        </p>
         <div>
-          <label htmlFor="sev" className="block text-sm font-medium">
+          <label htmlFor={`${formId}-sev`} className="block text-sm font-medium">
             Severity
           </label>
           <select
-            id="sev"
+            id={`${formId}-sev`}
             value={severity}
-            onChange={(e) => setSeverity(e.target.value)}
+            onChange={(e) => setDraftField("severity", e.target.value)}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? formErrorId : undefined}
             className="mt-1 min-h-11 w-full rounded-md border border-zinc-300 px-3 py-2 text-base text-zinc-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600 sm:text-sm"
@@ -210,6 +366,23 @@ export default function NewIncidentPage() {
             ))}
           </select>
         </div>
+        {!online ? (
+          <p id={offlineHintId} role="status" className="text-base font-medium text-amber-900">
+            {isFieldOutboxEnabled()
+              ? "You appear offline — you can queue this report on this device. It sends when you are back online."
+              : "You are offline. Connect to the network before submitting — the report cannot be saved while offline."}
+          </p>
+        ) : null}
+        {outboxStatus ? (
+          <p
+            id={outboxAnnounceId}
+            role="status"
+            aria-live="polite"
+            className="text-base font-medium text-emerald-900"
+          >
+            {outboxStatus}
+          </p>
+        ) : null}
         {error ? (
           <p id={formErrorId} className="text-base text-red-700" role="alert">
             {error}
@@ -218,8 +391,18 @@ export default function NewIncidentPage() {
         <div className="flex flex-wrap gap-3">
           <button
             type="submit"
-            disabled={create.isPending}
+            disabled={create.isPending || (!online && !isFieldOutboxEnabled())}
             aria-busy={create.isPending}
+            aria-describedby={
+              [
+                !online ? offlineHintId : "",
+                error ? formErrorId : "",
+                outboxStatus ? outboxAnnounceId : "",
+                restored ? draftRestoredId : "",
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined
+            }
             className="min-h-11 touch-target rounded-md bg-emerald-800 px-4 py-2 text-base font-semibold text-white hover:bg-emerald-900 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
           >
             {create.isPending ? "Saving…" : "Submit"}

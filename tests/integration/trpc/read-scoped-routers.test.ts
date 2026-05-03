@@ -165,7 +165,7 @@ describe("ehsEvidence.list", () => {
 
 describe("organization read helpers", () => {
   it("organization.mine returns joined org summaries", async () => {
-    const rows = [{ id: orgId, name: "Acme Corp" }];
+    const rows = [{ id: orgId, name: "Acme Corp", contextSyncEnabled: true }];
     const out = await callTRPCProcedure({
       router: appRouter,
       path: "organization.mine",

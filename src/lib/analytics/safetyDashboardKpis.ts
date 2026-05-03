@@ -57,7 +57,9 @@ export function computeIncidentSafetyBlock(input: {
   byType: readonly { incidentType: string; n: unknown }[];
   byMonth: readonly { yyyymm: string; n: unknown }[];
   nearMissOpenCount: number;
-  closedRows: readonly { createdAt: Date; updatedAt: Date }[];
+  /** When set (including `null` from an empty closed set), skips row-based mean; prefer DB aggregate from the router. */
+  meanDaysToCloseSnapshot?: number | null;
+  closedRows?: readonly { createdAt: Date; updatedAt: Date }[];
 }): IncidentSafetyBlock {
   const monthMap = Object.fromEntries(
     input.byMonth.map((r) => [r.yyyymm, toNum(r.n)]),
@@ -72,9 +74,12 @@ export function computeIncidentSafetyBlock(input: {
 
   const openNonClosed = (statusMap.open ?? 0) + (statusMap.investigating ?? 0);
 
+  const closedRows = input.closedRows ?? [];
   let meanDaysToCloseSnapshot: number | null = null;
-  if (input.closedRows.length > 0) {
-    const days = input.closedRows.map((r) => {
+  if ("meanDaysToCloseSnapshot" in input) {
+    meanDaysToCloseSnapshot = input.meanDaysToCloseSnapshot ?? null;
+  } else if (closedRows.length > 0) {
+    const days = closedRows.map((r) => {
       const a = r.createdAt.getTime();
       const b = r.updatedAt.getTime();
       return Math.max(0, (b - a) / 86_400_000);

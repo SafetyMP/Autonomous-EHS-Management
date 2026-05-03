@@ -2,6 +2,8 @@
 
 This checklist is **manual**: GitHub org/repo settings and cloud IAM consoles. It matches the pipelines in `.github/workflows/` (`CI`, **Container image**, **Release**, **Promote production**).
 
+**Clone path:** If your local folder name ends with a **trailing space** (unquoted paths and some CI copy/paste flows), shells and Node tooling may mis-resolve the workspace—**rename the directory** or always `cd`/`open` with a **quoted** path (e.g. `"./Autonomous EHS Management System "`).
+
 **Canonical GitHub repo:** [`SafetyMP/Autonomous-EHS-Management`](https://github.com/SafetyMP/Autonomous-EHS-Management). Use IAM OIDC trust subjects such as `repo:SafetyMP/Autonomous-EHS-Management:*` scoped to **`production`** environment (see §3).
 
 ### Repository About (topics are not committed to Git)
@@ -41,11 +43,11 @@ Create a **ruleset** targeting **`main`** and **`master`** (or unify on one trun
 |-------------|----------------|
 | **Pull requests** | Require PR before merge; block direct pushes unless bypass role is deliberate. |
 | **Linear history** | Require **squash merge** only *or* require linear history (pick one policy). |
-| **Status checks** | Require **`supply-chain-audit`** (runs `npm audit --omit=dev --audit-level=high` against **production transitive** vulnerabilities), **`verify`**, and **`e2e-smoke`** from workflow [`CI`](.github/workflows/ci.yml). DevDependency advisories are primarily handled by **[Dependabot](.github/dependabot.yml)**. |
+| **Status checks** | Require **`supply-chain-audit`** (runs `npm audit --omit=dev --audit-level=high` against **production transitive** vulnerabilities), **`verify`**, and **`e2e-smoke`** from workflow [`CI`](.github/workflows/ci.yml). Optionally require **`Analyze`** from [`CodeQL`](.github/workflows/codeql-analysis.yml) if Advanced Security is enabled. DevDependency advisories are primarily handled by **[Dependabot](.github/dependabot.yml)**. |
 | **Reviews** | Require **≥1** approving review from humans; map “AI review” via optional **Copilot** or bot checks (**GitHub does not enforce AI vs human** explicitly). |
 | **Verified commits** | Enable **verified signatures** or **verified authors** where your org allows it. |
 | **Bypass lists** | Keep empty for developers; optionally allow **`release`** automation only via a dedicated GitHub App or fine-grained token if `semantic-release` cannot tag (see §4). |
-| **`CODEOWNERS`** | Replace `YOUR_ORG` in [`.github/CODEOWNERS`](.github/CODEOWNERS) with real teams (or `@username`) so rulesets can require owner review. |
+| **`CODEOWNERS`** | Ensure `@SafetyMP/…` teams in [`.github/CODEOWNERS`](.github/CODEOWNERS) exist under the org—or substitute `@username`/team slugs—so rulesets can require owner review. |
 
 **CI database (Playwright):** the **`e2e-smoke`** job starts **PostgreSQL (pgvector)**, runs **`npm run db:migrate`** and **`npm run db:seed:ci`**, then smoke tests (including signed-in). Forked PRs from untrusted contributors should not receive repo secrets unless your org explicitly allows it.
 
@@ -67,6 +69,8 @@ Create a **ruleset** targeting **`main`** and **`master`** (or unify on one trun
    - **`AWS_REGION`**
    - **`EKS_CLUSTER_NAME`**
    - **`K8S_NAMESPACE`** — default in manifests is **`ehs-prod`** (`deploy/k8s/` alignment).
+
+**Cron metrics probe (optional):** [`.github/workflows/cron-metrics-probe.yml`](.github/workflows/cron-metrics-probe.yml) runs **`workflow_dispatch`** against a URL you supply. Prefer **`CRON_SECRET`** as an **Environment** secret (`staging` / `production`) when org policy favors scoped automation credentials—the checked-in workflow reads a **repository** secret so forks keep a frictionless manual path without environment approval gates on each run.
 
 Issue template links: [`.github/ISSUE_TEMPLATE/config.yml`](.github/ISSUE_TEMPLATE/config.yml).
 
@@ -92,7 +96,7 @@ Issue template links: [`.github/ISSUE_TEMPLATE/config.yml`](.github/ISSUE_TEMPLA
 Workflow: [`.github/workflows/release.yml`](.github/workflows/release.yml) + [`.releaserc.json`](.releaserc.json).
 
 - **Conventional Commits:** `feat:`, `fix:`, etc. Squash-merge PR titles should contain a compliant subject line.
-- **`GITHUB_TOKEN` permissions:** **`contents: write`**, **`issues: write`**, **`pull-requests: write`** — required for Releases and changelog comments.
+- **`GITHUB_TOKEN` permissions:** **`contents: write`**, **`issues: write`**, **`pull-requests: write`** — required for Releases and changelog commits ([`CHANGELOG.md`](CHANGELOG.md) updates use **`[skip ci]`** in the git plugin message so trunk CI is not rerun for the housekeeping commit alone).
 - If Rulesets block tag pushes from `GITHUB_TOKEN`, add a **`release`** bypass for the **`Release`** workflow or switch to a **GitHub App** installation token documented out-of-repo.
 
 ---
@@ -115,7 +119,7 @@ Where licensed:
 |-----------|---------|
 | **Dependabot alerts** | PRs filed via [`.github/dependabot.yml`](.github/dependabot.yml). |
 | **Secret scanning + push protection** | Block leaked secrets. |
-| **CodeQL** (optional starter workflow) | SAST complement to `eslint`/`tsc`; add `codeql-analysis.yml` if permitted. |
+| **CodeQL** ([`codeql-analysis.yml`](.github/workflows/codeql-analysis.yml)) | SAST complement to `eslint`/`tsc`; pin the **`Analyze`** job in branch rulesets if it should gate merges once Advanced Security is available. |
 
 **Artifact attestations** (build provenance pushed with the image):
 
@@ -147,6 +151,14 @@ Downstream Admission / policy engines (Kyverno, Ratify, Sigstore Admission) cons
 | [`LICENSE`](LICENSE) | **Apache License 2.0**. **`package.json`** `"license"` must stay **`Apache-2.0`** (**SPDX**). |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Entry path for contributors; merge bar stays **[`AGENTS.md`](AGENTS.md)**. |
 | [`SECURITY.md`](SECURITY.md) | Responsible disclosure — enable **Security → Private vulnerability reporting** on the GitHub repo. |
+
+---
+
+## 10. Cursor IDE tool connections (optional)
+
+Some teams attach **Cursor** MCP servers (Vercel, Neon, Slack, AWS/Azure helpers, docs proxies) or use the Cursor SDK for **internal** automation. These do **not** replace GitHub **Environment** approvals, **`VERCEL_TOKEN`**, IAM OIDC, or kubectl RBAC—they are tooling around the same APIs.
+
+Canonical guidance tying MCP scope to Drizzle migrations, preview DBs, and cron behavior on **Vercel vs Kubernetes** lives in **[`docs/cursor-tool-connections-deployment.md`](docs/cursor-tool-connections-deployment.md)**. Do not commit production secrets into MCP config or prompts.
 
 ---
 

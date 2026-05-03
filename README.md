@@ -2,15 +2,39 @@
 
 **Autonomous compliance operations platform** — give your team one place to log what happened, assign fixes, and prove the follow-up. Autonomous EHS is a browser-based console for people who run safety programs day to day—not a pile of separate files.
 
+## What “autonomous” means here
+
+In this product, **autonomous** refers to **operations that keep moving without ad hoc spreadsheet chasing**: scheduled jobs (reminders, data retention, SLA checks), **recorded escalation events** when follow-ups or approvals breach deadlines, durable **field outbox replay**, **integration ingest**, and **incidence-rate analytics (TRIR-style)** from IMS recordables and establishment hours—not a substitute for official OSHA filings—all with PostgreSQL as the auditable system of record. **Optional AI** suggests wording or retrieves policy context; it does **not** auto-close incidents, auto-approve CAPAs, or change regulated status without human action through normal, permission-gated workflows ([docs/ai-governed-intake.md](docs/ai-governed-intake.md), [docs/procurement-readiness.md](docs/procurement-readiness.md)).
+
+## Quick start
+
+1. **Clone and install:** `git clone <repo-url> && cd <repo-dir> && npm ci`  
+   **Path tip:** Avoid a **working directory name with a trailing space** (some macOS / archive flows introduce `"…System "`). That can break scripts, tooling, and shell `cd` unless you always **quote paths**—prefer renaming the folder to remove stray spaces.
+2. **Configure:** pick a row in **Environment snapshots** below and copy the listed template to `.env.local` (fill secrets).
+3. **Run:**
+   - **Docker demo:** `npm run demo:up` then `npm run dev` → [http://localhost:3000/sign-in](http://localhost:3000/sign-in) (details in [Turnkey local demo](#turnkey-local-demo-docker-postgres)).
+   - **Your own Postgres:** `npm run db:migrate` then `SEED_ADMIN_EMAIL=you@company.com npm run db:seed` then `npm run dev`.
+4. **Before a PR:** `npm run verify` — same bar as CI ([AGENTS.md](AGENTS.md)).
+
+## Environment snapshots
+
+| Profile | Start from | Required / typical |
+|--------|------------|-------------------|
+| **Local demo (Docker)** | [`.env.demo.example`](.env.demo.example) | `DATABASE_URL` on host **port 5433**, `DATABASE_USE_PG=1`, `BETTER_AUTH_SECRET` (32+ chars), `BETTER_AUTH_URL` / `NEXT_PUBLIC_APP_URL`, demo mode + admin credentials — **never enable demo flags in production.** |
+| **Local / hosted Postgres** | [`.env.example`](.env.example) | `DATABASE_URL`, `BETTER_AUTH_SECRET`, URLs; omit `DATABASE_USE_PG` when using Neon serverless; optional OIDC, `CRON_SECRET`, AI gateway, Upstash — see file comments. |
+| **CI (GitHub Actions / Vitest)** | [`.env.ci`](.env.ci) | Fixture `DATABASE_URL` + `DATABASE_USE_PG=1`, synthetic secrets; **not for real deployments.** |
+
+Optional assistants can draw on your approved materials when you turn that feature on.
+
 **Architecture & diligence:** [docs/architecture-map.md](docs/architecture-map.md) (system map), [docs/workflow-depth.md](docs/workflow-depth.md) (state machines + audit patterns), [docs/procurement-readiness.md](docs/procurement-readiness.md) (ROI / pilot / positioning workbook), [docs/approval-workflow.md](docs/approval-workflow.md) (CAPA approval gate), [docs/case-studies/pilot-template.md](docs/case-studies/pilot-template.md).
 
-Sign in and use the left-hand navigation to work across **Overview**, **Metrics**, **Incidents**, **CAPA**, **Contractors**, **Approvals**, **Environment**, **Documents**, **Mgmt review**, **Planning**, **Training**, **Audits**, **Context**, **Tasks**, **Program**, and **Import**. Optional assistants can draw on your approved materials when you turn that feature on.
+**Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Governance → Incidence rates** (TRIR-style analytics). The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`).
 
-**End-user guide:** [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md) (step-by-step routes, troubleshooting, and field-friendly wording).
+**Open source & TCO:** [`docs/open-source-tco.md`](docs/open-source-tco.md) — Apache-2.0 snapshot and illustrative self-host vs seat-priced inspection SaaS math for pilots.
 
 **Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (governance notes).
 
-Stack, local demo, and deploy guidance for builders start under **Architecture** below.
+Diagram, SSO, full demo walkthrough, Codespaces, non-demo development, and production deploy pointers are below.
 
 ---
 
@@ -45,6 +69,18 @@ Deeper maps: [docs/architecture-map.md](docs/architecture-map.md).
 | Database | **PostgreSQL**, **Drizzle ORM**; local demo uses **`pg`** (`DATABASE_USE_PG=1`), hosted uses **Neon serverless** driver by default |
 | AI / RAG | Optional **OpenAI-compatible** gateway; **pgvector** for embeddings |
 | Quality | **ESLint**, **Vitest**, **Playwright** smoke E2E |
+
+---
+
+## Operators and integrations (self-host)
+
+These surfaces are primarily for **platform engineers**, **SRE**, and **governed tool access**—not day-to-day EHS Console menus.
+
+- **Context Sync (REST):** Session-authenticated HTTP routes under **`/api/contextsync/*`** for **Context Sync**—IMS-linked artifacts, permissions, and provenance—when the organization enables the capability. Access is rate-limited like other gated APIs; optional caps: **`CONTEXT_SYNC_ORG_DAILY_READ_LIMIT`** and **`CONTEXT_SYNC_PROVENANCE_MAX_LIMIT`** (see [`src/lib/env.ts`](src/lib/env.ts), [`.env.example`](.env.example)). Architecture: [`docs/architecture-map.md`](docs/architecture-map.md). Provenance and ops: [`docs/runbooks/context-sync-provenance.md`](docs/runbooks/context-sync-provenance.md).
+
+- **Cron observability:** [`vercel.ts`](vercel.ts) schedules **HTTP cron** handlers for **`/api/cron/reminders`** and **`/api/cron/data-retention`** only. **`GET /api/cron/metrics`** is a separate **pull/scrape** endpoint (Bearer **`CRON_SECRET`**, Prometheus or JSON)—it is **not** invoked by the platform cron schedule; configure an external scraper or agent in Kubernetes or your observability stack. Runbook: [`docs/runbooks/cron-metrics-observability.md`](docs/runbooks/cron-metrics-observability.md).
+
+- **Background jobs:** When **`PG_BOSS_ENABLED=true`**, enqueue paths use **pg-boss** in Postgres; run a worker process with **`npm run job:worker`** alongside the web app. Details: [`docs/JOB_QUEUE.md`](docs/JOB_QUEUE.md).
 
 ---
 
@@ -112,6 +148,12 @@ npm run dev
 
 `npm run db:migrate` runs [`scripts/migrate.ts`](scripts/migrate.ts) so database errors are printed clearly (wrapper around Drizzle’s migrator).
 
+**Demo data after upgrades:** `npm run db:seed:demo` is **idempotent per domain**—re-run it to **backfill** new fixtures (observations, permits, inspections, approvals, environment, contractors, privacy DSAR sample, program CB audit/certificate, etc.) without wiping the org. For a **clean slate** on the throwaway **Demo Organization**, use the reset script below.
+
+**Evaluator-oriented fixtures** (idempotent `[Demo]` scope): **environmental regulatory permits** (conditions, monitoring link, one pending with approval inbox), **incident RCA** (5 Whys + Ishikawa on seeded incidents; showcase bow-tie/chronology where applicable), **risk** register with overdue review + a **task-based** assessment and **steps**, **Command Center** onboarding checklist rows marked complete when prerequisites exist, **program automation** samples (`escalation_event`), **integrations** backlog (**failed** `integration_event`, disabled operational webhook + connector mapping JSON), **RAG** (`rag_source` + `rag_chunk` without embeddings — list/detail friendly), **obligation ↔ RAG** link on the stormwater obligation, and an **evidence attachment** registry row with a **non-fetchable** placeholder URI. **Context Sync** artifacts are **not** seeded. The **workflow catalog** under `/dashboard/workflow-catalog` is **code-derived** ([`src/lib/workflow/catalog.ts`](src/lib/workflow/catalog.ts)), not database fixtures.
+
+**Cron telemetry note:** seed can insert **synthetic `cron_job_run`** rows for `reminders` and `data-retention` when there is no successful run in the last 7 days — the table is **deployment-global** (not org-scoped). Use only on **throwaway** demo databases; set **`DEMO_SEED_CRON_RUNS=0`** in `.env.local` to skip, or keep shared staging operator telemetry untouched.
+
 Open [http://localhost:3000/sign-in](http://localhost:3000/sign-in). Use **Try demo admin** (when enabled) or sign in with the demo email and password from `.env.local`.
 
 **Health check:** [http://localhost:3000/api/health](http://localhost:3000/api/health) returns JSON `{ ok, database }` after the app can reach Postgres.
@@ -120,13 +162,21 @@ Open [http://localhost:3000/sign-in](http://localhost:3000/sign-in). Use **Try d
 
 Set **`DEMO_READ_ONLY=true`** (with **`DEMO_MODE=true`**). All **tRPC mutations** return `FORBIDDEN`; reads still work so stakeholders can explore safely.
 
-### Reset demo incidents / CAPA
+### Reset demo organization (clean slate)
 
 ```bash
 npm run db:seed:demo:reset
 ```
 
-Clears demo-scoped rows for **Demo Organization** (incidents, CAPAs, training, controlled documents & revisions, internal audits & findings), then runs the demo seed again.
+Clears **`[Demo]`-prefixed** rows for **Demo Organization** across field operations, demo-scoped **approval requests** (CAPA, **work permit**, and **environmental regulatory permit** pipelines), **escalation_event** backlog for that org, **integration** rows with `demo.*` event types, demo **RAG** sources/chunks + obligation evidence links, **evidence attachments** with demo filenames or placeholder URIs, **operational_webhook_endpoint** at the synthetic `example.invalid` URL, **integration_connector_mapping** rows flagged `demoFixture`, **risk_assessment_step** + assessments, environment (**regulatory permits**, conditions, obligation-linked monitoring cleared before aspects/obligations), planning, program (including KPI, CB audit, certificate), contractors, a **synthetic DSAR** privacy row, OSHA sidecar sample, incidents, CAPA, training, controlled documents, and internal audits—then runs `db:seed:demo` again. **Does not** delete global **`cron_job_run`**. Use only on throwaway demo DBs.
+
+### Incremental refresh (keep existing demo rows)
+
+```bash
+npm run db:seed:demo
+```
+
+Skips domains that already have demo data and fills in anything missing (for example after pulling new dashboard features).
 
 ### Troubleshooting
 
@@ -135,7 +185,8 @@ Clears demo-scoped rows for **Demo Organization** (incidents, CAPAs, training, c
 | **`role "ehs" does not exist` on port 5432** | Your host `5432` is another Postgres. Use **`DATABASE_URL` … `@127.0.0.1:5433`** with the demo compose file (published as **5433**). |
 | **Migration errors / duplicate index** | Use a **fresh volume**: `docker compose -f docker-compose.demo.yml down -v`, then `up -d`, then `npm run db:migrate`. |
 | **`DEMO_MODE` on Vercel production** | Not supported: **`VERCEL_ENV=production`** fails startup if `DEMO_MODE=true` (see [`src/instrumentation.ts`](src/instrumentation.ts)). |
-| **Playwright demo login** | Set **`PLAYWRIGHT_DEMO=1`**, run **`npm run demo:up`** and **`npm run dev`** with demo `.env.local`, then `npx playwright test tests/e2e/demo`. |
+| **Playwright demo login** | Set **`PLAYWRIGHT_DEMO=1`**, run **`npm run demo:up`** and **`npm run dev`** with demo `.env.local`, then `npx playwright test tests/e2e/demo` (includes optional **fixture richness** checks against seeded RCA, env permits, risk steps, and integration DLQ). |
+| **CSV import (`/dashboard/import`)** | Paste CSV with header row. **Environmental aspects:** `name,activity,description` then e.g. `Stormwater sampling,Monitoring,"Quarterly outfall tests"`. **Hazards:** `title,description` then e.g. `Forklift traffic,"Blind corners near loading bay"`. |
 
 ### Optional: richer narratives during seed
 
@@ -165,11 +216,13 @@ npm run verify:all      # + Playwright smoke
 npm run test:e2e:smoke  # smoke only
 ```
 
+**Local Playwright smoke (signed-in flows):** CI always runs `@smoke` E2E against a service Postgres after **`npm run db:migrate`** and **`npm run db:seed:ci`**. On a developer machine, the same tests are **skipped** unless you set **`PLAYWRIGHT_E2E_EMAIL`** and **`PLAYWRIGHT_E2E_PASSWORD`** (see [`.env.example`](.env.example)) **and** use a migrated, seeded database. Flow coverage is listed in [AGENTS.md](AGENTS.md) (Smoke E2E table).
+
 ---
 
 ## Deploy
 
-Production-style deploys (e.g. **Vercel** + managed Postgres) should use strong secrets, disable all demo flags, and follow [AGENTS.md](AGENTS.md) for merge checks.
+**Canonical ship path:** staging and production stay **Git authoritative** (GitHub Actions, Vercel and/or EKS) — not IDE tool connections alone. Start with **[`docs/cursor-tool-connections-deployment.md`](docs/cursor-tool-connections-deployment.md)** (promotion workflow, Vercel + Neon preview notes, secured `/api/cron/*`) and **[`REPO_SETUP.md`](REPO_SETUP.md)** (environments, secrets, optional OIDC). Implementation contracts: [`src/lib/env.ts`](src/lib/env.ts), [`vercel.ts`](vercel.ts) (platform HTTP crons), [`deploy/k8s/`](deploy/k8s/) (cluster manifests and examples). Use strong secrets, disable **all** demo flags, and run **`npm run verify`** before merge ([AGENTS.md](AGENTS.md)). Day-2 ops and runbooks: **[`.cursor/skills/devops-sre/SKILL.md`](.cursor/skills/devops-sre/SKILL.md)**.
 
 ---
 

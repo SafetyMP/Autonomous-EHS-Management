@@ -69,6 +69,21 @@ describe("computeIncidentSafetyBlock", () => {
     expect(out.meanDaysToCloseSnapshot).toBe(7.5);
   });
 
+  it("uses precomputed meanDaysToCloseSnapshot when provided, ignoring closed rows", () => {
+    const out = computeIncidentSafetyBlock({
+      monthLabels: ["2026-01"],
+      byStatus: [],
+      byType: [],
+      byMonth: [],
+      nearMissOpenCount: 0,
+      meanDaysToCloseSnapshot: 2.2,
+      closedRows: [
+        { createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-20T00:00:00Z") },
+      ],
+    });
+    expect(out.meanDaysToCloseSnapshot).toBe(2.2);
+  });
+
   it("treats sparse month keys as zero fill", () => {
     const out = computeIncidentSafetyBlock({
       monthLabels: ["2026-05", "2026-06"],

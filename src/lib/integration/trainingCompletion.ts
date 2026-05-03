@@ -7,6 +7,8 @@ export const trainingCompletionIngestSchema = z.object({
   courseCode: z.string().min(1).max(128),
   completedAt: z.coerce.date(),
   issuer: z.string().min(1).max(128),
+  /** Optional LMS replay key — paired with `integration_inbound_idempotency` on POST `/api/integration/inbound`. */
+  idempotencyKey: z.string().min(1).max(256).optional(),
 });
 
 export type TrainingCompletionIngestInput = z.infer<typeof trainingCompletionIngestSchema>;

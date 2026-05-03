@@ -1,58 +1,13 @@
-import {
-  and,
-  count,
-  eq,
-  gte,
-  inArray,
-  isNotNull,
-  isNull,
-  lt,
-  lte,
-  ne,
-  or,
-  sql,
-} from "drizzle-orm";
 import { z } from "zod";
-import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, userHasPermission } from "@/lib/rbac";
-import {
-  addDaysUtc,
-  computeCapaSafetyBlock,
-  computeIncidentSafetyBlock,
-  trailingMonthKeys,
-  utcStartOfDay,
-} from "@/lib/analytics/safetyDashboardKpis";
-import {
-  auditFinding,
-  complianceObligation,
-  correctiveAction,
-  environmentalAspect,
-  incident,
-  membership,
-  trainingRecord,
-} from "@/server/db/schema";
+import { executeCommandCenterQuery } from "@/server/services/analytics/commandCenterQuery";
+import { executeLeadingIndicatorsQuery } from "@/server/services/analytics/leadingIndicatorsQuery";
+import { executeOperationsAutonomyQuery } from "@/server/services/analytics/operationsAutonomyQuery";
+import { executeSafetyDashboardQuery } from "@/server/services/analytics/safetyDashboardQuery";
+import { fetchObservationFollowUpSlaDashboard } from "@/server/services/analytics/observationFollowUpSla";
+import { assertCallerOrgMember } from "../assertOrgScoped";
 import { orgScope } from "../schemas/orgScope";
 import { protectedProcedure, router } from "../init";
-
-async function assertOrgMember(
-  db: import("@/server/db").Db,
-  userId: string,
-  organizationId: string,
-) {
-  const [m] = await db
-    .select({ id: membership.id })
-    .from(membership)
-    .where(
-      and(eq(membership.userId, userId), eq(membership.organizationId, organizationId)),
-    )
-    .limit(1);
-  if (!m) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-      message: "Not a member of this organization.",
-    });
-  }
-}
 
 export const analyticsRouter = router({
   /**
@@ -66,7 +21,7 @@ export const analyticsRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      await assertOrgMember(ctx.db, ctx.user.id, input.organizationId);
+      await assertCallerOrgMember(ctx.db, ctx.user.id, input.organizationId);
 
       const [
         canIncident,
@@ -75,6 +30,8 @@ export const analyticsRouter = router({
         canFinding,
         canObligation,
         canAspect,
+        canPermit,
+        canObservation,
       ] = await Promise.all([
         userHasPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.INCIDENT_READ),
         userHasPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.CAPA_READ),
@@ -82,222 +39,169 @@ export const analyticsRouter = router({
         userHasPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.FINDING_READ),
         userHasPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.OBLIGATION_READ),
         userHasPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.ASPECT_READ),
+        userHasPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.WORK_PERMIT_READ),
+        userHasPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.SAFETY_OBSERVATION_READ),
       ]);
 
-      const trailing = input.trailingMonths;
-      const anchor = new Date();
-      const monthLabels = trailingMonthKeys(trailing, anchor);
-      const rangeStart = new Date(
-        Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth() - (trailing - 1), 1),
+      return executeSafetyDashboardQuery(ctx.db, {
+        organizationId: input.organizationId,
+        trailingMonths: input.trailingMonths,
+        canIncident,
+        canCapa,
+        canTraining,
+        canFinding,
+        canObligation,
+        canAspect,
+        canPermit,
+        canObservation,
+      });
+    }),
+
+  /**
+   * Permission-scoped operations snapshot for dashboard home (KPIs + recent entity activity).
+   * Does not expose `audit_log`; feed rows come only from domain tables the caller can read.
+   */
+  commandCenter: protectedProcedure
+    .input(
+      orgScope.extend({
+        feedLimitPerType: z.number().int().min(1).max(15).optional().default(8),
+        feedTotalMax: z.number().int().min(5).max(50).optional().default(25),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await assertCallerOrgMember(ctx.db, ctx.user.id, input.organizationId);
+      const orgId = input.organizationId;
+
+      const [
+        canIncident,
+        canCapa,
+        canPermit,
+        canObservation,
+        canInspection,
+        canAspect,
+        canObligation,
+        capaApprove,
+        permitApprove,
+        envPermitApprove,
+        canTasksRead,
+        canFinding,
+        canRisk,
+        canEnvPermit,
+        canOrgAdmin,
+      ] = await Promise.all([
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.INCIDENT_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.CAPA_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.WORK_PERMIT_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.SAFETY_OBSERVATION_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.INSPECTION_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.ASPECT_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.OBLIGATION_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.CAPA_APPROVE),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.WORK_PERMIT_APPROVE),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.ENVIRONMENTAL_PERMIT_APPROVE),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.TASKS_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.FINDING_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.RISK_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.ENVIRONMENTAL_PERMIT_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.ORG_ADMIN),
+      ]);
+
+      return executeCommandCenterQuery(
+        ctx.db,
+        ctx.user.id,
+        {
+          organizationId: orgId,
+          feedLimitPerType: input.feedLimitPerType,
+          feedTotalMax: input.feedTotalMax,
+        },
+        {
+          canIncident,
+          canCapa,
+          canPermit,
+          canObservation,
+          canInspection,
+          canAspect,
+          canObligation,
+          capaApprove,
+          permitApprove,
+          envPermitApprove,
+          canTasksRead,
+          canFinding,
+          canRisk,
+          canEnvPermit,
+          canOrgAdmin,
+        },
+      );
+    }),
+
+  /** Program automation: SLA escalations recorded (org) + latest cron runs (org admins). */
+  operationsAutonomy: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+    await assertCallerOrgMember(ctx.db, ctx.user.id, input.organizationId);
+    const orgId = input.organizationId;
+
+    const [canObservation, capaApprove, permitApprove, envPermitApprove, canOrgAdmin] =
+      await Promise.all([
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.SAFETY_OBSERVATION_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.CAPA_APPROVE),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.WORK_PERMIT_APPROVE),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.ENVIRONMENTAL_PERMIT_APPROVE),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.ORG_ADMIN),
+      ]);
+
+    return executeOperationsAutonomyQuery(ctx.db, orgId, {
+      canObservation,
+      capaApprove,
+      permitApprove,
+      envPermitApprove,
+      canOrgAdmin,
+    });
+  }),
+
+  /** Leading indicators (observation-/CAPA-linked); informational only—not regulatory filings. */
+  leadingIndicators: protectedProcedure
+    .input(
+      orgScope.extend({
+        trailingDays: z.number().int().min(7).max(365).optional().default(90),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await assertCallerOrgMember(ctx.db, ctx.user.id, input.organizationId);
+
+      const canObservation = await userHasPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.SAFETY_OBSERVATION_READ,
+      );
+      const canCapa = await userHasPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.CAPA_READ,
       );
 
-      const todayStart = utcStartOfDay(anchor);
-      const trainingHorizon = addDaysUtc(todayStart, 30);
-
-      const [incidentsBlock, capaBlock, trainingBlock, findingsBlock, envBlock] =
-        await Promise.all([
-          canIncident
-            ? (async () => {
-                const byStatus = await ctx.db
-                  .select({
-                    status: incident.status,
-                    n: count(),
-                  })
-                  .from(incident)
-                  .where(eq(incident.organizationId, input.organizationId))
-                  .groupBy(incident.status);
-
-                const byType = await ctx.db
-                  .select({
-                    incidentType: incident.incidentType,
-                    n: count(),
-                  })
-                  .from(incident)
-                  .where(eq(incident.organizationId, input.organizationId))
-                  .groupBy(incident.incidentType);
-
-                const byMonth = await ctx.db
-                  .select({
-                    yyyymm: sql<string>`to_char(date_trunc('month', ${incident.createdAt}), 'YYYY-MM')`,
-                    n: count(),
-                  })
-                  .from(incident)
-                  .where(
-                    and(
-                      eq(incident.organizationId, input.organizationId),
-                      gte(incident.createdAt, rangeStart),
-                    ),
-                  )
-                  .groupBy(sql`date_trunc('month', ${incident.createdAt})`)
-                  .orderBy(sql`date_trunc('month', ${incident.createdAt})`);
-
-                const [nearMissOpenRow] = await ctx.db
-                  .select({ n: count() })
-                  .from(incident)
-                  .where(
-                    and(
-                      eq(incident.organizationId, input.organizationId),
-                      eq(incident.incidentType, "near_miss"),
-                      ne(incident.status, "closed"),
-                    ),
-                  );
-
-                const closedRows = await ctx.db
-                  .select({
-                    createdAt: incident.createdAt,
-                    updatedAt: incident.updatedAt,
-                  })
-                  .from(incident)
-                  .where(
-                    and(
-                      eq(incident.organizationId, input.organizationId),
-                      eq(incident.status, "closed"),
-                    ),
-                  );
-
-                return computeIncidentSafetyBlock({
-                  monthLabels,
-                  byStatus,
-                  byType,
-                  byMonth,
-                  nearMissOpenCount: Number(nearMissOpenRow?.n ?? 0),
-                  closedRows,
-                });
-              })()
-            : Promise.resolve(null),
-
-          canCapa
-            ? (async () => {
-                const byStatus = await ctx.db
-                  .select({
-                    status: correctiveAction.status,
-                    n: count(),
-                  })
-                  .from(correctiveAction)
-                  .where(eq(correctiveAction.organizationId, input.organizationId))
-                  .groupBy(correctiveAction.status);
-
-                const [overdueRow] = await ctx.db
-                  .select({ n: count() })
-                  .from(correctiveAction)
-                  .where(
-                    and(
-                      eq(correctiveAction.organizationId, input.organizationId),
-                      ne(correctiveAction.status, "verified"),
-                      isNotNull(correctiveAction.dueDate),
-                      lt(correctiveAction.dueDate, todayStart),
-                    ),
-                  );
-
-                return computeCapaSafetyBlock({
-                  byStatus,
-                  overdueCount: Number(overdueRow?.n ?? 0),
-                });
-              })()
-            : Promise.resolve(null),
-
-          canTraining
-            ? (async () => {
-                const [withExpiry] = await ctx.db
-                  .select({ n: count() })
-                  .from(trainingRecord)
-                  .where(
-                    and(
-                      eq(trainingRecord.organizationId, input.organizationId),
-                      isNotNull(trainingRecord.expiresOn),
-                    ),
-                  );
-
-                const [dueSoon] = await ctx.db
-                  .select({ n: count() })
-                  .from(trainingRecord)
-                  .where(
-                    and(
-                      eq(trainingRecord.organizationId, input.organizationId),
-                      isNotNull(trainingRecord.expiresOn),
-                      lte(trainingRecord.expiresOn, trainingHorizon),
-                    ),
-                  );
-
-                return {
-                  recordsWithExpiry: Number(withExpiry?.n ?? 0),
-                  expiringWithin30DaysCount: Number(dueSoon?.n ?? 0),
-                };
-              })()
-            : Promise.resolve(null),
-
-          canFinding
-            ? (async () => {
-                const [openNc] = await ctx.db
-                  .select({ n: count() })
-                  .from(auditFinding)
-                  .leftJoin(
-                    correctiveAction,
-                    eq(auditFinding.correctiveActionId, correctiveAction.id),
-                  )
-                  .where(
-                    and(
-                      eq(auditFinding.organizationId, input.organizationId),
-                      inArray(auditFinding.findingType, ["minor_nc", "major_nc"]),
-                      or(
-                        isNull(correctiveAction.id),
-                        ne(correctiveAction.status, "verified"),
-                      ),
-                    ),
-                  );
-
-                return {
-                  openNonConformanceCount: Number(openNc?.n ?? 0),
-                };
-              })()
-            : Promise.resolve(null),
-
-          canObligation || canAspect
-            ? (async () => {
-                let aspectCount: number | null = null;
-                if (canAspect) {
-                  const [a] = await ctx.db
-                    .select({ n: count() })
-                    .from(environmentalAspect)
-                    .where(eq(environmentalAspect.organizationId, input.organizationId));
-                  aspectCount = Number(a?.n ?? 0);
-                }
-
-                let obligationCount: number | null = null;
-                let obligationsReviewOverdue: number | null = null;
-                if (canObligation) {
-                  const [o] = await ctx.db
-                    .select({ n: count() })
-                    .from(complianceObligation)
-                    .where(eq(complianceObligation.organizationId, input.organizationId));
-                  obligationCount = Number(o?.n ?? 0);
-
-                  const [od] = await ctx.db
-                    .select({ n: count() })
-                    .from(complianceObligation)
-                    .where(
-                      and(
-                        eq(complianceObligation.organizationId, input.organizationId),
-                        isNotNull(complianceObligation.nextReviewDue),
-                        lt(complianceObligation.nextReviewDue, todayStart),
-                      ),
-                    );
-                  obligationsReviewOverdue = Number(od?.n ?? 0);
-                }
-
-                return { aspectCount, obligationCount, obligationsReviewOverdue };
-              })()
-            : Promise.resolve(null),
-        ]);
-
-      return {
-        glossaryVersion: 1 as const,
-        generatedAt: new Date().toISOString(),
-        incidents: incidentsBlock,
-        capas: capaBlock,
-        training: trainingBlock,
-        auditFindings: findingsBlock,
-        environment: envBlock,
-      };
+      return executeLeadingIndicatorsQuery(ctx.db, {
+        organizationId: input.organizationId,
+        trailingDays: input.trailingDays,
+        canObservation,
+        canCapa,
+      });
     }),
+
+  /**
+   * Observation follow-up SLA rollups (“ladder”: overdue vs dueSoon vs recorded escalations).
+   */
+  observationFollowUpSla: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+    await assertCallerOrgMember(ctx.db, ctx.user.id, input.organizationId);
+    const canObservation = await userHasPermission(
+      ctx.db,
+      ctx.user.id,
+      input.organizationId,
+      PERMISSIONS.SAFETY_OBSERVATION_READ,
+    );
+    if (!canObservation) {
+      return null;
+    }
+    return fetchObservationFollowUpSlaDashboard(ctx.db, input.organizationId, new Date());
+  }),
 });

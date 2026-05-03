@@ -8,13 +8,18 @@
  */
 import type { Db } from "@/server/db";
 import {
+  auditLog,
   complianceObligation,
+  contextSyncAgentClassClaim,
+  contextSyncGrant,
   controlledDocument,
   correctiveAction,
   externalParty,
   incident,
   membership,
+  organization,
   ragChunk,
+  safetyObservation,
   site,
 } from "@/server/db/schema";
 
@@ -151,6 +156,8 @@ export type ListEntityFakeOpts = {
   rbacHit: boolean;
   entityTable: unknown;
   listRows: unknown[];
+  /** Probe row for {@link assertContextSyncEnabledForTrpc} / org capability gate (default true). */
+  contextSyncOrgEnabled?: boolean;
 };
 
 /**
@@ -160,11 +167,24 @@ export type ListEntityFakeOpts = {
 export function createListEntityFakeDb(opts: ListEntityFakeOpts): Db {
   const rbacRows = opts.rbacHit ? ([{ pk: "grant" }] as RbacRow[]) : ([] as RbacRow[]);
   const resolved = Promise.resolve(opts.listRows);
+  const orgCapabilityHit =
+    opts.contextSyncOrgEnabled === undefined ? true : opts.contextSyncOrgEnabled;
 
   return {
     select() {
       return {
         from(table: unknown) {
+          if (table === organization) {
+            return {
+              where(..._ignored: unknown[]) {
+                return {
+                  limit() {
+                    return Promise.resolve([{ enabled: orgCapabilityHit }]);
+                  },
+                };
+              },
+            };
+          }
           if (table === membership) {
             return rbacMembershipFrom(rbacRows as RbacRow[]);
           }
@@ -206,6 +226,61 @@ export function createListEntityFakeDb(opts: ListEntityFakeOpts): Db {
             };
           }
           throw new Error(`[fake-db] list-entity: unsupported from(${String(table)})`);
+        },
+      };
+    },
+  } as unknown as Db;
+}
+
+export type AuditTrailListFakeOpts = {
+  rbacHit: boolean;
+  listRows: unknown[];
+};
+
+/** RBAC + `audit_log` list with `.leftJoin` chain (matches `auditTrailRouter.list`). */
+export function createAuditTrailListFakeDb(opts: AuditTrailListFakeOpts): Db {
+  const rbacRows = opts.rbacHit ? ([{ pk: "grant" }] as RbacRow[]) : ([] as RbacRow[]);
+  const resolved = Promise.resolve(opts.listRows);
+
+  return {
+    select() {
+      return {
+        from(table: unknown) {
+          if (table === membership) {
+            return rbacMembershipFrom(rbacRows as RbacRow[]);
+          }
+          if (table === auditLog) {
+            return {
+              leftJoin(..._ignored: unknown[]) {
+                return {
+                  where(..._ignoredW: unknown[]) {
+                    return {
+                      orderBy(..._ignoredO: unknown[]) {
+                        return {
+                          limit(..._ignoredL: unknown[]) {
+                            return resolved;
+                          },
+                          then<TResult1>(
+                            onfulfilled?:
+                              | ((value: unknown[]) => TResult1 | PromiseLike<TResult1>)
+                              | null
+                              | undefined,
+                            onrejected?: ((reason: unknown) => unknown) | null | undefined,
+                          ): Promise<TResult1> {
+                            return resolved.then(
+                              onfulfilled ?? undefined,
+                              onrejected ?? undefined,
+                            ) as Promise<TResult1>;
+                          },
+                        };
+                      },
+                    };
+                  },
+                };
+              },
+            };
+          }
+          throw new Error(`[fake-db] audit-trail-list: unsupported from(${String(table)})`);
         },
       };
     },
@@ -307,7 +382,7 @@ export function createExternalPartyGetFakeDb(opts: ExternalPartyGetFakeOpts): Db
   } as unknown as Db;
 }
 
-type OrgMineRow = { id: string; name: string };
+type OrgMineRow = { id: string; name: string; contextSyncEnabled: boolean };
 
 /**
  * Membership ⟕ organization rows for {@link organizationRouter.mine} (no RBAC permission table).
@@ -564,7 +639,7 @@ export function createRagBackfillEmptyFakeDb(rbacHit: boolean): Db {
 }
 
 /**
- * Fake DB for `analytics.safetyDashboard`: assertOrgMember uses `{ id: membership.id }`; RBAC uses `{ pk:
+ * Fake DB for `analytics.safetyDashboard`: assertCallerOrgMember uses `{ id: membership.id }`; RBAC uses `{ pk:
  * permission.key }`. Empty grants ⇒ null dashboard sections (no aggregation queries).
  */
 export function createAnalyticsNoPermissionFakeDb(): Db {
@@ -598,7 +673,7 @@ export function createAnalyticsNoPermissionFakeDb(): Db {
 }
 
 /**
- * Org membership probe fails for `assertOrgMember` (before permission checks).
+ * Org membership probe fails for `assertCallerOrgMember` (before permission checks).
  */
 export function createAnalyticsNonMemberFakeDb(): Db {
   return {
@@ -626,6 +701,200 @@ export function createAnalyticsNonMemberFakeDb(): Db {
           };
         },
       };
+    },
+  } as unknown as Db;
+}
+
+export type ObservationLinkCapaFakeOpts = {
+  capaReadGranted: boolean;
+  observation: Record<string, unknown>;
+  capa: Record<string, unknown>;
+};
+
+/**
+ * `observation.linkToCapa`: two sequential RBAC probes (`safety_observation:update` then `capa:read`),
+ * fetches observation + CAPA rows, transactional update + audit insert.
+ */
+export function createObservationLinkCapaFakeDb(opts: ObservationLinkCapaFakeOpts): Db {
+  const grants = [true, opts.capaReadGranted];
+  let membershipFromCount = 0;
+
+  type Tx = {
+    update: (_table: unknown) => {
+      set: (updates: Record<string, unknown>) => {
+        where: () => {
+          returning: () => Promise<Record<string, unknown>[]>;
+        };
+      };
+    };
+    insert: (_table: unknown) => {
+      values: (_v: Record<string, unknown>) => Promise<void>;
+    };
+  };
+
+  return {
+    select() {
+      return {
+        from(table: unknown) {
+          if (table === membership) {
+            const hit = grants[membershipFromCount] ?? false;
+            membershipFromCount += 1;
+            return rbacMembershipFrom(hit ? ([{ pk: "grant" }] as RbacRow[]) : ([] as RbacRow[]));
+          }
+          if (table === safetyObservation) {
+            return {
+              where(..._w: unknown[]) {
+                return {
+                  limit() {
+                    return Promise.resolve([opts.observation]);
+                  },
+                };
+              },
+            };
+          }
+          if (table === correctiveAction) {
+            return {
+              where(..._w: unknown[]) {
+                return {
+                  limit() {
+                    return Promise.resolve([opts.capa]);
+                  },
+                };
+              },
+            };
+          }
+          throw new Error(`[fake-db] observation-link-capa: unsupported from(${String(table)})`);
+        },
+      };
+    },
+
+    transaction: async <T>(callback: (tx: Tx) => Promise<T>): Promise<T> => {
+      const tx: Tx = {
+        update(..._t: unknown[]) {
+          return {
+            set(updates: Record<string, unknown>) {
+              return {
+                where(..._w: unknown[]) {
+                  return {
+                    returning() {
+                      return Promise.resolve([{ ...opts.observation, ...updates }]);
+                    },
+                  };
+                },
+              };
+            },
+          };
+        },
+        insert(..._t: unknown[]) {
+          return {
+            async values(_v: Record<string, unknown>) {
+              return undefined;
+            },
+          };
+        },
+      };
+      return callback(tx);
+    },
+  } as unknown as Db;
+}
+
+/** Minimal chain double for `evaluateContextSyncAccess` (membership / grants / claims). */
+export function createContextSyncAuthorizeFakeDb(opts: {
+  membershipOk: boolean;
+  grantRows: Record<string, unknown>[];
+  /** Rows returned by `…from(context_sync_agent_class_claim).where(...).limit(1)` */
+  agentClassClaimRows: Record<string, unknown>[];
+}): Db {
+  return {
+    select() {
+      return {
+        from(table: unknown) {
+          if (table === membership) {
+            return {
+              where(..._w: unknown[]) {
+                return {
+                  limit(..._l: unknown[]) {
+                    const rows = opts.membershipOk ? [{ id: "m1" }] : [];
+                    return Promise.resolve(rows);
+                  },
+                };
+              },
+            };
+          }
+          if (table === contextSyncGrant) {
+            return {
+              where(..._w: unknown[]) {
+                return Promise.resolve(opts.grantRows);
+              },
+            };
+          }
+          if (table === contextSyncAgentClassClaim) {
+            return {
+              where(..._w: unknown[]) {
+                return {
+                  limit(..._l: unknown[]) {
+                    return Promise.resolve(opts.agentClassClaimRows);
+                  },
+                };
+              },
+            };
+          }
+          throw new Error(`[fake-db] context-sync-auth: unsupported from(${String(table)})`);
+        },
+      };
+    },
+  } as unknown as Db;
+}
+
+/** RBAC + transactional org toggle (`organization.updateContextSyncEnabled`). */
+export function createOrganizationContextSyncToggleFakeDb(rbacHit: boolean): Db {
+  type Tx = {
+    update: (..._t: unknown[]) => {
+      set: (..._s: unknown[]) => {
+        where: (..._w: unknown[]) => Promise<void>;
+      };
+    };
+    insert: (..._t: unknown[]) => {
+      values: (..._v: unknown[]) => Promise<void>;
+    };
+  };
+
+  const rbacRows = rbacHit ? [{ pk: "grant" }] : ([] as RbacRow[]);
+
+  return {
+    select() {
+      return {
+        from(table: unknown) {
+          if (table === membership) {
+            return rbacMembershipFrom(rbacRows as RbacRow[]);
+          }
+          throw new Error(`[fake-db] org-context-sync-toggle: unsupported from(${String(table)})`);
+        },
+      };
+    },
+
+    transaction: async <T>(callback: (tx: Tx) => Promise<T>): Promise<T> => {
+      const tx: Tx = {
+        update(..._t: unknown[]) {
+          return {
+            set(..._s: unknown[]) {
+              return {
+                async where(..._w: unknown[]) {
+                  return undefined;
+                },
+              };
+            },
+          };
+        },
+        insert(..._t: unknown[]) {
+          return {
+            async values(..._v: unknown[]) {
+              return undefined;
+            },
+          };
+        },
+      };
+      return callback(tx);
     },
   } as unknown as Db;
 }

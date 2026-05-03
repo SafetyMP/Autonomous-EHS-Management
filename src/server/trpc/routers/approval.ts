@@ -1,27 +1,26 @@
 import { and, asc, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { PERMISSIONS, assertPermission } from "@/lib/rbac";
+import { PERMISSIONS, assertPermission, userHasPermission } from "@/lib/rbac";
 import {
   approvalRequest,
   approvalStep,
   correctiveAction,
+  environmentalRegulatoryPermit,
   escalationEvent,
+  workPermit,
 } from "@/server/db/schema";
 import { insertCapaApprovalSteps } from "@/server/services/capaApprovalSteps";
 import { writeAuditLog } from "@/server/services/audit";
+import { approvalRequestEntityTypeCondition } from "@/server/services/approvalRequestEntityTypeCondition";
+import { insertWorkPermitApprovalRequestTx } from "@/server/services/workPermitApproval";
 import { assertOrgMemberUserId } from "../assertOrgScoped";
 import { protectedMutation, protectedProcedure, router } from "../init";
 import { orgScope } from "../schemas/orgScope";
 
 export const approvalRouter = router({
   listOpenCapaRequests: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
-    await assertPermission(
-      ctx.db,
-      ctx.user.id,
-      input.organizationId,
-      PERMISSIONS.CAPA_READ,
-    );
+    await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.CAPA_READ);
     return ctx.db
       .select()
       .from(approvalRequest)
@@ -35,13 +34,80 @@ export const approvalRouter = router({
       .orderBy(desc(approvalRequest.createdAt));
   }),
 
-  listMyPendingSteps: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+  listOpenWorkPermitRequests: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
     await assertPermission(
+      ctx.db,
+      ctx.user.id,
+      input.organizationId,
+      PERMISSIONS.WORK_PERMIT_READ,
+    );
+    return ctx.db
+      .select()
+      .from(approvalRequest)
+      .where(
+        and(
+          eq(approvalRequest.organizationId, input.organizationId),
+          eq(approvalRequest.entityType, "work_permit"),
+          eq(approvalRequest.status, "open"),
+        ),
+      )
+      .orderBy(desc(approvalRequest.createdAt));
+  }),
+
+  listOpenEnvironmentalRegulatoryPermitRequests: protectedProcedure
+    .input(orgScope)
+    .query(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.ENVIRONMENTAL_PERMIT_READ,
+      );
+      return ctx.db
+        .select()
+        .from(approvalRequest)
+        .where(
+          and(
+            eq(approvalRequest.organizationId, input.organizationId),
+            eq(approvalRequest.entityType, "environmental_regulatory_permit"),
+            eq(approvalRequest.status, "open"),
+          ),
+        )
+        .orderBy(desc(approvalRequest.createdAt));
+    }),
+
+  listMyPendingSteps: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+    const capaOk = await userHasPermission(
       ctx.db,
       ctx.user.id,
       input.organizationId,
       PERMISSIONS.CAPA_APPROVE,
     );
+    const wpOk = await userHasPermission(
+      ctx.db,
+      ctx.user.id,
+      input.organizationId,
+      PERMISSIONS.WORK_PERMIT_APPROVE,
+    );
+    const envPermOk = await userHasPermission(
+      ctx.db,
+      ctx.user.id,
+      input.organizationId,
+      PERMISSIONS.ENVIRONMENTAL_PERMIT_APPROVE,
+    );
+
+    if (!capaOk && !wpOk && !envPermOk) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "No approval inbox permissions.",
+      });
+    }
+
+    const entityCond = approvalRequestEntityTypeCondition({
+      capaApprove: capaOk,
+      permitApprove: wpOk,
+      environmentalPermitApprove: envPermOk,
+    });
 
     const rows = await ctx.db
       .select({
@@ -56,6 +122,7 @@ export const approvalRouter = router({
           eq(approvalStep.approverUserId, ctx.user.id),
           eq(approvalStep.status, "pending"),
           eq(approvalRequest.status, "open"),
+          entityCond,
         ),
       )
       .orderBy(desc(approvalRequest.createdAt), asc(approvalStep.stepOrder));
@@ -64,12 +131,7 @@ export const approvalRouter = router({
   }),
 
   listEscalations: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
-    await assertPermission(
-      ctx.db,
-      ctx.user.id,
-      input.organizationId,
-      PERMISSIONS.CAPA_READ,
-    );
+    await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.CAPA_READ);
     return ctx.db
       .select()
       .from(escalationEvent)
@@ -101,12 +163,7 @@ export const approvalRouter = router({
         ),
     )
     .mutation(async ({ ctx, input }) => {
-      await assertPermission(
-        ctx.db,
-        ctx.user.id,
-        input.organizationId,
-        PERMISSIONS.CAPA_UPDATE,
-      );
+      await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.CAPA_UPDATE);
 
       const [capa] = await ctx.db
         .select()
@@ -198,6 +255,108 @@ export const approvalRouter = router({
       });
     }),
 
+  submitWorkPermitApproval: protectedMutation
+    .input(
+      orgScope.extend({
+        permitId: z.string().uuid(),
+        /** @deprecated Prefer `approvers`. */
+        approverUserId: z.string().min(1).optional(),
+        approvers: z.array(z.string().min(1)).min(1).max(5).optional(),
+        slaDaysPerStep: z.number().int().min(1).max(90).optional(),
+      }).refine(
+        (i) =>
+          (i.approvers !== undefined && i.approvers.length > 0) ||
+          (i.approverUserId !== undefined && i.approverUserId.length > 0),
+        { message: "Provide approverUserId or approvers.", path: ["approverUserId"] },
+      ),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.WORK_PERMIT_UPDATE);
+
+      const [permit] = await ctx.db
+        .select()
+        .from(workPermit)
+        .where(
+          and(
+            eq(workPermit.id, input.permitId),
+            eq(workPermit.organizationId, input.organizationId),
+          ),
+        )
+        .limit(1);
+
+      if (!permit) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Work permit not found." });
+      }
+
+      if (permit.status !== "pending_approval") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Permit must be pending approval.",
+        });
+      }
+
+      const approverList = input.approvers?.length
+        ? [...new Set(input.approvers)]
+        : input.approverUserId
+          ? [input.approverUserId]
+          : [];
+      if (approverList.length === 0 || approverList.length > 5) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Provide 1–5 distinct approvers.",
+        });
+      }
+
+      for (const uid of approverList) {
+        await assertOrgMemberUserId(ctx.db, input.organizationId, uid);
+      }
+
+      const open = await ctx.db
+        .select({ id: approvalRequest.id })
+        .from(approvalRequest)
+        .where(
+          and(
+            eq(approvalRequest.organizationId, input.organizationId),
+            eq(approvalRequest.entityType, "work_permit"),
+            eq(approvalRequest.entityId, input.permitId),
+            eq(approvalRequest.status, "open"),
+          ),
+        )
+        .limit(1);
+
+      if (open.length > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "An open approval request already exists for this permit.",
+        });
+      }
+
+      return ctx.db.transaction(async (tx) => {
+        const rid = await insertWorkPermitApprovalRequestTx(tx, {
+          organizationId: input.organizationId,
+          workPermitId: input.permitId,
+          approverUserIds: approverList,
+          actorUserId: ctx.user.id,
+          slaDaysPerStep: input.slaDaysPerStep,
+        });
+
+        const [row] = await tx
+          .select()
+          .from(approvalRequest)
+          .where(eq(approvalRequest.id, rid))
+          .limit(1);
+
+        if (!row) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Approval request missing after creation.",
+          });
+        }
+
+        return row;
+      });
+    }),
+
   decideRequest: protectedMutation
     .input(
       orgScope.extend({
@@ -207,13 +366,6 @@ export const approvalRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await assertPermission(
-        ctx.db,
-        ctx.user.id,
-        input.organizationId,
-        PERMISSIONS.CAPA_APPROVE,
-      );
-
       const [req] = await ctx.db
         .select()
         .from(approvalRequest)
@@ -227,6 +379,31 @@ export const approvalRouter = router({
 
       if (!req) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Approval request not found." });
+      }
+
+      if (req.entityType === "capa") {
+        await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.CAPA_APPROVE);
+      } else if (req.entityType === "work_permit") {
+        await assertPermission(
+          ctx.db,
+          ctx.user.id,
+          input.organizationId,
+          PERMISSIONS.WORK_PERMIT_APPROVE,
+        );
+      } else if (req.entityType === "environmental_regulatory_permit") {
+        await assertPermission(
+          ctx.db,
+          ctx.user.id,
+          input.organizationId,
+          PERMISSIONS.ENVIRONMENTAL_PERMIT_APPROVE,
+        );
+      } else if (req.entityType === "incident") {
+        await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.CAPA_APPROVE);
+      } else {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Unsupported approval entity type.",
+        });
       }
 
       if (req.status !== "open") {
@@ -284,6 +461,27 @@ export const approvalRouter = router({
             })
             .where(eq(approvalRequest.id, req.id));
 
+          if (req.entityType === "work_permit") {
+            await tx
+              .update(workPermit)
+              .set({ status: "rejected", updatedAt: now })
+              .where(
+                and(eq(workPermit.id, req.entityId), eq(workPermit.organizationId, req.organizationId)),
+              );
+          }
+
+          if (req.entityType === "environmental_regulatory_permit") {
+            await tx
+              .update(environmentalRegulatoryPermit)
+              .set({ status: "draft", updatedAt: now })
+              .where(
+                and(
+                  eq(environmentalRegulatoryPermit.id, req.entityId),
+                  eq(environmentalRegulatoryPermit.organizationId, req.organizationId),
+                ),
+              );
+          }
+
           await writeAuditLog(tx, {
             organizationId: input.organizationId,
             actorUserId: ctx.user.id,
@@ -308,6 +506,32 @@ export const approvalRouter = router({
               updatedAt: now,
             })
             .where(eq(approvalRequest.id, req.id));
+
+          if (req.entityType === "work_permit") {
+            await tx
+              .update(workPermit)
+              .set({
+                status: "active",
+                approvedByUserId: ctx.user.id,
+                approvedAt: now,
+                updatedAt: now,
+              })
+              .where(
+                and(eq(workPermit.id, req.entityId), eq(workPermit.organizationId, req.organizationId)),
+              );
+          }
+
+          if (req.entityType === "environmental_regulatory_permit") {
+            await tx
+              .update(environmentalRegulatoryPermit)
+              .set({ status: "active", updatedAt: now })
+              .where(
+                and(
+                  eq(environmentalRegulatoryPermit.id, req.entityId),
+                  eq(environmentalRegulatoryPermit.organizationId, req.organizationId),
+                ),
+              );
+          }
         }
 
         await writeAuditLog(tx, {

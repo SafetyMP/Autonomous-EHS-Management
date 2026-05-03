@@ -1,8 +1,8 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
-import { establishment, establishmentYearMetrics } from "@/server/db/schema";
+import { establishment, establishmentMonthMetrics, establishmentYearMetrics } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
 import { assertEstablishmentInOrg, assertSiteInOrg } from "../assertOrgScoped";
 import { orgScope } from "../schemas/orgScope";
@@ -23,6 +23,69 @@ export const establishmentRouter = router({
       .where(eq(establishment.organizationId, input.organizationId))
       .orderBy(desc(establishment.updatedAt));
   }),
+
+  listYearMetrics: protectedProcedure
+    .input(
+      orgScope.extend({
+        calendarYear: z.number().int().min(1970).max(2100).optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.ESTABLISHMENT_READ,
+      );
+
+      const estIds = (
+        await ctx.db
+          .select({ id: establishment.id })
+          .from(establishment)
+          .where(eq(establishment.organizationId, input.organizationId))
+      ).map((r) => r.id);
+
+      if (estIds.length === 0) return [];
+
+      const cond = [inArray(establishmentYearMetrics.establishmentId, estIds)];
+      if (input.calendarYear !== undefined) {
+        cond.push(eq(establishmentYearMetrics.calendarYear, input.calendarYear));
+      }
+
+      return ctx.db
+        .select()
+        .from(establishmentYearMetrics)
+        .where(and(...cond))
+        .orderBy(desc(establishmentYearMetrics.calendarYear));
+    }),
+
+  listMonthMetrics: protectedProcedure
+    .input(
+      orgScope.extend({
+        establishmentId: z.string().uuid(),
+        calendarYear: z.number().int().min(1970).max(2100),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.ESTABLISHMENT_READ,
+      );
+      await assertEstablishmentInOrg(ctx.db, input.organizationId, input.establishmentId);
+
+      return ctx.db
+        .select()
+        .from(establishmentMonthMetrics)
+        .where(
+          and(
+            eq(establishmentMonthMetrics.establishmentId, input.establishmentId),
+            eq(establishmentMonthMetrics.calendarYear, input.calendarYear),
+          ),
+        )
+        .orderBy(establishmentMonthMetrics.calendarMonth);
+    }),
 
   create: protectedMutation
     .input(
@@ -85,6 +148,91 @@ export const establishmentRouter = router({
         });
 
         return created;
+      });
+    }),
+
+  upsertMonthMetrics: protectedMutation
+    .input(
+      orgScope.extend({
+        establishmentId: z.string().uuid(),
+        calendarYear: z.number().int().min(1970).max(2100),
+        calendarMonth: z.number().int().min(1).max(12),
+        hoursWorked: z.number().int().min(0).optional().nullable(),
+        avgEmployees: z.number().int().min(0).optional().nullable(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.ESTABLISHMENT_WRITE,
+      );
+      await assertEstablishmentInOrg(ctx.db, input.organizationId, input.establishmentId);
+
+      return ctx.db.transaction(async (tx) => {
+        const [existing] = await tx
+          .select()
+          .from(establishmentMonthMetrics)
+          .where(
+            and(
+              eq(establishmentMonthMetrics.establishmentId, input.establishmentId),
+              eq(establishmentMonthMetrics.calendarYear, input.calendarYear),
+              eq(establishmentMonthMetrics.calendarMonth, input.calendarMonth),
+            ),
+          )
+          .limit(1);
+
+        if (existing) {
+          const [updated] = await tx
+            .update(establishmentMonthMetrics)
+            .set({
+              hoursWorked: input.hoursWorked ?? null,
+              avgEmployees: input.avgEmployees ?? null,
+              updatedAt: new Date(),
+            })
+            .where(eq(establishmentMonthMetrics.id, existing.id))
+            .returning();
+
+          await writeAuditLog(tx, {
+            organizationId: input.organizationId,
+            actorUserId: ctx.user.id,
+            action: "establishment_month_metrics.update",
+            entityType: "establishment_month_metrics",
+            entityId: existing.id,
+            payload: {
+              calendarYear: input.calendarYear,
+              calendarMonth: input.calendarMonth,
+            },
+          });
+
+          return updated;
+        }
+
+        const [inserted] = await tx
+          .insert(establishmentMonthMetrics)
+          .values({
+            establishmentId: input.establishmentId,
+            calendarYear: input.calendarYear,
+            calendarMonth: input.calendarMonth,
+            hoursWorked: input.hoursWorked ?? null,
+            avgEmployees: input.avgEmployees ?? null,
+          })
+          .returning();
+
+        await writeAuditLog(tx, {
+          organizationId: input.organizationId,
+          actorUserId: ctx.user.id,
+          action: "establishment_month_metrics.create",
+          entityType: "establishment_month_metrics",
+          entityId: inserted!.id,
+          payload: {
+            calendarYear: input.calendarYear,
+            calendarMonth: input.calendarMonth,
+          },
+        });
+
+        return inserted;
       });
     }),
 

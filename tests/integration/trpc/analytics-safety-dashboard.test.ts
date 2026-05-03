@@ -56,12 +56,13 @@ describe("analytics.safetyDashboard", () => {
     const out = await safetyDashboard(
       ctxWith(createAnalyticsNoPermissionFakeDb(), authenticatedSession()),
     );
-    expect(out.glossaryVersion).toBe(1);
+    expect(out.glossaryVersion).toBe(3);
     expect(out.incidents).toBeNull();
     expect(out.capas).toBeNull();
     expect(out.training).toBeNull();
     expect(out.auditFindings).toBeNull();
     expect(out.environment).toBeNull();
+    expect(out.fieldOperations).toBeNull();
     expect(typeof out.generatedAt).toBe("string");
   });
 
@@ -70,6 +71,6 @@ describe("analytics.safetyDashboard", () => {
       ctxWith(createAnalyticsNoPermissionFakeDb(), authenticatedSession()),
       6,
     );
-    expect(out.glossaryVersion).toBe(1);
+    expect(out.glossaryVersion).toBe(3);
   });
 });

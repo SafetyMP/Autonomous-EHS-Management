@@ -20,7 +20,7 @@ export function parseTrainingCompletionPayload(
   return { success: true, data: parsed.data };
 }
 
-type DbIns = Pick<Db, "insert" | "transaction">;
+type DbIns = Pick<Db, "insert" | "transaction" | "update">;
 
 export async function persistTrainingCompletionEvent(
   db: DbIns,
@@ -28,12 +28,15 @@ export async function persistTrainingCompletionEvent(
   actorUserId: string | null,
 ): Promise<{ id: string }> {
   return db.transaction(async (tx) => {
+    const now = new Date();
     const [row] = await tx
       .insert(integrationEvent)
       .values({
         organizationId: input.organizationId,
         eventType: "training_completion",
         payload: redactTrainingCompletionForStorage(input),
+        processingStatus: "applied",
+        appliedAt: now,
       })
       .returning({ id: integrationEvent.id });
 

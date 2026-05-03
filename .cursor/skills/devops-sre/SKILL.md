@@ -35,10 +35,11 @@ Act as **DevOps / SRE** for this codebase: automate delivery, keep environments 
 | AWS EKS + VPC (Terraform starter) | [`infra/terraform/`](../../../infra/terraform/) |
 | GHCR publish on main | [`.github/workflows/docker-publish.yml`](../../../.github/workflows/docker-publish.yml) |
 | Production promotion (Vercel + EKS) | [`.github/workflows/cd-promote-production.yml`](../../../.github/workflows/cd-promote-production.yml) (`REPO_SETUP.md`) |
+| Cursor IDE MCP (optional; not a deploy plane) | [`docs/cursor-tool-connections-deployment.md`](../../../docs/cursor-tool-connections-deployment.md) — inspect/Vercel/Neon helpers only; previews need migrations + cron rules below |
 | Local app + Postgres (Compose) | [`docker-compose.yml`](../../../docker-compose.yml); env template [`.env.docker.example`](../../../.env.docker.example) |
 | Local/demo Postgres (pgvector) | [`docker-compose.demo.yml`](../../../docker-compose.demo.yml); devcontainer [`.devcontainer/`](../../../.devcontainer/) |
 
-**Cron / jobs:** `vercel.ts` schedules HTTP cron against **`/api/cron/reminders`**. On **Kubernetes**, replace with a **`CronJob`** that hits the same route with **`CRON_SECRET`** (or equivalent), documented in manifests — Vercel cron does not run on self-hosted clusters.
+**Cron / jobs:** [`vercel.ts`](../../../vercel.ts) schedules HTTP cron for **`GET /api/cron/reminders`** (`0 8 * * *`) and **`GET /api/cron/data-retention`** (`30 9 * * *`). All of these use **`Authorization: Bearer <CRON_SECRET>`** (see [`src/lib/env.ts`](../../../src/lib/env.ts)). On **Kubernetes**, use **`CronJob`** manifests under [`deploy/k8s/`](../../../deploy/k8s/) (`cronjob-*.yaml`) with the same secret — **Vercel cron does not run on self-hosted clusters**. **`GET /api/cron/metrics`** is **not** a scheduled job: it exposes Prometheus-style rollups from `cron_job_run` for scraping. Use your collector (Prometheus, VictoriaMetrics, etc.) against the app **`ClusterIP`** (same pattern as CronJobs curling `ehs-web:3000`); **`bearer_token_file`** or equivalent is preferred. Do **not** add a third CronJob solely to poll metrics unless your platform cannot scrape authenticated HTTP endpoints.
 
 **Database:** App expects **PostgreSQL** (`DATABASE_URL`). Production may use **Neon**; local/demo may use **docker-compose.demo.yml** (`DATABASE_USE_PG=1` per Devex skill). Migrations: `npm run db:migrate` against the target URL.
 

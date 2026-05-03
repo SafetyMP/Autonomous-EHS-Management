@@ -6,6 +6,7 @@ import {
   complianceObligation,
   environmentalAspect,
   environmentalMonitoringResult,
+  environmentalRegulatoryPermit,
   site,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
@@ -17,6 +18,7 @@ export const environmentalMonitoringRouter = router({
     .input(
       orgScope.extend({
         environmentalAspectId: z.string().uuid().optional(),
+        environmentalRegulatoryPermitId: z.string().uuid().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -31,15 +33,41 @@ export const environmentalMonitoringRouter = router({
         .select()
         .from(environmentalMonitoringResult)
         .where(
-          input.environmentalAspectId
-            ? and(
-                eq(environmentalMonitoringResult.organizationId, input.organizationId),
+          (() => {
+            const base = eq(environmentalMonitoringResult.organizationId, input.organizationId);
+            if (input.environmentalAspectId && input.environmentalRegulatoryPermitId) {
+              return and(
+                base,
                 eq(
                   environmentalMonitoringResult.environmentalAspectId,
                   input.environmentalAspectId,
                 ),
-              )
-            : eq(environmentalMonitoringResult.organizationId, input.organizationId),
+                eq(
+                  environmentalMonitoringResult.environmentalRegulatoryPermitId,
+                  input.environmentalRegulatoryPermitId,
+                ),
+              );
+            }
+            if (input.environmentalAspectId) {
+              return and(
+                base,
+                eq(
+                  environmentalMonitoringResult.environmentalAspectId,
+                  input.environmentalAspectId,
+                ),
+              );
+            }
+            if (input.environmentalRegulatoryPermitId) {
+              return and(
+                base,
+                eq(
+                  environmentalMonitoringResult.environmentalRegulatoryPermitId,
+                  input.environmentalRegulatoryPermitId,
+                ),
+              );
+            }
+            return base;
+          })(),
         )
         .orderBy(desc(environmentalMonitoringResult.measuredAt));
     }),
@@ -50,6 +78,7 @@ export const environmentalMonitoringRouter = router({
         siteId: z.string().uuid().optional(),
         environmentalAspectId: z.string().uuid().optional(),
         complianceObligationId: z.string().uuid().optional(),
+        environmentalRegulatoryPermitId: z.string().uuid().optional(),
         parameterName: z.string().min(1).max(256),
         measuredAt: z.coerce.date(),
         valueText: z.string().min(1).max(256),
@@ -111,6 +140,24 @@ export const environmentalMonitoringRouter = router({
           throw new TRPCError({ code: "BAD_REQUEST", message: "Obligation not found." });
         }
       }
+      if (input.environmentalRegulatoryPermitId) {
+        const [p] = await ctx.db
+          .select()
+          .from(environmentalRegulatoryPermit)
+          .where(
+            and(
+              eq(environmentalRegulatoryPermit.id, input.environmentalRegulatoryPermitId),
+              eq(environmentalRegulatoryPermit.organizationId, input.organizationId),
+            ),
+          )
+          .limit(1);
+        if (!p) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Environmental regulatory permit not found.",
+          });
+        }
+      }
 
       return ctx.db.transaction(async (tx) => {
         const [row] = await tx
@@ -120,6 +167,7 @@ export const environmentalMonitoringRouter = router({
             siteId: input.siteId ?? null,
             environmentalAspectId: input.environmentalAspectId ?? null,
             complianceObligationId: input.complianceObligationId ?? null,
+            environmentalRegulatoryPermitId: input.environmentalRegulatoryPermitId ?? null,
             parameterName: input.parameterName,
             measuredAt: input.measuredAt,
             valueText: input.valueText,

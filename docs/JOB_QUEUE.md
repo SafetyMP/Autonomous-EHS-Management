@@ -1,28 +1,51 @@
-# Background jobs (scaffold)
+# Background jobs (pg-boss)
 
-This repo **does not** ship `pg-boss` or a worker process yet. The scaffold under [`src/server/jobs/`](../src/server/jobs/) gives a **typed `enqueue`** API so cron routes or tRPC can later move work off the request thread without large refactors.
+This repo can move work off the HTTP request thread using **[pg-boss](https://github.com/timgit/pg-boss)** on PostgreSQL. Typed job names live in [`src/server/jobs/types.ts`](../src/server/jobs/types.ts); producers call [`getJobQueue()`](../src/server/jobs/queue.ts).
 
 ## Environment
 
 | Variable | Purpose |
 |----------|---------|
-| `JOB_QUEUE_ENABLED` | Set to `true` to use the logging dev queue (still no durable queue until pg-boss). |
-| `PG_BOSS_SCHEMA` | Reserved for step 2: custom schema name for pg-boss tables (document only today). |
+| `PG_BOSS_ENABLED` | Set to `true` to **enqueue** via pg-boss (API/cron path). Requires a **worker** process. |
+| `PG_BOSS_SCHEMA` | Optional non-default schema for pg-boss metadata tables (default `pgboss`). |
+| `JOB_QUEUE_ENABLED` | When pg-boss is **off**, set to `true` for **dev-only logging** of enqueue calls (no durable queue). |
 
-## Step 2: pg-boss (org decision)
+`DATABASE_URL` must be reachable from both the Next.js app and the worker (standard Postgres protocol; use `pg` pool, not edge-only drivers on the worker).
 
-1. Add dependency `pg-boss` and ensure PostgreSQL can host its tables (same DB or dedicated).
-2. Run schema install per pg-boss docs (usually `boss.start()` migrates).
-3. Replace [`getJobQueue()`](../src/server/jobs/queue.ts) with a `PgBoss` adapter that implements `JobQueue`.
-4. Run a **long-lived worker** (Kubernetes `Deployment`, ECS service, or VM)—**not** Vercel serverless—for `boss.work()` handlers.
-5. Define **retry / DLQ** policy and alerts (pair with `CRON_FAILURE_WEBHOOK_URL` patterns).
+## Producer: integration replay
+
+When `PG_BOSS_ENABLED=true`, [`integration.reprocessFailedEvent`](../src/server/trpc/routers/integration.ts) **enqueues** `integration.reprocessFailed` instead of applying inline. An `audit_log` row is written with action `integration.reprocess_queued`.
+
+## Producer: HRIS inbound (async)
+
+When `PG_BOSS_ENABLED=true`, [`POST /api/integration/inbound`](../src/app/api/integration/inbound/route.ts) with `kind: "hris_membership_sync"` **returns `202 Accepted`** and enqueues `integration.inboundHris` (optional connector `idempotencyKey` becomes a **singletonKey** so duplicate deliveries collapse while a job is in flight). The worker runs the same [`processHrisMembershipSyncInbound`](../src/server/services/integrationInboundDispatch.ts) path as the synchronous webhook and, when an idempotency key is present, writes the **`200` / `422`** replay cache (`integration_inbound_idempotency`) after completion.
+
+## Worker (required when pg-boss is on)
+
+Run a **long-lived** Node process (Kubernetes `Deployment`, ECS service, VM)—**not** a Vercel function:
+
+```bash
+npm run job:worker
+```
+
+The worker script is [`scripts/job-worker.ts`](../scripts/job-worker.ts). It starts pg-boss and registers handlers:
+
+- **`integration.reprocessFailed`** → [`reprocessFailedIntegrationEvent`](../src/server/services/integrationInboundDispatch.ts)
+- **`integration.inboundHris`** → [`processHrisMembershipSyncInbound`](../src/server/services/integrationInboundDispatch.ts) (+ idempotency cache when `idempotencyKey` is set on the payload)
+- **`dataRetention.runChunk`** → bounded pass of [`runDataRetentionCron`](../src/server/services/dataRetention.ts) with configurable `batchSize` (default **75** in the worker) for draining large retention backlogs without a single long HTTP cron
+
+On first start, pg-boss creates its tables in the target schema.
+
+### Producer: data retention chunk (optional)
+
+Any trusted producer may enqueue `dataRetention.runChunk` with `{ "batchSize": 75 }` (optional) when you want async, smaller retention passes—pair with your SRE playbook; the daily cron may still run the full `200`-row-per-class sweep by default.
 
 ## Failure modes
 
-- **No worker:** jobs pile up in Postgres until TTL; monitor queue depth.
-- **Duplicate execution:** use idempotent handlers or dedupe keys when you implement real enqueue.
-- **Vercel-only hosting:** keep using HTTP crons for short work; use a worker for anything > tens of seconds or needing retries.
+- **No worker:** jobs accumulate in Postgres until TTL; alert on queue depth.
+- **Duplicate execution:** handlers should be idempotent or use dedupe keys when you extend producers.
+- **Vercel-only hosting:** keep short work on HTTP crons; use a worker for retries, long runs, or integration replay at scale.
 
-## Runbook tone
+## On-call
 
-On-call: if enqueue is enabled but worker is down, **scale worker to 1+** or **disable producers** (`JOB_QUEUE_ENABLED=false`) until backlog is drained—tune per your SRE playbook.
+If enqueue is enabled but the worker is down, **scale the worker to 1+** or **set `PG_BOSS_ENABLED` unset/false** on producers until the backlog is drained—tune per your SRE playbook.

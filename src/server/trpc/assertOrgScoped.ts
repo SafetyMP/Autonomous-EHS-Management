@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import {
   environmentalAspect,
+  environmentalRegulatoryPermit,
   establishment,
   externalParty,
   hazard,
@@ -45,6 +46,29 @@ export async function assertHazardInOrg(
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "Hazard not found in this organization.",
+    });
+  }
+}
+
+export async function assertEnvironmentalRegulatoryPermitInOrg(
+  db: Db,
+  organizationId: string,
+  permitId: string,
+) {
+  const [p] = await db
+    .select()
+    .from(environmentalRegulatoryPermit)
+    .where(
+      and(
+        eq(environmentalRegulatoryPermit.id, permitId),
+        eq(environmentalRegulatoryPermit.organizationId, organizationId),
+      ),
+    )
+    .limit(1);
+  if (!p) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Environmental regulatory permit not found in this organization.",
     });
   }
 }
@@ -137,6 +161,23 @@ export async function assertPersonSubjectInOrg(
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "Person subject not found in this organization.",
+    });
+  }
+}
+
+/** Current session user must belong to org (analytics / dashboards). Uses FORBIDDEN — not BAD_REQUEST. */
+export async function assertCallerOrgMember(db: Db, userId: string, organizationId: string) {
+  const [m] = await db
+    .select({ id: membership.id })
+    .from(membership)
+    .where(
+      and(eq(membership.userId, userId), eq(membership.organizationId, organizationId)),
+    )
+    .limit(1);
+  if (!m) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Not a member of this organization.",
     });
   }
 }

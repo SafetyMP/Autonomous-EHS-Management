@@ -1,12 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { buildAgencyExportPlaceholder } from "@/lib/regulatory/oshaAgencyExportScaffold";
+import {
+  REFERENCE_COLUMNS_300_STYLE,
+  buildOshaAgencyReferenceCsvSample,
+} from "@/lib/regulatory/oshaAgencyExportScaffold";
 
-describe("buildAgencyExportPlaceholder", () => {
-  it("returns not_implemented with disclaimer and columns", () => {
-    const p = buildAgencyExportPlaceholder();
-    expect(p.status).toBe("not_implemented");
-    expect(p.disclaimer.length).toBeGreaterThan(40);
-    expect(p.referenceColumns.length).toBeGreaterThan(3);
-    expect(p.referenceColumns).toContain("days_away");
+describe("buildOshaAgencyReferenceCsvSample", () => {
+  it("includes all reference columns in header order", () => {
+    const csv = buildOshaAgencyReferenceCsvSample();
+    const [header] = csv.trim().split("\n");
+    expect(header).toBe(REFERENCE_COLUMNS_300_STYLE.join(","));
+  });
+
+  it("has exactly two lines and no obvious PII in synthetic example", () => {
+    const csv = buildOshaAgencyReferenceCsvSample();
+    const lines = csv.trim().split("\n");
+    expect(lines).toHaveLength(2);
+    expect(lines[1]).not.toMatch(/\b\d{3}-\d{2}-\d{4}\b/);
+    expect(lines[1]).not.toMatch(/@/);
   });
 });

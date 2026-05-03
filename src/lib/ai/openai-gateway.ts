@@ -30,17 +30,57 @@ async function openAiFetchJson<T>(
   let lastBody = {} as T;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const res = await fetch(url, {
-      ...init,
-      signal: AbortSignal.timeout(timeoutMs),
-    });
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        ...init,
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+    } catch (e) {
+      const name = e instanceof Error ? e.name : "Error";
+      if (attempt === maxAttempts - 1) {
+        const { logError } = await import("@/lib/logger");
+        logError("ai_openai_fetch_network", {
+          attempt: attempt + 1,
+          url: url.slice(0, 80),
+          name,
+          message: e instanceof Error ? e.message : String(e),
+        });
+      }
+      if (attempt < maxAttempts - 1) {
+        const { logWarn } = await import("@/lib/logger");
+        logWarn("ai_openai_fetch_retry_after_network_error", {
+          attempt: attempt + 1,
+          name,
+        });
+        await sleep(2 ** attempt * 250 + Math.random() * 100);
+        continue;
+      }
+      throw new Error(`AI request failed (${name}); last error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+
     lastStatus = res.status;
     lastBody = (await res.json()) as T;
     if (res.ok || !RETRYABLE_STATUS.has(res.status)) {
+      if (!res.ok) {
+        const { logWarn } = await import("@/lib/logger");
+        logWarn("ai_openai_fetch_non_retryable_http", {
+          status: res.status,
+          attempt: attempt + 1,
+        });
+      }
       return { ok: res.ok, status: res.status, body: lastBody };
     }
+    const { logWarn } = await import("@/lib/logger");
+    logWarn("ai_openai_fetch_retry_after_http", { status: res.status, attempt: attempt + 1 });
     await sleep(2 ** attempt * 250 + Math.random() * 100);
   }
+
+  const { logError } = await import("@/lib/logger");
+  logError("ai_openai_fetch_exhausted_retries", {
+    url: url.slice(0, 96),
+    lastStatus,
+  });
 
   return { ok: false, status: lastStatus, body: lastBody };
 }

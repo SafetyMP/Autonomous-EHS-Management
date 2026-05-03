@@ -1,0 +1,41 @@
+# Optional: probe a *deployed* origin's /api/cron/metrics (manual trigger via workflow_dispatch).
+#
+# Secrets: this workflow reads repository secret CRON_SECRET (same value as app runtime). Prefer
+# storing CRON_SECRET as an Environment secret (e.g. staging or production) where your org policy
+# scopes automation credentials; that requires duplicating this job to reference `environment:` —
+# we keep the repository secret form so forks/simple setups work without environment approval gates
+# on every manual run. Add repository secret CRON_SECRET (or wire an environment + secret) before use.
+# Inputs avoid storing deploy URLs in code — pass base_url at run time.
+name: Cron metrics probe (deployed URL)
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Deployment origin, e.g. https://staging.example.com (no trailing slash)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Prometheus exposition
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "CRON_SECRET repository secret must be configured."
+            exit 1
+          fi
+          url="${BASE_URL%/}/api/cron/metrics"
+          echo "GET $url"
+          body="$(curl -sfS --max-time 30 \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "$url")"
+          echo "$body" | grep -q "ehs_cron_job_last_run_timestamp_seconds"

@@ -24,7 +24,7 @@ export function OfflineBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="shrink-0 border-b border-amber-400 bg-amber-100 px-4 py-3 text-center text-base font-semibold text-amber-950"
+      className="sticky top-0 z-[60] shrink-0 border-b border-amber-400 bg-amber-100 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] text-center text-base font-semibold text-amber-950"
     >
       You appear to be offline. Checking connection — actions may fail until you are back
       online.

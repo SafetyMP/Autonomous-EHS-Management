@@ -141,15 +141,18 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
           >
             {ssoLoading ? "Redirecting to your organization…" : "Continue with company SSO"}
           </button>
-          <p className="mt-2 text-center text-xs text-zinc-600">
+          <p className="mt-2 text-center text-xs text-zinc-700">
             Requires OIDC environment variables on the server. See README (Enterprise SSO).
           </p>
         </div>
       ) : null}
 
       {demoUiEnabled ? (
-        <div className="mt-10 border-t border-zinc-200 pt-8">
-          <p className="text-center text-sm text-zinc-600">
+        <section
+          className="mt-10 border-t border-zinc-200 pt-8"
+          aria-label="Demo access"
+        >
+          <p className="text-center text-sm text-zinc-700">
             Evaluating the sandbox? Use one-click demo access (local / staging only).
           </p>
           <button
@@ -161,7 +164,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
           >
             {demoLoading ? "Opening demo session…" : "Try demo admin"}
           </button>
-        </div>
+        </section>
       ) : null}
     </div>
   );

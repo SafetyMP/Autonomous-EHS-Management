@@ -7,6 +7,14 @@ import { useOrg } from "@/components/org-context";
 import { dfMuted, dfPrimarySubmit, dfSecondaryOutline } from "@/lib/dashboard-field-styles";
 import { trpc } from "@/trpc/react";
 
+function entityLabel(entityType: string): string {
+  if (entityType === "capa") return "CAPA plan";
+  if (entityType === "work_permit") return "Work permit";
+  if (entityType === "incident") return "Incident";
+  if (entityType === "environmental_regulatory_permit") return "Environmental permit";
+  return entityType;
+}
+
 export default function ApprovalsPage() {
   const commentId = useId();
   const { organizationId } = useOrg();
@@ -25,7 +33,9 @@ export default function ApprovalsPage() {
     { enabled: !!organizationId },
   );
 
-  const capas = trpc.capa.list.useQuery(
+  const capas = trpc.capa.list.useQuery({ organizationId: org }, { enabled: !!organizationId });
+  const permits = trpc.permit.list.useQuery({ organizationId: org }, { enabled: !!organizationId });
+  const envPermits = trpc.environmentalRegulatoryPermit.list.useQuery(
     { organizationId: org },
     { enabled: !!organizationId },
   );
@@ -34,9 +44,14 @@ export default function ApprovalsPage() {
     onSuccess: () => {
       void pending.refetch();
       void escalations.refetch();
+      void permits.refetch();
       setActiveRequestId(null);
       void capas.refetch();
       void utils.approval.listOpenCapaRequests.invalidate();
+      void utils.approval.listOpenWorkPermitRequests.invalidate();
+      void utils.approval.listOpenEnvironmentalRegulatoryPermitRequests.invalidate();
+      void utils.permit.list.invalidate();
+      void utils.environmentalRegulatoryPermit.list.invalidate();
       setComment("");
     },
   });
@@ -56,7 +71,7 @@ export default function ApprovalsPage() {
         <div>
           <h1 className="text-xl font-semibold text-zinc-900">My approvals</h1>
           <p className={`mt-1 ${dfMuted}`}>
-            Open CAPA plan reviews assigned to you. Decisions are written to the audit trail.
+            Pending serial steps assigned to you. Decisions are written to the audit trail.
           </p>
         </div>
         <OrgSwitcher />
@@ -68,7 +83,10 @@ export default function ApprovalsPage() {
           <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-800">
             <tr>
               <th scope="col" className="px-4 py-3">
-                CAPA
+                Item
+              </th>
+              <th scope="col" className="px-4 py-3">
+                Type
               </th>
               <th scope="col" className="px-4 py-3">
                 Due
@@ -84,7 +102,7 @@ export default function ApprovalsPage() {
           <tbody className="divide-y divide-zinc-100">
             {pending.isLoading ? (
               <tr>
-                <td colSpan={4} className="px-4 py-6">
+                <td colSpan={5} className="px-4 py-6">
                   <span role="status" aria-live="polite" className="text-zinc-700">
                     Loading…
                   </span>
@@ -92,24 +110,58 @@ export default function ApprovalsPage() {
               </tr>
             ) : pending.data?.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-zinc-700">
+                <td colSpan={5} className="px-4 py-6 text-zinc-700">
                   No pending approvals for your account.
                 </td>
               </tr>
             ) : (
               pending.data?.map(({ step, request }) => {
-                const capaTitle =
-                  capas.data?.find((c) => c.id === request.entityId)?.title ?? request.entityId.slice(0, 8);
                 const expanded = activeRequestId === request.id;
                 const due = step.dueAt ? new Date(step.dueAt) : null;
                 const overdue = due && due < new Date();
+
+                const capaTitle =
+                  request.entityType === "capa"
+                    ? capas.data?.find((c) => c.id === request.entityId)?.title ?? request.entityId.slice(0, 8)
+                    : null;
+                const permitTitle =
+                  request.entityType === "work_permit"
+                    ? permits.data?.find((p) => p.id === request.entityId)?.title ?? request.entityId.slice(0, 8)
+                    : null;
+                const envPermitTitle =
+                  request.entityType === "environmental_regulatory_permit"
+                    ? envPermits.data?.find((p) => p.id === request.entityId)?.title ??
+                      request.entityId.slice(0, 8)
+                    : null;
+
+                const primaryLabel =
+                  request.entityType === "capa"
+                    ? capaTitle
+                    : request.entityType === "work_permit"
+                      ? permitTitle
+                      : request.entityType === "environmental_regulatory_permit"
+                        ? envPermitTitle
+                      : request.entityType === "incident"
+                        ? `Incident ${request.entityId.slice(0, 8)}`
+                        : request.entityId.slice(0, 8);
+
+                const itemHref =
+                  request.entityType === "work_permit"
+                    ? `/dashboard/permits/${request.entityId}`
+                    : request.entityType === "capa"
+                      ? "/dashboard/capa"
+                      : request.entityType === "environmental_regulatory_permit"
+                        ? `/dashboard/environmental-permits/${request.entityId}`
+                      : "/dashboard/incidents";
+
                 return (
                   <tr key={step.id}>
                     <td className="px-4 py-3 font-medium text-zinc-900">
-                      <Link href="/dashboard/capa" className="text-emerald-900 underline">
-                        {capaTitle}
+                      <Link href={itemHref} className="text-emerald-900 underline">
+                        {primaryLabel}
                       </Link>
                     </td>
+                    <td className="px-4 py-3 text-zinc-800">{entityLabel(request.entityType)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-zinc-800">
                       {due
                         ? `${due.toLocaleDateString(undefined, { month: "short", day: "numeric" })}${overdue ? " (overdue)" : ""}`
@@ -160,7 +212,13 @@ export default function ApprovalsPage() {
                                 })
                               }
                             >
-                              Approve plan
+                              {request.entityType === "capa"
+                                ? "Approve plan"
+                                : request.entityType === "work_permit"
+                                  ? "Authorize work"
+                                  : request.entityType === "environmental_regulatory_permit"
+                                    ? "Approve activation"
+                                  : "Approve"}
                             </button>
                             <button
                               type="button"

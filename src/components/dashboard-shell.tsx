@@ -1,10 +1,22 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
+import {
+  FieldOutboxStatusBar,
+  FieldOutboxUiProvider,
+} from "@/components/field-outbox-ui-bridge";
+import { FieldOutboxGlobalSync } from "@/components/field-outbox-global-sync";
 import { OrgProvider } from "@/components/org-context";
 import { trpc } from "@/trpc/react";
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({
+  children,
+  workspaceWidth = "wide",
+}: {
+  children: React.ReactNode;
+  /** `wide` supports command-center layout; `standard` restores legacy density. */
+  workspaceWidth?: "standard" | "wide";
+}) {
   const { data: session, isPending } = authClient.useSession();
 
   async function signOut() {
@@ -28,16 +40,23 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     return (
       <div
         role="alert"
-        className="mx-auto max-w-6xl flex-1 p-6 text-base text-red-700"
+        className={`mx-auto max-w-[90rem] flex-1 p-6 text-base text-red-700`}
       >
         Session expired. Please sign in again.
       </div>
     );
   }
 
+  const shellMax = workspaceWidth === "wide" ? "max-w-[90rem]" : "max-w-6xl";
+  const sessionDense = workspaceWidth === "wide";
+
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-3 text-base">
+    <div className={`mx-auto flex w-full ${shellMax} flex-1 flex-col gap-4 p-4 sm:p-6`}>
+      <div
+        className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-base ${
+          sessionDense ? "py-2.5 sm:py-2" : "py-3"
+        }`}
+      >
         <div>
           <span className="text-zinc-700">Signed in as </span>
           <span className="font-medium">{session.user.name}</span>
@@ -81,5 +100,13 @@ function OrgGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <OrgProvider organizations={orgs}>{children}</OrgProvider>;
+  return (
+    <OrgProvider organizations={orgs}>
+      <FieldOutboxUiProvider>
+        <FieldOutboxGlobalSync />
+        <FieldOutboxStatusBar />
+        {children}
+      </FieldOutboxUiProvider>
+    </OrgProvider>
+  );
 }

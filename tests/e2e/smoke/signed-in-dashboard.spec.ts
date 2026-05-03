@@ -20,5 +20,6 @@ test.describe("authenticated dashboard (@smoke when creds set)", () => {
     await page.getByLabel("Password", { exact: true }).fill(password!);
     await page.getByRole("button", { name: /sign in/i }).click();
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Operations/);
   });
 });

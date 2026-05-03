@@ -12,7 +12,7 @@ import {
   workRelatedInjuryIllnessRecord,
 } from "@/server/db/schema";
 import { getRecordkeepingReferencePayload } from "@/lib/regulatory/usRecordkeepingReference";
-import { buildAgencyExportPlaceholder } from "@/lib/regulatory/oshaAgencyExportScaffold";
+import { buildAgencyExportPlaceholder, buildOshaAgencyReferenceCsvSample } from "@/lib/regulatory/oshaAgencyExportScaffold";
 import { writeAuditLog } from "@/server/services/audit";
 import {
   assertEstablishmentInOrg,
@@ -39,6 +39,21 @@ export const regulatoryOshaRouter = router({
       PERMISSIONS.REGULATORY_OSHA_READ,
     );
     return buildAgencyExportPlaceholder();
+  }),
+
+  /** Synthetic CSV (header + example row) for column layout review — not filing-ready. */
+  agencyReferenceCsvSample: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+    await assertPermission(
+      ctx.db,
+      ctx.user.id,
+      input.organizationId,
+      PERMISSIONS.REGULATORY_OSHA_READ,
+    );
+    const placeholder = buildAgencyExportPlaceholder();
+    return {
+      disclaimer: placeholder.disclaimer,
+      csv: buildOshaAgencyReferenceCsvSample(),
+    };
   }),
 
   /** Static reference data + disclaimer for federal vs state-plan recordkeeping (not legal advice). */

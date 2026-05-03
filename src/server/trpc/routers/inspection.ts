@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
 import { inspection, inspectionStatusEnum, inspectionTypeEnum } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { runWithMutationIdempotency } from "@/server/services/mutationIdempotency";
 import { allowedInspectionTransition } from "@/lib/workflow/inspectionTransitions";
 import { assertOrgMemberUserId, assertSiteInOrg } from "../assertOrgScoped";
 import { protectedMutation, protectedProcedure, router } from "../init";
@@ -61,6 +62,7 @@ export const inspectionRouter = router({
         scheduledAt: z.coerce.date().optional().nullable(),
         leadUserId: z.string().min(1).optional().nullable(),
         notes: z.string().max(50_000).optional().nullable(),
+        idempotencyKey: z.string().uuid().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -78,36 +80,49 @@ export const inspectionRouter = router({
         await assertOrgMemberUserId(ctx.db, input.organizationId, input.leadUserId);
       }
 
-      return ctx.db.transaction(async (tx) => {
-        const [created] = await tx
-          .insert(inspection)
-          .values({
+      const { idempotencyKey, ...inspInput } = input;
+
+      return ctx.db.transaction(async (tx) =>
+        runWithMutationIdempotency(
+          tx,
+          {
             organizationId: input.organizationId,
-            siteId: input.siteId ?? null,
-            title: input.title.trim(),
-            inspectionType: (input.inspectionType ?? "other") as (typeof inspectionTypeEnum.enumValues)[number],
-            status: "scheduled",
-            scheduledAt: input.scheduledAt ?? null,
-            leadUserId: input.leadUserId ?? null,
-            notes: input.notes?.trim() ?? null,
-          })
-          .returning();
-        if (!created) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create inspection.",
-          });
-        }
-        await writeAuditLog(tx, {
-          organizationId: input.organizationId,
-          actorUserId: ctx.user.id,
-          action: "inspection.create",
-          entityType: "inspection",
-          entityId: created.id,
-          payload: { title: created.title, inspectionType: created.inspectionType },
-        });
-        return created;
-      });
+            actorUserId: ctx.user.id,
+            idempotencyKey,
+            procedure: "inspection.create",
+          },
+          async () => {
+            const [created] = await tx
+              .insert(inspection)
+              .values({
+                organizationId: inspInput.organizationId,
+                siteId: inspInput.siteId ?? null,
+                title: inspInput.title.trim(),
+                inspectionType: (inspInput.inspectionType ?? "other") as (typeof inspectionTypeEnum.enumValues)[number],
+                status: "scheduled",
+                scheduledAt: inspInput.scheduledAt ?? null,
+                leadUserId: inspInput.leadUserId ?? null,
+                notes: inspInput.notes?.trim() ?? null,
+              })
+              .returning();
+            if (!created) {
+              throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to create inspection.",
+              });
+            }
+            await writeAuditLog(tx, {
+              organizationId: inspInput.organizationId,
+              actorUserId: ctx.user.id,
+              action: "inspection.create",
+              entityType: "inspection",
+              entityId: created.id,
+              payload: { title: created.title, inspectionType: created.inspectionType },
+            });
+            return created;
+          },
+        ),
+      );
     }),
 
   update: protectedMutation
@@ -197,6 +212,7 @@ export const inspectionRouter = router({
       orgScope.extend({
         inspectionId: z.string().uuid(),
         status: z.enum(inspectionStatuses),
+        idempotencyKey: z.string().uuid().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -231,29 +247,44 @@ export const inspectionRouter = router({
 
       const now = new Date();
       const completedAt = next === "completed" ? now : existing.completedAt;
+      const { idempotencyKey, ...stInput } = input;
 
-      return ctx.db.transaction(async (tx) => {
-        const [row] = await tx
-          .update(inspection)
-          .set({
-            status: next,
-            completedAt: next === "completed" ? completedAt : existing.completedAt,
-            updatedAt: now,
-          })
-          .where(eq(inspection.id, input.inspectionId))
-          .returning();
-
-        if (row) {
-          await writeAuditLog(tx, {
+      return ctx.db.transaction(async (tx) =>
+        runWithMutationIdempotency(
+          tx,
+          {
             organizationId: input.organizationId,
             actorUserId: ctx.user.id,
-            action: "inspection.update_status",
-            entityType: "inspection",
-            entityId: row.id,
-            payload: { from: existing.status, to: next },
-          });
-        }
-        return row;
-      });
+            idempotencyKey,
+            procedure: "inspection.update_status",
+          },
+          async () => {
+            const [row] = await tx
+              .update(inspection)
+              .set({
+                status: next,
+                completedAt: next === "completed" ? completedAt : existing.completedAt,
+                updatedAt: now,
+              })
+              .where(eq(inspection.id, stInput.inspectionId))
+              .returning();
+
+            if (row) {
+              await writeAuditLog(tx, {
+                organizationId: input.organizationId,
+                actorUserId: ctx.user.id,
+                action: "inspection.update_status",
+                entityType: "inspection",
+                entityId: row.id,
+                payload: { from: existing.status, to: next },
+              });
+            }
+            if (!row) {
+              throw new TRPCError({ code: "NOT_FOUND", message: "Inspection not found after update." });
+            }
+            return row;
+          },
+        ),
+      );
     }),
 });

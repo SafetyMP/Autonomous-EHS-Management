@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { OfflineBanner } from "@/components/offline-banner";
 import { TRPCProvider } from "@/trpc/react";
@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   title: "EHS Management | ISO 45001 & 14001",
   description:
     "Occupational health, safety, and environmental management system of record.",
+};
+
+/** Allow pinch-zoom on small screens for field readability (WCAG 1.4.4). */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
