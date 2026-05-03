@@ -1,3 +1,10 @@
+## [1.3.7](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.6...v1.3.7) (2026-05-03)
+
+
+### Bug Fixes
+
+* **cron:** defer env validation for cron routes (readValidatedEnv) ([084e7d9](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/084e7d914e7fb51b80c4e0c9fe1d4ac90ce0a567))
+
 ## [1.3.6](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.5...v1.3.6) (2026-05-03)
 
 
