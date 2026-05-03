@@ -44,6 +44,11 @@ RUN npm ci
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# `next build` imports server code that loads `src/lib/env.ts`. Real secrets are not
+# available (and must not be baked into layers). Match local/CI test ergonomics:
+# see `skipValidation` in src/lib/env.ts when SKIP_ENV_VALIDATION is set.
+# Runtime pods must still inject DATABASE_URL, BETTER_AUTH_*, NEXT_PUBLIC_APP_URL, etc.
+ENV SKIP_ENV_VALIDATION=1
 # Full Next production build; emits .next/standalone for the runner stage.
 RUN npm run build
 
