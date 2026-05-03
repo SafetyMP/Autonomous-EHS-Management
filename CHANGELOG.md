@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.2...v1.3.3) (2026-05-03)
+
+
+### Bug Fixes
+
+* **env:** derive app URLs from VERCEL_URL when unset ([8e0fb58](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/8e0fb58d0e6d970e8f1a37ed2bbe9c522fa5a662))
+
 ## [1.3.2](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.1...v1.3.2) (2026-05-03)
 
 
