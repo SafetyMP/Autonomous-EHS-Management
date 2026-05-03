@@ -1,3 +1,10 @@
+## [1.3.10](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.9...v1.3.10) (2026-05-03)
+
+
+### Bug Fixes
+
+* **auth:** align client and server base URL for Vercel previews ([19f7b2a](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/19f7b2abca6ce3f48d41b8fa59b9801b19394eaf))
+
 ## [1.3.9](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.8...v1.3.9) (2026-05-03)
 
 
