@@ -44,22 +44,17 @@ export async function POST(req: NextRequest) {
 
   const ip = getClientIpFromHeaders(req.headers);
 
-  if (process.env.NODE_ENV === "production" && !isRateLimiterConfigured()) {
-    return NextResponse.json(
-      {
-        error:
-          "Service temporarily unavailable (rate limit backend not configured).",
-      },
-      { status: 503 },
-    );
-  }
-
-  const allowed = await rateLimitAllow(`auth:${ip}`);
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Try again shortly." },
-      { status: 429 },
-    );
+  // Without Upstash, `rateLimitAllow` is a no-op in dev but returns false in production.
+  // Only enforce sliding-window limits when Redis is configured so sign-in still works on
+  // Vercel before optional UPSTASH_* env vars are added.
+  if (isRateLimiterConfigured()) {
+    const allowed = await rateLimitAllow(`auth:${ip}`);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again shortly." },
+        { status: 429 },
+      );
+    }
   }
   return basePost(req);
 }
