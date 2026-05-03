@@ -2,6 +2,11 @@ import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
 export const env = createEnv({
+  /**
+   * Treat `VAR=` / dashboard empty values as unset so optional URL and min-length
+   * fields do not fail builds (e.g. Vercel env UI leaving placeholders blank).
+   */
+  emptyStringAsUndefined: true,
   server: {
     DATABASE_URL: z.string().min(1),
     /** Set to `"1"` when using local Docker Postgres (node-postgres pool). Omit for Neon serverless. */
