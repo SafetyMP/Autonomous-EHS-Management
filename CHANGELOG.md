@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.3...v1.3.4) (2026-05-03)
+
+
+### Bug Fixes
+
+* **build:** webpack build + load .env before workers; widen Vercel URL fallback ([6005397](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/60053975a5f10f83ea02b5a367628d2ec8fed20e))
+
 ## [1.3.3](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.2...v1.3.3) (2026-05-03)
 
 
