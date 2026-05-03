@@ -10,6 +10,10 @@ npm run verify
 
 Defined as: **`eslint` → `tsc --noEmit` → `vitest run`**. Same as CI `verify` job (without Playwright).
 
+**Enterprise / technical diligence:** keep [docs/architecture-map.md](docs/architecture-map.md), [docs/workflow-depth.md](docs/workflow-depth.md), [docs/procurement-readiness.md](docs/procurement-readiness.md), and [docs/approval-workflow.md](docs/approval-workflow.md) aligned with real behavior when you change workflows, RBAC, retention, approvals, or integrations.
+
+**Enterprise SSO (OIDC):** optional Better Auth Generic OAuth—see README “Enterprise SSO”; sign-in button is gated by `NEXT_PUBLIC_ENTERPRISE_SSO=1`. Smoke tests do not require IdP.
+
 Full check including smoke E2E:
 
 ```bash

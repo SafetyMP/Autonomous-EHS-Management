@@ -16,6 +16,7 @@ export const PERMISSIONS = {
   CAPA_CREATE: "capa:create",
   CAPA_READ: "capa:read",
   CAPA_UPDATE: "capa:update",
+  CAPA_APPROVE: "capa:approve",
   DOCUMENT_READ: "document:read",
   DOCUMENT_CREATE: "document:create",
   DOCUMENT_UPDATE: "document:update",

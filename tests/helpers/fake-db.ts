@@ -11,6 +11,7 @@ import {
   complianceObligation,
   controlledDocument,
   correctiveAction,
+  externalParty,
   incident,
   membership,
   ragChunk,
@@ -237,6 +238,52 @@ export function createDocumentGetFakeDb(opts: DocumentGetFakeOpts): Db {
             };
           }
           throw new Error(`[fake-db] document-get: unsupported from(${String(table)})`);
+        },
+      };
+    },
+  } as unknown as Db;
+}
+
+export type ExternalPartyGetFakeOpts = {
+  rbacHit: boolean;
+  row: Record<string, unknown> | null;
+};
+
+/** RBAC + `external_party` keyed fetch (`where` + `limit(1)`). */
+export function createExternalPartyGetFakeDb(opts: ExternalPartyGetFakeOpts): Db {
+  const rbacRows = opts.rbacHit ? ([{ pk: "grant" }] as RbacRow[]) : ([] as RbacRow[]);
+  const bucket = opts.row ? [opts.row] : ([] as Record<string, unknown>[]);
+  const oneResolved = Promise.resolve(bucket);
+
+  return {
+    select() {
+      return {
+        from(table: unknown) {
+          if (table === membership) {
+            return rbacMembershipFrom(rbacRows as RbacRow[]);
+          }
+          if (table === externalParty) {
+            return {
+              where(..._ignored: unknown[]) {
+                const tail = {
+                  limit() {
+                    return oneResolved;
+                  },
+                  then<TResult1>(
+                    onfulfilled?:
+                      | ((value: unknown[]) => TResult1 | PromiseLike<TResult1>)
+                      | null
+                      | undefined,
+                    onrejected?: ((reason: unknown) => unknown) | null | undefined,
+                  ): Promise<TResult1> {
+                    return oneResolved.then(onfulfilled ?? undefined, onrejected ?? undefined) as Promise<TResult1>;
+                  },
+                };
+                return tail;
+              },
+            };
+          }
+          throw new Error(`[fake-db] external-party-get: unsupported from(${String(table)})`);
         },
       };
     },

@@ -26,9 +26,18 @@ export const env = createEnv({
     DEMO_READ_ONLY: z.string().optional(),
     DEMO_ADMIN_EMAIL: z.string().email().optional(),
     DEMO_ADMIN_PASSWORD: z.string().optional(),
+    /** OIDC / enterprise SSO (optional). When all three are set, Generic OAuth is enabled. */
+    OIDC_DISCOVERY_URL: z.string().url().optional(),
+    OIDC_CLIENT_ID: z.string().optional(),
+    OIDC_CLIENT_SECRET: z.string().optional(),
+    OIDC_PROVIDER_ID: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
+    /** When "1", sign-in shows enterprise SSO button if server OIDC env is configured. */
+    NEXT_PUBLIC_ENTERPRISE_SSO: z.string().optional(),
+    /** Must match server OIDC_PROVIDER_ID default when using SSO button */
+    NEXT_PUBLIC_OIDC_PROVIDER_ID: z.string().optional(),
     /** When `"1"`, sign-in shows “Try demo admin” (non-secret; credentials stay server-only). */
     NEXT_PUBLIC_DEMO_MODE: z.string().optional(),
   },
@@ -49,7 +58,13 @@ export const env = createEnv({
     DEMO_READ_ONLY: process.env.DEMO_READ_ONLY,
     DEMO_ADMIN_EMAIL: process.env.DEMO_ADMIN_EMAIL,
     DEMO_ADMIN_PASSWORD: process.env.DEMO_ADMIN_PASSWORD,
+    OIDC_DISCOVERY_URL: process.env.OIDC_DISCOVERY_URL,
+    OIDC_CLIENT_ID: process.env.OIDC_CLIENT_ID,
+    OIDC_CLIENT_SECRET: process.env.OIDC_CLIENT_SECRET,
+    OIDC_PROVIDER_ID: process.env.OIDC_PROVIDER_ID,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_ENTERPRISE_SSO: process.env.NEXT_PUBLIC_ENTERPRISE_SSO,
+    NEXT_PUBLIC_OIDC_PROVIDER_ID: process.env.NEXT_PUBLIC_OIDC_PROVIDER_ID,
     NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,

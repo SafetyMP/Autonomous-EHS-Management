@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { signInAsDemoAdmin } from "@/app/(auth)/sign-in/demo-actions";
-import { authClient } from "@/lib/auth-client";
+import { authClient, enterpriseOidcProviderId } from "@/lib/auth-client";
 import { safeAppRelativePath } from "@/lib/safe-app-path";
 
 const demoUiEnabled = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+const enterpriseSsoUiEnabled = process.env.NEXT_PUBLIC_ENTERPRISE_SSO === "1";
 
 export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter();
@@ -17,6 +18,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
+  const [ssoLoading, setSsoLoading] = useState(false);
 
   async function onDemoSignIn() {
     setError(null);
@@ -30,6 +32,23 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
     const next = safeAppRelativePath(callbackUrl, "/dashboard");
     router.push(next);
     router.refresh();
+  }
+
+  async function onEnterpriseSso() {
+    setError(null);
+    setSsoLoading(true);
+    const nextPath = safeAppRelativePath(callbackUrl, "/dashboard");
+    const callbackURL = `${window.location.origin}${nextPath}`;
+    const result = await authClient.signIn.oauth2({
+      providerId: enterpriseOidcProviderId,
+      callbackURL,
+    });
+    setSsoLoading(false);
+    if (result.error) {
+      const err = result.error as { message?: string };
+      setError(err.message ?? "Unable to start single sign-on.");
+      return;
+    }
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -111,6 +130,23 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
         </button>
       </form>
 
+      {enterpriseSsoUiEnabled ? (
+        <div className="mt-6 border-t border-zinc-200 pt-6">
+          <button
+            type="button"
+            disabled={ssoLoading || loading || demoLoading}
+            aria-busy={ssoLoading}
+            onClick={() => void onEnterpriseSso()}
+            className="min-h-11 w-full rounded-lg border-2 border-zinc-800 bg-white px-4 py-3 text-base font-semibold text-zinc-900 hover:bg-zinc-50 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+          >
+            {ssoLoading ? "Redirecting to your organization…" : "Continue with company SSO"}
+          </button>
+          <p className="mt-2 text-center text-xs text-zinc-600">
+            Requires OIDC environment variables on the server. See README (Enterprise SSO).
+          </p>
+        </div>
+      ) : null}
+
       {demoUiEnabled ? (
         <div className="mt-10 border-t border-zinc-200 pt-8">
           <p className="text-center text-sm text-zinc-600">
@@ -118,7 +154,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
           </p>
           <button
             type="button"
-            disabled={demoLoading || loading}
+            disabled={demoLoading || loading || ssoLoading}
             aria-busy={demoLoading}
             onClick={() => void onDemoSignIn()}
             className="mt-4 min-h-11 w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base font-medium text-zinc-900 shadow-sm hover:bg-zinc-50 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"

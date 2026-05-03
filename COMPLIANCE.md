@@ -21,7 +21,7 @@ This document aligns product capability with compliance claims. **It is not lega
 - **Retention / anonymization:** `/api/cron/data-retention` (Vercel Cron + `CRON_SECRET`) processes incidents with `retain_until <= now`, `legal_hold = false`, and `anonymized_at IS NULL`.
 - **Default `retain_until` on create:** If the org has `data_retention_policy` rows with `record_class = incident_general`, new incidents get the **latest** `retain_until` across those rows: each row uses `minimum_years` with a per-policy **`retention_date_anchor`** — `rolling_from_event` (reference date + N years UTC) or `calendar_year_end` (end of calendar year of reference year + N). Clients may still pass an explicit `retain_until`.
 - **RAG minimization backfill:** `rag.redactExistingSource` (permission `rag:ingest`) applies current `redactForRagIngest` to an existing source’s `raw_text` and chunks; changed chunks clear embeddings so `backfillEmbeddings` can refresh vectors.
-- **Audit:** Lifecycle actions write to `audit_log` and to `data_lifecycle_run` for job-level evidence.
+- **Contractor / visitor evidence:** `external_party_credential` stores **metadata and links** (policy IDs, validity dates, evidence URI stubs). Treat attachments as **regulated or PII-bearing** where applicable; align storage, retention, and access with counsel. File encryption and DLP are **organizational** controls on top of RBAC and `audit_log` on create/update.
 - **Org deletion:** `incident` rows still **cascade** on `organization` delete. Organizations that must retain OSHA-style records should use export, **legal hold**, and counsel-approved off-platform archives before tenant teardown.
 
 ## Counsel checklist (before changing marketing or DPAs)

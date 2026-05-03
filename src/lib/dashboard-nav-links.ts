@@ -3,6 +3,8 @@ export const DASHBOARD_NAV_LINKS = [
   { href: "/dashboard/analytics", label: "Metrics" },
   { href: "/dashboard/incidents", label: "Incidents" },
   { href: "/dashboard/capa", label: "CAPA" },
+  { href: "/dashboard/contractors", label: "Contractors" },
+  { href: "/dashboard/approvals", label: "Approvals" },
   { href: "/dashboard/environment", label: "Environment" },
   { href: "/dashboard/documents", label: "Documents" },
   { href: "/dashboard/management-review", label: "Mgmt review" },

@@ -1,8 +1,10 @@
 # Autonomous EHS Management System
 
-**Give your team one place to log what happened, assign fixes, and prove the follow-up.** Autonomous EHS is a browser-based console for people who run safety programs day to day—not a pile of separate files.
+**Autonomous compliance operations platform** — give your team one place to log what happened, assign fixes, and prove the follow-up. Autonomous EHS is a browser-based console for people who run safety programs day to day—not a pile of separate files.
 
-Sign in and use the left-hand navigation to work across **Overview**, **Metrics**, **Incidents**, **CAPA** (corrective and preventive actions: structured plans to fix a problem and keep it from coming back), **Environment**, **Documents**, **Mgmt review**, **Planning**, **Training**, **Audits**, **Context**, **Tasks**, **Program**, and **Import**. Optional assistants can draw on your approved materials when you turn that feature on.
+**Architecture & diligence:** [docs/architecture-map.md](docs/architecture-map.md) (system map), [docs/workflow-depth.md](docs/workflow-depth.md) (state machines + audit patterns), [docs/procurement-readiness.md](docs/procurement-readiness.md) (ROI / pilot / positioning workbook), [docs/approval-workflow.md](docs/approval-workflow.md) (CAPA approval gate), [docs/case-studies/pilot-template.md](docs/case-studies/pilot-template.md).
+
+Sign in and use the left-hand navigation to work across **Overview**, **Metrics**, **Incidents**, **CAPA**, **Contractors**, **Approvals**, **Environment**, **Documents**, **Mgmt review**, **Planning**, **Training**, **Audits**, **Context**, **Tasks**, **Program**, and **Import**. Optional assistants can draw on your approved materials when you turn that feature on.
 
 **End-user guide:** [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md) (step-by-step routes, troubleshooting, and field-friendly wording).
 
@@ -23,21 +25,40 @@ flowchart LR
     auth[Better Auth]
   end
   pg[(PostgreSQL + pgvector)]
+  cron[Cron jobs]
   user --> pages
   pages --> trpc
   pages --> auth
   trpc --> pg
   auth --> pg
+  cron --> trpc
+  cron --> pg
 ```
+
+Deeper maps: [docs/architecture-map.md](docs/architecture-map.md).
 
 | Layer | Technology |
 |--------|------------|
 | App & routing | **Next.js 16** (App Router), **React 19** |
 | API & data fetching | **tRPC 11**, **TanStack Query** |
-| Auth | **Better Auth** (email + password), Drizzle adapter |
+| Auth | **Better Auth** (email + password + optional OIDC via Generic OAuth), Drizzle adapter |
 | Database | **PostgreSQL**, **Drizzle ORM**; local demo uses **`pg`** (`DATABASE_USE_PG=1`), hosted uses **Neon serverless** driver by default |
 | AI / RAG | Optional **OpenAI-compatible** gateway; **pgvector** for embeddings |
 | Quality | **ESLint**, **Vitest**, **Playwright** smoke E2E |
+
+---
+
+## Enterprise SSO (OIDC pilot)
+
+When **`OIDC_DISCOVERY_URL`**, **`OIDC_CLIENT_ID`**, and **`OIDC_CLIENT_SECRET`** are all set (see [`src/lib/env.ts`](src/lib/env.ts)), the server registers Better Auth’s **Generic OAuth** plugin. Add to `.env.local`:
+
+- **`OIDC_PROVIDER_ID`** — defaults to `enterprise-oidc`; must match the client button (`authClient.signIn.oauth2`).
+- **`NEXT_PUBLIC_ENTERPRISE_SSO=1`** — shows **Continue with company SSO** on [`/sign-in`](http://localhost:3000/sign-in).
+- **`NEXT_PUBLIC_OIDC_PROVIDER_ID`** — optional override; defaults to `enterprise-oidc`.
+
+Register the redirect URL with your IdP: `{BETTER_AUTH_URL}/api/auth/oauth2/callback/{OIDC_PROVIDER_ID}`.
+
+**Org linkage:** first-time OIDC users still need membership/RBAC ([`scripts/seed.ts`](scripts/seed.ts) / admin invite flow)—SSO does not imply automatic tenant provisioning in this MVP.
 
 ---
 

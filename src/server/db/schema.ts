@@ -331,7 +331,7 @@ export const externalParty = pgTable("external_party", {
     .defaultNow(),
 });
 
-export const externalPartyRelations = relations(externalParty, ({ one }) => ({
+export const externalPartyRelations = relations(externalParty, ({ one, many }) => ({
   organization: one(organization, {
     fields: [externalParty.organizationId],
     references: [organization.id],
@@ -339,6 +339,57 @@ export const externalPartyRelations = relations(externalParty, ({ one }) => ({
   site: one(site, {
     fields: [externalParty.siteId],
     references: [site.id],
+  }),
+  credentials: many(externalPartyCredential),
+}));
+
+/** Insurance COI, permits, training proof, and other contractor / visitor evidence. */
+export const externalPartyCredentialKindEnum = pgEnum("external_party_credential_kind", [
+  "insurance_coi",
+  "permit",
+  "training_proof",
+  "other",
+]);
+
+export const externalPartyCredentialStatusEnum = pgEnum("external_party_credential_status", [
+  "pending_review",
+  "active",
+  "expired",
+  "rejected",
+]);
+
+export const externalPartyCredential = pgTable("external_party_credential", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  externalPartyId: uuid("external_party_id")
+    .notNull()
+    .references(() => externalParty.id, { onDelete: "cascade" }),
+  kind: externalPartyCredentialKindEnum("kind").notNull(),
+  status: externalPartyCredentialStatusEnum("status").notNull().default("pending_review"),
+  identifier: varchar("identifier", { length: 512 }),
+  validFrom: timestamp("valid_from", { withTimezone: true, mode: "date" }),
+  validTo: timestamp("valid_to", { withTimezone: true, mode: "date" }),
+  /** Stub URL or object key for uploaded evidence; treat as sensitive in production. */
+  evidenceUri: varchar("evidence_uri", { length: 2048 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+    .notNull()
+    .defaultNow(),
+});
+
+export const externalPartyCredentialRelations = relations(externalPartyCredential, ({ one }) => ({
+  organization: one(organization, {
+    fields: [externalPartyCredential.organizationId],
+    references: [organization.id],
+  }),
+  externalParty: one(externalParty, {
+    fields: [externalPartyCredential.externalPartyId],
+    references: [externalParty.id],
   }),
 }));
 
@@ -2185,6 +2236,90 @@ export const workflowTransition = pgTable("workflow_transition", {
     .notNull()
     .defaultNow(),
 });
+
+/** Generic approval gate for regulated workflow (CAPA-first; extend entity types over time). */
+export const approvalEntityTypeEnum = pgEnum("approval_entity_type", ["capa", "incident"]);
+
+export const approvalRequestStatusEnum = pgEnum("approval_request_status", [
+  "open",
+  "approved",
+  "rejected",
+  "cancelled",
+]);
+
+export const approvalStepStatusEnum = pgEnum("approval_step_status", [
+  "pending",
+  "approved",
+  "rejected",
+  "skipped",
+]);
+
+export const approvalRequest = pgTable("approval_request", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  entityType: approvalEntityTypeEnum("entity_type").notNull(),
+  entityId: uuid("entity_id").notNull(),
+  status: approvalRequestStatusEnum("status").notNull().default("open"),
+  createdByUserId: text("created_by_user_id")
+    .notNull()
+    .references(() => authUser.id, { onDelete: "cascade" }),
+  resolvedAt: timestamp("resolved_at", { withTimezone: true, mode: "date" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+    .notNull()
+    .defaultNow(),
+});
+
+export const approvalStep = pgTable(
+  "approval_step",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    requestId: uuid("request_id")
+      .notNull()
+      .references(() => approvalRequest.id, { onDelete: "cascade" }),
+    stepOrder: integer("step_order").notNull(),
+    approverUserId: text("approver_user_id")
+      .notNull()
+      .references(() => authUser.id, { onDelete: "cascade" }),
+    status: approvalStepStatusEnum("status").notNull().default("pending"),
+    comment: text("comment"),
+    decidedAt: timestamp("decided_at", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [unique("approval_step_request_order_uniq").on(t.requestId, t.stepOrder)],
+);
+
+export const approvalRequestRelations = relations(approvalRequest, ({ one, many }) => ({
+  organization: one(organization, {
+    fields: [approvalRequest.organizationId],
+    references: [organization.id],
+  }),
+  createdBy: one(authUser, {
+    fields: [approvalRequest.createdByUserId],
+    references: [authUser.id],
+  }),
+  steps: many(approvalStep),
+}));
+
+export const approvalStepRelations = relations(approvalStep, ({ one }) => ({
+  request: one(approvalRequest, {
+    fields: [approvalStep.requestId],
+    references: [approvalRequest.id],
+  }),
+  approver: one(authUser, {
+    fields: [approvalStep.approverUserId],
+    references: [authUser.id],
+  }),
+}));
 
 export const integrationEvent = pgTable("integration_event", {
   id: uuid("id").defaultRandom().primaryKey(),

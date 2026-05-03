@@ -3,6 +3,8 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
 import {
+  approvalRequest,
+  approvalStep,
   auditFinding,
   complianceObligation,
   correctiveAction,
@@ -67,6 +69,8 @@ export const capaRouter = router({
         details: z.string().max(50_000).optional(),
         dueDate: z.coerce.date().optional(),
         ownerUserId: z.string().optional(),
+        initialStatus: z.enum(["planned", "pending_approval"]).optional().default("planned"),
+        approverUserIdForPlan: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -198,6 +202,10 @@ export const capaRouter = router({
         }
       }
 
+      if (input.initialStatus === "pending_approval" && input.approverUserIdForPlan) {
+        await assertOrgMemberUserId(ctx.db, input.organizationId, input.approverUserIdForPlan);
+      }
+
       let ownerId = ctx.user.id;
       if (input.ownerUserId && input.ownerUserId !== ctx.user.id) {
         await assertOrgMemberUserId(ctx.db, input.organizationId, input.ownerUserId);
@@ -217,7 +225,7 @@ export const capaRouter = router({
             details: input.details ?? null,
             dueDate: input.dueDate ?? null,
             ownerUserId: ownerId,
-            status: "planned",
+            status: input.initialStatus as (typeof correctiveActionStatusEnum.enumValues)[number],
           })
           .returning();
 
@@ -233,6 +241,38 @@ export const capaRouter = router({
             .update(auditFinding)
             .set({ correctiveActionId: created.id })
             .where(eq(auditFinding.id, input.auditFindingId));
+        }
+
+        if (
+          input.initialStatus === "pending_approval" &&
+          input.approverUserIdForPlan
+        ) {
+          const [req] = await tx
+            .insert(approvalRequest)
+            .values({
+              organizationId: input.organizationId,
+              entityType: "capa",
+              entityId: created.id,
+              status: "open",
+              createdByUserId: ctx.user.id,
+            })
+            .returning();
+          if (req) {
+            await tx.insert(approvalStep).values({
+              requestId: req.id,
+              stepOrder: 0,
+              approverUserId: input.approverUserIdForPlan,
+              status: "pending",
+            });
+            await writeAuditLog(tx, {
+              organizationId: input.organizationId,
+              actorUserId: ctx.user.id,
+              action: "approval.submit_capa",
+              entityType: "approval_request",
+              entityId: req.id,
+              payload: { correctiveActionId: created.id, approverUserId: input.approverUserIdForPlan },
+            });
+          }
         }
 
         await writeAuditLog(tx, {
@@ -300,6 +340,30 @@ export const capaRouter = router({
           code: "BAD_REQUEST",
           message: `Invalid CAPA status transition: ${existing.status} → ${input.status}`,
         });
+      }
+
+      if (existing.status === "pending_approval" && input.status === "planned") {
+        const [approved] = await ctx.db
+          .select({ id: approvalRequest.id })
+          .from(approvalRequest)
+          .where(
+            and(
+              eq(approvalRequest.organizationId, input.organizationId),
+              eq(approvalRequest.entityType, "capa"),
+              eq(approvalRequest.entityId, input.correctiveActionId),
+              eq(approvalRequest.status, "approved"),
+            ),
+          )
+          .orderBy(desc(approvalRequest.resolvedAt))
+          .limit(1);
+
+        if (!approved) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "An approved plan review is required before moving this CAPA to planned. Submit an approval request and have the approver accept it.",
+          });
+        }
       }
 
       if (input.status === "verified") {

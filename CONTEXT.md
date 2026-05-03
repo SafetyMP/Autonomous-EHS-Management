@@ -9,6 +9,7 @@
 3. This CONTEXT.md — stack, naming, boundaries, anti-patterns.
 4. **Compliance- or retention-affecting changes:** [`.cursor/skills/corporate-compliance-data-governance/SKILL.md`](.cursor/skills/corporate-compliance-data-governance/SKILL.md) and [COMPLIANCE.md](COMPLIANCE.md); requestable rule [`.cursor/rules/compliance-data-governance.mdc`](.cursor/rules/compliance-data-governance.mdc).
 5. Cursor skill **context-guardian** — [`.cursor/skills/context-guardian/SKILL.md`](.cursor/skills/context-guardian/SKILL.md): architecture and documentation-only (“Context Guardian”) sessions; use for Memory Bank structures, Mermaid system views, and governance prose without shipping app code.
+6. **Enterprise packaging & diligence (keep aligned when boundaries change):** [docs/architecture-map.md](docs/architecture-map.md) (end-to-end map, integrations stub, retention/RBAC pointers), [docs/workflow-depth.md](docs/workflow-depth.md) (incident/CAPA transitions, `audit_log` scope), [docs/procurement-readiness.md](docs/procurement-readiness.md) (positioning, ROI template, pilot/moat narrative), [docs/approval-workflow.md](docs/approval-workflow.md) (CAPA approval gate).
 
 ## Tech stack (pin from package.json — bump only with coordinated churn)
 
@@ -36,12 +37,14 @@ Use this section when navigating procedure paths or onboarding agents. **Always 
 
 ### tRPC top-level namespaces
 
-Listed in **`root.ts`** registration order: `analytics`, `organization`, `incident`, `capa`, `aspect`, `obligation`, `document`, `ehsEvidence`, `managementReview`, `planning`, `training`, `internalAudit`, `rag`, `context`, `consultation`, `emergency`, `environmentalMonitoring`, `program`, `tasks`, `integration`, `aiDrafts`, `aiAssistant`, `importData`, `compliance`.
+Listed in **`root.ts`** registration order: `analytics`, `approval`, `organization`, `incident`, `capa`, `aspect`, `obligation`, `document`, `ehsEvidence`, `managementReview`, `planning`, `training`, `internalAudit`, `rag`, `context`, `consultation`, `emergency`, `environmentalMonitoring`, `program`, `externalParty`, `tasks`, `integration`, `aiDrafts`, `aiAssistant`, `importData`, `compliance`.
 
 Flat top-level routers of note:
 
 - **`analytics`** — [`src/server/trpc/routers/analytics.ts`](src/server/trpc/routers/analytics.ts): org-scoped KPI / safety dashboard aggregates (`protectedProcedure`; permission logic per procedure, may use helpers like `userHasPermission`).
+- **`approval`** — [`src/server/trpc/routers/approval.ts`](src/server/trpc/routers/approval.ts): CAPA plan approval gate (`listOpenCapaRequests`, `listMyPendingSteps`, `submitCapaPlanApproval`, `decideRequest`); product rules in [docs/approval-workflow.md](docs/approval-workflow.md).
 - **`ehsEvidence`** — [`src/server/trpc/routers/ehsEvidence.ts`](src/server/trpc/routers/ehsEvidence.ts): evidence attachments bound to IMS entities (e.g. incidents); mutations should write **`audit_log`** via existing patterns — align retention and uploads with [COMPLIANCE.md](COMPLIANCE.md) when touching governance.
+- **`externalParty`** — [`src/server/trpc/routers/externalParty.ts`](src/server/trpc/routers/externalParty.ts): compliance credentials for `external_party` rows (`getParty`, credential CRUD); parties are created under **`program`** ([`program.ts`](src/server/trpc/routers/program.ts) `listExternalParties` / `createExternalParty`).
 
 ### Nested routers
 

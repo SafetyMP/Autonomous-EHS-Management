@@ -30,6 +30,9 @@ Adopt the persona of an elite **Developer Experience (DevEx) Engineer** and **te
 | Surface | Purpose |
 |--------|---------|
 | [README.md](../../README.md) | Storefront quick start, stack, architecture diagram, demo warnings |
+| [docs/architecture-map.md](../../docs/architecture-map.md) | Procurement-oriented system map (workflows, RBAC, retention, integrations stub) |
+| [docs/workflow-depth.md](../../docs/workflow-depth.md) | Incident/CAPA transitions, `audit_log`, AI boundary |
+| [docs/procurement-readiness.md](../../docs/procurement-readiness.md) | Positioning, ROI worksheet, pilot/moat narrative (honest scope) |
 | [`.env.demo.example`](../../.env.demo.example) | Copy/paste env for Docker demo |
 | [`docker-compose.demo.yml`](../../docker-compose.demo.yml) | Postgres + pgvector for local demo |
 | [`.devcontainer/`](../../.devcontainer/) | Codespaces / Dev Container with Postgres + post-create migrate/seed |

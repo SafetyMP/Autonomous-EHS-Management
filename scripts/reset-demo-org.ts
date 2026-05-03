@@ -6,10 +6,13 @@
 import { spawnSync } from "node:child_process";
 import { and, eq, inArray, like } from "drizzle-orm";
 import {
+  approvalRequest,
+  approvalStep,
   auditFinding,
   controlledDocument,
   correctiveAction,
   documentRevision,
+  externalPartyCredential,
   incident,
   internalAudit,
   organization,
@@ -90,6 +93,25 @@ async function main() {
         demoTitleStartsWith(trainingRecord.courseTitle),
       ),
     );
+
+  const demoApprovalReqIds = await db
+    .select({ id: approvalRequest.id })
+    .from(approvalRequest)
+    .where(eq(approvalRequest.organizationId, org.id));
+
+  if (demoApprovalReqIds.length > 0) {
+    await db.delete(approvalStep).where(
+      inArray(
+        approvalStep.requestId,
+        demoApprovalReqIds.map((r) => r.id),
+      ),
+    );
+    await db.delete(approvalRequest).where(eq(approvalRequest.organizationId, org.id));
+  }
+
+  await db
+    .delete(externalPartyCredential)
+    .where(eq(externalPartyCredential.organizationId, org.id));
 
   await db
     .delete(correctiveAction)

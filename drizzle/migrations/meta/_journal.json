@@ -71,6 +71,13 @@
       "when": 1777767623780,
       "tag": "0009_odd_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1777772870453,
+      "tag": "0010_nervous_whiplash",
+      "breakpoints": true
     }
   ]
 }

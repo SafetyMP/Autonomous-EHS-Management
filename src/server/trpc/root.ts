@@ -2,6 +2,7 @@ import { router } from "./init";
 import { analyticsRouter } from "./routers/analytics";
 import { aiAssistantRouter } from "./routers/aiAssistant";
 import { aiDraftsRouter } from "./routers/aiDrafts";
+import { approvalRouter } from "./routers/approval";
 import { aspectRouter } from "./routers/aspect";
 import { capaRouter } from "./routers/capa";
 import { complianceRouter } from "./routers/complianceRouter";
@@ -10,6 +11,7 @@ import { contextRouter } from "./routers/context";
 import { documentRouter } from "./routers/document";
 import { emergencyRouter } from "./routers/emergency";
 import { environmentalMonitoringRouter } from "./routers/environmentalMonitoring";
+import { externalPartyRouter } from "./routers/externalParty";
 import { ehsEvidenceRouter } from "./routers/ehsEvidence";
 import { importDataRouter } from "./routers/importData";
 import { incidentRouter } from "./routers/incident";
@@ -26,6 +28,7 @@ import { trainingRouter } from "./routers/training";
 
 export const appRouter = router({
   analytics: analyticsRouter,
+  approval: approvalRouter,
   organization: organizationRouter,
   incident: incidentRouter,
   capa: capaRouter,
@@ -43,6 +46,7 @@ export const appRouter = router({
   emergency: emergencyRouter,
   environmentalMonitoring: environmentalMonitoringRouter,
   program: programRouter,
+  externalParty: externalPartyRouter,
   tasks: tasksRouter,
   integration: integrationRouter,
   aiDrafts: aiDraftsRouter,

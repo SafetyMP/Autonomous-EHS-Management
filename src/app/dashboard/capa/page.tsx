@@ -4,6 +4,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 import { useId, useMemo, useState } from "react";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
+import { dfMuted } from "@/lib/dashboard-field-styles";
 import type { AppRouter } from "@/server/trpc/root";
 import { trpc } from "@/trpc/react";
 
@@ -88,6 +89,10 @@ export default function CapaPage() {
   const [verifyNotes, setVerifyNotes] = useState("");
   const [advancingId, setAdvancingId] = useState<string | null>(null);
   const [newOwnerUserId, setNewOwnerUserId] = useState("");
+  const [capaInitialFlow, setCapaInitialFlow] = useState<"planned" | "pending_approval">("planned");
+  const [planApproverUserId, setPlanApproverUserId] = useState("");
+  const [submitApprovalCapaId, setSubmitApprovalCapaId] = useState<string | null>(null);
+  const [submitApprovalApprover, setSubmitApprovalApprover] = useState("");
 
   const { data: capas, isLoading } = trpc.capa.list.useQuery(
     { organizationId: organizationId! },
@@ -117,6 +122,11 @@ export default function CapaPage() {
     { enabled: !!organizationId },
   );
 
+  const openCapaApprovals = trpc.approval.listOpenCapaRequests.useQuery(
+    { organizationId: organizationId! },
+    { enabled: !!organizationId },
+  );
+
   const overdueCount = useMemo(
     () => capas?.filter(isCapaOverdue).length ?? 0,
     [capas],
@@ -130,6 +140,7 @@ export default function CapaPage() {
   const createCapa = trpc.capa.create.useMutation({
     onSuccess: () => {
       void utils.capa.list.invalidate();
+      void utils.approval.listOpenCapaRequests.invalidate();
       setTitle("");
       setDetails("");
       setDueDate("");
@@ -144,11 +155,21 @@ export default function CapaPage() {
   const updateStatus = trpc.capa.updateStatus.useMutation({
     onSuccess: () => {
       void utils.capa.list.invalidate();
+      void utils.approval.listOpenCapaRequests.invalidate();
     },
   });
 
   const assignOwner = trpc.capa.assignOwner.useMutation({
     onSuccess: () => void utils.capa.list.invalidate(),
+  });
+
+  const submitCapaApproval = trpc.approval.submitCapaPlanApproval.useMutation({
+    onSuccess: () => {
+      void openCapaApprovals.refetch();
+      void utils.capa.list.invalidate();
+      setSubmitApprovalCapaId(null);
+      setSubmitApprovalApprover("");
+    },
   });
 
   if (!organizationId) {
@@ -203,6 +224,11 @@ export default function CapaPage() {
                 details: details || undefined,
                 dueDate: due,
                 ownerUserId: newOwnerUserId || undefined,
+                initialStatus: capaInitialFlow,
+                approverUserIdForPlan:
+                  capaInitialFlow === "pending_approval" && planApproverUserId
+                    ? planApproverUserId
+                    : undefined,
                 incidentId:
                   linkKind === "incident" && incidentId ? incidentId : undefined,
                 auditFindingId:
@@ -390,6 +416,60 @@ export default function CapaPage() {
               </div>
             </details>
 
+            <fieldset className="rounded-lg border border-zinc-200 bg-zinc-50 p-4">
+              <legend className="px-1 text-base font-semibold text-zinc-900">
+                Plan approval (separation of duties)
+              </legend>
+              <p className={`mb-3 ${dfMuted}`}>
+                Start as <strong>pending approval</strong> when another person must accept the plan
+                before work is scheduled. They approve under{" "}
+                <a href="/dashboard/approvals" className="font-medium text-emerald-900 underline">
+                  Approvals
+                </a>
+                .
+              </p>
+              <label className={`${radioRowClass} mb-2`}>
+                <input
+                  type="radio"
+                  name="capa-initial-flow"
+                  checked={capaInitialFlow === "planned"}
+                  onChange={() => setCapaInitialFlow("planned")}
+                  className="size-4 shrink-0 border-zinc-400 text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                />
+                Start as planned (standard)
+              </label>
+              <label className={radioRowClass}>
+                <input
+                  type="radio"
+                  name="capa-initial-flow"
+                  checked={capaInitialFlow === "pending_approval"}
+                  onChange={() => setCapaInitialFlow("pending_approval")}
+                  className="size-4 shrink-0 border-zinc-400 text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                />
+                Start pending plan approval
+              </label>
+              {capaInitialFlow === "pending_approval" ? (
+                <div className="mt-3">
+                  <label className={labelClass} htmlFor="capa-plan-approver">
+                    Plan approver
+                  </label>
+                  <select
+                    id="capa-plan-approver"
+                    className={inputClass}
+                    value={planApproverUserId}
+                    onChange={(e) => setPlanApproverUserId(e.target.value)}
+                  >
+                    <option value="">— Select member —</option>
+                    {members?.map((m) => (
+                      <option key={m.userId} value={m.userId}>
+                        {m.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
+            </fieldset>
+
             <button
               type="submit"
               disabled={createCapa.isPending}
@@ -566,6 +646,74 @@ export default function CapaPage() {
                       : "—"}
                   </td>
                   <td className="px-4 py-3">
+                    {c.status === "pending_approval" &&
+                    !openCapaApprovals.data?.some((r) => r.entityId === c.id) ? (
+                      <div className="flex max-w-xs flex-col gap-2">
+                        <p className="text-xs text-zinc-700">
+                          No approver assigned yet. Submit a plan review request.
+                        </p>
+                        {submitApprovalCapaId === c.id ? (
+                          <>
+                            <select
+                              className="min-h-11 w-full rounded-md border border-zinc-300 px-2 text-xs"
+                              value={submitApprovalApprover}
+                              onChange={(e) => setSubmitApprovalApprover(e.target.value)}
+                              aria-label="Choose approver"
+                            >
+                              <option value="">— Member —</option>
+                              {members?.map((m) => (
+                                <option key={m.userId} value={m.userId}>
+                                  {m.email}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              type="button"
+                              className={tableActionBtn}
+                              disabled={
+                                submitCapaApproval.isPending || !submitApprovalApprover
+                              }
+                              onClick={() =>
+                                submitCapaApproval.mutate({
+                                  organizationId,
+                                  correctiveActionId: c.id,
+                                  approverUserId: submitApprovalApprover,
+                                })
+                              }
+                            >
+                              Send request
+                            </button>
+                            <button
+                              type="button"
+                              className="text-xs text-zinc-600 underline"
+                              onClick={() => {
+                                setSubmitApprovalCapaId(null);
+                                setSubmitApprovalApprover("");
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            className={tableActionBtn}
+                            onClick={() => {
+                              setSubmitApprovalCapaId(c.id);
+                              setSubmitApprovalApprover("");
+                            }}
+                          >
+                            Assign approver…
+                          </button>
+                        )}
+                      </div>
+                    ) : null}
+                    {c.status === "pending_approval" &&
+                    openCapaApprovals.data?.some((r) => r.entityId === c.id) ? (
+                      <p className="mb-2 text-xs text-amber-900">
+                        Awaiting approver in <strong>Approvals</strong>.
+                      </p>
+                    ) : null}
                     {c.status !== "verified" ? (
                       <button
                         type="button"
