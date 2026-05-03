@@ -1,10 +1,14 @@
 # Autonomous EHS Management System
 
-ISO-minded EHS console: incidents, CAPA, documents, planning, audits, training, permission-scoped safety metrics with CSV export, and optional RAG-backed assistants. PostgreSQL (Drizzle ORM) is the system of record; the dashboard is gated by Better Auth sessions.
+**Give your team one place to log what happened, assign fixes, and prove the follow-up.** Autonomous EHS is a browser-based console for people who run safety programs day to day—not a pile of separate files.
+
+Sign in and use the left-hand navigation to work across **Overview**, **Metrics**, **Incidents**, **CAPA** (corrective and preventive actions: structured plans to fix a problem and keep it from coming back), **Environment**, **Documents**, **Mgmt review**, **Planning**, **Training**, **Audits**, **Context**, **Tasks**, **Program**, and **Import**. Optional assistants can draw on your approved materials when you turn that feature on.
+
+**End-user guide:** [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md) (step-by-step routes, troubleshooting, and field-friendly wording).
 
 **Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (governance notes).
 
-**End-user guide:** [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md) (dashboard routes and plain-language workflows).
+Stack, local demo, and deploy guidance for builders start under **Architecture** below.
 
 ---
 
