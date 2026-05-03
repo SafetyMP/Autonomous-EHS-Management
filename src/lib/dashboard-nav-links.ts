@@ -1,0 +1,16 @@
+export const DASHBOARD_NAV_LINKS = [
+  { href: "/dashboard", label: "Overview" },
+  { href: "/dashboard/analytics", label: "Metrics" },
+  { href: "/dashboard/incidents", label: "Incidents" },
+  { href: "/dashboard/capa", label: "CAPA" },
+  { href: "/dashboard/environment", label: "Environment" },
+  { href: "/dashboard/documents", label: "Documents" },
+  { href: "/dashboard/management-review", label: "Mgmt review" },
+  { href: "/dashboard/planning", label: "Planning" },
+  { href: "/dashboard/training", label: "Training" },
+  { href: "/dashboard/audits", label: "Audits" },
+  { href: "/dashboard/context", label: "Context" },
+  { href: "/dashboard/tasks", label: "Tasks" },
+  { href: "/dashboard/program", label: "Program" },
+  { href: "/dashboard/import", label: "Import" },
+] as const;

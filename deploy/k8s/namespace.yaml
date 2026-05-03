@@ -1,0 +1,9 @@
+# Logical isolation for all EHS workloads in this cluster.
+# map: Docker Compose "project name" → Kubernetes Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ehs-prod
+  labels:
+    app.kubernetes.io/name: ehs
+    app.kubernetes.io/part-of: autonomous-ehs

@@ -1,0 +1,25 @@
+# Build all namespaced objects with one command: kubectl apply -k deploy/k8s
+# (Create the real Secret first — secret.example.yaml is a template only.)
+#
+# Images: edit `images` below to your lowercase GHCR path, or let CI run:
+#   cd deploy/k8s && kustomize edit set image "ehs-web=ghcr.io/org/repo:tag"
+#
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ehs-prod
+
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - cronjob-reminders.yaml
+  - cronjob-data-retention.yaml
+
+# Rewrites the placeholder image in deployment.yaml (must match docker-publish:
+# ghcr.io/<lowercase github owner>/<lowercase repo>/ehs-web).
+images:
+  - name: ehs-web
+    newName: ghcr.io/your-github-org-or-user/your-repo-name-lowercase/ehs-web
+    newTag: latest

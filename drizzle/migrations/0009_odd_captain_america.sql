@@ -1,0 +1,2 @@
+CREATE TYPE "public"."retention_date_anchor" AS ENUM('rolling_from_event', 'calendar_year_end');--> statement-breakpoint
+ALTER TABLE "data_retention_policy" ADD COLUMN "retention_date_anchor" "retention_date_anchor" DEFAULT 'rolling_from_event' NOT NULL;

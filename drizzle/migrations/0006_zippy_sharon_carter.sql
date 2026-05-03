@@ -1,0 +1,1 @@
+ALTER TABLE "corrective_action" ADD COLUMN "verification_notes" text;

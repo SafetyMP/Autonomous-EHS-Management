@@ -1,0 +1,127 @@
+# Dual-gated promotion: Vercel (CLI, prebuilt) + AWS EKS rollout to GHCR image.
+# Configure GitHub Environment **production** with required reviewers (see REPO_SETUP.md).
+#
+# Zero-trust posture:
+# - EKS: IAM role via GitHub OIDC (AWS_DEPLOY_ROLE_ARN) — no kubeconfig secret.
+# - Vercel: GitHub → Vercel CLI still uses a **rotated Vercel Access Token** stored as an
+#   environment-scoped secret (`VERCEL_TOKEN`). Vercel's documented OIDC federation is
+#   designed for Vercel workloads calling *outbound* cloud APIs, not yet a full replacement
+#   for Actions → Vercel deploy auth.
+#
+name: Promote production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "GHCR image tag (e.g. git SHA from Container image workflow, or latest)"
+        required: true
+        default: latest
+        type: string
+      deploy_vercel:
+        description: Run Vercel production deploy (vercel pull/build/deploy --prebuilt)
+        type: boolean
+        default: true
+      rollout_eks:
+        description: kubectl set image deployment/ehs-web on EKS
+        type: boolean
+        default: true
+
+concurrency:
+  group: promote-production-${{ github.repository }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  promote:
+    name: Deploy production (Vercel + EKS)
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      SKIP_ENV_VALIDATION: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate inputs
+        env:
+          WANT_VERCEL: ${{ github.event.inputs.deploy_vercel }}
+          WANT_EKS: ${{ github.event.inputs.rollout_eks }}
+        run: |
+          set -euo pipefail
+          if [ "${WANT_VERCEL}" != "true" ] && [ "${WANT_EKS}" != "true" ]; then
+            echo "::error::Enable at least one of deploy_vercel or rollout_eks."
+            exit 1
+          fi
+
+      - name: Setup Node (Vercel prebuilt)
+        if: ${{ github.event.inputs.deploy_vercel == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        if: ${{ github.event.inputs.deploy_vercel == 'true' }}
+        run: npm ci
+
+      - name: Install Vercel CLI
+        if: ${{ github.event.inputs.deploy_vercel == 'true' }}
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel env (production)
+        if: ${{ github.event.inputs.deploy_vercel == 'true' }}
+        env:
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Vercel build (prebuilt output)
+        if: ${{ github.event.inputs.deploy_vercel == 'true' }}
+        env:
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Vercel deploy (prebuilt bundle)
+        if: ${{ github.event.inputs.deploy_vercel == 'true' }}
+        env:
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ github.event.inputs.rollout_eks == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Install kubectl
+        if: ${{ github.event.inputs.rollout_eks == 'true' }}
+        uses: azure/setup-kubectl@v4
+
+      - name: kubeconfig (EKS)
+        if: ${{ github.event.inputs.rollout_eks == 'true' }}
+        env:
+          CLUSTER: ${{ vars.EKS_CLUSTER_NAME }}
+          REGION: ${{ vars.AWS_REGION }}
+        run: aws eks update-kubeconfig --name "$CLUSTER" --region "$REGION"
+
+      - name: Rollout EKS Deployment
+        if: ${{ github.event.inputs.rollout_eks == 'true' }}
+        env:
+          NS: ${{ vars.K8S_NAMESPACE }}
+        run: |
+          set -euo pipefail
+          OWNER_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE="ghcr.io/${OWNER_REPO}/ehs-web:${{ github.event.inputs.image_tag }}"
+          echo "Deploying ${IMAGE}"
+          kubectl -n "${NS}" set image deployment/ehs-web ehs-web="${IMAGE}"
+          kubectl -n "${NS}" rollout status deployment/ehs-web --timeout=300s

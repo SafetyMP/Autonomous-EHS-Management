@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contributor handbook (AGENTS.md)
+    url: https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/AGENTS.md
+    about: Verify bar, workflows, skills, and contributor conventions before opening an issue.
+  - name: Repository README
+    url: https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/README.md
+    about: Product overview and quick-start links.

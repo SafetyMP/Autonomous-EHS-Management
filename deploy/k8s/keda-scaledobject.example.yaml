@@ -1,0 +1,34 @@
+# KEDA ScaledObject: enables minReplicaCount: 0 for HTTP / queue / Prometheus-driven autoscaling.
+# Prerequisites:
+#   1) Install KEDA in the cluster: https://keda.sh/docs/deploy/
+#   2) For HTTP scale-from-zero, install the optional HTTP add-on or use a queue metric.
+#
+# Apply only after the ehs-web Deployment exists. Tune triggers for your traffic pattern.
+#
+# Plain Kubernetes HPA cannot scale Deployments to zero replicas — use KEDA for FinOps idle scale-down.
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: ehs-web-scaler
+  labels:
+    app.kubernetes.io/name: ehs-web
+spec:
+  scaleTargetRef:
+    name: ehs-web
+    kind: Deployment
+    apiVersion: apps/v1
+  minReplicaCount: 0
+  maxReplicaCount: 8
+  cooldownPeriod: 120
+  triggers:
+    # Example: scale on CPU — idle clusters may stay at 0 only if combined with appropriate
+    # KEDA behavior; many teams pair CPU + Prometheus request-rate or HTTP add-on.
+    - type: cpu
+      metricType: Utilization
+      metadata:
+        value: "70"
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 300

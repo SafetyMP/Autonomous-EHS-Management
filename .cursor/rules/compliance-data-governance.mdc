@@ -1,0 +1,18 @@
+---
+description: Corporate compliance & data governance for Autonomous EHS — retention, legal hold, PII/RAG, OSHA sidecar, Tier II, audit lifecycle; load the compliance skill when this applies
+alwaysApply: false
+---
+
+# Compliance & data governance (agent hook)
+
+When the task touches **any** of the following, **read and follow** [`.cursor/skills/corporate-compliance-data-governance/SKILL.md`](../skills/corporate-compliance-data-governance/SKILL.md) before implementing:
+
+- [COMPLIANCE.md](../../COMPLIANCE.md) or product/regulatory **claims**
+- Incident **retention**, `legal_hold`, `retain_until`, **anonymization**, or **data lifecycle** crons
+- **`data_retention_policy`**, **`work_related_injury_illness_record`**, **establishment**, **Tier II** / chemical inventory schema or `compliance.*` tRPC routers
+- **PII redaction** / **`redactForRagIngest`** / narrative exposure and **`incident:read_sensitive`**
+- **`audit_log`** for regulated or lifecycle mutations
+
+Do **not** treat this file as legal advice; the skill frames **technical controls** and **counsel questions**.
+
+Human contributors: same skill + [AGENTS.md](../../AGENTS.md) (verify bar).

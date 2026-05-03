@@ -1,0 +1,42 @@
+# Local full stack: Postgres + Next.js image built from the root Dockerfile.
+# Not used in CI — for developer / SRE smoke of container parity before Kubernetes.
+#
+# Setup:
+#   1) cp .env.docker.example .env.docker
+#   2) Edit secrets (never commit .env.docker — covered by root .gitignore via .env*)
+#   3) docker compose --env-file .env.docker up --build
+#
+# Then run migrations once against the DB:
+#   DATABASE_URL=... npm run db:migrate
+#
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ehs
+      POSTGRES_PASSWORD: ehs
+      POSTGRES_DB: ehs
+    ports:
+      - "5432:5432"
+    volumes:
+      - ehs_compose_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ehs -d ehs"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  ehs_compose_pg:

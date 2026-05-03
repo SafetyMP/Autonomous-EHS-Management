@@ -1,0 +1,5 @@
+# CODEOWNERS — optional until teams exist
+# Uncomment rules after provisioning GitHub Teams (see REPO_SETUP.md).
+# Example:
+# * @YOUR_ORG/platform
+# /.github/workflows/ @YOUR_ORG/release-engineering

@@ -1,0 +1,72 @@
+# Pushes the production Dockerfile to GHCR on every push to main/master.
+# CI: [.github/workflows/ci.yml](ci.yml); promote: [.github/workflows/cd-promote-production.yml](cd-promote-production.yml).
+#
+# Image coordinates: ghcr.io/<lowercase owner>/<lowercase repo name>/ehs-web:<sha>
+#
+name: Container image
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "package.json"
+      - "package-lock.json"
+      - "next.config.ts"
+      - "src/**"
+      - "public/**"
+      - ".github/workflows/docker-publish.yml"
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+env:
+  IMAGE_NAME: ehs-web
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # GHCR requires lowercase org/repo in image URL paths.
+      - name: Image coordinates
+        id: image
+        run: |
+          OWNER_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "registry=ghcr.io/${OWNER_REPO}/${{ env.IMAGE_NAME }}" >> "$GITHUB_OUTPUT"
+          echo "owner_repo=${OWNER_REPO}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          provenance: mode=max
+          sbom: true
+          tags: |
+            ${{ steps.image.outputs.registry }}:latest
+            ${{ steps.image.outputs.registry }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Attest provenance (SLSA-aligned)
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: ${{ steps.image.outputs.registry }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

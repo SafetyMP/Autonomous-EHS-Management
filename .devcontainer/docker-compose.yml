@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ehs
+      POSTGRES_PASSWORD: ehs
+      POSTGRES_DB: ehs
+    volumes:
+      - ehs_devcontainer_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ehs -d ehs"]
+      interval: 5s
+      timeout: 5s
+      retries: 8
+
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /workspace
+    environment:
+      DATABASE_URL: postgresql://ehs:ehs@postgres:5432/ehs
+      DATABASE_USE_PG: "1"
+      BETTER_AUTH_SECRET: dev-dev-dev-dev-dev-dev-dev-dev-dev-dev-dev
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      DEMO_MODE: "true"
+      DEMO_ADMIN_EMAIL: demo.admin@example.com
+      DEMO_ADMIN_PASSWORD: demo-admin-password-change-me
+      NEXT_PUBLIC_DEMO_MODE: "1"
+      SKIP_ENV_VALIDATION: "1"
+
+volumes:
+  ehs_devcontainer_pg:

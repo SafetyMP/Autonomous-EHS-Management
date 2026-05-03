@@ -1,0 +1,37 @@
+# Semantic versioning + GitHub Releases from Conventional Commit messages merged to trunk.
+# Requires repository rules allowing this workflow's GITHUB_TOKEN to create tags/releases.
+#
+name: Release
+
+on:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: semantic-release-${{ github.repository }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Semantic release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

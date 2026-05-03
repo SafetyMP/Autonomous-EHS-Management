@@ -12,6 +12,12 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+
+# Cursor (keep skills/rules tracked; omit local logs)
+.cursor/*.log
 
 # next.js
 /.next/
@@ -32,6 +38,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!.env.demo.example
+!.env.docker.example
 
 # vercel
 .vercel
@@ -39,3 +48,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# terraform
+*.tfstate
+*.tfstate.*
+**/infra/terraform/.terraform/
+
+# kubernetes local secrets (never commit real keys)
+deploy/k8s/secret.local.yaml

@@ -1,0 +1,15 @@
+# Keep build context small and avoid leaking local-only files into the image.
+
+.git
+.github
+.cursor
+.next
+node_modules
+coverage
+*.log
+.env
+.env.*
+!.env.demo.example
+playwright-report
+test-results
+**/.DS_Store

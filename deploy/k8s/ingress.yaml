@@ -1,0 +1,35 @@
+# Exposes the Service outside the cluster (TLS + DNS live here).
+# map: Docker Compose "ports: 3000:3000" → Ingress + cloud LB / nginx / traefik
+#
+# Before apply:
+#   1) Replace host with your real domain (must match BETTER_AUTH_URL / NEXT_PUBLIC_APP_URL hosts).
+#   2) Install an ingress controller if the cluster does not have one.
+#   3) If using cert-manager, fix the clusterIssuer name below.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ehs-web
+  labels:
+    app.kubernetes.io/name: ehs-web
+  annotations:
+    # cert-manager: uncomment when issuer exists in-cluster
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # nginx ingress client body size for uploads (tune per product policy)
+    nginx.ingress.kubernetes.io/proxy-body-size: "25m"
+spec:
+  ingressClassName: nginx
+  # tls:
+  #   - hosts:
+  #       - app.example.com
+  #     secretName: ehs-web-tls
+  rules:
+    - host: app.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ehs-web
+                port:
+                  number: 3000

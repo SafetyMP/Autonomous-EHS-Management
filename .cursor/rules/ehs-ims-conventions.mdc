@@ -1,0 +1,46 @@
+---
+description: EHS IMS app — RBAC, data layer, tRPC, migrations, AI boundaries
+alwaysApply: true
+---
+
+# Autonomous EHS — agent & developer conventions
+
+## Single system of record
+
+- **PostgreSQL + Drizzle** is authoritative for commitments, statuses, approvals, and audit-relevant facts.
+- **Never** introduce “TypeScript-only” columns or tables: every schema change needs a **Drizzle migration** (`npm run db:generate`) and a deploy path.
+
+## RBAC
+
+- Permission keys live in `src/lib/rbac.ts` (`PERMISSIONS`). New procedures must call `assertPermission` (or equivalent) with the correct key.
+- **Do not** bypass RBAC for “internal” routes; agent/tool callers must use the same checks with a service identity if you add one later.
+
+## tRPC
+
+- Routers live under `src/server/trpc/routers/`. Register in `src/server/trpc/root.ts`.
+- Prefer **clear procedure names**: `list`, `get`, `create`, `update`, `updateStatus` — match existing routers (e.g. `incident`, `capa`, `document`).
+- Mutations that change regulated data should **write `audit_log`** via `writeAuditLog` where the codebase already does for other entities.
+- **Compliance- or retention-affecting work** (incident lifecycle, `data_retention_policy`, RAG PII, `COMPLIANCE.md`, `compliance.*` routers): follow [`.cursor/skills/corporate-compliance-data-governance/SKILL.md`](../skills/corporate-compliance-data-governance/SKILL.md) and the requestable rule **compliance-data-governance**.
+
+## Drizzle
+
+- Schema: `src/server/db/schema.ts`. Match naming and relation patterns already used (enums, `updatedAt`, FK `onDelete`).
+- After editing schema, run **`npm run db:generate`** and commit the new SQL under `drizzle/migrations/`.
+
+## Tests and risky areas
+
+- **Do not change** auth session shape, proxy/dashboard auth gating, or env validation **without** updating Vitest and smoke E2E expectations.
+- RBAC matrices and seed scripts: changing `PERMISSIONS` requires **`scripts/seed.ts`** / migration of `permission` rows for existing orgs.
+
+## AI / LLM (when added)
+
+- **Structured outputs**: validate model JSON against **Zod** schemas shared with or mirrored from API inputs — never trust free-form prose into the DB without parsing.
+- **Tool use**: assistants must call **typed tRPC or internal server handlers**, not ad-hoc SQL or filesystem paths.
+- **Gateway**: route all provider calls through **`src/lib/ai/gateway.ts`** (or successor); no scattered `fetch` to model APIs.
+- **Safety**: tie expensive AI routes to **Upstash rate limits** (`src/server/ratelimit.ts`). Redact PII in prompts and logs where required.
+- **Human-in-the-loop**: do not auto-close investigations, auto-verify CAPA effectiveness, or silently commit regulatory classification without product policy.
+
+## ISO internal audit vs audit trail
+
+- **Transactional** actions → `audit_log` table.
+- **ISO internal audit** programme / findings → `internal_audit`, `audit_finding`, etc. Do not conflate the two in naming or UX copy.

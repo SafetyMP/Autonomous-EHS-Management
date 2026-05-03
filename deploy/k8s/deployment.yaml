@@ -1,0 +1,75 @@
+# Runs the Next.js standalone server (see root Dockerfile + next.config output: "standalone").
+#
+# Observability (after you expose metrics):
+#   Prometheus Operator often scrapes pods annotated with prometheus.io/*. This app does not
+#   ship /metrics by default — uncomment annotations only when you add a metrics route or
+#   use a sidecar / OpenTelemetry Collector that exposes scraped endpoints.
+#
+# map: Docker Compose "web" service → Deployment + Pods
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ehs-web
+  labels:
+    app.kubernetes.io/name: ehs-web
+spec:
+  # For scale-to-zero, prefer KEDA ScaledObject (see keda-scaledobject.example.yaml);
+  # vanilla Deployment replicas stay ≥1 unless you use KEDA to drive minReplicaCount: 0.
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ehs-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ehs-web
+      # annotations:
+      #   prometheus.io/scrape: "true"
+      #   prometheus.io/port: "3000"
+      #   prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+          containers:
+            - name: ehs-web
+              # Kustomize `images` rewrites this ref (see kustomization.yaml).
+              # Private GHCR: add imagePullSecrets on the Pod (not shown — create a docker-registry secret).
+              image: ehs-web:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          envFrom:
+            # Create this Secret in the cluster before rollout (see secret.example.yaml).
+            - secretRef:
+                name: ehs-app-secrets
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          # Next cold start can be slow; startupProbe prevents kubelet killing the pod early.
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 3
