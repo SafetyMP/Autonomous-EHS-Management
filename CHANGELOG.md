@@ -1,3 +1,10 @@
+## [1.3.6](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.5...v1.3.6) (2026-05-03)
+
+
+### Bug Fixes
+
+* defer server env/auth/db for build; Vitest readValidatedEnv bootstrap ([8eb2561](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/8eb256170e3ff9d4b88eda3b650c30a6b9cf70d2))
+
 ## [1.3.5](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.4...v1.3.5) (2026-05-03)
 
 
