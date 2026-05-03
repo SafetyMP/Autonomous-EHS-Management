@@ -1,6 +1,19 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
+/**
+ * Vercel injects `VERCEL_URL` (host only, no scheme) during build and at runtime, but
+ * does not populate `NEXT_PUBLIC_APP_URL` / `BETTER_AUTH_URL`. Without this fallback,
+ * `next build` can fail while collecting route data because validation runs before runtime.
+ * Custom domains: set `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` explicitly to your canonical HTTPS origin.
+ */
+function vercelDeploymentOrigin(): string | undefined {
+  const raw = process.env.VERCEL_URL;
+  if (!raw) return undefined;
+  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+  return `https://${raw}`;
+}
+
 export const env = createEnv({
   /**
    * Treat `VAR=` / dashboard empty values as unset so optional URL and min-length
@@ -74,7 +87,10 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     DATABASE_USE_PG: process.env.DATABASE_USE_PG,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
-    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+    BETTER_AUTH_URL:
+      process.env.BETTER_AUTH_URL ??
+      process.env.NEXT_PUBLIC_APP_URL ??
+      vercelDeploymentOrigin(),
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
@@ -101,7 +117,8 @@ export const env = createEnv({
     PG_BOSS_SCHEMA: process.env.PG_BOSS_SCHEMA,
     CONTEXT_SYNC_ORG_DAILY_READ_LIMIT: process.env.CONTEXT_SYNC_ORG_DAILY_READ_LIMIT,
     CONTEXT_SYNC_PROVENANCE_MAX_LIMIT: process.env.CONTEXT_SYNC_PROVENANCE_MAX_LIMIT,
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_APP_URL:
+      process.env.NEXT_PUBLIC_APP_URL ?? vercelDeploymentOrigin(),
     NEXT_PUBLIC_ENTERPRISE_SSO: process.env.NEXT_PUBLIC_ENTERPRISE_SSO,
     NEXT_PUBLIC_OIDC_PROVIDER_ID: process.env.NEXT_PUBLIC_OIDC_PROVIDER_ID,
     NEXT_PUBLIC_DEMO_MODE: process.env.NEXT_PUBLIC_DEMO_MODE,
