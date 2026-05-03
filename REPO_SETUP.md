@@ -4,6 +4,33 @@ This checklist is **manual**: GitHub org/repo settings and cloud IAM consoles. I
 
 **Canonical GitHub repo:** [`SafetyMP/Autonomous-EHS-Management`](https://github.com/SafetyMP/Autonomous-EHS-Management). Use IAM OIDC trust subjects such as `repo:SafetyMP/Autonomous-EHS-Management:*` scoped to **`production`** environment (see §3).
 
+### Repository About (topics are not committed to Git)
+
+**Topics** live under **repository → ⚙️ (gear) → Topics** or **Settings → General** (depending on GitHub UI). GitHub caps **about 20** topics—trim if needed.
+
+Suggested topics for discoverability:
+
+`ehs` · `safety-management` · `occupational-health` · `incident-management` · `environmental-health-and-safety` · `capa` · `iso-45001` · `compliance` · `nextjs` · `react` · `typescript` · `postgresql` · `drizzle-orm` · `trpc` · `better-auth` · `playwright-testing` · `docker` · `kubernetes` · `gitops`
+
+**Recommended short description** (About field):
+
+> Web console for safety teams: incidents, corrective/preventive action (CAPA) plans, metrics, documents, training, audits—role-aware, PostgreSQL-backed.
+
+With [**GitHub CLI**](https://cli.github.com/) authenticated against the repo:
+
+```bash
+gh repo edit SafetyMP/Autonomous-EHS-Management \
+  --description "Web console for safety teams: incidents, CAPA plans, metrics, documents, training, audits—role-aware, PostgreSQL-backed." \
+  --add-topic ehs --add-topic safety-management --add-topic occupational-health \
+  --add-topic incident-management --add-topic environmental-health-and-safety \
+  --add-topic capa --add-topic iso-45001 --add-topic compliance \
+  --add-topic nextjs --add-topic react --add-topic typescript --add-topic postgresql \
+  --add-topic drizzle-orm --add-topic trpc --add-topic better-auth \
+  --add-topic playwright-testing --add-topic docker --add-topic kubernetes --add-topic gitops
+```
+
+(Add `--homepage https://…` when you have a public product URL.)
+
 ---
 
 ## 1. Repository rulesets (recommended over legacy branch protection)
