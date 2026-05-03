@@ -111,4 +111,14 @@ Downstream Admission / policy engines (Kyverno, Ratify, Sigstore Admission) cons
 
 ---
 
+## 9. License & community surfaces (repo root)
+
+| File | Notes |
+|------|--------|
+| [`LICENSE`](LICENSE) | Default **proprietary** (SafetyMP). Replace with counsel-approved terms (e.g. MIT, Apache-2.0) if open-sourcing; then set **`package.json`** `"license"` to the matching **SPDX** id. |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Entry path for contributors; merge bar stays **[`AGENTS.md`](AGENTS.md)**. |
+| [`SECURITY.md`](SECURITY.md) | Responsible disclosure — enable **Security → Private vulnerability reporting** on the GitHub repo. |
+
+---
+
 _Last updated alongside Autonomous EHS GitOps refactor (May 2026)._

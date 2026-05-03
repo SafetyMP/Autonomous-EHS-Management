@@ -2,7 +2,7 @@
 
 ISO-minded EHS console: incidents, CAPA, documents, planning, audits, training, permission-scoped safety metrics with CSV export, and optional RAG-backed assistants. PostgreSQL (Drizzle ORM) is the system of record; the dashboard is gated by Better Auth sessions.
 
-**Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (governance notes).
+**Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (governance notes).
 
 **End-user guide:** [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md) (dashboard routes and plain-language workflows).
 
@@ -145,3 +145,11 @@ npm run test:e2e:smoke  # smoke only
 ## Deploy
 
 Production-style deploys (e.g. **Vercel** + managed Postgres) should use strong secrets, disable all demo flags, and follow [AGENTS.md](AGENTS.md) for merge checks.
+
+---
+
+## License
+
+Proprietary — see **[LICENSE](LICENSE)**. To open-source this codebase, replace `LICENSE` with counsel-approved terms (e.g. MIT, Apache-2.0) and update `package.json` `license` accordingly.
+
+Contributing and security reporting: **[CONTRIBUTING.md](CONTRIBUTING.md)**, **[SECURITY.md](SECURITY.md)**. GitHub org setup: **[REPO_SETUP.md](REPO_SETUP.md)**.

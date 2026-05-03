@@ -45,6 +45,7 @@ Act as the **release gatekeeper** and **GitOps architect** for Autonomous EHS: n
 | Contributor / regulated issue paths | [`.github/ISSUE_TEMPLATE/`](../../../.github/ISSUE_TEMPLATE/), [`.github/pull_request_template.md`](../../../.github/pull_request_template.md) |
 | Merge verification scripts | [`AGENTS.md`](../../../AGENTS.md) — `npm run verify`, `verify:all` |
 | Canonical GitHub slug (examples) | **SafetyMP/Autonomous-EHS-Management** — OIDC **`sub`** / trust policies must match actual org/repo |
+| License / contributing / disclosure | [`LICENSE`](../../../LICENSE), [`CONTRIBUTING.md`](../../../CONTRIBUTING.md), [`SECURITY.md`](../../../SECURITY.md); keep **`package.json`** `license` aligned |
 
 After editing workflows that affect **`npm ci`**, run **`npm run verify`**. Follow **[`AGENTS.md`](../../../AGENTS.md)** CI parity.
 
