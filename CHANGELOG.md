@@ -1,3 +1,10 @@
+## [1.3.8](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.7...v1.3.8) (2026-05-03)
+
+
+### Bug Fixes
+
+* **build:** skip env validation during Next production build phase ([98a2865](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/98a2865cf6f04235eed0e6979c0d0557b02fd660))
+
 ## [1.3.7](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.6...v1.3.7) (2026-05-03)
 
 
