@@ -15,6 +15,10 @@ function vercelDeploymentOrigin(): string | undefined {
   return `https://${raw}`;
 }
 
+/** Next.js sets this while running `next build` (collecting page data). Secrets are often runtime-only on Vercel/Fluid; runtime still validates when this phase is absent. */
+const isNextProductionBuild =
+  process.env.NEXT_PHASE === "phase-production-build";
+
 export const env = createEnv({
   /**
    * Treat `VAR=` / dashboard empty values as unset so optional URL and min-length
@@ -126,5 +130,6 @@ export const env = createEnv({
     NEXT_PUBLIC_FIELD_OUTBOX: process.env.NEXT_PUBLIC_FIELD_OUTBOX,
     NEXT_PUBLIC_LOCAL_INTAKE_SLM: process.env.NEXT_PUBLIC_LOCAL_INTAKE_SLM,
   },
-  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+  skipValidation:
+    !!process.env.SKIP_ENV_VALIDATION || isNextProductionBuild,
 });
