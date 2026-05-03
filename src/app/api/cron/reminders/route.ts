@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, isNotNull, lte } from "drizzle-orm";
-import { env } from "@/lib/env";
 import { db } from "@/server/db";
+import { readValidatedEnv } from "@/server/read-env";
 import { complianceObligation } from "@/server/db/schema";
 import { notifyCronFailure } from "@/server/cron/notifyOnFailure";
 import { tryRecordCronJobRun } from "@/server/cron/recordCronRun";
@@ -16,6 +16,7 @@ import { dispatchOperationalWebhooks } from "@/server/services/operationalWebhoo
  * Also runs contractor credential expiry, overdue approval escalation recording, and **observation follow-up SLA** escalations.
  */
 export async function GET(request: Request) {
+  const env = readValidatedEnv();
   const secret = env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

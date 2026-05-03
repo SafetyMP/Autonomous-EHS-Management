@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { env } from "@/lib/env";
 import { db } from "@/server/db";
+import { readValidatedEnv } from "@/server/read-env";
 import { notifyCronFailure } from "@/server/cron/notifyOnFailure";
 import { tryRecordCronJobRun } from "@/server/cron/recordCronRun";
 import { runDataRetentionCron } from "@/server/services/dataRetention";
@@ -12,6 +12,7 @@ import { runDataRetentionCron } from "@/server/services/dataRetention";
  * Hard-deletes only when org has matching `data_retention_policy` with `action = delete` for each record class.
  */
 export async function GET(request: Request) {
+  const env = readValidatedEnv();
   const secret = env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

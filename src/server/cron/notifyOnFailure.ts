@@ -1,11 +1,11 @@
-import { env } from "@/lib/env";
 import { logError, logWarn } from "@/lib/logger";
+import { readValidatedEnv } from "@/server/read-env";
 
 /**
  * Optional Slack/compatible webhook when cron handlers throw. Set CRON_FAILURE_WEBHOOK_URL in env.
  */
 export async function notifyCronFailure(route: string, err: unknown): Promise<void> {
-  const url = env.CRON_FAILURE_WEBHOOK_URL?.trim();
+  const url = readValidatedEnv().CRON_FAILURE_WEBHOOK_URL?.trim();
   const message = err instanceof Error ? err.message : String(err);
 
   logError("cron.handler.failed", { route, error: message });

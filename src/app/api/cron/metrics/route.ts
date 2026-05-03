@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { desc, eq, gte, sql } from "drizzle-orm";
-import { env } from "@/lib/env";
 import { logError } from "@/lib/logger";
+import { readValidatedEnv } from "@/server/read-env";
 import { db } from "@/server/db";
 import { cronJobRun } from "@/server/db/schema";
 import {
@@ -19,6 +19,7 @@ import { CRON_JOB_KEYS } from "@/server/cron/recordCronRun";
  * Optional ?windowHours=168 (1–8760) scopes *_in_window series.
  */
 export async function GET(request: Request) {
+  const env = readValidatedEnv();
   const secret = env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
