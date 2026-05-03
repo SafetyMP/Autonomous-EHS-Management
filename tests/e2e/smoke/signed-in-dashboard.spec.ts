@@ -1,20 +1,20 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * Optional: set PLAYWRIGHT_E2E_EMAIL and PLAYWRIGHT_E2E_PASSWORD to a seeded user
- * (see `npm run db:seed`). CI skips this test unless both env vars are set.
+ * In GitHub Actions the job sets PLAYWRIGHT_E2E_* after `seed-ci-e2e`.
+ * Locally, skip unless you export the same credentials and run Postgres + migrate + seed.
  */
 const email = process.env.PLAYWRIGHT_E2E_EMAIL;
 const password = process.env.PLAYWRIGHT_E2E_PASSWORD;
-const runAuthFlow = Boolean(email && password);
+const runSignedIn = Boolean(email && password);
 
-test.describe("authenticated dashboard (optional)", () => {
+test.describe("authenticated dashboard (@smoke when creds set)", () => {
   test.skip(
-    !runAuthFlow,
-    "Set PLAYWRIGHT_E2E_EMAIL and PLAYWRIGHT_E2E_PASSWORD for signed-in E2E.",
+    !runSignedIn,
+    "Set PLAYWRIGHT_E2E_EMAIL and PLAYWRIGHT_E2E_PASSWORD (CI sets these automatically).",
   );
 
-  test("reaches dashboard after sign-in", async ({ page }) => {
+  test("@smoke reaches dashboard after sign-in", async ({ page }) => {
     await page.goto("/sign-in?callbackUrl=/dashboard");
     await page.getByLabel("Email").fill(email!);
     await page.getByLabel("Password", { exact: true }).fill(password!);

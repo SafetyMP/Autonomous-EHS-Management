@@ -15,8 +15,6 @@ permissions:
 jobs:
   supply-chain-audit:
     runs-on: ubuntu-latest
-    env:
-      SKIP_ENV_VALIDATION: "1"
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -29,14 +27,20 @@ jobs:
 
   verify:
     runs-on: ubuntu-latest
-    env:
-      SKIP_ENV_VALIDATION: "1"
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: npm
+      - name: Load CI environment (.env.ci)
+        run: |
+          while IFS= read -r line || [ -n "$line" ]; do
+            case "$line" in
+              ''|\#*) continue ;;
+            esac
+            echo "$line" >> "$GITHUB_ENV"
+          done < .env.ci
       - run: npm ci
       - run: npm run lint
       - run: npx tsc --noEmit
@@ -45,13 +49,40 @@ jobs:
   e2e-smoke:
     runs-on: ubuntu-latest
     env:
-      SKIP_ENV_VALIDATION: "1"
+      CI_E2E_USER_EMAIL: e2e.admin@ci.local
+      CI_E2E_USER_PASSWORD: ci-e2e-signin-password-long-enough-ok
+      PLAYWRIGHT_E2E_EMAIL: e2e.admin@ci.local
+      PLAYWRIGHT_E2E_PASSWORD: ci-e2e-signin-password-long-enough-ok
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ehs_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U ci -d ehs_ci"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=8
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: npm
+      - name: Load CI environment (.env.ci)
+        run: |
+          while IFS= read -r line || [ -n "$line" ]; do
+            case "$line" in
+              ''|\#*) continue ;;
+            esac
+            echo "$line" >> "$GITHUB_ENV"
+          done < .env.ci
       - run: npm ci
+      - run: npm run db:migrate
+      - run: npm run db:seed:ci
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e:smoke

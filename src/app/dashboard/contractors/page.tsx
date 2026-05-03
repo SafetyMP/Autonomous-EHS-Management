@@ -18,6 +18,11 @@ export default function ContractorsPage() {
     { enabled: !!organizationId },
   );
 
+  const dueSoon = trpc.externalParty.listOrgCredentialsDueSoon.useQuery(
+    { organizationId: org, withinDays: 30 },
+    { enabled: !!organizationId },
+  );
+
   if (!organizationId) {
     return (
       <div className="space-y-4">
@@ -39,6 +44,16 @@ export default function ContractorsPage() {
         </div>
         <OrgSwitcher />
       </div>
+
+      {dueSoon.data && dueSoon.data.length > 0 ? (
+        <div
+          className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+          role="status"
+        >
+          <strong>{dueSoon.data.length}</strong> credential(s) expire within 30 days. Review under{" "}
+          <strong>Credentials</strong> on each party.
+        </div>
+      ) : null}
 
       <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
         <table className="min-w-full divide-y divide-zinc-200 text-base">

@@ -91,8 +91,11 @@ export default function CapaPage() {
   const [newOwnerUserId, setNewOwnerUserId] = useState("");
   const [capaInitialFlow, setCapaInitialFlow] = useState<"planned" | "pending_approval">("planned");
   const [planApproverUserId, setPlanApproverUserId] = useState("");
+  const [planExtraApprovers, setPlanExtraApprovers] = useState<string[]>([]);
+  const [planSlaDays, setPlanSlaDays] = useState(7);
   const [submitApprovalCapaId, setSubmitApprovalCapaId] = useState<string | null>(null);
   const [submitApprovalApprover, setSubmitApprovalApprover] = useState("");
+  const [submitApprovalApprover2, setSubmitApprovalApprover2] = useState("");
 
   const { data: capas, isLoading } = trpc.capa.list.useQuery(
     { organizationId: organizationId! },
@@ -149,6 +152,9 @@ export default function CapaPage() {
       setAuditFindingId("");
       setLinkKind("none");
       setNewOwnerUserId("");
+      setPlanApproverUserId("");
+      setPlanExtraApprovers([]);
+      setPlanSlaDays(7);
     },
   });
 
@@ -169,6 +175,7 @@ export default function CapaPage() {
       void utils.capa.list.invalidate();
       setSubmitApprovalCapaId(null);
       setSubmitApprovalApprover("");
+      setSubmitApprovalApprover2("");
     },
   });
 
@@ -225,10 +232,15 @@ export default function CapaPage() {
                 dueDate: due,
                 ownerUserId: newOwnerUserId || undefined,
                 initialStatus: capaInitialFlow,
-                approverUserIdForPlan:
-                  capaInitialFlow === "pending_approval" && planApproverUserId
-                    ? planApproverUserId
-                    : undefined,
+                ...(capaInitialFlow === "pending_approval" && planApproverUserId
+                  ? {
+                      approverUserIdsForPlan: [
+                        planApproverUserId,
+                        ...planExtraApprovers.filter((id) => id && id !== planApproverUserId),
+                      ].filter((id, i, a) => a.indexOf(id) === i),
+                      slaDaysPerPlanApproval: planSlaDays,
+                    }
+                  : {}),
                 incidentId:
                   linkKind === "incident" && incidentId ? incidentId : undefined,
                 auditFindingId:
@@ -433,7 +445,11 @@ export default function CapaPage() {
                   type="radio"
                   name="capa-initial-flow"
                   checked={capaInitialFlow === "planned"}
-                  onChange={() => setCapaInitialFlow("planned")}
+                  onChange={() => {
+                    setCapaInitialFlow("planned");
+                    setPlanExtraApprovers([]);
+                    setPlanApproverUserId("");
+                  }}
                   className="size-4 shrink-0 border-zinc-400 text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
                 />
                 Start as planned (standard)
@@ -443,29 +459,81 @@ export default function CapaPage() {
                   type="radio"
                   name="capa-initial-flow"
                   checked={capaInitialFlow === "pending_approval"}
-                  onChange={() => setCapaInitialFlow("pending_approval")}
+                  onChange={() => {
+                    setCapaInitialFlow("pending_approval");
+                  }}
                   className="size-4 shrink-0 border-zinc-400 text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
                 />
                 Start pending plan approval
               </label>
               {capaInitialFlow === "pending_approval" ? (
-                <div className="mt-3">
-                  <label className={labelClass} htmlFor="capa-plan-approver">
-                    Plan approver
-                  </label>
-                  <select
-                    id="capa-plan-approver"
-                    className={inputClass}
-                    value={planApproverUserId}
-                    onChange={(e) => setPlanApproverUserId(e.target.value)}
-                  >
-                    <option value="">— Select member —</option>
-                    {members?.map((m) => (
-                      <option key={m.userId} value={m.userId}>
-                        {m.email}
-                      </option>
-                    ))}
-                  </select>
+                <div className="mt-3 space-y-3">
+                  <div>
+                    <label className={labelClass} htmlFor="capa-plan-approver">
+                      First plan approver
+                    </label>
+                    <select
+                      id="capa-plan-approver"
+                      className={inputClass}
+                      value={planApproverUserId}
+                      onChange={(e) => setPlanApproverUserId(e.target.value)}
+                    >
+                      <option value="">— Select member —</option>
+                      {members?.map((m) => (
+                        <option key={m.userId} value={m.userId}>
+                          {m.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {planExtraApprovers.map((val, idx) => (
+                    <div key={idx}>
+                      <label className={labelClass} htmlFor={`capa-plan-approver-${idx}`}>
+                        Additional approver {idx + 2}
+                      </label>
+                      <select
+                        id={`capa-plan-approver-${idx}`}
+                        className={inputClass}
+                        value={val}
+                        onChange={(e) => {
+                          const next = [...planExtraApprovers];
+                          next[idx] = e.target.value;
+                          setPlanExtraApprovers(next);
+                        }}
+                      >
+                        <option value="">— Select —</option>
+                        {members?.map((m) => (
+                          <option key={m.userId} value={m.userId}>
+                            {m.email}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                  {planApproverUserId &&
+                  planExtraApprovers.length + 1 < 5 ? (
+                    <button
+                      type="button"
+                      className={secondaryBtn}
+                      onClick={() => setPlanExtraApprovers((s) => [...s, ""])}
+                    >
+                      Add another approver (max 5 total)
+                    </button>
+                  ) : null}
+                  <div>
+                    <label className={labelClass} htmlFor="capa-plan-sla">
+                      Days per approval step (SLA, default 7)
+                    </label>
+                    <input
+                      id="capa-plan-sla"
+                      type="number"
+                      min={1}
+                      max={90}
+                      className={inputClass}
+                      value={planSlaDays}
+                      onChange={(e) => setPlanSlaDays(Number(e.target.value) || 7)}
+                    />
+                  </div>
                 </div>
               ) : null}
             </fieldset>
@@ -658,9 +726,22 @@ export default function CapaPage() {
                               className="min-h-11 w-full rounded-md border border-zinc-300 px-2 text-xs"
                               value={submitApprovalApprover}
                               onChange={(e) => setSubmitApprovalApprover(e.target.value)}
-                              aria-label="Choose approver"
+                              aria-label="First approver"
                             >
                               <option value="">— Member —</option>
+                              {members?.map((m) => (
+                                <option key={m.userId} value={m.userId}>
+                                  {m.email}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              className="min-h-11 w-full rounded-md border border-zinc-300 px-2 text-xs"
+                              value={submitApprovalApprover2}
+                              onChange={(e) => setSubmitApprovalApprover2(e.target.value)}
+                              aria-label="Second approver optional"
+                            >
+                              <option value="">Second approver (optional)</option>
                               {members?.map((m) => (
                                 <option key={m.userId} value={m.userId}>
                                   {m.email}
@@ -670,16 +751,18 @@ export default function CapaPage() {
                             <button
                               type="button"
                               className={tableActionBtn}
-                              disabled={
-                                submitCapaApproval.isPending || !submitApprovalApprover
-                              }
-                              onClick={() =>
+                              disabled={submitCapaApproval.isPending || !submitApprovalApprover}
+                              onClick={() => {
+                                const approvers = [
+                                  submitApprovalApprover,
+                                  submitApprovalApprover2,
+                                ].filter((id, i, arr) => id && arr.indexOf(id) === i);
                                 submitCapaApproval.mutate({
                                   organizationId,
                                   correctiveActionId: c.id,
-                                  approverUserId: submitApprovalApprover,
-                                })
-                              }
+                                  approvers,
+                                });
+                              }}
                             >
                               Send request
                             </button>
@@ -689,6 +772,7 @@ export default function CapaPage() {
                               onClick={() => {
                                 setSubmitApprovalCapaId(null);
                                 setSubmitApprovalApprover("");
+                                setSubmitApprovalApprover2("");
                               }}
                             >
                               Cancel
@@ -701,6 +785,7 @@ export default function CapaPage() {
                             onClick={() => {
                               setSubmitApprovalCapaId(c.id);
                               setSubmitApprovalApprover("");
+                              setSubmitApprovalApprover2("");
                             }}
                           >
                             Assign approver…

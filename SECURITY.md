@@ -27,3 +27,11 @@ Out of scope unless agreed in writing: third-party SaaS-only issues, generic dep
 ## Credentials
 
 Never commit secrets. Use `.env*` examples only; rotate any credential that was ever pasted into an issue or PR.
+
+The committed [`.env.ci`](.env.ci) file contains **non-secret placeholders** that satisfy runtime env schema in CI only. Do not point it at production databases or reuse its `BETTER_AUTH_SECRET` outside disposable CI.
+
+## HTTP security headers
+
+[`next.config.ts`](next.config.ts) sets a baseline **Content-Security-Policy** (including `frame-ancestors 'none'`) plus standard headers. If you enable browser-visible OIDC flows or third-party script/embeds, review and extend CSP `connect-src` / `script-src` with counsel and security review.
+
+Optional **`CRON_FAILURE_WEBHOOK_URL`**: HTTPS webhook (e.g. Slack incoming) notified when a cron route throws; see [`src/server/cron/notifyOnFailure.ts`](src/server/cron/notifyOnFailure.ts).

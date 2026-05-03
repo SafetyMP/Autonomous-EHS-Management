@@ -15,6 +15,7 @@ import { externalPartyRouter } from "./routers/externalParty";
 import { ehsEvidenceRouter } from "./routers/ehsEvidence";
 import { importDataRouter } from "./routers/importData";
 import { incidentRouter } from "./routers/incident";
+import { inspectionRouter } from "./routers/inspection";
 import { integrationRouter } from "./routers/integration";
 import { internalAuditRouter } from "./routers/internalAudit";
 import { managementReviewRouter } from "./routers/managementReview";
@@ -31,6 +32,7 @@ export const appRouter = router({
   approval: approvalRouter,
   organization: organizationRouter,
   incident: incidentRouter,
+  inspection: inspectionRouter,
   capa: capaRouter,
   aspect: aspectRouter,
   obligation: obligationRouter,

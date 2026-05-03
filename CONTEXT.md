@@ -31,25 +31,28 @@
 | Test | Vitest **4.x**, Playwright **1.59.x**, jsdom **29.x**, `@vitejs/plugin-react` **6.x** | Unit + smoke E2E are merge gates. |
 | Lint / types | ESLint **9.x**, eslint-config-next **16.2.4**, TypeScript **^5.x** | `tsc --noEmit` in verify. |
 
-## API surface map
+## Planned subsystems (scaffold — not full product)
+
+Cross-reference [ROADMAP.md](ROADMAP.md). **OIDC JIT:** [`docs/OIDC_JIT_PROVISIONING.md`](docs/OIDC_JIT_PROVISIONING.md), [`src/server/services/oidcJitProvisioning.ts`](src/server/services/oidcJitProvisioning.ts), session hook in [`src/server/auth.ts`](src/server/auth.ts). **Job queue:** [`src/server/jobs/`](src/server/jobs/), [`docs/JOB_QUEUE.md`](docs/JOB_QUEUE.md). **Terraform remote state:** [`docs/terraform-remote-state.md`](docs/terraform-remote-state.md). **DSAR intake:** `data_subject_request` table, `compliance.dsar.*`, [`/dashboard/privacy-requests`](src/app/dashboard/privacy-requests/page.tsx). **OSHA agency export:** placeholder only — [`src/lib/regulatory/oshaAgencyExportScaffold.ts`](src/lib/regulatory/oshaAgencyExportScaffold.ts), `compliance.regulatoryOsha.agencyExportPlaceholder`.
 
 Use this section when navigating procedure paths or onboarding agents. **Always register** top-level routers in [`src/server/trpc/root.ts`](src/server/trpc/root.ts).
 
 ### tRPC top-level namespaces
 
-Listed in **`root.ts`** registration order: `analytics`, `approval`, `organization`, `incident`, `capa`, `aspect`, `obligation`, `document`, `ehsEvidence`, `managementReview`, `planning`, `training`, `internalAudit`, `rag`, `context`, `consultation`, `emergency`, `environmentalMonitoring`, `program`, `externalParty`, `tasks`, `integration`, `aiDrafts`, `aiAssistant`, `importData`, `compliance`.
+Listed in **`root.ts`** registration order: `analytics`, `approval`, `organization`, `incident`, `inspection`, `capa`, `aspect`, `obligation`, `document`, `ehsEvidence`, `managementReview`, `planning`, `training`, `internalAudit`, `rag`, `context`, `consultation`, `emergency`, `environmentalMonitoring`, `program`, `externalParty`, `tasks`, `integration`, `aiDrafts`, `aiAssistant`, `importData`, `compliance`.
 
 Flat top-level routers of note:
 
 - **`analytics`** — [`src/server/trpc/routers/analytics.ts`](src/server/trpc/routers/analytics.ts): org-scoped KPI / safety dashboard aggregates (`protectedProcedure`; permission logic per procedure, may use helpers like `userHasPermission`).
-- **`approval`** — [`src/server/trpc/routers/approval.ts`](src/server/trpc/routers/approval.ts): CAPA plan approval gate (`listOpenCapaRequests`, `listMyPendingSteps`, `submitCapaPlanApproval`, `decideRequest`); product rules in [docs/approval-workflow.md](docs/approval-workflow.md).
+- **`approval`** — [`src/server/trpc/routers/approval.ts`](src/server/trpc/routers/approval.ts): CAPA plan approval gate (`listOpenCapaRequests`, `listMyPendingSteps`, `listEscalations`, `submitCapaPlanApproval`, `decideRequest`); product rules in [docs/approval-workflow.md](docs/approval-workflow.md).
 - **`ehsEvidence`** — [`src/server/trpc/routers/ehsEvidence.ts`](src/server/trpc/routers/ehsEvidence.ts): evidence attachments bound to IMS entities (e.g. incidents); mutations should write **`audit_log`** via existing patterns — align retention and uploads with [COMPLIANCE.md](COMPLIANCE.md) when touching governance.
-- **`externalParty`** — [`src/server/trpc/routers/externalParty.ts`](src/server/trpc/routers/externalParty.ts): compliance credentials for `external_party` rows (`getParty`, credential CRUD); parties are created under **`program`** ([`program.ts`](src/server/trpc/routers/program.ts) `listExternalParties` / `createExternalParty`).
+- **`externalParty`** — [`src/server/trpc/routers/externalParty.ts`](src/server/trpc/routers/externalParty.ts): compliance credentials for `external_party` rows (`getParty`, credential CRUD); parties are created under **`program`** ([`program.ts`](src/server/trpc/routers/program.ts) `listExternalParties` / `createExternalParty`). Use **`listOrgCredentialsDueSoon`** for renewal horizon lists.
+- **`inspection`** — [`src/server/trpc/routers/inspection.ts`](src/server/trpc/routers/inspection.ts): workplace inspections (scheduled → in_progress → completed | cancelled); permissions **`inspection:read`**, **`inspection:create`**, **`inspection:update`**.
 
 ### Nested routers
 
 - **`planning`** — Implemented under [`src/server/trpc/routers/planning/index.ts`](src/server/trpc/routers/planning/index.ts) with **`hazard`**, **`risk`**, **`objective`**, **`kpi`**, **`operationalControl`**. Prefer new planning procedures as separate files inside `planning/` and wire them through that index rather than enlarging unrelated routers.
-- **`compliance`** — [`src/server/trpc/routers/complianceRouter.ts`](src/server/trpc/routers/complianceRouter.ts) nests **`establishment`**, **`regulatoryOsha`**, **`dataRetention`**, **`chemicalInventory`** (retention/OSHA/evidence-heavy work aligns with [COMPLIANCE.md](COMPLIANCE.md) and [`corporate-compliance-data-governance` skill](.cursor/skills/corporate-compliance-data-governance/SKILL.md)).
+- **`compliance`** — [`src/server/trpc/routers/complianceRouter.ts`](src/server/trpc/routers/complianceRouter.ts) nests **`establishment`**, **`regulatoryOsha`**, **`dataRetention`**, **`chemicalInventory`**, **`dsar`** (retention/OSHA/privacy intake aligns with [COMPLIANCE.md](COMPLIANCE.md) and [`corporate-compliance-data-governance` skill](.cursor/skills/corporate-compliance-data-governance/SKILL.md)).
 
 ### App Router API handlers
 

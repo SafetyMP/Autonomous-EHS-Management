@@ -58,7 +58,7 @@ When **`OIDC_DISCOVERY_URL`**, **`OIDC_CLIENT_ID`**, and **`OIDC_CLIENT_SECRET`*
 
 Register the redirect URL with your IdP: `{BETTER_AUTH_URL}/api/auth/oauth2/callback/{OIDC_PROVIDER_ID}`.
 
-**Org linkage:** first-time OIDC users still need membership/RBAC ([`scripts/seed.ts`](scripts/seed.ts) / admin invite flow)—SSO does not imply automatic tenant provisioning in this MVP.
+**Org linkage:** by default, first-time OIDC users still need membership/RBAC ([`scripts/seed.ts`](scripts/seed.ts) / admin invite flow). Optional **JIT**: set `OIDC_JIT_ENABLED=true`, `OIDC_JIT_DEFAULT_ORG_ID`, and optionally `OIDC_JIT_ROLE_SLUG` per [docs/OIDC_JIT_PROVISIONING.md](docs/OIDC_JIT_PROVISIONING.md) (review with IdP/counsel before production).
 
 ---
 

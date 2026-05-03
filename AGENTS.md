@@ -14,7 +14,7 @@ Defined as: **`eslint` → `tsc --noEmit` → `vitest run`**. Same as CI `verify
 
 **Enterprise SSO (OIDC):** optional Better Auth Generic OAuth—see README “Enterprise SSO”; sign-in button is gated by `NEXT_PUBLIC_ENTERPRISE_SSO=1`. Smoke tests do not require IdP.
 
-Full check including smoke E2E:
+Full check including smoke E2E (signed-in smoke **skips locally** unless `PLAYWRIGHT_E2E_*` are set and Postgres is migrated + `npm run db:seed:ci`; **CI always runs** signed-in smoke against a service container DB):
 
 ```bash
 npm run verify:all
@@ -29,7 +29,7 @@ These live in `tests/e2e/smoke/` and are the **minimum** UI checks in CI:
 | Marketing / home | `smoke/home.spec.ts` | App serves `/`, ISO messaging visible |
 | Sign-in surface | `smoke/sign-in.spec.ts` | `/sign-in` loads and shows the form |
 | Dashboard gate | `smoke/dashboard-gate.spec.ts` | Unauthenticated `/dashboard` redirects to sign-in |
-| Signed-in (optional) | `auth/dashboard-signed-in.spec.ts` | Skipped unless `PLAYWRIGHT_E2E_EMAIL` / `PLAYWRIGHT_E2E_PASSWORD` are set |
+| Signed-in dashboard | `smoke/signed-in-dashboard.spec.ts` | **In CI:** always runs (Postgres service + `db:seed:ci`). **Locally:** skipped unless `PLAYWRIGHT_E2E_EMAIL` / `PLAYWRIGHT_E2E_PASSWORD` are set and DB is migrated + seeded. |
 | Incident submit (optional) | `auth/incident-intake.spec.ts` | Same env as signed-in; expects `db:seed` org for the user |
 
 Run locally:
@@ -75,7 +75,7 @@ For **developer experience**—local/demo Postgres (`docker-compose.demo.yml`), 
 - **Container registry:** `.github/workflows/docker-publish.yml` builds and pushes **`ghcr.io/<owner>/<repo>/ehs-web`** on pushes to `main`/`master` when app or Docker paths change.
 - **Production promotion (manual, dual-gated):** `.github/workflows/cd-promote-production.yml` — `workflow_dispatch` on GitHub Environment **`production`** (required reviewers): optional Vercel `--prebuilt` deploy (token in env secret) and/or EKS rollout via **AWS OIDC** (no long-lived kubeconfig). Base manifests: `deploy/k8s/` (apply Secrets from `secret.example.yaml` template first). Repository setup: **`REPO_SETUP.md`**.
 - **Terraform (AWS EKS starter):** `infra/terraform/` — VPC + EKS; run `terraform init` / `plan` / `apply` with AWS credentials; see inline comments.
-- Prefer **real env validation** in a separate job later with a fixture `.env` and secrets; today `SKIP_ENV_VALIDATION=1` is used for build/test speed (tighten per org policy).
+- **Env in CI:** `.env.ci` is loaded into GitHub Actions `verify` and `e2e-smoke` so `SKIP_ENV_VALIDATION` is not required there. Vitest loads the same file when present (see [`tests/vitest.setup.ts`](tests/vitest.setup.ts)); locally without `.env.ci` / `.env.local`, tests still set `SKIP_ENV_VALIDATION` for ergonomics.
 
 ## Vercel (shipping)
 

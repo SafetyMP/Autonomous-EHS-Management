@@ -5,6 +5,7 @@ export const DASHBOARD_NAV_LINKS = [
   { href: "/dashboard/capa", label: "CAPA" },
   { href: "/dashboard/contractors", label: "Contractors" },
   { href: "/dashboard/approvals", label: "Approvals" },
+  { href: "/dashboard/inspections", label: "Inspections" },
   { href: "/dashboard/environment", label: "Environment" },
   { href: "/dashboard/documents", label: "Documents" },
   { href: "/dashboard/management-review", label: "Mgmt review" },
@@ -15,4 +16,6 @@ export const DASHBOARD_NAV_LINKS = [
   { href: "/dashboard/tasks", label: "Tasks" },
   { href: "/dashboard/program", label: "Program" },
   { href: "/dashboard/import", label: "Import" },
+  { href: "/dashboard/retention", label: "Retention" },
+  { href: "/dashboard/privacy-requests", label: "Privacy" },
 ] as const;

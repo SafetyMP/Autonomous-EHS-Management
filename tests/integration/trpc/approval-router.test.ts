@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { callTRPCProcedure } from "@trpc/server";
 import { appRouter } from "@/server/trpc/root";
 import type { TRPCContext } from "@/server/trpc/context";
-import { approvalRequest } from "@/server/db/schema";
+import { approvalRequest, escalationEvent } from "@/server/db/schema";
 import { createListEntityFakeDb } from "../../helpers/fake-db";
 
 vi.mock("@/server/services/audit", () => ({
@@ -68,6 +68,60 @@ describe("approval.listOpenCapaRequests", () => {
         createListEntityFakeDb({
           rbacHit: true,
           entityTable: approvalRequest,
+          listRows: rows,
+        }),
+        authenticatedSession(),
+      ),
+      type: "query",
+      getRawInput: async () => ({ organizationId: orgId }),
+      signal: testAbortSignal,
+      batchIndex: 0,
+    });
+    expect(out).toEqual(rows);
+  });
+});
+
+describe("approval.listEscalations", () => {
+  it("is FORBIDDEN when RBAC denies CAPA read", async () => {
+    await expect(
+      callTRPCProcedure({
+        router: appRouter,
+        path: "approval.listEscalations",
+        ctx: ctxWith(
+          createListEntityFakeDb({
+            rbacHit: false,
+            entityTable: escalationEvent,
+            listRows: [],
+          }),
+          authenticatedSession(),
+        ),
+        type: "query",
+        getRawInput: async () => ({ organizationId: orgId }),
+        signal: testAbortSignal,
+        batchIndex: 0,
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("returns escalation rows when RBAC succeeds", async () => {
+    const rows = [
+      {
+        id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+        organizationId: orgId,
+        entityType: "approval_step",
+        entityId: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+        detectedAt: new Date("2026-02-01T12:00:00Z"),
+        notifiedUserIds: [],
+        message: "overdue",
+      },
+    ];
+    const out = await callTRPCProcedure({
+      router: appRouter,
+      path: "approval.listEscalations",
+      ctx: ctxWith(
+        createListEntityFakeDb({
+          rbacHit: true,
+          entityTable: escalationEvent,
           listRows: rows,
         }),
         authenticatedSession(),

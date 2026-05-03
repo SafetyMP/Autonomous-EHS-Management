@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
@@ -17,6 +17,41 @@ const credentialKinds = externalPartyCredentialKindEnum.enumValues as [string, .
 const credentialStatuses = externalPartyCredentialStatusEnum.enumValues as [string, ...string[]];
 
 export const externalPartyRouter = router({
+  listOrgCredentialsDueSoon: protectedProcedure
+    .input(
+      orgScope.extend({
+        withinDays: z.number().int().min(1).max(365).optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.EXTERNAL_PARTY_READ,
+      );
+      const days = input.withinDays ?? 30;
+      const now = new Date();
+      const horizon = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+      return ctx.db
+        .select({
+          credential: externalPartyCredential,
+          party: externalParty,
+        })
+        .from(externalPartyCredential)
+        .innerJoin(externalParty, eq(externalPartyCredential.externalPartyId, externalParty.id))
+        .where(
+          and(
+            eq(externalPartyCredential.organizationId, input.organizationId),
+            isNotNull(externalPartyCredential.validTo),
+            gte(externalPartyCredential.validTo, now),
+            lte(externalPartyCredential.validTo, horizon),
+            inArray(externalPartyCredential.status, ["active", "pending_review"]),
+          ),
+        )
+        .orderBy(asc(externalPartyCredential.validTo));
+    }),
+
   listCredentials: protectedProcedure
     .input(orgScope.extend({ externalPartyId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {

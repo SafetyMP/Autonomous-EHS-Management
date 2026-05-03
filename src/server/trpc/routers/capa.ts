@@ -4,7 +4,6 @@ import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
 import {
   approvalRequest,
-  approvalStep,
   auditFinding,
   complianceObligation,
   correctiveAction,
@@ -15,6 +14,7 @@ import {
   workflowTransition,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { insertCapaApprovalSteps } from "@/server/services/capaApprovalSteps";
 import { allowedCapaTransition } from "@/lib/workflow/capaTransitions";
 import { assertOrgMemberUserId } from "../assertOrgScoped";
 import { protectedMutation, protectedProcedure, router } from "../init";
@@ -71,6 +71,8 @@ export const capaRouter = router({
         ownerUserId: z.string().optional(),
         initialStatus: z.enum(["planned", "pending_approval"]).optional().default("planned"),
         approverUserIdForPlan: z.string().optional(),
+        approverUserIdsForPlan: z.array(z.string().min(1)).min(1).max(5).optional(),
+        slaDaysPerPlanApproval: z.number().int().min(1).max(90).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -202,8 +204,22 @@ export const capaRouter = router({
         }
       }
 
-      if (input.initialStatus === "pending_approval" && input.approverUserIdForPlan) {
-        await assertOrgMemberUserId(ctx.db, input.organizationId, input.approverUserIdForPlan);
+      if (input.initialStatus === "pending_approval") {
+        const approvers = input.approverUserIdsForPlan?.length
+          ? [...new Set(input.approverUserIdsForPlan)]
+          : input.approverUserIdForPlan
+            ? [input.approverUserIdForPlan]
+            : [];
+        if (approvers.length === 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "When starting pending approval, set plan approver(s) via approverUserIdForPlan or approverUserIdsForPlan.",
+          });
+        }
+        for (const uid of approvers) {
+          await assertOrgMemberUserId(ctx.db, input.organizationId, uid);
+        }
       }
 
       let ownerId = ctx.user.id;
@@ -243,35 +259,33 @@ export const capaRouter = router({
             .where(eq(auditFinding.id, input.auditFindingId));
         }
 
-        if (
-          input.initialStatus === "pending_approval" &&
-          input.approverUserIdForPlan
-        ) {
-          const [req] = await tx
-            .insert(approvalRequest)
-            .values({
-              organizationId: input.organizationId,
-              entityType: "capa",
-              entityId: created.id,
-              status: "open",
-              createdByUserId: ctx.user.id,
-            })
-            .returning();
-          if (req) {
-            await tx.insert(approvalStep).values({
-              requestId: req.id,
-              stepOrder: 0,
-              approverUserId: input.approverUserIdForPlan,
-              status: "pending",
-            });
-            await writeAuditLog(tx, {
-              organizationId: input.organizationId,
-              actorUserId: ctx.user.id,
-              action: "approval.submit_capa",
-              entityType: "approval_request",
-              entityId: req.id,
-              payload: { correctiveActionId: created.id, approverUserId: input.approverUserIdForPlan },
-            });
+        if (input.initialStatus === "pending_approval") {
+          const approvers = input.approverUserIdsForPlan?.length
+            ? [...new Set(input.approverUserIdsForPlan)]
+            : input.approverUserIdForPlan
+              ? [input.approverUserIdForPlan]
+              : [];
+          if (approvers.length > 0) {
+            const [req] = await tx
+              .insert(approvalRequest)
+              .values({
+                organizationId: input.organizationId,
+                entityType: "capa",
+                entityId: created.id,
+                status: "open",
+                createdByUserId: ctx.user.id,
+              })
+              .returning();
+            if (req) {
+              await insertCapaApprovalSteps(tx, {
+                organizationId: input.organizationId,
+                requestId: req.id,
+                correctiveActionId: created.id,
+                approverUserIds: approvers,
+                actorUserId: ctx.user.id,
+                slaDaysPerStep: input.slaDaysPerPlanApproval,
+              });
+            }
           }
         }
 

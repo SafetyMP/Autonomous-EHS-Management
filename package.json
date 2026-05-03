@@ -18,7 +18,7 @@
     "demo:up": "tsx scripts/demo-up.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx scripts/seed.ts",
+    "db:seed:ci": "tsx scripts/seed-ci-e2e.ts",
     "db:seed:demo": "tsx scripts/seed-demo.ts",
     "db:seed:demo:reset": "tsx scripts/reset-demo-org.ts",
     "test": "vitest run",

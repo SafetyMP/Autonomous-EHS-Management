@@ -3,7 +3,9 @@ import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { genericOAuth } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { env } from "@/lib/env";
+import { logError } from "@/lib/logger";
 import { db } from "@/server/db";
+import { provisionOidcJitMembershipIfEnabled } from "@/server/services/oidcJitProvisioning";
 import {
   authAccount,
   authSession,
@@ -37,6 +39,22 @@ export const auth = betterAuth({
       verification: authVerification,
     },
   }),
+  databaseHooks: {
+    session: {
+      create: {
+        after: async (session) => {
+          try {
+            await provisionOidcJitMembershipIfEnabled(db, session.userId as string);
+          } catch (e) {
+            logError("oidc_jit.session_hook_failed", {
+              userId: session.userId,
+              error: e instanceof Error ? e.message : String(e),
+            });
+          }
+        },
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
   },

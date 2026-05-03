@@ -1,0 +1,6 @@
+# Non-secret placeholders for remote backend variables (copy → `terraform.tfvars` locally; do not commit real `terraform.tfvars`)
+
+# terraform_state_bucket = "your-org-terraform-state"
+# terraform_state_key    = "ehs/eks/terraform.tfstate"
+# terraform_lock_table   = "your-org-terraform-locks"
+# aws_region             = "us-east-1"

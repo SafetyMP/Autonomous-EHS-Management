@@ -14,6 +14,7 @@ import {
   documentRevision,
   externalPartyCredential,
   incident,
+  inspection,
   internalAudit,
   organization,
   trainingRecord,
@@ -108,6 +109,8 @@ async function main() {
     );
     await db.delete(approvalRequest).where(eq(approvalRequest.organizationId, org.id));
   }
+
+  await db.delete(inspection).where(eq(inspection.organizationId, org.id));
 
   await db
     .delete(externalPartyCredential)

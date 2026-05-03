@@ -708,6 +708,38 @@ export const dataRetentionPolicy = pgTable(
   (t) => [unique("data_retention_policy_uniq").on(t.organizationId, t.jurisdiction, t.recordClass)],
 );
 
+/** Intake status for data-subject / privacy requests (scaffold; see docs/DSAR_PROCESS.md). */
+export const dataSubjectRequestStatusEnum = pgEnum("data_subject_request_status", [
+  "received",
+  "in_review",
+  "closed",
+]);
+
+/** Org-scoped DSAR / privacy request ticket — not an automated export. */
+export const dataSubjectRequest = pgTable(
+  "data_subject_request",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    status: dataSubjectRequestStatusEnum("status").notNull().default("received"),
+    subjectContact: varchar("subject_contact", { length: 512 }).notNull(),
+    requestType: varchar("request_type", { length: 128 }).notNull(),
+    notes: text("notes"),
+    createdByUserId: text("created_by_user_id").references(() => authUser.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("data_subject_request_org_idx").on(t.organizationId)],
+);
+
 /** Evidence of data lifecycle cron runs (complement to audit_log row-level events). */
 export const dataLifecycleRun = pgTable("data_lifecycle_run", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -1813,6 +1845,64 @@ export const auditFindingRelations = relations(auditFinding, ({ one }) => ({
   }),
 }));
 
+/** Site / workplace inspections (routine, regulatory, pre-job, etc.) — ISO 45001 operational monitoring. */
+export const inspectionStatusEnum = pgEnum("inspection_status", [
+  "scheduled",
+  "in_progress",
+  "completed",
+  "cancelled",
+]);
+
+export const inspectionTypeEnum = pgEnum("inspection_type", [
+  "routine",
+  "regulatory",
+  "pre_job",
+  "other",
+]);
+
+export const inspection = pgTable(
+  "inspection",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    siteId: uuid("site_id").references(() => site.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 512 }).notNull(),
+    inspectionType: inspectionTypeEnum("inspection_type").notNull().default("other"),
+    status: inspectionStatusEnum("status").notNull().default("scheduled"),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true, mode: "date" }),
+    completedAt: timestamp("completed_at", { withTimezone: true, mode: "date" }),
+    leadUserId: text("lead_user_id").references(() => authUser.id, { onDelete: "set null" }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("inspection_org_status_idx").on(t.organizationId, t.status),
+    index("inspection_org_scheduled_idx").on(t.organizationId, t.scheduledAt),
+  ],
+);
+
+export const inspectionRelations = relations(inspection, ({ one }) => ({
+  organization: one(organization, {
+    fields: [inspection.organizationId],
+    references: [organization.id],
+  }),
+  site: one(site, {
+    fields: [inspection.siteId],
+    references: [site.id],
+  }),
+  lead: one(authUser, {
+    fields: [inspection.leadUserId],
+    references: [authUser.id],
+  }),
+}));
+
 /* ——— Leadership: policy & consultation ——— */
 export const policyRevisionStatusEnum = pgEnum("policy_revision_status", [
   "draft",
@@ -2288,6 +2378,8 @@ export const approvalStep = pgTable(
     status: approvalStepStatusEnum("status").notNull().default("pending"),
     comment: text("comment"),
     decidedAt: timestamp("decided_at", { withTimezone: true, mode: "date" }),
+    /** SLA deadline for pending steps; overdue triggers escalation_event rows via cron. */
+    dueAt: timestamp("due_at", { withTimezone: true, mode: "date" }),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
       .notNull()
       .defaultNow(),

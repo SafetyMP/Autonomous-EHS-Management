@@ -74,6 +74,9 @@ export const PERMISSIONS = {
   TASKS_READ: "tasks:read",
   INTEGRATION_READ: "integration:read",
   INTEGRATION_WRITE: "integration:write",
+  INSPECTION_READ: "inspection:read",
+  INSPECTION_CREATE: "inspection:create",
+  INSPECTION_UPDATE: "inspection:update",
   ORG_SETUP_WRITE: "org_setup:write",
   AI_DRAFT_USE: "ai:draft_use",
   INCIDENT_READ_SENSITIVE: "incident:read_sensitive",
@@ -83,6 +86,8 @@ export const PERMISSIONS = {
   REGULATORY_OSHA_WRITE: "regulatory_osha:write",
   RETENTION_POLICY_READ: "retention:policy_read",
   RETENTION_POLICY_WRITE: "retention:policy_write",
+  PRIVACY_DSAR_READ: "privacy:dsar_read",
+  PRIVACY_DSAR_WRITE: "privacy:dsar_write",
   CHEMICAL_INVENTORY_READ: "chemical_inventory:read",
   CHEMICAL_INVENTORY_WRITE: "chemical_inventory:write",
 } as const;

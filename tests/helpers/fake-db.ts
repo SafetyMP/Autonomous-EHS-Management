@@ -171,9 +171,25 @@ export function createListEntityFakeDb(opts: ListEntityFakeOpts): Db {
           if (table === opts.entityTable) {
             return {
               where(..._ignored: unknown[]) {
-                return {
+                const afterWhere = {
                   orderBy(..._ignored2: unknown[]) {
-                    return resolved;
+                    return {
+                      limit(..._l: unknown[]) {
+                        return resolved;
+                      },
+                      then<TResult1>(
+                        onfulfilled?:
+                          | ((value: unknown[]) => TResult1 | PromiseLike<TResult1>)
+                          | null
+                          | undefined,
+                        onrejected?: ((reason: unknown) => unknown) | null | undefined,
+                      ): Promise<TResult1> {
+                        return resolved.then(
+                          onfulfilled ?? undefined,
+                          onrejected ?? undefined,
+                        ) as Promise<TResult1>;
+                      },
+                    };
                   },
                   then<TResult1>(
                     onfulfilled?:
@@ -185,6 +201,7 @@ export function createListEntityFakeDb(opts: ListEntityFakeOpts): Db {
                     return resolved.then(onfulfilled ?? undefined, onrejected ?? undefined) as Promise<TResult1>;
                   },
                 };
+                return afterWhere;
               },
             };
           }

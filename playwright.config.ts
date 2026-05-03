@@ -1,5 +1,8 @@
 import path from "node:path";
+import dotenv from "dotenv";
 import { defineConfig, devices } from "@playwright/test";
+
+dotenv.config({ path: path.join(__dirname, ".env.ci") });
 
 export default defineConfig({
   testDir: path.join(__dirname, "tests/e2e"),
@@ -9,7 +12,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "list",
   webServer: {
-    command: "SKIP_ENV_VALIDATION=1 DATABASE_URL=postgresql://user:pass@127.0.0.1:5432/db BETTER_AUTH_SECRET=01234567890123456789012345678901 BETTER_AUTH_URL=http://127.0.0.1:3000 NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000 npm run dev -- --port 3000",
+    command: "npm run dev -- --port 3000",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

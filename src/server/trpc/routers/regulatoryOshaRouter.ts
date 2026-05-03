@@ -12,6 +12,7 @@ import {
   workRelatedInjuryIllnessRecord,
 } from "@/server/db/schema";
 import { getRecordkeepingReferencePayload } from "@/lib/regulatory/usRecordkeepingReference";
+import { buildAgencyExportPlaceholder } from "@/lib/regulatory/oshaAgencyExportScaffold";
 import { writeAuditLog } from "@/server/services/audit";
 import {
   assertEstablishmentInOrg,
@@ -29,6 +30,17 @@ const determinationStatuses = oshaRecordDeterminationStatusEnum.enumValues as [
 ];
 
 export const regulatoryOshaRouter = router({
+  /** Placeholder for future agency-formatted OSHA output; not filing-ready (see scaffold). */
+  agencyExportPlaceholder: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+    await assertPermission(
+      ctx.db,
+      ctx.user.id,
+      input.organizationId,
+      PERMISSIONS.REGULATORY_OSHA_READ,
+    );
+    return buildAgencyExportPlaceholder();
+  }),
+
   /** Static reference data + disclaimer for federal vs state-plan recordkeeping (not legal advice). */
   recordkeepingReference: protectedProcedure.query(() => getRecordkeepingReferencePayload()),
 
@@ -374,4 +386,55 @@ export const regulatoryOshaRouter = router({
         return inserted;
       });
     }),
+
+  /**
+   * Audited JSON snapshot for OSHA-oriented injury/illness records (no KMS ciphertext or raw PHI fields).
+   * Counsel should review what may be exported in your jurisdiction before relying on this as a regulatory filing.
+   */
+  exportInjuryIllnessSnapshot: protectedProcedure.input(orgScope).mutation(async ({ ctx, input }) => {
+    await assertPermission(
+      ctx.db,
+      ctx.user.id,
+      input.organizationId,
+      PERMISSIONS.REGULATORY_OSHA_READ,
+    );
+
+    const rows = await ctx.db
+      .select({
+        recordId: workRelatedInjuryIllnessRecord.id,
+        incidentId: workRelatedInjuryIllnessRecord.incidentId,
+        incidentTitle: incident.title,
+        oshaRecordable: workRelatedInjuryIllnessRecord.oshaRecordable,
+        recordableClassification: workRelatedInjuryIllnessRecord.recordableClassification,
+        recordkeepingFramework: workRelatedInjuryIllnessRecord.recordkeepingFramework,
+        recordkeepingStateCode: workRelatedInjuryIllnessRecord.recordkeepingStateCode,
+        determinationStatus: workRelatedInjuryIllnessRecord.determinationStatus,
+        daysAway: workRelatedInjuryIllnessRecord.daysAway,
+        daysRestricted: workRelatedInjuryIllnessRecord.daysRestricted,
+        privacyCase: workRelatedInjuryIllnessRecord.privacyCase,
+        legalHold: workRelatedInjuryIllnessRecord.legalHold,
+        injuryIllnessCategory: workRelatedInjuryIllnessRecord.injuryIllnessCategory,
+        updatedAt: workRelatedInjuryIllnessRecord.updatedAt,
+      })
+      .from(workRelatedInjuryIllnessRecord)
+      .innerJoin(incident, eq(workRelatedInjuryIllnessRecord.incidentId, incident.id))
+      .where(eq(workRelatedInjuryIllnessRecord.organizationId, input.organizationId))
+      .orderBy(desc(workRelatedInjuryIllnessRecord.updatedAt));
+
+    await writeAuditLog(ctx.db, {
+      organizationId: input.organizationId,
+      actorUserId: ctx.user.id,
+      action: "regulatory_osha.export_injury_illness_snapshot",
+      entityType: "organization",
+      entityId: input.organizationId,
+      payload: { recordCount: rows.length },
+    });
+
+    return {
+      exportedAt: new Date().toISOString(),
+      organizationId: input.organizationId,
+      recordCount: rows.length,
+      records: rows,
+    };
+  }),
 });

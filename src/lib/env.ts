@@ -31,6 +31,20 @@ export const env = createEnv({
     OIDC_CLIENT_ID: z.string().optional(),
     OIDC_CLIENT_SECRET: z.string().optional(),
     OIDC_PROVIDER_ID: z.string().min(1).optional(),
+    /** Set to `"true"` to JIT-link OAuth users to `OIDC_JIT_DEFAULT_ORG_ID` (see docs/OIDC_JIT_PROVISIONING.md). */
+    OIDC_JIT_ENABLED: z.literal("true").optional(),
+    /** Existing organization UUID for JIT membership when `OIDC_JIT_ENABLED=true`. */
+    OIDC_JIT_DEFAULT_ORG_ID: z.string().uuid().optional(),
+    /** Role slug within that org (default `admin`). */
+    OIDC_JIT_ROLE_SLUG: z.string().min(1).max(64).optional(),
+    /** Shared secret for `POST /api/integration/inbound` (LMS webhooks). Optional until route is used. */
+    INTEGRATION_INBOUND_SECRET: z.string().min(16).optional(),
+    /** Optional HTTPS webhook (e.g. Slack incoming) for cron handler failures. */
+    CRON_FAILURE_WEBHOOK_URL: z.string().url().optional(),
+    /** When `"true"`, dev logging enqueue path is active (see docs/JOB_QUEUE.md); durable queue not wired yet. */
+    JOB_QUEUE_ENABLED: z.literal("true").optional(),
+    /** Reserved for pg-boss schema name (documentation / future use). */
+    PG_BOSS_SCHEMA: z.string().min(1).max(64).optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
@@ -62,6 +76,13 @@ export const env = createEnv({
     OIDC_CLIENT_ID: process.env.OIDC_CLIENT_ID,
     OIDC_CLIENT_SECRET: process.env.OIDC_CLIENT_SECRET,
     OIDC_PROVIDER_ID: process.env.OIDC_PROVIDER_ID,
+    OIDC_JIT_ENABLED: process.env.OIDC_JIT_ENABLED,
+    OIDC_JIT_DEFAULT_ORG_ID: process.env.OIDC_JIT_DEFAULT_ORG_ID,
+    OIDC_JIT_ROLE_SLUG: process.env.OIDC_JIT_ROLE_SLUG,
+    INTEGRATION_INBOUND_SECRET: process.env.INTEGRATION_INBOUND_SECRET,
+    CRON_FAILURE_WEBHOOK_URL: process.env.CRON_FAILURE_WEBHOOK_URL,
+    JOB_QUEUE_ENABLED: process.env.JOB_QUEUE_ENABLED,
+    PG_BOSS_SCHEMA: process.env.PG_BOSS_SCHEMA,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_ENTERPRISE_SSO: process.env.NEXT_PUBLIC_ENTERPRISE_SSO,
     NEXT_PUBLIC_OIDC_PROVIDER_ID: process.env.NEXT_PUBLIC_OIDC_PROVIDER_ID,

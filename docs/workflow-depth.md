@@ -12,6 +12,7 @@ This document maps **deterministic, auditable workflow machinery** in the reposi
 |--------|------|------------|
 | Incidents | [`src/lib/workflow/incidentTransitions.ts`](../src/lib/workflow/incidentTransitions.ts) | `allowedIncidentTransition(from, to)` — graph: `open` → `investigating` → `closed`. |
 | CAPA | [`src/lib/workflow/capaTransitions.ts`](../src/lib/workflow/capaTransitions.ts) | `allowedCapaTransition(from, to)` — includes `pending_approval` and `verified` terminal state. |
+| Inspections | [`src/lib/workflow/inspectionTransitions.ts`](../src/lib/workflow/inspectionTransitions.ts) | `allowedInspectionTransition` — `scheduled` → `in_progress` → `completed` or `cancelled`. |
 
 Routers should delegate to these helpers so invalid transitions fail consistently (and tests can cover transition matrices).
 

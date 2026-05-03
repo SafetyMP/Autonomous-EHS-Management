@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/server/db";
+import { notifyCronFailure } from "@/server/cron/notifyOnFailure";
 import { runDataRetentionCron } from "@/server/services/dataRetention";
 
 /**
@@ -13,9 +14,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const result = await runDataRetentionCron(db);
-  return NextResponse.json({
-    ok: true,
-    ...result,
-  });
+  const route = "GET /api/cron/data-retention";
+  try {
+    const result = await runDataRetentionCron(db);
+    return NextResponse.json({
+      ok: true,
+      ...result,
+    });
+  } catch (e) {
+    await notifyCronFailure(route, e);
+    return NextResponse.json({ ok: false, error: "internal_error" }, { status: 500 });
+  }
 }

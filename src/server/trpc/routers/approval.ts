@@ -6,7 +6,9 @@ import {
   approvalRequest,
   approvalStep,
   correctiveAction,
+  escalationEvent,
 } from "@/server/db/schema";
+import { insertCapaApprovalSteps } from "@/server/services/capaApprovalSteps";
 import { writeAuditLog } from "@/server/services/audit";
 import { assertOrgMemberUserId } from "../assertOrgScoped";
 import { protectedMutation, protectedProcedure, router } from "../init";
@@ -61,12 +63,42 @@ export const approvalRouter = router({
     return rows;
   }),
 
+  listEscalations: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+    await assertPermission(
+      ctx.db,
+      ctx.user.id,
+      input.organizationId,
+      PERMISSIONS.CAPA_READ,
+    );
+    return ctx.db
+      .select()
+      .from(escalationEvent)
+      .where(
+        and(
+          eq(escalationEvent.organizationId, input.organizationId),
+          eq(escalationEvent.entityType, "approval_step"),
+        ),
+      )
+      .orderBy(desc(escalationEvent.detectedAt))
+      .limit(100);
+  }),
+
   submitCapaPlanApproval: protectedMutation
     .input(
-      orgScope.extend({
-        correctiveActionId: z.string().uuid(),
-        approverUserId: z.string().min(1),
-      }),
+      orgScope
+        .extend({
+          correctiveActionId: z.string().uuid(),
+          /** @deprecated Prefer `approvers`. */
+          approverUserId: z.string().min(1).optional(),
+          approvers: z.array(z.string().min(1)).min(1).max(5).optional(),
+          slaDaysPerStep: z.number().int().min(1).max(90).optional(),
+        })
+        .refine(
+          (i) =>
+            (i.approvers !== undefined && i.approvers.length > 0) ||
+            (i.approverUserId !== undefined && i.approverUserId.length > 0),
+          { message: "Provide approverUserId or approvers.", path: ["approverUserId"] },
+        ),
     )
     .mutation(async ({ ctx, input }) => {
       await assertPermission(
@@ -98,7 +130,21 @@ export const approvalRouter = router({
         });
       }
 
-      await assertOrgMemberUserId(ctx.db, input.organizationId, input.approverUserId);
+      const approverList = input.approvers?.length
+        ? [...new Set(input.approvers)]
+        : input.approverUserId
+          ? [input.approverUserId]
+          : [];
+      if (approverList.length === 0 || approverList.length > 5) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Provide 1–5 distinct approvers.",
+        });
+      }
+
+      for (const uid of approverList) {
+        await assertOrgMemberUserId(ctx.db, input.organizationId, uid);
+      }
 
       const open = await ctx.db
         .select({ id: approvalRequest.id })
@@ -139,20 +185,13 @@ export const approvalRouter = router({
           });
         }
 
-        await tx.insert(approvalStep).values({
-          requestId: req.id,
-          stepOrder: 0,
-          approverUserId: input.approverUserId,
-          status: "pending",
-        });
-
-        await writeAuditLog(tx, {
+        await insertCapaApprovalSteps(tx, {
           organizationId: input.organizationId,
+          requestId: req.id,
+          correctiveActionId: input.correctiveActionId,
+          approverUserIds: approverList,
           actorUserId: ctx.user.id,
-          action: "approval.submit_capa",
-          entityType: "approval_request",
-          entityId: req.id,
-          payload: { correctiveActionId: input.correctiveActionId, approverUserId: input.approverUserId },
+          slaDaysPerStep: input.slaDaysPerStep,
         });
 
         return req;

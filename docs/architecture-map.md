@@ -58,15 +58,16 @@ flowchart LR
 | Concern | Implementation | Notes |
 |---------|----------------|--------|
 | **Incident lifecycle** | [`src/lib/workflow/incidentTransitions.ts`](../src/lib/workflow/incidentTransitions.ts) | Allowed transitions: `open` → `investigating` → `closed`. Procedures enforce moves via `allowedIncidentTransition`. |
+| **Inspection workflow** | [`src/lib/workflow/inspectionTransitions.ts`](../src/lib/workflow/inspectionTransitions.ts) | `scheduled` → `in_progress` → `completed` or `cancelled`; router [`inspection.ts`](../src/server/trpc/routers/inspection.ts). |
 | **CAPA lifecycle** | [`src/lib/workflow/capaTransitions.ts`](../src/lib/workflow/capaTransitions.ts) | `pending_approval` → `planned` → `in_progress` → `completed` → `verified`. |
-| **Approval / escalation** | Product-dependent | Transition tables encode **valid states**; separate approval chains and escalation matrices are extended in routers and schema as the product matures—see [workflow-depth.md](./workflow-depth.md). |
+| **Approval / escalation** | [`approval` router](../src/server/trpc/routers/approval.ts), `approval_step.dueAt`, cron → `escalation_event` | Serial CAPA plan approvals with optional multi-step approvers; overdue pending steps record [`escalation_event`](../src/server/db/schema.ts) rows (no notification channel in MVP). |
 | **Exception handling** | tRPC `TRPCError` + validators | `protectedProcedure` / `protectedMutation` in [`src/server/trpc/init.ts`](../src/server/trpc/init.ts); rate limits for sensitive paths. |
 
 ---
 
 ## 4. Data model (authoritative)
 
-- **Schema:** [`src/server/db/schema.ts`](../src/server/db/schema.ts) — incidents, corrective actions, controlled documents, training, internal audits/findings, establishments, OSHA sidecar fields, chemical inventory, RAG sources/chunks, `data_retention_policy`, `audit_log`, etc.
+- **Schema:** [`src/server/db/schema.ts`](../src/server/db/schema.ts) — incidents, corrective actions, **inspections** (workplace/site), controlled documents, training, internal audits/findings, establishments, OSHA sidecar fields, chemical inventory, RAG sources/chunks, `data_retention_policy`, `audit_log`, etc.
 - **Migrations:** `drizzle/migrations/*.sql` — no TypeScript-only “virtual” columns; all DDL is migratable.
 
 ---
@@ -108,7 +109,7 @@ flowchart LR
 
 | Status | Surface | Role |
 |--------|---------|------|
-| **In-repo stub / event log** | [`integration` router](../src/server/trpc/routers/integration.ts), `integration_event` | Enqueue/list pattern for future ERP, LMS, HRIS, document system connectors; writes `audit_log` on enqueue. |
+| **In-repo stub / event log** | [`integration` router](../src/server/trpc/routers/integration.ts), `integration_event` | Enqueue/list pattern; **`ingestTrainingCompletion`** (tRPC) and **`POST /api/integration/inbound`** (Bearer `INTEGRATION_INBOUND_SECRET`) insert `training_completion` events with redacted worker ids in `payload`. |
 | **Planned / partner-built** | — | ERP, LMS, HRIS, e-signature, and document DMS integrations are **roadmap** items—architecture supports org-scoped events and auditability; specific connectors are not implied by the stub alone. |
 
 ---

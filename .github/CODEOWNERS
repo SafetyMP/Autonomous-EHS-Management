@@ -1,5 +1,20 @@
-# CODEOWNERS — optional until teams exist
-# Uncomment rules after provisioning GitHub Teams (see REPO_SETUP.md).
-# Example:
-# * @YOUR_ORG/platform
-# /.github/workflows/ @YOUR_ORG/release-engineering
+# Replace YOUR_ORG with your GitHub org (and create teams or substitute @username).
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @YOUR_ORG/ehs-maintainers
+
+/.github/ @YOUR_ORG/ehs-devops
+/next.config.ts @YOUR_ORG/ehs-devops
+/Dockerfile @YOUR_ORG/ehs-devops
+/vercel.ts @YOUR_ORG/ehs-devops
+
+/src/server/ @YOUR_ORG/ehs-backend
+/scripts/ @YOUR_ORG/ehs-backend
+/drizzle/ @YOUR_ORG/ehs-backend
+
+/src/app/ @YOUR_ORG/ehs-frontend
+/src/components/ @YOUR_ORG/ehs-frontend
+
+COMPLIANCE.md @YOUR_ORG/ehs-compliance
+/src/server/services/dataRetention.ts @YOUR_ORG/ehs-compliance
+/src/server/services/incidentRetentionDefault.ts @YOUR_ORG/ehs-compliance

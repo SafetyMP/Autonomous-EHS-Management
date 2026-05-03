@@ -20,6 +20,11 @@ export default function ApprovalsPage() {
     { enabled: !!organizationId },
   );
 
+  const escalations = trpc.approval.listEscalations.useQuery(
+    { organizationId: org },
+    { enabled: !!organizationId },
+  );
+
   const capas = trpc.capa.list.useQuery(
     { organizationId: org },
     { enabled: !!organizationId },
@@ -28,6 +33,7 @@ export default function ApprovalsPage() {
   const decide = trpc.approval.decideRequest.useMutation({
     onSuccess: () => {
       void pending.refetch();
+      void escalations.refetch();
       setActiveRequestId(null);
       void capas.refetch();
       void utils.approval.listOpenCapaRequests.invalidate();
@@ -65,6 +71,9 @@ export default function ApprovalsPage() {
                 CAPA
               </th>
               <th scope="col" className="px-4 py-3">
+                Due
+              </th>
+              <th scope="col" className="px-4 py-3">
                 Requested
               </th>
               <th scope="col" className="px-4 py-3">
@@ -75,7 +84,7 @@ export default function ApprovalsPage() {
           <tbody className="divide-y divide-zinc-100">
             {pending.isLoading ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6">
+                <td colSpan={4} className="px-4 py-6">
                   <span role="status" aria-live="polite" className="text-zinc-700">
                     Loading…
                   </span>
@@ -83,7 +92,7 @@ export default function ApprovalsPage() {
               </tr>
             ) : pending.data?.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-zinc-700">
+                <td colSpan={4} className="px-4 py-6 text-zinc-700">
                   No pending approvals for your account.
                 </td>
               </tr>
@@ -92,12 +101,19 @@ export default function ApprovalsPage() {
                 const capaTitle =
                   capas.data?.find((c) => c.id === request.entityId)?.title ?? request.entityId.slice(0, 8);
                 const expanded = activeRequestId === request.id;
+                const due = step.dueAt ? new Date(step.dueAt) : null;
+                const overdue = due && due < new Date();
                 return (
                   <tr key={step.id}>
                     <td className="px-4 py-3 font-medium text-zinc-900">
                       <Link href="/dashboard/capa" className="text-emerald-900 underline">
                         {capaTitle}
                       </Link>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-zinc-800">
+                      {due
+                        ? `${due.toLocaleDateString(undefined, { month: "short", day: "numeric" })}${overdue ? " (overdue)" : ""}`
+                        : "—"}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-zinc-800">
                       {new Date(request.createdAt).toLocaleString(undefined, {
@@ -179,6 +195,27 @@ export default function ApprovalsPage() {
           </tbody>
         </table>
       </div>
+
+      {escalations.data && escalations.data.length > 0 ? (
+        <section
+          className="rounded-lg border border-amber-200 bg-amber-50/90 p-4 text-base text-amber-950 shadow-sm"
+          aria-labelledby="esc-h"
+        >
+          <h2 id="esc-h" className="text-base font-semibold">
+            Overdue approval escalations (recorded)
+          </h2>
+          <p className={`mt-1 text-sm ${dfMuted}`}>
+            Cron records overdue steps here for visibility. Notifications are not sent in this MVP.
+          </p>
+          <ul className="mt-3 list-inside list-disc space-y-1">
+            {escalations.data.slice(0, 8).map((e) => (
+              <li key={e.id}>
+                {e.detectedAt ? new Date(e.detectedAt).toLocaleString() : "—"} — {e.message}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

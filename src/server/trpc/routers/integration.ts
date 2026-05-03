@@ -3,6 +3,7 @@ import { z } from "zod";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
 import { integrationEvent } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { persistTrainingCompletionEvent } from "@/server/services/trainingCompletionIngest";
 import { orgScope } from "../schemas/orgScope";
 import { protectedMutation, protectedProcedure, router } from "../init";
 
@@ -41,5 +42,25 @@ export const integrationRouter = router({
         }
         return row;
       });
+    }),
+
+  ingestTrainingCompletion: protectedMutation
+    .input(
+      z.object({
+        organizationId: z.string().uuid(),
+        externalWorkerId: z.string().min(1).max(256),
+        courseCode: z.string().min(1).max(128),
+        completedAt: z.coerce.date(),
+        issuer: z.string().min(1).max(128),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.INTEGRATION_WRITE,
+      );
+      return persistTrainingCompletionEvent(ctx.db, input, ctx.user.id);
     }),
 });

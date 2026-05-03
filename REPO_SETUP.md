@@ -45,7 +45,9 @@ Create a **ruleset** targeting **`main`** and **`master`** (or unify on one trun
 | **Reviews** | Require **≥1** approving review from humans; map “AI review” via optional **Copilot** or bot checks (**GitHub does not enforce AI vs human** explicitly). |
 | **Verified commits** | Enable **verified signatures** or **verified authors** where your org allows it. |
 | **Bypass lists** | Keep empty for developers; optionally allow **`release`** automation only via a dedicated GitHub App or fine-grained token if `semantic-release` cannot tag (see §4). |
-| **`CODEOWNERS`** | Uncomment rules in [`CODEOWNERS`](.github/CODEOWNERS) and assign **`/.github/workflows/`** etc. |
+| **`CODEOWNERS`** | Replace `YOUR_ORG` in [`.github/CODEOWNERS`](.github/CODEOWNERS) with real teams (or `@username`) so rulesets can require owner review. |
+
+**CI database (Playwright):** the **`e2e-smoke`** job starts **PostgreSQL (pgvector)**, runs **`npm run db:migrate`** and **`npm run db:seed:ci`**, then smoke tests (including signed-in). Forked PRs from untrusted contributors should not receive repo secrets unless your org explicitly allows it.
 
 ---
 
