@@ -2,13 +2,14 @@ import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
 /**
- * Vercel injects `VERCEL_URL` (host only, no scheme) during build and at runtime, but
- * does not populate `NEXT_PUBLIC_APP_URL` / `BETTER_AUTH_URL`. Without this fallback,
- * `next build` can fail while collecting route data because validation runs before runtime.
+ * Vercel injects deployment hosts during build/runtime but does not always set
+ * `NEXT_PUBLIC_APP_URL` / `BETTER_AUTH_URL`. Without a fallback, env validation fails
+ * while collecting route data (e.g. `/api/auth/[...all]`).
  * Custom domains: set `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` explicitly to your canonical HTTPS origin.
  */
 function vercelDeploymentOrigin(): string | undefined {
-  const raw = process.env.VERCEL_URL;
+  const raw =
+    process.env.VERCEL_URL ?? process.env.VERCEL_BRANCH_URL ?? undefined;
   if (!raw) return undefined;
   if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
   return `https://${raw}`;

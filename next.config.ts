@@ -1,4 +1,8 @@
+import { loadEnvConfig } from "@next/env";
 import type { NextConfig } from "next";
+
+/** Merge `.env*` into `process.env` before Next forks workers (avoids missing vars during collect). Safe here only — not in `src/lib/env.ts` (client-imported). */
+loadEnvConfig(process.cwd());
 
 const isDev = process.env.NODE_ENV !== "production";
 
