@@ -1,3 +1,10 @@
+## [1.3.9](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.8...v1.3.9) (2026-05-03)
+
+
+### Bug Fixes
+
+* **auth:** allow sign-in in production without Upstash rate limiter ([963498e](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/963498e6ea5dea3a8643fcc6a4c14a62f4f2602a))
+
 ## [1.3.8](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.7...v1.3.8) (2026-05-03)
 
 
