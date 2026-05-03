@@ -44,7 +44,7 @@ jobs:
       SKIP_ENV_VALIDATION: "1"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Validate inputs
         env:
