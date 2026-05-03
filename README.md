@@ -150,6 +150,6 @@ Production-style deploys (e.g. **Vercel** + managed Postgres) should use strong 
 
 ## License
 
-Proprietary — see **[LICENSE](LICENSE)**. To open-source this codebase, replace `LICENSE` with counsel-approved terms (e.g. MIT, Apache-2.0) and update `package.json` `license` accordingly.
+Licensed under **Apache License 2.0** — see **[LICENSE](LICENSE)**. SPDX: **`Apache-2.0`** (also set in **`package.json`**).
 
 Contributing and security reporting: **[CONTRIBUTING.md](CONTRIBUTING.md)**, **[SECURITY.md](SECURITY.md)**. GitHub org setup: **[REPO_SETUP.md](REPO_SETUP.md)**.

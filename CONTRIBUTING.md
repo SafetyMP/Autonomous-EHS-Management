@@ -17,4 +17,4 @@ Configure **[`.github/CODEOWNERS`](.github/CODEOWNERS)** with real teams before 
 
 ## License & CLA
 
-By contributing, confirm you have the right to submit the change under the terms in **[LICENSE](LICENSE)** and your employer’s contribution policy covers this repository.
+By contributing, your contributions are under the **Apache License 2.0** (see **[LICENSE](LICENSE)**); confirm you have authority to submit under that license (for example employer **CLA** policy where applicable).

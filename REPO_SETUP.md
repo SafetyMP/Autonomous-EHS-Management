@@ -115,7 +115,7 @@ Downstream Admission / policy engines (Kyverno, Ratify, Sigstore Admission) cons
 
 | File | Notes |
 |------|--------|
-| [`LICENSE`](LICENSE) | Default **proprietary** (SafetyMP). Replace with counsel-approved terms (e.g. MIT, Apache-2.0) if open-sourcing; then set **`package.json`** `"license"` to the matching **SPDX** id. |
+| [`LICENSE`](LICENSE) | **Apache License 2.0**. **`package.json`** `"license"` must stay **`Apache-2.0`** (**SPDX**). |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Entry path for contributors; merge bar stays **[`AGENTS.md`](AGENTS.md)**. |
 | [`SECURITY.md`](SECURITY.md) | Responsible disclosure — enable **Security → Private vulnerability reporting** on the GitHub repo. |
 
