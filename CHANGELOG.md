@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.0...v1.3.1) (2026-05-03)
+
+
+### Bug Fixes
+
+* **docker:** skip env validation during next build in image builder ([309cf3f](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/309cf3f55a433746a8c8ee90fa869180f35157f1))
+
 # [1.3.0](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.2.0...v1.3.0) (2026-05-03)
 
 
