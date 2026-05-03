@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.4...v1.3.5) (2026-05-03)
+
+
+### Bug Fixes
+
+* **auth:** lazy-load Better Auth handler to unblock Vercel build ([f327b77](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/f327b779eda660468808a13ea840901600600bb0))
+
 ## [1.3.4](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.3...v1.3.4) (2026-05-03)
 
 
