@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getClientIpFromHeaders } from "@/lib/request-ip";
-import { auth } from "@/server/auth";
-import { env } from "@/lib/env";
-import { rateLimitContextSyncResponse } from "@/server/ratelimit";
 import type { ContextActor } from "@/server/services/contextSync/authorize";
 import { ContextSyncError } from "@/server/services/contextSync/errors";
 
@@ -15,11 +12,13 @@ export async function gateContextSyncRateLimit(
   userId: string,
   routeKey: string,
 ): Promise<Response | null> {
+  const { rateLimitContextSyncResponse } = await import("@/server/ratelimit");
   const ip = getClientIpFromHeaders(req.headers);
   return rateLimitContextSyncResponse(`${ip}:${userId}:ctxsync:${routeKey}`);
 }
 
-export function demoWriteBlockedResponse(): Response | null {
+export async function demoWriteBlockedResponse(): Promise<Response | null> {
+  const { env } = await import("@/lib/env");
   if (env.DEMO_MODE === "true" && env.DEMO_READ_ONLY === "true") {
     return NextResponse.json(
       { error: "forbidden", reason: "demo_read_only" },
@@ -34,6 +33,7 @@ export async function resolveContextActor(req: NextRequest): Promise<
   | { ok: true; userId: string; actor: ContextActor }
   | { ok: false; response: Response }
 > {
+  const { auth } = await import("@/server/auth");
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.id) {
     return {

@@ -2,9 +2,10 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { TRPCError } from "@trpc/server";
 import { NextResponse } from "next/server";
-import { env } from "@/lib/env";
+import { readValidatedEnv } from "@/server/read-env";
 
-function createLimiter() {
+function createLimiter(): Ratelimit | null {
+  const env = readValidatedEnv();
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
     return null;
   }
@@ -20,20 +21,28 @@ function createLimiter() {
   });
 }
 
-const limiter = createLimiter();
+let limiter: Ratelimit | null | undefined;
+
+function getLimiter(): Ratelimit | null {
+  if (limiter !== undefined) return limiter;
+  limiter = createLimiter();
+  return limiter;
+}
+
 const isProd = process.env.NODE_ENV === "production";
 
 export function isRateLimiterConfigured(): boolean {
-  return limiter !== null;
+  return getLimiter() !== null;
 }
 
 /** Returns false when Upstash is configured and the bucket is exceeded. */
 export async function rateLimitAllow(identifier: string): Promise<boolean> {
-  if (!limiter) {
+  const lim = getLimiter();
+  if (!lim) {
     if (isProd) return false;
     return true;
   }
-  const { success } = await limiter.limit(identifier);
+  const { success } = await lim.limit(identifier);
   return success;
 }
 
@@ -47,10 +56,11 @@ export async function rateLimitOrThrow(
         "Rate limiting is not configured. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.",
     });
   }
-  if (!limiter) {
+  const lim = getLimiter();
+  if (!lim) {
     return;
   }
-  const { success } = await limiter.limit(identifier);
+  const { success } = await lim.limit(identifier);
   if (!success) {
     throw new TRPCError({
       code: "TOO_MANY_REQUESTS",
@@ -76,10 +86,11 @@ export async function rateLimitContextSyncResponse(
       { status: 500 },
     );
   }
-  if (!limiter) {
+  const lim = getLimiter();
+  if (!lim) {
     return null;
   }
-  const { success } = await limiter.limit(identifier);
+  const { success } = await lim.limit(identifier);
   if (!success) {
     return NextResponse.json(
       {

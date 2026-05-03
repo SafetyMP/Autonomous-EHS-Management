@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const blocked = demoWriteBlockedResponse();
+  const blocked = await demoWriteBlockedResponse();
   if (blocked) return blocked;
 
   try {
@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const blocked = demoWriteBlockedResponse();
+  const blocked = await demoWriteBlockedResponse();
   if (blocked) return blocked;
 
   try {
@@ -238,7 +238,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const blocked = demoWriteBlockedResponse();
+  const blocked = await demoWriteBlockedResponse();
   if (blocked) return blocked;
 
   try {

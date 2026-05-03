@@ -1,5 +1,4 @@
 import { and, eq } from "drizzle-orm";
-import { env } from "@/lib/env";
 import type { Db } from "@/server/db";
 import {
   authAccount,
@@ -9,11 +8,12 @@ import {
   role,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { readValidatedEnv } from "@/server/read-env";
 
 const DEFAULT_JIT_ROLE_SLUG = "admin";
 
 function oidcProviderIdForAccountMatch(): string {
-  return env.OIDC_PROVIDER_ID ?? "enterprise-oidc";
+  return readValidatedEnv().OIDC_PROVIDER_ID ?? "enterprise-oidc";
 }
 
 /**
@@ -24,6 +24,7 @@ export async function provisionOidcJitMembershipIfEnabled(
   db: Db,
   userId: string,
 ): Promise<{ linked: boolean; reason?: string }> {
+  const env = readValidatedEnv();
   if (env.OIDC_JIT_ENABLED !== "true") {
     return { linked: false, reason: "jit_disabled" };
   }

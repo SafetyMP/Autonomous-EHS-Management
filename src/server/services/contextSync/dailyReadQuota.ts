@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
-import { env } from "@/lib/env";
 import { isRateLimiterConfigured } from "@/server/ratelimit";
+import { readValidatedEnv } from "@/server/read-env";
 
 function redisClient(): Redis | null {
+  const env = readValidatedEnv();
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
     return null;
   }
@@ -19,7 +20,7 @@ function utcDayKey(d: Date): string {
 
 /** Configured limit; 0 means quota is off. */
 export function contextSyncOrgDailyReadLimit(): number {
-  const raw = env.CONTEXT_SYNC_ORG_DAILY_READ_LIMIT;
+  const raw = readValidatedEnv().CONTEXT_SYNC_ORG_DAILY_READ_LIMIT;
   if (raw === undefined || raw === null) return 0;
   return raw;
 }
@@ -78,5 +79,5 @@ export async function gateContextSyncOrgDailyReadQuota(
 
 /** Upper bound for provenance `limit` query param (default 200). */
 export function contextSyncProvenanceMaxEntries(): number {
-  return env.CONTEXT_SYNC_PROVENANCE_MAX_LIMIT ?? 200;
+  return readValidatedEnv().CONTEXT_SYNC_PROVENANCE_MAX_LIMIT ?? 200;
 }

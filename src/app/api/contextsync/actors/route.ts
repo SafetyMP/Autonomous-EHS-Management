@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const blocked = demoWriteBlockedResponse();
+  const blocked = await demoWriteBlockedResponse();
   if (blocked) return blocked;
 
   try {

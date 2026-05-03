@@ -2,10 +2,9 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { genericOAuth } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { env } from "@/lib/env";
 import { logError } from "@/lib/logger";
 import { db } from "@/server/db";
-import { provisionOidcJitMembershipIfEnabled } from "@/server/services/oidcJitProvisioning";
+import { readValidatedEnv } from "@/server/read-env";
 import {
   authAccount,
   authSession,
@@ -13,53 +12,83 @@ import {
   authVerification,
 } from "@/server/db/schema";
 
-const oidcPlugin =
-  env.OIDC_DISCOVERY_URL && env.OIDC_CLIENT_ID && env.OIDC_CLIENT_SECRET
-    ? genericOAuth({
-        config: [
-          {
-            providerId: env.OIDC_PROVIDER_ID ?? "enterprise-oidc",
-            discoveryUrl: env.OIDC_DISCOVERY_URL,
-            clientId: env.OIDC_CLIENT_ID,
-            clientSecret: env.OIDC_CLIENT_SECRET,
-            scopes: ["openid", "email", "profile"],
-            requireIssuerValidation: true,
-          },
-        ],
-      })
-    : null;
+function createAuthInstance() {
+  const env = readValidatedEnv();
+  const oidcPlugin =
+    env.OIDC_DISCOVERY_URL && env.OIDC_CLIENT_ID && env.OIDC_CLIENT_SECRET
+      ? genericOAuth({
+          config: [
+            {
+              providerId: env.OIDC_PROVIDER_ID ?? "enterprise-oidc",
+              discoveryUrl: env.OIDC_DISCOVERY_URL,
+              clientId: env.OIDC_CLIENT_ID,
+              clientSecret: env.OIDC_CLIENT_SECRET,
+              scopes: ["openid", "email", "profile"],
+              requireIssuerValidation: true,
+            },
+          ],
+        })
+      : null;
 
-export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    schema: {
-      user: authUser,
-      session: authSession,
-      account: authAccount,
-      verification: authVerification,
-    },
-  }),
-  databaseHooks: {
-    session: {
-      create: {
-        after: async (session) => {
-          try {
-            await provisionOidcJitMembershipIfEnabled(db, session.userId as string);
-          } catch (e) {
-            logError("oidc_jit.session_hook_failed", {
-              userId: session.userId,
-              error: e instanceof Error ? e.message : String(e),
-            });
-          }
+  return betterAuth({
+    database: drizzleAdapter(db, {
+      provider: "pg",
+      schema: {
+        user: authUser,
+        session: authSession,
+        account: authAccount,
+        verification: authVerification,
+      },
+    }),
+    databaseHooks: {
+      session: {
+        create: {
+          after: async (session) => {
+            try {
+              const { provisionOidcJitMembershipIfEnabled } = await import(
+                "@/server/services/oidcJitProvisioning"
+              );
+              await provisionOidcJitMembershipIfEnabled(
+                db,
+                session.userId as string,
+              );
+            } catch (e) {
+              logError("oidc_jit.session_hook_failed", {
+                userId: session.userId,
+                error: e instanceof Error ? e.message : String(e),
+              });
+            }
+          },
         },
       },
     },
+    emailAndPassword: {
+      enabled: true,
+    },
+    secret: env.BETTER_AUTH_SECRET,
+    baseURL: env.BETTER_AUTH_URL,
+    trustedOrigins: [env.BETTER_AUTH_URL, env.NEXT_PUBLIC_APP_URL],
+    plugins: [nextCookies(), ...(oidcPlugin ? [oidcPlugin] : [])],
+  });
+}
+
+type AuthSingleton = ReturnType<typeof createAuthInstance>;
+let authSingleton: AuthSingleton | undefined;
+function getAuthSingleton(): AuthSingleton {
+  authSingleton ??= createAuthInstance();
+  return authSingleton;
+}
+
+export const auth = new Proxy({} as object, {
+  has(_target, prop) {
+    return prop in getAuthSingleton();
   },
-  emailAndPassword: {
-    enabled: true,
+  get(_target, prop, receiver) {
+    const real = getAuthSingleton();
+    const value = Reflect.get(real, prop, receiver);
+    if (typeof value === "function") {
+      return (value as (...args: unknown[]) => unknown).bind(real);
+    }
+    return value;
   },
-  secret: env.BETTER_AUTH_SECRET,
-  baseURL: env.BETTER_AUTH_URL,
-  trustedOrigins: [env.BETTER_AUTH_URL, env.NEXT_PUBLIC_APP_URL],
-  plugins: [nextCookies(), ...(oidcPlugin ? [oidcPlugin] : [])],
-});
+}) as AuthSingleton;

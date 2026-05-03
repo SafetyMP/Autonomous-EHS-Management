@@ -11,7 +11,10 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    setupFiles: ["./tests/vitest.setup.ts"],
+    setupFiles: [
+      "./tests/vitest-env-preload.cjs",
+      "./tests/vitest.setup.ts",
+    ],
     include: [
       "tests/unit/**/*.test.ts",
       "tests/integration/**/*.test.ts",
