@@ -12,6 +12,14 @@ import {
   authVerification,
 } from "@/server/db/schema";
 
+function hostnameFromUrl(url: string): string {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "";
+  }
+}
+
 function createAuthInstance() {
   const env = readValidatedEnv();
   const oidcPlugin =
@@ -29,6 +37,12 @@ function createAuthInstance() {
           ],
         })
       : null;
+
+  const canonicalBase = env.BETTER_AUTH_URL;
+  const allowedHosts = [
+    hostnameFromUrl(env.BETTER_AUTH_URL),
+    hostnameFromUrl(env.NEXT_PUBLIC_APP_URL),
+  ].filter((h, i, arr) => h.length > 0 && arr.indexOf(h) === i);
 
   return betterAuth({
     database: drizzleAdapter(db, {
@@ -66,8 +80,16 @@ function createAuthInstance() {
       enabled: true,
     },
     secret: env.BETTER_AUTH_SECRET,
-    baseURL: env.BETTER_AUTH_URL,
-    trustedOrigins: [env.BETTER_AUTH_URL, env.NEXT_PUBLIC_APP_URL],
+    baseURL: {
+      allowedHosts: [...allowedHosts, "*.vercel.app"],
+      fallback: canonicalBase,
+      protocol: "auto",
+    },
+    trustedOrigins: [
+      env.BETTER_AUTH_URL,
+      env.NEXT_PUBLIC_APP_URL,
+      "https://*.vercel.app",
+    ].filter((o, i, arr) => arr.indexOf(o) === i),
     plugins: [nextCookies(), ...(oidcPlugin ? [oidcPlugin] : [])],
   });
 }
