@@ -33,6 +33,13 @@ export const env = createEnv({
     BETTER_AUTH_URL: z.string().url(),
     UPSTASH_REDIS_REST_URL: z.string().url().optional(),
     UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+    /**
+     * Emergency kill switch — when `"true"`, the Upstash rate-limit fail-closed gate is bypassed
+     * even in production (auth, tRPC, RAG ingest, Context Sync REST quota). Use ONLY as a short
+     * bridge while provisioning Upstash; unset as soon as `UPSTASH_REDIS_REST_*` are wired.
+     * Removes brute-force / cost-runaway protection on those routes while set.
+     */
+    RATE_LIMIT_DISABLED: z.literal("true").optional(),
     OPENAI_API_KEY: z.string().optional(),
     OPENAI_BASE_URL: z.string().url().optional(),
     CRON_SECRET: z.string().optional(),
@@ -98,6 +105,7 @@ export const env = createEnv({
       vercelDeploymentOrigin(),
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    RATE_LIMIT_DISABLED: process.env.RATE_LIMIT_DISABLED,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     OPENAI_BASE_URL: process.env.OPENAI_BASE_URL,
     CRON_SECRET: process.env.CRON_SECRET,

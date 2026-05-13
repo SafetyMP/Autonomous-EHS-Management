@@ -38,7 +38,8 @@ export async function gateContextSyncOrgDailyReadQuota(
   }
 
   const isProd = process.env.NODE_ENV === "production";
-  if (isProd && !isRateLimiterConfigured()) {
+  const killSwitch = readValidatedEnv().RATE_LIMIT_DISABLED === "true";
+  if (isProd && !isRateLimiterConfigured() && !killSwitch) {
     return NextResponse.json(
       {
         error: "internal_error",
