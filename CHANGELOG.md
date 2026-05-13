@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.10...v1.4.0) (2026-05-13)
+
+
+### Features
+
+* **ratelimit:** RATE_LIMIT_DISABLED kill switch for prod without Upstash ([647181a](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/647181ac50fb46e5d16bca37640000d215bed989))
+
 ## [1.3.10](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.9...v1.3.10) (2026-05-03)
 
 
