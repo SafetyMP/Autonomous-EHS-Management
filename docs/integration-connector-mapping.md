@@ -2,6 +2,8 @@
 
 `integration_connector_mapping` stores operator-owned JSON describing **how upstream LMS / HRIS fields map onto Autonomous EHS inbound envelopes**. It **does not** change server-side envelope validation—`/api/integration/inbound` still requires the canonical JSON shape decoded in [`src/lib/integration/inboundEnvelope.ts`](../src/lib/integration/inboundEnvelope.ts).
 
+**Stable HTTP contract (versioning, examples, error codes):** [integration-inbound-contract.md](./integration-inbound-contract.md).
+
 ## Supported connector keys (`connector_key`)
 
 | Key | Use |
@@ -28,4 +30,4 @@ This is illustrative—your integration team chooses keys that match ERP/LMS con
 }
 ```
 
-Version the contract with **`schema_version`** on each row so outbound warehouse tooling can correlate exports with mapping semantics.
+Version the contract with **`schema_version`** on each row (e.g. `"1.0"`) and optionally **`inbound_contract_ref`** / **`git_ref`** pointing at [integration-inbound-contract.md](./integration-inbound-contract.md) so outbound warehouse tooling can correlate exports with mapping semantics.

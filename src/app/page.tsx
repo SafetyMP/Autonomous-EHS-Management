@@ -9,22 +9,26 @@ export default function HomePage() {
     >
       <div className="max-w-lg text-center space-y-6">
         <p className="text-sm font-medium uppercase tracking-wide text-emerald-700">
-          Governed EHS
+          Autonomous EHS
         </p>
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          EHS management aligned with ISO 45001 &amp; ISO 14001
+          Autonomous compliance operations for ISO 45001 &amp; ISO 14001
         </h1>
         <p className="text-lg leading-relaxed text-zinc-800 sm:text-base">
-          Incident tracking, environmental aspects, compliance obligations, audits,
-          and role-based access— with assisted workflows, scheduled reminders, and
-          human approval for material changes (not silent automation).
+          Incident tracking, CAPA, environmental obligations, audits, and role-based access—with
+          scheduled reminders, integration ingest, and optional proposal-only AI. Material changes
+          require human approval through normal workflows (not silent automation).
+        </p>
+        <p className="text-sm leading-relaxed text-zinc-600">
+          <strong>Autonomous</strong> here means operations keep moving via cron, escalations, and
+          field outbox replay—not LLM-owned approvals or regulatory filings.
         </p>
         <div className="flex flex-wrap justify-center gap-3 pt-2">
           <Link
             href="/sign-in"
             className="inline-flex min-h-11 touch-target items-center justify-center rounded-lg bg-emerald-800 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
           >
-            Sign in
+            Sign in to EHS Console
           </Link>
           <Link
             href="/sign-up"

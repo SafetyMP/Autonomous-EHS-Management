@@ -6,6 +6,20 @@
 
 In this product, **autonomous** refers to **operations that keep moving without ad hoc spreadsheet chasing**: scheduled jobs (reminders, data retention, SLA checks), **recorded escalation events** when follow-ups or approvals breach deadlines, durable **field outbox replay**, **integration ingest**, and **incidence-rate analytics (TRIR-style)** from IMS recordables and establishment hours—not a substitute for official OSHA filings—all with PostgreSQL as the auditable system of record. **Optional AI** suggests wording or retrieves policy context; it does **not** auto-close incidents, auto-approve CAPAs, or change regulated status without human action through normal, permission-gated workflows ([docs/ai-governed-intake.md](docs/ai-governed-intake.md), [docs/procurement-readiness.md](docs/procurement-readiness.md)).
 
+## Who this is for
+
+Autonomous EHS ships under **Apache 2.0** ([LICENSE](LICENSE)). You run, modify, and redistribute the software under those terms; production still needs your own ops, counsel, and compliance review ([COMPLIANCE.md](COMPLIANCE.md)).
+
+| Adopter | Typical goal | Start here |
+|---------|--------------|------------|
+| **Self-host IT / platform team** | Tenant-owned Postgres, predictable infra cost, data residency in your cloud account | [Self-host quickstart](docs/self-host-quickstart.md), [open-source TCO](docs/open-source-tco.md), [Deploy](#deploy) |
+| **Systems integrator (SI) / iPaaS partner** | Wire HRIS/LMS into canonical inbound envelopes without reading tRPC internals | [Integration inbound contract](docs/integration-inbound-contract.md), [connector mapping](docs/integration-connector-mapping.md) |
+| **PortCo / PE portfolio pilot** | Scoped IMS pilot (incidents → CAPA → evidence, contractor wedge, HRIS identity)—not a full suite rip-and-replace | [PortCo module value](docs/portco-module-value-assessment.md), [procurement readiness](docs/procurement-readiness.md) |
+| **Managed SaaS operator** | Vercel (or similar) + managed Postgres with the same application source | [Deploy](#deploy), [`.env.example`](.env.example), [`vercel.ts`](vercel.ts) |
+| **Contributors & evaluators** | Local demo, tests, or patches without a sales conversation | [Quick start](#quick-start), [CONTRIBUTING.md](CONTRIBUTING.md), [AGENTS.md](AGENTS.md) |
+
+**Open source & TCO:** [`docs/open-source-tco.md`](docs/open-source-tco.md) — license snapshot and illustrative self-host vs seat-priced inspection SaaS math.
+
 ## Quick start
 
 1. **Clone and install:** `git clone <repo-url> && cd <repo-dir> && npm ci`  
@@ -24,13 +38,11 @@ In this product, **autonomous** refers to **operations that keep moving without 
 | **Local / hosted Postgres** | [`.env.example`](.env.example) | `DATABASE_URL`, `BETTER_AUTH_SECRET`, URLs; omit `DATABASE_USE_PG` when using Neon serverless; optional OIDC, `CRON_SECRET`, AI gateway, Upstash — see file comments. |
 | **CI (GitHub Actions / Vitest)** | [`.env.ci`](.env.ci) | Fixture `DATABASE_URL` + `DATABASE_USE_PG=1`, synthetic secrets; **not for real deployments.** |
 
-Optional assistants can draw on your approved materials when you turn that feature on.
+Optional **proposal-only AI** (when enabled) suggests intake wording or retrieves policy excerpts—it does **not** auto-submit incidents, approve CAPAs, or change regulated status. See [docs/ai-governed-intake.md](docs/ai-governed-intake.md).
 
 **Architecture & diligence:** [docs/architecture-map.md](docs/architecture-map.md) (system map), [docs/workflow-depth.md](docs/workflow-depth.md) (state machines + audit patterns), [docs/procurement-readiness.md](docs/procurement-readiness.md) (ROI / pilot / positioning workbook), [docs/approval-workflow.md](docs/approval-workflow.md) (CAPA approval gate), [docs/case-studies/pilot-template.md](docs/case-studies/pilot-template.md).
 
-**Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Governance → Incidence rates** (TRIR-style analytics). The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`).
-
-**Open source & TCO:** [`docs/open-source-tco.md`](docs/open-source-tco.md) — Apache-2.0 snapshot and illustrative self-host vs seat-priced inspection SaaS math for pilots.
+**Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Records & metrics → Incidence rates** (TRIR-style analytics). The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`).
 
 **Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (governance notes).
 
@@ -221,6 +233,8 @@ npm run test:e2e:smoke  # smoke only
 ---
 
 ## Deploy
+
+**Self-host (Docker / Kubernetes):** see **[`docs/self-host-quickstart.md`](docs/self-host-quickstart.md)** for image build, cluster rollout, cron jobs, optional pg-boss worker, and metrics scrape.
 
 **Canonical ship path:** staging and production stay **Git authoritative** (GitHub Actions, Vercel and/or EKS) — not IDE tool connections alone. Start with **[`docs/cursor-tool-connections-deployment.md`](docs/cursor-tool-connections-deployment.md)** (promotion workflow, Vercel + Neon preview notes, secured `/api/cron/*`) and **[`REPO_SETUP.md`](REPO_SETUP.md)** (environments, secrets, optional OIDC). Implementation contracts: [`src/lib/env.ts`](src/lib/env.ts), [`vercel.ts`](vercel.ts) (platform HTTP crons), [`deploy/k8s/`](deploy/k8s/) (cluster manifests and examples). Use strong secrets, disable **all** demo flags, and run **`npm run verify`** before merge ([AGENTS.md](AGENTS.md)). Day-2 ops and runbooks: **[`.cursor/skills/devops-sre/SKILL.md`](.cursor/skills/devops-sre/SKILL.md)**.
 

@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EHS Management | ISO 45001 & 14001",
+  title: "Autonomous EHS | ISO 45001 & 14001 IMS",
   description:
-    "Occupational health, safety, and environmental management system of record.",
+    "Autonomous compliance operations platform — incident, CAPA, and environmental management with human approval for material changes.",
 };
 
 /** Allow pinch-zoom on small screens for field readability (WCAG 1.4.4). */

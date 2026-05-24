@@ -1,6 +1,8 @@
 # EHS Console — User manual
 
-Welcome to **EHS Console**. This guide helps safety managers and field workers record health, safety, and environment activity in plain steps.
+Welcome to **EHS Console**—the signed-in experience for **Autonomous EHS**, an integrated management system (IMS) for health, safety, and environment programs. This guide helps safety managers and field workers record activity in plain steps.
+
+**Naming:** **Autonomous EHS** is the product and repo name; **EHS Console** is what you see after sign-in. **Autonomous** means scheduled reminders, escalations, and optional field outbox replay—not automatic approval of incidents or CAPAs.
 
 ---
 
@@ -26,11 +28,13 @@ Welcome to **EHS Console**. This guide helps safety managers and field workers r
 17. [Environment](#environment)
 18. [Environmental permits](#environmental-permits)
 19. [Controlled documents](#controlled-documents)
+19a. [Knowledge corpus (RAG ingest)](#knowledge-corpus-rag-ingest)
 20. [Management review](#management-review)
 21. [Planning](#planning)
 22. [Training records](#training-records)
+22a. [Contractors & visitors](#contractors--visitors)
 23. [Audits (ISO internal audit programme)](#audits-iso-internal-audit-programme)
-24. [Organization context](#organization-context)
+24. [Organization context (ISO Clause 4)](#organization-context-iso-clause-4)
 25. [Tasks & reviews (Task hub)](#tasks-reviews-task-hub)
 26. [Program register](#program-register)
 27. [Import CSV](#import-csv)
@@ -56,6 +60,10 @@ Welcome to **EHS Console**. This guide helps safety managers and field workers r
 | Term | Simple meaning |
 |------|----------------|
 | **EHS** | Environment, Health, and Safety—the umbrella for keeping people safe and reducing harm to air, water, land, and neighbors. |
+| **IMS** | Integrated Management System—one place for incidents, CAPA, documents, training, audits, and related evidence (what Autonomous EHS is built to support). |
+| **Autonomous EHS** | Product name for this platform (Apache-licensed software). **Autonomous** refers to scheduled jobs, escalations, and integrations—not AI auto-approving your records. |
+| **EHS Console** | The signed-in web application (this manual). |
+| **Context Sync** | Optional **administrator** feature on **Integrations** that enables governed REST read access for IDE/agent tools—not the same as **Organization context (ISO 4)** (Clause 4 scope page). |
 | **ISO** | A worldwide set of management standards companies can follow so safety and environmental work is repeatable and reviewable (not chaotic). ISO 45001 focuses on workplace safety. ISO 14001 focuses on environmental management. |
 | **Incident** | Any unwanted event worth recording: a near miss, an injury concern, unsafe condition, spill, alarm, vehicle issue, etc. |
 | **Severity** | How serious the incident could or did become (**low**, **medium**, **high**, **critical**—see the Incident form choices). |
@@ -181,7 +189,7 @@ Navigation is grouped by lifecycle (sidebar on wide screens; **Menu** drawer on 
 | **Assure & improve** | **Internal audits**, **Assurance hub**, **Mgmt review** |
 | **Records & metrics** | **Documents**, **Knowledge corpus**, **Audit trail**, **Retention**, **Metrics**, **Incidence rates** |
 | **People** | **Training**, **Contractors** |
-| **Administration** | **Program overview**, **Emergency prep**, **Management of change**, **Import**, **Integrations**, **Privacy**, **Context**, **Workflow catalog** |
+| **Administration** | **Program overview**, **Emergency prep**, **Management of change**, **Import**, **Integrations**, **Privacy**, **Organization context (ISO 4)**, **Workflow catalog** |
 
 **Home** in the corner returns toward the marketing home page—not always needed during daily tasks.
 
@@ -754,6 +762,36 @@ Navigate back via **← Documents**.
 
 ---
 
+## Knowledge corpus (RAG ingest)
+
+Sidebar label **Knowledge corpus**; page title **Knowledge corpus (RAG)**. Route **`/dashboard/rag`**.
+
+### Purpose
+
+Upload and index **approved text** (policies, procedures, obligation language) for semantic search. Citations may appear on **Environment** drafting—not live legal advice. Distinct from **Controlled documents** (revision-controlled register) and from the Environment page **Knowledge base (citations)** panel (search over indexed chunks).
+
+### Who uses it
+
+Program owners or document administrators with **`rag:ingest`** / **`rag:read`** permissions—not typical field intake roles.
+
+### SOP — Ingest a source
+
+1. Open **Knowledge corpus** from **Records & metrics**.
+2. Under **Ingest source**, enter **Title** (required), optional **Source URI**, and **Raw text** (required body).
+3. Tap **Ingest** (shows busy state while submitting).
+4. Listed sources appear below when ingestion succeeds.
+
+Optional **Backfill embeddings** may appear when your deployment uses vector search—coordinate with administrators if the button is disabled or errors.
+
+### What if things go wrong?
+
+| Problem | What to try |
+|---------|--------------|
+| Permission error | Confirm **`rag:ingest`** on your role—most field users are read-only or have no RAG access. |
+| Search empty on Environment | Ingest sources here first; allow time for indexing/backfill per admin runbook. |
+
+---
+
 ## Management review
 
 ### SOP — Record a review meeting
@@ -838,6 +876,40 @@ Empty rows: **No training records yet.**
 
 ---
 
+## Contractors & visitors
+
+Sidebar label **Contractors**; page heading **Contractors & visitors**. Route **`/dashboard/contractors`**, detail **`/dashboard/contractors/[id]`**.
+
+### Purpose
+
+Track **external parties** (contractors, visitors, temporary workers) and their **credentials**—insurance (COI), training proof, permits—with a **renewal queue** for items expiring within 30 days. Aligns with ISO **8.1.4** contractor controls. HRIS sync may populate parties when integrations are configured; otherwise coordinators add records manually.
+
+### Who uses it
+
+EHS coordinators, site access administrators, and supervisors managing vendor compliance—not the same as employee **Training** records.
+
+### SOP — Review portfolio summary
+
+1. Open **Contractors** from **People**.
+2. Read tile counts: **Parties**, **Expired**, **Due 30d**, **Active** credentials.
+3. Scan **Renewal queue (30 days)**—prioritize expired COI and training before site access.
+4. Tap a party name to open detail for credentials and evidence pointers.
+
+### SOP — Add or update credentials (detail page)
+
+1. From the list, open a party record.
+2. Add credential type, validity dates, and status per your site SOP.
+3. Store file evidence per retention policy—links in the app are pointers, not a document vault replacement.
+
+### What if things go wrong?
+
+| Problem | What to try |
+|---------|--------------|
+| Empty list | No parties yet—create via Program **External parties** admin paths or wait for HRIS **`hris_contractor_sync`** if integrations are live. |
+| Queue shows expired items | Block or escalate access per site rules; update credential dates when renewal documents arrive. |
+
+---
+
 ## Audits (ISO internal audit programme)
 
 In the sidebar this area is labeled **Internal audits** (**Assure & improve**). Use it to plan ISO-style **internal audits** and record **findings**—do not confuse it with the transactional **audit trail** under **Records & metrics** or approvals on [My approvals](#my-approvals).
@@ -870,9 +942,9 @@ Empty audit list shows **None yet.**
 
 ---
 
-## Organization context
+## Organization context (ISO Clause 4)
 
-Page heading cites **Clause 4** auditor shorthand—purpose: scope statement, pressures, allies.
+Sidebar label **Organization context (ISO 4)**—**not** **Context Sync** (agent REST access; see [Integrations](#integrations)). Page heading cites **Clause 4** auditor shorthand—purpose: scope statement, pressures, allies.
 
 ### SOP — Define management scope
 
@@ -1015,6 +1087,10 @@ Identity administrators, integration engineers, anyone granted **integration:rea
 6. **Recent events (last 100)** table lists timestamps, types, statuses, and IDs when integrations have run (**No integration events recorded for this organization yet** when fresh).
 
 Command center may spotlight **Integration backlog (*N* failed)** with shortcuts back here (`/dashboard/integrations#integration-failed`).
+
+### Context Sync (org administrators)
+
+Separate from **Organization context (ISO 4)** above. When your role includes org admin controls, the **Context Sync (org admin)** panel on this page enables **governed REST read access** for IDE and agent tooling (`/api/contextsync/*`)—tenant opt-in, rate limits, and audit expectations apply. This is **not** a customer MCP server and **not** ISO scope editing. Engineering details: [procurement-integrations-appendix.md](../procurement-integrations-appendix.md).
 
 ### What if things go wrong?
 

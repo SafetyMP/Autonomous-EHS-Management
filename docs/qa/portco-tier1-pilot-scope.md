@@ -17,6 +17,12 @@ Prove on **one site** (or one legal entity within one org):
 
 Parallel reporting against legacy tools continues through the **Verify** phase until program leadership approves cutover.
 
+### Field capture expectations
+
+- **Mobile:** responsive web only—no native iOS/Android app in baseline scope.
+- **Offline:** durable field outbox requires tenant flag **`NEXT_PUBLIC_FIELD_OUTBOX=1`** ([offline-field-outbox.md](../offline-field-outbox.md)). Without it, intake forms need an online connection.
+- **Photos** cannot be queued offline when outbox is enabled—workers should attach photos when connected or follow site SOP.
+
 ---
 
 ## In scope — Tier 1 modules

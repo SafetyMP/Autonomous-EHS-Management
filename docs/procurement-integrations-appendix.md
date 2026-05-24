@@ -2,7 +2,7 @@
 
 This appendix supports **RFP / diligence** conversations for PortCo and enterprise buyers. It clarifies what ships today, what requires partner or customer middleware, and how to answer **“MCP integration”** questions without conflating internal engineering tooling with tenant-facing product.
 
-**Related docs:** [procurement-readiness.md](./procurement-readiness.md), [architecture-map.md](./architecture-map.md) §9, [cursor-tool-connections-deployment.md](./cursor-tool-connections-deployment.md), [CONTEXT.md](../CONTEXT.md) (Context Sync REST).
+**Related docs:** [procurement-readiness.md](./procurement-readiness.md), [integration-inbound-contract.md](./integration-inbound-contract.md), [architecture-map.md](./architecture-map.md) §9, [cursor-tool-connections-deployment.md](./cursor-tool-connections-deployment.md), [CONTEXT.md](../CONTEXT.md) (Context Sync REST).
 
 ---
 
@@ -11,7 +11,7 @@ This appendix supports **RFP / diligence** conversations for PortCo and enterpri
 | Capability | Ships today | Buyer-facing statement |
 |------------|-------------|------------------------|
 | **Enterprise SSO (OIDC pilot)** | Optional Better Auth Generic OAuth when `OIDC_*` env vars are set | Supports corporate IdP sign-in; **does not** auto-provision tenants or map IdP groups to orgs without additional configuration ([OIDC_JIT_PROVISIONING.md](./OIDC_JIT_PROVISIONING.md)). |
-| **Inbound integration webhook** | `POST /api/integration/inbound` with bearer `INTEGRATION_INBOUND_SECRET` | Canonical JSON envelopes for LMS and HRIS events; idempotent replays; optional async processing via pg-boss ([JOB_QUEUE.md](./JOB_QUEUE.md)). |
+| **Inbound integration webhook** | `POST /api/integration/inbound` with bearer `INTEGRATION_INBOUND_SECRET` | Canonical JSON envelopes for LMS and HRIS events; semver contract in [integration-inbound-contract.md](./integration-inbound-contract.md); idempotent replays; optional async processing via pg-boss ([JOB_QUEUE.md](./JOB_QUEUE.md)). |
 | **HRIS membership sync** | `hris_membership_sync` envelope v2 | Provisions **joiners** (user + membership), updates site/department/manager/employment for org members; terminated → deprovision + session revoke. |
 | **LMS training completion** | `training_completion` envelope | Upserts `training_record` when `externalWorkerId` matches membership; always logs `integration_event`. |
 | **HRIS contractor sync** | `hris_contractor_sync` envelope | Upserts `external_party` by `externalWorkerId` (PortCo contractor wedge). |

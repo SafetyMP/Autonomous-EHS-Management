@@ -29,4 +29,4 @@ Numbers are **order-of-magnitude** only: real invoices include tax, bundles, ent
 - Prefer **Autonomous EHS** when you need **one auditable chain** from event → investigation/CAPA → evidence, **RBAC** aligned to roles, **retention / legal hold** hooks, and **data residency** under your cloud account.
 - Prefer **template-first inspection apps** when the primary win is **checklist digitization** and **guaranteed mobile polish** on day one with minimal internal IT.
 
-For pilot framing and ROI language, use [`docs/procurement-readiness.md`](./procurement-readiness.md).
+For pilot framing and ROI language, use [`docs/procurement-readiness.md`](./procurement-readiness.md). **Self-host path:** [`docs/self-host-quickstart.md`](./self-host-quickstart.md).

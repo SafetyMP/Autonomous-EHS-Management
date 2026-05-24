@@ -16,6 +16,10 @@ It covers: ROI framing, pilot structure, economic moat narrative, implementation
 
 **Preferred phrase:** *Autonomous compliance operations platform* — emphasizes **workflows, system-of-record data, and evidence**, not chat-only UX. **“Autonomous”** here means **scheduled reliability, SLA escalation records, integrations, and field outbox replay**, with optional **proposal-only AI** ([README](../README.md), [docs/ai-governed-intake.md](./ai-governed-intake.md))—not LLM-owned approvals or regulatory transitions.
 
+**Category label (RFP consistency):** **IMS-style EHS console** — integrated management system breadth for incidents, CAPA, permits, training, and audit evidence in one Postgres schema. **Not** a full **EHSQ suite replacement** (occupational health clinic depth, agency e-filing, no-code workflow design)—see [portco-module-value-assessment.md](./portco-module-value-assessment.md) and §12 below.
+
+**Product names:** **Autonomous EHS** (repo and diligence), **EHS Console** (signed-in UI and [user manual](./user-manual-ehs-console.md)).
+
 **Supporting line:** *Labor replacement + compliance infrastructure + system-of-record ownership* (outcomes buyers fund).
 
 ---
@@ -44,7 +48,7 @@ It covers: ROI framing, pilot structure, economic moat narrative, implementation
 - **SaaS:** Vercel + managed Postgres (e.g. Neon) — see [README](../README.md), [`vercel.ts`](../vercel.ts).
 - **Container / cluster:** Dockerfile + `deploy/k8s/` + Terraform starters per [devops-sre skill](../.cursor/skills/devops-sre/SKILL.md); cron as `CronJob` hitting secured `/api/cron/*` routes.
 
-**SSO:** Optional **OIDC** via Better Auth Generic OAuth when `OIDC_*` env vars are set ([README Enterprise SSO](../README.md#enterprise-sso-oidc-pilot)). New users still require org membership—no automatic tenant provisioning in this MVP.
+**SSO:** Optional **OIDC** via Better Auth Generic OAuth when `OIDC_*` env vars are set ([README Enterprise SSO](../README.md#enterprise-sso-oidc-pilot)). **Default:** new users require org membership (admin invite or seed)—no automatic tenant provisioning. **Optional:** JIT provisioning when `OIDC_JIT_ENABLED=true` and related env vars are set—review with IdP owners and counsel before production ([OIDC_JIT_PROVISIONING.md](./OIDC_JIT_PROVISIONING.md)). **SCIM** Users/Groups (MVP) ships for PortCo identity—see [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md).
 
 ### Customer-facing integrations vs internal Cursor tooling
 
@@ -108,7 +112,7 @@ Honest **strong answers** aligned to this repo:
 | **Embedded operational data** | Incident/CAPA/training/audit graph in one Postgres schema—switching cost once workflows run here. |
 | **Defensible evidence chain** | `audit_log` + retention + RBAC—hard to replicate with ad hoc spreadsheets + chatbots. |
 | **Workflow + AI boundary** | Deterministic transitions + validated LLM outputs reduce “thin wrapper” risk. |
-| **Compliance depth** | OSHA sidecar, Tier II–oriented chemical tables, retention services—see COMPLIANCE.md. |
+| **Compliance depth** | OSHA injury/illness sidecar + retention services **shipped**; **Tier II–oriented chemical schema** (UI gated—schema/register only, not EPA submission)—see [module-maturity.md](./module-maturity.md), [regulatory-posture-boundary.md](./regulatory-posture-boundary.md), [COMPLIANCE.md](../COMPLIANCE.md). |
 
 Avoid claiming **contractor network effects** until network features exist.
 
@@ -134,6 +138,8 @@ Avoid claiming **contractor network effects** until network features exist.
 | Use case documentation | [user-manual-ehs-console.md](./user-manual-ehs-console.md) |
 | Case studies | `docs/case-studies/` when available |
 | OSS / TCO snapshot | [`open-source-tco.md`](./open-source-tco.md) |
+| Self-host reference deployment | [`self-host-quickstart.md`](./self-host-quickstart.md) |
+| Integration inbound contract | [`integration-inbound-contract.md`](./integration-inbound-contract.md) |
 
 ## 11. Security diligence pointers
 

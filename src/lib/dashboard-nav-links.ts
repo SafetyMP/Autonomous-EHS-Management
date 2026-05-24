@@ -90,7 +90,7 @@ export const DASHBOARD_NAV_SECTIONS: readonly DashboardNavSection[] = [
       { href: "/dashboard/import", label: "Import" },
       { href: "/dashboard/integrations", label: "Integrations" },
       { href: "/dashboard/privacy-requests", label: "Privacy" },
-      { href: "/dashboard/context", label: "Context" },
+      { href: "/dashboard/context", label: "Organization context (ISO 4)" },
       { href: "/dashboard/workflow-catalog", label: "Workflow catalog" },
     ],
   },

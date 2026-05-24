@@ -18,7 +18,7 @@
 
 - **Live date:** 2025-11-15 on self-hosted Autonomous EHS (Apache 2.0, tenant Postgres)
 - **Modules used:** Incidents, CAPA, approvals, audit trail export, contractor credentials
-- **Training:** 2 desk sessions (EHS + supervisors); field observation intake via mobile web + outbox
+- **Training:** 2 desk sessions (EHS + supervisors); field observation intake via **mobile web** (no native app). **Offline outbox** used only when tenant enabled `NEXT_PUBLIC_FIELD_OUTBOX=1`—see [offline-field-outbox.md](../offline-field-outbox.md).
 
 ## Outcomes
 
