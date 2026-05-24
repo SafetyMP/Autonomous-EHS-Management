@@ -18,6 +18,12 @@ Email/password users are **not** auto-linked (no matching `account.provider_id` 
 
 You must still configure **`OIDC_DISCOVERY_URL`**, **`OIDC_CLIENT_ID`**, **`OIDC_CLIENT_SECRET`**, and optional **`OIDC_PROVIDER_ID`** for SSO per README.
 
+## Multi-org claim rules (PortCo)
+
+When **`oidc_jit_claim_rule`** rows exist for your deployment, the session hook matches IdP JWT claim values (default claim **`groups`**, read from stored `id_token`) to **organization + role** before falling back to **`OIDC_JIT_DEFAULT_ORG_ID`**.
+
+Configure rules at **`/dashboard/integrations`** → PortCo identity panel (org admin). Fail closed when no rule matches and no default org is set.
+
 ## Operational checklist
 
 - [ ] Default org exists and is the correct tenant for **all** IdP users reaching this app (or use IdP group filtering **before** enabling JIT).

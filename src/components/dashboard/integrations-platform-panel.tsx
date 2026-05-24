@@ -81,8 +81,8 @@ export function IntegrationsPlatformPanel({ organizationId }: { organizationId: 
       <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm" aria-label="HRIS sync">
         <h2 className={dfPanelHeading}>HRIS membership sync</h2>
         <p className={`mt-1 text-sm ${dfMuted}`}>
-          Updates site assignment for <strong>existing</strong> org members only — no SCIM provisioning
-          in this release.
+          HRIS v2 sync updates site, department, manager, and employment status for org members. Pair with{" "}
+          <strong>SCIM provisioning</strong> below for joiner/mover/leaver at scale.
         </p>
         <ul className="mt-3 divide-y divide-zinc-100 text-sm">
           {hrisEvents.length === 0 ? (

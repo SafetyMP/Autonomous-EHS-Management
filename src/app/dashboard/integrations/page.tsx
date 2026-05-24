@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { IntegrationsPlatformPanel } from "@/components/dashboard/integrations-platform-panel";
+import { PortCoIdentityPanel } from "@/components/dashboard/portco-identity-panel";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -13,6 +14,7 @@ import {
   dfSectionHeading,
 } from "@/lib/dashboard-field-styles";
 import { INTEGRATION_CONNECTOR_KEYS } from "@/lib/integration/connectorKeys";
+import { CONNECTOR_PRESETS } from "@/lib/integration/connectorPresets";
 import type { OperationalWebhookEventId } from "@/lib/operationalWebhook/eventTypes";
 import { OPERATIONAL_WEBHOOK_EVENT_IDS } from "@/lib/operationalWebhook/eventTypes";
 import { trpc } from "@/trpc/react";
@@ -28,6 +30,7 @@ function ConnectorMappingsEditor({ organizationId }: { organizationId: string })
 
   type ConnectorKey = (typeof INTEGRATION_CONNECTOR_KEYS)[number];
   const [connectorKey, setConnectorKey] = useState<ConnectorKey>("lms_inbound");
+  const [schemaVersion, setSchemaVersion] = useState(1);
   const [dirty, setDirty] = useState(false);
   const [draft, setDraft] = useState("{}");
   const [connectorErr, setConnectorErr] = useState<string | null>(null);
@@ -77,16 +80,39 @@ function ConnectorMappingsEditor({ organizationId }: { organizationId: string })
       organizationId,
       connectorKey,
       mappingJson: parsed,
+      schemaVersion,
     });
+  }
+
+  function applyPreset(vendor: string) {
+    const preset = CONNECTOR_PRESETS.find((p) => p.vendor === vendor);
+    if (!preset) return;
+    setDirty(true);
+    setConnectorKey(preset.connectorKey);
+    setSchemaVersion(preset.schemaVersion);
+    setDraft(JSON.stringify(preset.mappingJson, null, 2));
+    setConnectorErr(null);
   }
 
   return (
     <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm" aria-label="Connector mappings">
-      <h2 className={dfPanelHeading}>Connector field mapping (operator notes)</h2>
+      <h2 className={dfPanelHeading}>Connector field mapping</h2>
       <p className={`mt-2 text-sm ${dfMuted}`}>
-        Store JSON that explains how your LMS/HRIS fields map into Autonomous EHS inbound envelopes. This does not
-        change server validation—see <code className="text-xs">inboundEnvelope.ts</code>.
+        Apply a vendor preset or edit JSON mapping for LMS/HRIS inbound envelopes. Presets align with{" "}
+        <code className="text-xs">docs/roadmap/hris-portco-integration-playbook.md</code>.
       </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {CONNECTOR_PRESETS.map((p) => (
+          <button
+            key={p.vendor}
+            type="button"
+            className={`${dfSecondaryOutline} text-xs`}
+            onClick={() => applyPreset(p.vendor)}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
       <div className="mt-4 flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1 text-sm text-zinc-800">
           Connector
@@ -394,6 +420,8 @@ export default function IntegrationsPage() {
       </div>
 
       <IntegrationsPlatformPanel organizationId={organizationId} />
+
+      <PortCoIdentityPanel organizationId={organizationId} />
 
       <ConnectorMappingsEditor key={`${organizationId}:connector-mappings`} organizationId={organizationId} />
 

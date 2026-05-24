@@ -18,6 +18,7 @@ import {
   resetAllFailedFieldOutboxForOrg,
   type FieldOutboxRecord,
 } from "@/lib/offline/fieldOutbox";
+import { outboxErrorKindLabel } from "@/lib/offline/outboxErrorKind";
 
 export type FieldOutboxLastFlush = { sent: number; failed: number };
 
@@ -189,6 +190,11 @@ export function FieldOutboxStatusBar() {
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <span className="font-medium">{r.procedure}</span>
+                    {r.errorKind ? (
+                      <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-950">
+                        {outboxErrorKindLabel(r.errorKind)}
+                      </span>
+                    ) : null}
                     {r.lastError ? (
                       <>
                         {": "}

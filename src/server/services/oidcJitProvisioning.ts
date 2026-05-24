@@ -1,14 +1,16 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import type { Db } from "@/server/db";
 import {
   authAccount,
   authUser,
   membership,
+  oidcJitClaimRule,
   organization,
   role,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
 import { readValidatedEnv } from "@/server/read-env";
+import { claimValuesFromPayload, decodeJwtPayload } from "@/lib/oidc/claimParser";
 
 const DEFAULT_JIT_ROLE_SLUG = "admin";
 
@@ -16,24 +18,55 @@ function oidcProviderIdForAccountMatch(): string {
   return readValidatedEnv().OIDC_PROVIDER_ID ?? "enterprise-oidc";
 }
 
-/**
- * After OAuth/OIDC sign-in, link the user to the configured default org if enabled and eligible.
- * Safe to call on every new session; no-ops unless env is set and user uses the OIDC provider account.
- */
-export async function provisionOidcJitMembershipIfEnabled(
+type JitMatch = {
+  organizationId: string;
+  roleSlug: string;
+  matchValue: string;
+  claimKey: string;
+};
+
+async function findOidcJitMatch(db: Db, userId: string): Promise<JitMatch | null> {
+  const providerId = oidcProviderIdForAccountMatch();
+  const [oauthAccount] = await db
+    .select({ idToken: authAccount.idToken })
+    .from(authAccount)
+    .where(and(eq(authAccount.userId, userId), eq(authAccount.providerId, providerId)))
+    .limit(1);
+
+  if (!oauthAccount?.idToken) return null;
+
+  const payload = decodeJwtPayload(oauthAccount.idToken);
+  if (!payload) return null;
+
+  const rules = await db
+    .select()
+    .from(oidcJitClaimRule)
+    .where(eq(oidcJitClaimRule.enabled, true))
+    .orderBy(asc(oidcJitClaimRule.priority), asc(oidcJitClaimRule.createdAt));
+
+  for (const rule of rules) {
+    const values = claimValuesFromPayload(payload, rule.claimKey);
+    if (values.includes(rule.matchValue)) {
+      return {
+        organizationId: rule.organizationId,
+        roleSlug: rule.roleSlug,
+        matchValue: rule.matchValue,
+        claimKey: rule.claimKey,
+      };
+    }
+  }
+
+  return null;
+}
+
+async function linkMembership(
   db: Db,
   userId: string,
+  orgId: string,
+  roleSlug: string,
+  auditAction: string,
+  auditPayload: Record<string, unknown>,
 ): Promise<{ linked: boolean; reason?: string }> {
-  const env = readValidatedEnv();
-  if (env.OIDC_JIT_ENABLED !== "true") {
-    return { linked: false, reason: "jit_disabled" };
-  }
-
-  const orgId = env.OIDC_JIT_DEFAULT_ORG_ID?.trim();
-  if (!orgId) {
-    return { linked: false, reason: "missing_org_id" };
-  }
-
   const [orgRow] = await db
     .select({ id: organization.id })
     .from(organization)
@@ -42,17 +75,6 @@ export async function provisionOidcJitMembershipIfEnabled(
 
   if (!orgRow) {
     return { linked: false, reason: "org_not_found" };
-  }
-
-  const providerId = oidcProviderIdForAccountMatch();
-  const [oauthAccount] = await db
-    .select({ id: authAccount.id })
-    .from(authAccount)
-    .where(and(eq(authAccount.userId, userId), eq(authAccount.providerId, providerId)))
-    .limit(1);
-
-  if (!oauthAccount) {
-    return { linked: false, reason: "not_oidc_account" };
   }
 
   const [existingMember] = await db
@@ -65,7 +87,7 @@ export async function provisionOidcJitMembershipIfEnabled(
     return { linked: false, reason: "already_member" };
   }
 
-  const slug = (env.OIDC_JIT_ROLE_SLUG ?? DEFAULT_JIT_ROLE_SLUG).trim() || DEFAULT_JIT_ROLE_SLUG;
+  const slug = roleSlug.trim() || DEFAULT_JIT_ROLE_SLUG;
   const [roleRow] = await db
     .select({ id: role.id })
     .from(role)
@@ -95,14 +117,57 @@ export async function provisionOidcJitMembershipIfEnabled(
   await writeAuditLog(db, {
     organizationId: orgId,
     actorUserId: userId,
-    action: "oidc_jit.membership_linked",
+    action: auditAction,
     entityType: "membership",
     entityId: inserted?.id ?? userId,
     payload: {
       roleSlug: slug,
       subjectEmail: userRow?.email ?? null,
+      ...auditPayload,
     },
   });
 
   return { linked: true };
+}
+
+/**
+ * After OAuth/OIDC sign-in, link the user via claim rules or legacy single-org env.
+ */
+export async function provisionOidcJitMembershipIfEnabled(
+  db: Db,
+  userId: string,
+): Promise<{ linked: boolean; reason?: string }> {
+  const env = readValidatedEnv();
+  if (env.OIDC_JIT_ENABLED !== "true") {
+    return { linked: false, reason: "jit_disabled" };
+  }
+
+  const providerId = oidcProviderIdForAccountMatch();
+  const [oauthAccount] = await db
+    .select({ id: authAccount.id })
+    .from(authAccount)
+    .where(and(eq(authAccount.userId, userId), eq(authAccount.providerId, providerId)))
+    .limit(1);
+
+  if (!oauthAccount) {
+    return { linked: false, reason: "not_oidc_account" };
+  }
+
+  const claimMatch = await findOidcJitMatch(db, userId);
+  if (claimMatch) {
+    return linkMembership(db, userId, claimMatch.organizationId, claimMatch.roleSlug, "oidc_jit.claim_rule_linked", {
+      claimKey: claimMatch.claimKey,
+      matchValue: claimMatch.matchValue,
+    });
+  }
+
+  const orgId = env.OIDC_JIT_DEFAULT_ORG_ID?.trim();
+  if (!orgId) {
+    return { linked: false, reason: "no_claim_match_and_no_default_org" };
+  }
+
+  const slug = (env.OIDC_JIT_ROLE_SLUG ?? DEFAULT_JIT_ROLE_SLUG).trim() || DEFAULT_JIT_ROLE_SLUG;
+  return linkMembership(db, userId, orgId, slug, "oidc_jit.membership_linked", {
+    source: "env_default_org",
+  });
 }

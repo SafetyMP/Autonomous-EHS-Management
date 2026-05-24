@@ -1,0 +1,10 @@
+{
+  "kind": "hris_membership_sync",
+  "organizationId": "00000000-0000-4000-8000-000000000001",
+  "workerEmail": "jordan.tech@portco.example",
+  "externalWorkerId": "ADP-a1b2c3",
+  "department": "Maintenance",
+  "jobTitle": "Maintenance Technician II",
+  "employmentStatus": "active",
+  "idempotencyKey": "adp:a1b2c3:2026-05-24"
+}

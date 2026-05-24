@@ -26,6 +26,7 @@ import { obligationRouter } from "./routers/obligation";
 import { organizationRouter } from "./routers/organization";
 import { permitRouter } from "./routers/permit";
 import { planningRouter } from "./routers/planning/index";
+import { portcoIdentityRouter } from "./routers/portcoIdentity";
 import { programRouter } from "./routers/program";
 import { ragRouter } from "./routers/rag";
 import { tasksRouter } from "./routers/tasks";
@@ -46,6 +47,7 @@ export const appRouter = router({
   ehsEvidence: ehsEvidenceRouter,
   managementReview: managementReviewRouter,
   planning: planningRouter,
+  portcoIdentity: portcoIdentityRouter,
   training: trainingRouter,
   internalAudit: internalAuditRouter,
   rag: ragRouter,

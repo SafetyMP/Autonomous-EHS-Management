@@ -3023,6 +3023,63 @@ export const integrationConnectorMapping = pgTable(
   ],
 );
 
+/** Per-org SCIM 2.0 provisioning config (PortCo identity Phase 1). */
+export const organizationScimConfig = pgTable(
+  "organization_scim_config",
+  {
+    organizationId: uuid("organization_id")
+      .primaryKey()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    enabled: boolean("enabled").notNull().default(false),
+    /** SHA-256 hex of bearer token — plain token shown once on rotate. */
+    bearerTokenHash: varchar("bearer_token_hash", { length: 64 }),
+    /** Default role slug when SCIM group mapping does not match. */
+    defaultRoleSlug: varchar("default_role_slug", { length: 64 }).notNull().default("supervisor"),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+);
+
+/** IdP group id → org role for SCIM group push (optional; user provisioning uses defaultRoleSlug). */
+export const scimGroupMapping = pgTable(
+  "scim_group_mapping",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    idpGroupId: varchar("idp_group_id", { length: 256 }).notNull(),
+    idpGroupDisplayName: varchar("idp_group_display_name", { length: 256 }),
+    roleSlug: varchar("role_slug", { length: 64 }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("scim_group_mapping_org_group_uq").on(t.organizationId, t.idpGroupId),
+    index("scim_group_mapping_org_idx").on(t.organizationId),
+  ],
+);
+
+/** Multi-org OIDC JIT: IdP claim value → org + role (PortCo Phase 1). */
+export const oidcJitClaimRule = pgTable(
+  "oidc_jit_claim_rule",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    /** JWT claim to inspect, e.g. `groups` or custom `legal_entity_id`. */
+    claimKey: varchar("claim_key", { length: 128 }).notNull().default("groups"),
+    /** Exact string match within claim array or scalar. */
+    matchValue: varchar("match_value", { length: 256 }).notNull(),
+    roleSlug: varchar("role_slug", { length: 64 }).notNull(),
+    priority: integer("priority").notNull().default(100),
+    enabled: boolean("enabled").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("oidc_jit_claim_rule_org_priority_idx").on(t.organizationId, t.priority),
+  ],
+);
+
 /** Persisted OSHA-style incidence rate calculations for audit defensibility. */
 export const complianceMetricSnapshot = pgTable(
   "compliance_metric_snapshot",
@@ -3136,6 +3193,27 @@ export const operationalWebhookEndpointRelations = relations(operationalWebhookE
 export const integrationConnectorMappingRelations = relations(integrationConnectorMapping, ({ one }) => ({
   organization: one(organization, {
     fields: [integrationConnectorMapping.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const organizationScimConfigRelations = relations(organizationScimConfig, ({ one }) => ({
+  organization: one(organization, {
+    fields: [organizationScimConfig.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const scimGroupMappingRelations = relations(scimGroupMapping, ({ one }) => ({
+  organization: one(organization, {
+    fields: [scimGroupMapping.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const oidcJitClaimRuleRelations = relations(oidcJitClaimRule, ({ one }) => ({
+  organization: one(organization, {
+    fields: [oidcJitClaimRule.organizationId],
     references: [organization.id],
   }),
 }));

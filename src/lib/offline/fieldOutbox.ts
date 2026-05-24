@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { classifyOutboxError, type OutboxErrorKind } from "@/lib/offline/outboxErrorKind";
 
 const DB_NAME = "ehs_field_outbox_v1";
 const STORE = "queue";
@@ -22,6 +23,7 @@ export type FieldOutboxRecord = {
   status: "pending" | "failed";
   createdAt: number;
   lastError?: string;
+  errorKind?: OutboxErrorKind;
 };
 
 /** Feature flag — must match `NEXT_PUBLIC_FIELD_OUTBOX=1`. */
@@ -164,6 +166,7 @@ export async function removeFieldOutbox(localId: string): Promise<void> {
 }
 
 export async function markFieldOutboxFailed(localId: string, err: string): Promise<void> {
+  const errorKind: OutboxErrorKind = classifyOutboxError(err);
   const db = await openDb();
   await new Promise<void>((res, rej) => {
     const tx = db.transaction(STORE, "readwrite");
@@ -175,7 +178,7 @@ export async function markFieldOutboxFailed(localId: string, err: string): Promi
     rq.onsuccess = () => {
       const v = rq.result as FieldOutboxRecord | undefined;
       if (v) {
-        st.put({ ...v, status: "failed", lastError: err.slice(0, 500) });
+        st.put({ ...v, status: "failed", lastError: err.slice(0, 500), errorKind });
       }
     };
   });

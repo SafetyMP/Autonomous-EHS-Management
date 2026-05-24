@@ -1,0 +1,12 @@
+{
+  "kind": "hris_membership_sync",
+  "organizationId": "00000000-0000-4000-8000-000000000001",
+  "workerEmail": "alex.worker@portco.example",
+  "siteId": "00000000-0000-4000-8000-000000000002",
+  "externalWorkerId": "WD-10482",
+  "department": "Operations — Plant 3",
+  "jobTitle": "Production Supervisor",
+  "managerEmail": "sam.manager@portco.example",
+  "employmentStatus": "active",
+  "idempotencyKey": "workday:WD-10482:2026-05-24"
+}

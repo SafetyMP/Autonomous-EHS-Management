@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
@@ -51,6 +51,102 @@ export const externalPartyRouter = router({
         )
         .orderBy(asc(externalPartyCredential.validTo));
     }),
+
+  /** Renewal queue: expired + due-soon credentials for PortCo contractor wedge. */
+  listRenewalQueue: protectedProcedure
+    .input(
+      orgScope.extend({
+        withinDays: z.number().int().min(1).max(365).optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.EXTERNAL_PARTY_READ,
+      );
+      const days = input.withinDays ?? 30;
+      const now = new Date();
+      const horizon = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+
+      const rows = await ctx.db
+        .select({
+          credential: externalPartyCredential,
+          party: externalParty,
+        })
+        .from(externalPartyCredential)
+        .innerJoin(externalParty, eq(externalPartyCredential.externalPartyId, externalParty.id))
+        .where(
+          and(
+            eq(externalPartyCredential.organizationId, input.organizationId),
+            isNotNull(externalPartyCredential.validTo),
+            inArray(externalPartyCredential.status, ["active", "pending_review", "expired"]),
+          ),
+        )
+        .orderBy(asc(externalPartyCredential.validTo));
+
+      return rows
+        .filter((r) => {
+          const vt = r.credential.validTo;
+          if (!vt) return false;
+          return vt <= horizon;
+        })
+        .map((r) => {
+          const vt = r.credential.validTo!;
+          const expired = vt < now;
+          const daysUntil = Math.ceil((vt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+          return {
+            credentialId: r.credential.id,
+            externalPartyId: r.party.id,
+            companyName: r.party.companyName,
+            kind: r.credential.kind,
+            identifier: r.credential.identifier,
+            validTo: vt.toISOString(),
+            status: r.credential.status,
+            queueStatus: expired ? ("expired" as const) : ("due_soon" as const),
+            daysUntilExpiry: daysUntil,
+          };
+        });
+    }),
+
+  portfolioComplianceSummary: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+    await assertPermission(
+      ctx.db,
+      ctx.user.id,
+      input.organizationId,
+      PERMISSIONS.EXTERNAL_PARTY_READ,
+    );
+    const now = new Date();
+    const horizon = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    const creds = await ctx.db
+      .select({ validTo: externalPartyCredential.validTo, status: externalPartyCredential.status })
+      .from(externalPartyCredential)
+      .where(eq(externalPartyCredential.organizationId, input.organizationId));
+
+    let expired = 0;
+    let dueSoon = 0;
+    let active = 0;
+    for (const c of creds) {
+      if (c.status === "rejected") continue;
+      if (c.validTo && c.validTo < now) expired += 1;
+      else if (c.validTo && c.validTo <= horizon) dueSoon += 1;
+      else active += 1;
+    }
+
+    const [partyCount] = await ctx.db
+      .select({ n: count() })
+      .from(externalParty)
+      .where(eq(externalParty.organizationId, input.organizationId));
+
+    return {
+      externalPartyCount: Number(partyCount?.n ?? 0),
+      credentialsExpired: expired,
+      credentialsDueSoon30d: dueSoon,
+      credentialsActive: active,
+    };
+  }),
 
   listCredentials: protectedProcedure
     .input(orgScope.extend({ externalPartyId: z.string().uuid() }))

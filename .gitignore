@@ -48,6 +48,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+.env.vercel.*
 
 # typescript
 *.tsbuildinfo

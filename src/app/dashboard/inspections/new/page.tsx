@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useNavigatorOnline } from "@/hooks/useNavigatorOnline";
+import { usePersistedJsonDraft } from "@/hooks/usePersistedJsonDraft";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -28,15 +29,40 @@ const inputClass =
 const inspectionTypeValues = ["routine", "regulatory", "pre_job", "other"] as const;
 type InspectionType = (typeof inspectionTypeValues)[number];
 
+type InspectionDraft = {
+  title: string;
+  inspectionType: InspectionType;
+  scheduledAt: string;
+  notes: string;
+};
+
+const initialInspectionDraft = (): InspectionDraft => ({
+  title: "",
+  inspectionType: "other",
+  scheduledAt: "",
+  notes: "",
+});
+
 export default function NewInspectionPage() {
   const router = useRouter();
   const formId = useId();
   const online = useNavigatorOnline();
   const { organizationId } = useOrg();
-  const [title, setTitle] = useState("");
-  const [inspectionType, setInspectionType] = useState<InspectionType>("other");
-  const [scheduledAt, setScheduledAt] = useState("");
-  const [notes, setNotes] = useState("");
+  const draftKey = organizationId
+    ? `ehs:draft:inspection:new:${organizationId}`
+    : "ehs:draft:inspection:new:pending";
+  const { draft, setDraftField, clearDraft } = usePersistedJsonDraft<InspectionDraft>(
+    draftKey,
+    initialInspectionDraft(),
+  );
+  const title = draft.title;
+  const inspectionType = draft.inspectionType;
+  const scheduledAt = draft.scheduledAt;
+  const notes = draft.notes;
+  const setTitle = (v: string) => setDraftField("title", v);
+  const setInspectionType = (v: InspectionType) => setDraftField("inspectionType", v);
+  const setScheduledAt = (v: string) => setDraftField("scheduledAt", v);
+  const setNotes = (v: string) => setDraftField("notes", v);
   const [outboxStatus, setOutboxStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [suggestError, setSuggestError] = useState<string | null>(null);
@@ -47,6 +73,7 @@ export default function NewInspectionPage() {
   const utils = trpc.useUtils();
   const create = trpc.inspection.create.useMutation({
     onSuccess: (row) => {
+      clearDraft();
       void utils.inspection.list.invalidate();
       router.push(`/dashboard/inspections/${row.id}`);
     },

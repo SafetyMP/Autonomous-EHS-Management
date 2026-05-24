@@ -1,6 +1,6 @@
 # PortCo HRIS integration playbook
 
-**Status:** Design spec and operator playbook (not fully implemented).  
+**Status:** Phase 1 identity **shipped** (HRIS v2 envelope, SCIM MVP, multi-org OIDC JIT rules UI). Phase 2 iPaaS playbooks + fixtures in `tests/fixtures/integration/`. Phase 3 reconciliation/LMS depth remains roadmap.  
 **Addresses:** CTO feedback on Workday/HRIS integrations for private-equity portfolio company (PortCo) adoption.  
 **Related:** [procurement-integrations-appendix.md](../procurement-integrations-appendix.md), [integration-connector-mapping.md](../integration-connector-mapping.md), [OIDC_JIT_PROVISIONING.md](../OIDC_JIT_PROVISIONING.md), [JOB_QUEUE.md](../JOB_QUEUE.md).
 
