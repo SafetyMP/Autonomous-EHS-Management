@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { EnvironmentalMonitoringPanel } from "@/components/dashboard/environmental-monitoring-panel";
+import { ObligationEvidencePanel } from "@/components/dashboard/obligation-evidence-panel";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import { ASPECT_SIGNIFICANCES } from "@/lib/ehs-enums";
@@ -26,6 +28,9 @@ const significances = ASPECT_SIGNIFICANCES;
 
 export default function EnvironmentPage() {
   const { organizationId } = useOrg();
+  const searchParams = useSearchParams();
+  const highlightAspectId = searchParams.get("aspect");
+  const highlightObligationId = searchParams.get("obligation");
   const utils = trpc.useUtils();
 
   const { data: aspects, isLoading: loadingAspects } = trpc.aspect.list.useQuery(
@@ -61,6 +66,7 @@ export default function EnvironmentPage() {
   const [oRef, setORef] = useState("");
   const [oNextDue, setONextDue] = useState("");
   const [editObId, setEditObId] = useState("");
+  const activeObligationId = editObId || highlightObligationId || "";
   const [editOTitle, setEditOTitle] = useState("");
   const [editOType, setEditOType] = useState("");
   const [editORef, setEditORef] = useState("");
@@ -105,6 +111,15 @@ export default function EnvironmentPage() {
       setONextDue("");
     },
   });
+
+  useEffect(() => {
+    if (highlightAspectId && typeof document !== "undefined") {
+      document.getElementById(`aspect-${highlightAspectId}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [highlightAspectId, aspects]);
 
   const kbEmbed = trpc.rag.embedQuery.useQuery(
     { organizationId: organizationId!, text: kbQuery.trim() },
@@ -271,7 +286,11 @@ export default function EnvironmentPage() {
               <li className="px-4 py-3 text-base text-zinc-700">No aspects yet.</li>
             ) : (
               aspects?.map((a) => (
-                <li key={a.id} className="px-4 py-3">
+                <li
+                  key={a.id}
+                  id={`aspect-${a.id}`}
+                  className={`px-4 py-3 ${highlightAspectId === a.id ? "bg-emerald-50 ring-2 ring-emerald-600 ring-inset" : ""}`}
+                >
                   <div className="flex justify-between gap-2">
                     <span className="font-medium">{a.name}</span>
                     <span className="shrink-0 capitalize font-medium text-zinc-800">{a.significance}</span>
@@ -485,7 +504,11 @@ export default function EnvironmentPage() {
               <li className="px-4 py-3 text-base text-zinc-700">No obligations yet.</li>
             ) : (
               obligations?.map((o) => (
-                <li key={o.id} className="px-4 py-3">
+                <li
+                  key={o.id}
+                  id={`obligation-${o.id}`}
+                  className={`px-4 py-3 ${highlightObligationId === o.id ? "bg-emerald-50 ring-2 ring-emerald-600 ring-inset" : ""}`}
+                >
                   <p className="font-medium">{o.title}</p>
                   <p className="text-xs text-zinc-800">
                     {o.requirementType}
@@ -534,7 +557,7 @@ export default function EnvironmentPage() {
             >
               <select
                 className={dfControl}
-                value={editObId}
+                value={editObId || highlightObligationId || ""}
                 onChange={(e) => {
                   const id = e.target.value;
                   setEditObId(id);
@@ -604,6 +627,17 @@ export default function EnvironmentPage() {
                 </>
               ) : null}
             </form>
+            {activeObligationId && organizationId ? (
+              <ObligationEvidencePanel
+                organizationId={organizationId}
+                obligationId={activeObligationId}
+                obligationTitle={
+                  editOTitle ||
+                  obligations?.find((o) => o.id === activeObligationId)?.title ||
+                  "Obligation"
+                }
+              />
+            ) : null}
           </div>
         </div>
       </section>

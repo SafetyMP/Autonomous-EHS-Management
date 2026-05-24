@@ -46,9 +46,9 @@ describe("filterDashboardNavSections", () => {
       canIntegrationRead: false,
       canAuditTrailRead: false,
     });
-    expect(filtered.some((s) => s.title === "Management system")).toBe(false);
+    expect(filtered.some((s) => s.title === "Administration")).toBe(false);
     const flat = filtered.flatMap((s) => s.items);
-    expect(flat.length).toBeLessThanOrEqual(20);
+    expect(flat.length).toBeLessThanOrEqual(23);
   });
 
   it("keeps management system for org admins", () => {
@@ -58,6 +58,6 @@ describe("filterDashboardNavSections", () => {
       canIntegrationRead: false,
       canAuditTrailRead: false,
     });
-    expect(filtered.some((s) => s.title === "Management system")).toBe(true);
+    expect(filtered.some((s) => s.title === "Administration")).toBe(true);
   });
 });

@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { AuditFindingCapaActions } from "@/components/dashboard/audit-finding-capa-actions";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -54,6 +56,16 @@ export default function AuditsPage() {
       { enabled: !!organizationId && !!selectedAuditId },
     );
 
+  const { data: capas } = trpc.capa.list.useQuery(
+    { organizationId: organizationId! },
+    { enabled: !!organizationId },
+  );
+
+  const capaTitleById = useMemo(
+    () => new Map((capas ?? []).map((c) => [c.id, c.title])),
+    [capas],
+  );
+
   const createAudit = trpc.internalAudit.create.useMutation({
     onSuccess: (row) => {
       void utils.internalAudit.list.invalidate();
@@ -90,7 +102,13 @@ export default function AuditsPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold">Internal audits</h1>
-          <p className={dfMuted}>ISO 45001 / 14001 — audit programme</p>
+          <p className={dfMuted}>
+            ISO 45001 / 14001 — audit programme.{" "}
+            <Link href="/dashboard/assurance" className="font-medium text-emerald-900 underline">
+              Assurance hub
+            </Link>{" "}
+            includes CB audits and certificates.
+          </p>
         </div>
         <OrgSwitcher />
       </div>
@@ -273,11 +291,14 @@ export default function AuditsPage() {
                           {f.findingType.replace("_", " ")}
                         </span>
                         <p className="font-semibold text-zinc-900">{f.title}</p>
-                        <p className={`mt-1 ${dfHelperXs}`}>
-                          {f.correctiveActionId
-                            ? `CAPA: ${f.correctiveActionId.slice(0, 8)}…`
-                            : "No CAPA — create from CAPA page"}
-                        </p>
+                        <AuditFindingCapaActions
+                          organizationId={organizationId}
+                          findingId={f.id}
+                          findingTitle={f.title}
+                          findingDetails={f.details}
+                          correctiveActionId={f.correctiveActionId}
+                          capaTitleById={capaTitleById}
+                        />
                       </li>
                     ))
                   )}

@@ -203,7 +203,7 @@ export async function collectActionQueueItems(
       dueAt: dueAt?.toISOString() ?? null,
       priorityScore,
       isOverdue,
-      href: buildActionQueueHref("capa"),
+      href: buildActionQueueHref("capa", capa.id),
       ctaLabel: ctaLabelForType("capa"),
     });
   }
@@ -286,7 +286,7 @@ export async function collectActionQueueItems(
           dueAt: dueAt.toISOString(),
           priorityScore,
           isOverdue,
-          href: buildActionQueueHref("obligation_review"),
+          href: buildActionQueueHref("obligation_review", ob.id),
           ctaLabel: ctaLabelForType("obligation_review"),
         });
       }
@@ -326,7 +326,7 @@ export async function collectActionQueueItems(
           dueAt: dueAt.toISOString(),
           priorityScore,
           isOverdue,
-          href: buildActionQueueHref("management_review"),
+          href: buildActionQueueHref("management_review", review.id),
           ctaLabel: ctaLabelForType("management_review"),
         });
       }

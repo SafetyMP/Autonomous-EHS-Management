@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { DashboardEmptyState } from "@/components/dashboard/dashboard-empty-state";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { OrgSwitcher } from "@/components/org-switcher";
@@ -19,12 +20,15 @@ function formatKind(k: string) {
 
 export default function RiskAssessmentsRosterPage() {
   const { organizationId } = useOrg();
+  const searchParams = useSearchParams();
+  const hazardFromUrl = searchParams.get("hazard");
   const [kind, setKind] = useState<string>("");
   const [status, setStatus] = useState<string>("");
 
   const listInput = useMemo(
     () => ({
       organizationId: organizationId!,
+      hazardId: hazardFromUrl && hazardFromUrl.length > 0 ? hazardFromUrl : undefined,
       assessmentKind:
         kind && RISK_ASSESSMENT_KINDS.includes(kind as (typeof RISK_ASSESSMENT_KINDS)[number])
           ? (kind as (typeof RISK_ASSESSMENT_KINDS)[number])
@@ -35,7 +39,7 @@ export default function RiskAssessmentsRosterPage() {
           ? (status as (typeof RISK_ASSESSMENT_STATUSES)[number])
           : undefined,
     }),
-    [organizationId, kind, status],
+    [organizationId, kind, status, hazardFromUrl],
   );
 
   const { data: rows, isLoading } = trpc.planning.risk.list.useQuery(listInput, {

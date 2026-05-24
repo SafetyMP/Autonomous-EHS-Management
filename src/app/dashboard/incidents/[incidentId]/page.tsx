@@ -289,7 +289,7 @@ function IncidentWorkspaceSection({
         <li>
           <span className="font-semibold text-zinc-900">Hazard: </span>
           {data.hazard ? (
-            <Link href="/dashboard/planning" className={dfInlineNavLink}>
+            <Link href={`/dashboard/planning?hazard=${data.hazard.id}`} className={dfInlineNavLink}>
               {data.hazard.title}
             </Link>
           ) : (
@@ -299,7 +299,10 @@ function IncidentWorkspaceSection({
         <li>
           <span className="font-semibold text-zinc-900">Environmental aspect: </span>
           {data.environmentalAspect ? (
-            <Link href="/dashboard/environment" className={dfInlineNavLink}>
+            <Link
+              href={`/dashboard/environment?aspect=${data.environmentalAspect.id}`}
+              className={dfInlineNavLink}
+            >
               {data.environmentalAspect.name}
             </Link>
           ) : (

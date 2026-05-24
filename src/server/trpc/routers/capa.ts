@@ -11,7 +11,9 @@ import {
   environmentalAspect,
   environmentalRegulatoryPermit,
   incident,
+  internalAudit,
   managementReview,
+  safetyObservation,
   workflowTransition,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
@@ -59,6 +61,207 @@ export const capaRouter = router({
       .where(eq(correctiveAction.organizationId, input.organizationId))
       .orderBy(desc(correctiveAction.createdAt));
   }),
+
+  get: protectedProcedure
+    .input(orgScope.extend({ correctiveActionId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.CAPA_READ,
+      );
+
+      const [row] = await ctx.db
+        .select()
+        .from(correctiveAction)
+        .where(
+          and(
+            eq(correctiveAction.id, input.correctiveActionId),
+            eq(correctiveAction.organizationId, input.organizationId),
+          ),
+        )
+        .limit(1);
+
+      if (!row) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Corrective action not found." });
+      }
+
+      type SourceLink = { kind: string; id: string; label: string; href: string };
+
+      const sources: SourceLink[] = [];
+
+      if (row.incidentId) {
+        const [inc] = await ctx.db
+          .select({ id: incident.id, title: incident.title })
+          .from(incident)
+          .where(
+            and(
+              eq(incident.id, row.incidentId),
+              eq(incident.organizationId, input.organizationId),
+            ),
+          )
+          .limit(1);
+        if (inc) {
+          sources.push({
+            kind: "incident",
+            id: inc.id,
+            label: inc.title,
+            href: `/dashboard/incidents/${inc.id}`,
+          });
+        }
+      }
+
+      const [finding] = await ctx.db
+        .select({
+          id: auditFinding.id,
+          title: auditFinding.title,
+          internalAuditId: auditFinding.internalAuditId,
+        })
+        .from(auditFinding)
+        .where(
+          and(
+            eq(auditFinding.correctiveActionId, row.id),
+            eq(auditFinding.organizationId, input.organizationId),
+          ),
+        )
+        .limit(1);
+      if (finding) {
+        const [audit] = await ctx.db
+          .select({ title: internalAudit.title })
+          .from(internalAudit)
+          .where(eq(internalAudit.id, finding.internalAuditId))
+          .limit(1);
+        sources.push({
+          kind: "audit_finding",
+          id: finding.id,
+          label: `${finding.title}${audit ? ` (${audit.title})` : ""}`,
+          href: `/dashboard/audits?finding=${finding.id}`,
+        });
+      }
+
+      const [obs] = await ctx.db
+        .select({ id: safetyObservation.id, summary: safetyObservation.summary })
+        .from(safetyObservation)
+        .where(
+          and(
+            eq(safetyObservation.linkedCorrectiveActionId, row.id),
+            eq(safetyObservation.organizationId, input.organizationId),
+          ),
+        )
+        .limit(1);
+      if (obs) {
+        sources.push({
+          kind: "observation",
+          id: obs.id,
+          label: obs.summary,
+          href: `/dashboard/observations/${obs.id}`,
+        });
+      }
+
+      if (row.environmentalAspectId) {
+        const [asp] = await ctx.db
+          .select({ id: environmentalAspect.id, name: environmentalAspect.name })
+          .from(environmentalAspect)
+          .where(
+            and(
+              eq(environmentalAspect.id, row.environmentalAspectId),
+              eq(environmentalAspect.organizationId, input.organizationId),
+            ),
+          )
+          .limit(1);
+        if (asp) {
+          sources.push({
+            kind: "environmental_aspect",
+            id: asp.id,
+            label: asp.name,
+            href: `/dashboard/environment?aspect=${asp.id}`,
+          });
+        }
+      }
+
+      if (row.complianceObligationId) {
+        const [obl] = await ctx.db
+          .select({ id: complianceObligation.id, title: complianceObligation.title })
+          .from(complianceObligation)
+          .where(
+            and(
+              eq(complianceObligation.id, row.complianceObligationId),
+              eq(complianceObligation.organizationId, input.organizationId),
+            ),
+          )
+          .limit(1);
+        if (obl) {
+          sources.push({
+            kind: "compliance_obligation",
+            id: obl.id,
+            label: obl.title,
+            href: `/dashboard/environment?obligation=${obl.id}`,
+          });
+        }
+      }
+
+      if (row.environmentalRegulatoryPermitId) {
+        const [perm] = await ctx.db
+          .select({
+            id: environmentalRegulatoryPermit.id,
+            title: environmentalRegulatoryPermit.title,
+          })
+          .from(environmentalRegulatoryPermit)
+          .where(
+            and(
+              eq(environmentalRegulatoryPermit.id, row.environmentalRegulatoryPermitId),
+              eq(environmentalRegulatoryPermit.organizationId, input.organizationId),
+            ),
+          )
+          .limit(1);
+        if (perm) {
+          sources.push({
+            kind: "environmental_regulatory_permit",
+            id: perm.id,
+            label: perm.title,
+            href: `/dashboard/environmental-permits/${perm.id}`,
+          });
+        }
+      }
+
+      if (row.managementReviewId) {
+        const [mr] = await ctx.db
+          .select({ id: managementReview.id, summary: managementReview.summary })
+          .from(managementReview)
+          .where(
+            and(
+              eq(managementReview.id, row.managementReviewId),
+              eq(managementReview.organizationId, input.organizationId),
+            ),
+          )
+          .limit(1);
+        if (mr) {
+          const line = mr.summary.trim().split(/\n/)[0] ?? "Management review";
+          sources.push({
+            kind: "management_review",
+            id: mr.id,
+            label: line.length > 80 ? `${line.slice(0, 79)}…` : line,
+            href: `/dashboard/management-review?review=${mr.id}`,
+          });
+        }
+      }
+
+      const [openApproval] = await ctx.db
+        .select({ id: approvalRequest.id })
+        .from(approvalRequest)
+        .where(
+          and(
+            eq(approvalRequest.organizationId, input.organizationId),
+            eq(approvalRequest.entityType, "capa"),
+            eq(approvalRequest.entityId, row.id),
+            eq(approvalRequest.status, "open"),
+          ),
+        )
+        .limit(1);
+
+      return { capa: row, sources, hasOpenApproval: !!openApproval };
+    }),
 
   create: protectedMutation
     .input(

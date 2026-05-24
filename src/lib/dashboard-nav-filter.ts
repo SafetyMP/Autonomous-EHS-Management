@@ -22,7 +22,7 @@ export function filterDashboardNavSections(
 
   if (showManagementSystem) return sections;
 
-  return sections.filter((s) => s.title !== "Management system");
+  return sections.filter((s) => s.title !== "Administration");
 }
 
 export function navSectionsForUser(input: NavFilterInput): readonly DashboardNavSection[] {

@@ -13,6 +13,11 @@ const navItemClass =
 
 const navItemActiveClass = " bg-emerald-50 font-semibold text-emerald-950";
 
+function navItemIsActive(pathname: string, href: string): boolean {
+  if (href === "/dashboard") return pathname === "/dashboard";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 function NavBadge({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
@@ -65,8 +70,8 @@ export function DashboardGroupedNav({
       <Link
         key={item.href}
         href={item.href}
-        aria-current={pathname === item.href ? "page" : undefined}
-        className={`${navItemClass}${pathname === item.href ? navItemActiveClass : ""}${count > 0 ? " justify-between gap-2" : ""}`}
+        aria-current={navItemIsActive(pathname, item.href) ? "page" : undefined}
+        className={`${navItemClass}${navItemIsActive(pathname, item.href) ? navItemActiveClass : ""}${count > 0 ? " justify-between gap-2" : ""}`}
         onClick={onNavigate}
       >
         <span>{item.label}</span>

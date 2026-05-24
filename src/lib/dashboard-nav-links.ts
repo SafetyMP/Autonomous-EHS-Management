@@ -9,64 +9,89 @@ export type DashboardNavSection = {
   readonly items: readonly DashboardNavItem[];
 };
 
-/** Grouped sidebar / drawer navigation (field-friendly, expandable sections on small screens). */
+/** Grouped sidebar / drawer navigation (lifecycle-oriented program flow). */
 export const DASHBOARD_NAV_SECTIONS: readonly DashboardNavSection[] = [
   {
-    title: "Field & risk",
-    ariaLabel: "Field operations and operational risk",
+    title: "Today",
+    ariaLabel: "Personal work and approvals",
     items: [
       { href: "/dashboard", label: "Command center" },
-      { href: "/dashboard/incidents", label: "Incidents" },
-      { href: "/dashboard/observations", label: "Observations" },
-      { href: "/dashboard/permits", label: "Work permits (PTW)" },
-      { href: "/dashboard/risk-assessments", label: "Risk assessments" },
-      { href: "/dashboard/inspections", label: "Inspections" },
-      { href: "/dashboard/capa", label: "CAPA" },
       { href: "/dashboard/tasks", label: "Tasks & reviews" },
-    ],
-  },
-  {
-    title: "Governance",
-    ariaLabel: "Program governance reporting and metrics",
-    items: [
-      { href: "/dashboard/analytics", label: "Metrics" },
-      { href: "/dashboard/analytics/incidence-rates", label: "Incidence rates" },
       { href: "/dashboard/approvals", label: "Approvals" },
     ],
   },
   {
-    title: "People & contractors",
-    ariaLabel: "People and contractors",
+    title: "Report & respond",
+    ariaLabel: "Field intake and response",
+    items: [
+      { href: "/dashboard/incidents", label: "Incidents" },
+      { href: "/dashboard/observations", label: "Observations" },
+      { href: "/dashboard/inspections", label: "Inspections" },
+    ],
+  },
+  {
+    title: "Permits",
+    ariaLabel: "Work and regulatory permits",
+    items: [
+      { href: "/dashboard/permits", label: "Work permits (PTW)" },
+      { href: "/dashboard/environmental-permits", label: "Regulatory env permits" },
+    ],
+  },
+  {
+    title: "Corrective action",
+    ariaLabel: "Corrective and preventive action",
+    items: [{ href: "/dashboard/capa", label: "CAPA register" }],
+  },
+  {
+    title: "Plan & comply",
+    ariaLabel: "Planning and environmental compliance",
+    items: [
+      { href: "/dashboard/planning", label: "Planning hub" },
+      { href: "/dashboard/risk-assessments", label: "Risk assessments" },
+      { href: "/dashboard/environment", label: "Environment" },
+    ],
+  },
+  {
+    title: "Assure & improve",
+    ariaLabel: "Assurance and management review",
+    items: [
+      { href: "/dashboard/audits", label: "Internal audits" },
+      { href: "/dashboard/assurance", label: "Assurance hub" },
+      { href: "/dashboard/management-review", label: "Mgmt review" },
+    ],
+  },
+  {
+    title: "Records & metrics",
+    ariaLabel: "Documented information and metrics",
+    items: [
+      { href: "/dashboard/documents", label: "Documents" },
+      { href: "/dashboard/rag", label: "Knowledge corpus" },
+      { href: "/dashboard/audit-trail", label: "Audit trail" },
+      { href: "/dashboard/retention", label: "Retention" },
+      { href: "/dashboard/analytics", label: "Metrics" },
+      { href: "/dashboard/analytics/incidence-rates", label: "Incidence rates" },
+    ],
+  },
+  {
+    title: "People",
+    ariaLabel: "Training and contractors",
     items: [
       { href: "/dashboard/training", label: "Training" },
       { href: "/dashboard/contractors", label: "Contractors" },
     ],
   },
   {
-    title: "Assurance",
-    ariaLabel: "Assurance",
+    title: "Administration",
+    ariaLabel: "Management system administration",
     items: [
-      { href: "/dashboard/environment", label: "Environment" },
-      { href: "/dashboard/environmental-permits", label: "Regulatory env permits" },
-      { href: "/dashboard/planning", label: "Planning" },
-      { href: "/dashboard/audits", label: "Audits" },
-      { href: "/dashboard/documents", label: "Documents" },
-      { href: "/dashboard/rag", label: "Knowledge corpus" },
-      { href: "/dashboard/context", label: "Context" },
-    ],
-  },
-  {
-    title: "Management system",
-    ariaLabel: "Management system continuity",
-    items: [
-      { href: "/dashboard/program", label: "Program" },
+      { href: "/dashboard/program", label: "Program overview" },
+      { href: "/dashboard/emergency", label: "Emergency prep" },
+      { href: "/dashboard/moc", label: "Management of change" },
       { href: "/dashboard/import", label: "Import" },
       { href: "/dashboard/integrations", label: "Integrations" },
-      { href: "/dashboard/management-review", label: "Mgmt review" },
-      { href: "/dashboard/retention", label: "Retention" },
-      { href: "/dashboard/workflow-catalog", label: "Workflow catalog" },
       { href: "/dashboard/privacy-requests", label: "Privacy" },
-      { href: "/dashboard/audit-trail", label: "Audit trail" },
+      { href: "/dashboard/context", label: "Context" },
+      { href: "/dashboard/workflow-catalog", label: "Workflow catalog" },
     ],
   },
 ];

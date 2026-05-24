@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -34,6 +35,8 @@ function resolveReviewId(
 
 export default function ManagementReviewPage() {
   const { organizationId } = useOrg();
+  const searchParams = useSearchParams();
+  const reviewFromUrl = searchParams.get("review");
 
   const { data } = trpc.managementReview.list.useQuery(
     { organizationId: organizationId! },
@@ -63,8 +66,8 @@ export default function ManagementReviewPage() {
   });
 
   const resolvedReviewId = useMemo(
-    () => resolveReviewId(data, selectedId),
-    [data, selectedId],
+    () => resolveReviewId(data, selectedId ?? reviewFromUrl),
+    [data, selectedId, reviewFromUrl],
   );
   const selected: ReviewRow | null =
     resolvedReviewId && data

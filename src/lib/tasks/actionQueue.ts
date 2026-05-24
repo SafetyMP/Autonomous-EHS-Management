@@ -39,18 +39,22 @@ export function approvalEntityLabel(entityType: string): string {
   return "Approval";
 }
 
-export function buildActionQueueHref(type: ActionQueueItemType): string {
+export function buildActionQueueHref(type: ActionQueueItemType, recordId?: string): string {
   switch (type) {
     case "approval_step":
       return "/dashboard/approvals";
     case "capa":
-      return "/dashboard/capa";
+      return recordId ? `/dashboard/capa/${recordId}` : "/dashboard/capa";
     case "training":
       return "/dashboard/training";
     case "obligation_review":
-      return "/dashboard/environment";
+      return recordId
+        ? `/dashboard/environment?obligation=${recordId}`
+        : "/dashboard/environment";
     case "management_review":
-      return "/dashboard/planning";
+      return recordId
+        ? `/dashboard/management-review?review=${recordId}`
+        : "/dashboard/management-review";
     default:
       return "/dashboard/tasks";
   }

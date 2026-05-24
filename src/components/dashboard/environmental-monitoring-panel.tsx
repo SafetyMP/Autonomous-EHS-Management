@@ -40,7 +40,7 @@ export function EnvironmentalMonitoringPanel({ organizationId }: { organizationI
   return (
     <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm" aria-labelledby="env-monitoring-heading">
       <h2 id="env-monitoring-heading" className={dfPanelHeading}>
-        Environmental monitoring results
+        Regulatory monitoring results
       </h2>
       <p className={`mt-1 text-sm ${dfMuted}`}>
         Record parameter readings tied to aspects or permits. Full permit-level entry is available on

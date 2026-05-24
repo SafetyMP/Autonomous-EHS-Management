@@ -23,6 +23,18 @@ function item(partial: Partial<ActionQueueItem> & Pick<ActionQueueItem, "id" | "
   };
 }
 
+describe("buildActionQueueHref", () => {
+  it("deep-links CAPA and management review items", () => {
+    expect(buildActionQueueHref("capa", "abc")).toBe("/dashboard/capa/abc");
+    expect(buildActionQueueHref("management_review", "mr-1")).toBe(
+      "/dashboard/management-review?review=mr-1",
+    );
+    expect(buildActionQueueHref("obligation_review", "ob-1")).toBe(
+      "/dashboard/environment?obligation=ob-1",
+    );
+  });
+});
+
 describe("scoreActionQueueItem", () => {
   it("ranks overdue approval steps highest", () => {
     const overdue = scoreActionQueueItem({

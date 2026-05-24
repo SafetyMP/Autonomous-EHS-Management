@@ -376,9 +376,13 @@ function ObservationEditor({
         <p className={`mt-1 text-sm ${dfMuted}`}>Connect this observation follow-up to an existing corrective action.</p>
         {row.linkedCorrectiveActionId ? (
           <p className="mt-3 text-base text-zinc-800">
-            Linked CAPA ID:{" "}
-            <Link href="/dashboard/capa" className="font-medium text-emerald-900 underline">
-              {row.linkedCorrectiveActionId}
+            Linked corrective action:{" "}
+            <Link
+              href={`/dashboard/capa/${row.linkedCorrectiveActionId}`}
+              className="font-medium text-emerald-900 underline"
+            >
+              {capas?.find((c) => c.id === row.linkedCorrectiveActionId)?.title ??
+                `${row.linkedCorrectiveActionId.slice(0, 8)}…`}
             </Link>
           </p>
         ) : (

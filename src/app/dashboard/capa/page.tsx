@@ -95,7 +95,7 @@ function CapaIsoLinks({
     const name = aspectNameById?.get(row.environmentalAspectId);
     links.push({
       key: "aspect",
-      href: "/dashboard/environment",
+      href: `/dashboard/environment?aspect=${row.environmentalAspectId}`,
       label: name ? `Aspect: ${name}` : "Linked aspect",
     });
   }
@@ -103,7 +103,7 @@ function CapaIsoLinks({
     const title = obligationTitleById?.get(row.complianceObligationId);
     links.push({
       key: "obligation",
-      href: "/dashboard/environment",
+      href: `/dashboard/environment?obligation=${row.complianceObligationId}`,
       label: title ? `Obligation: ${title}` : "Linked obligation",
     });
   }
@@ -111,7 +111,7 @@ function CapaIsoLinks({
     const review = mgmtReviewLabelById?.get(row.managementReviewId);
     links.push({
       key: "mgmt",
-      href: "/dashboard/management-review",
+      href: `/dashboard/management-review?review=${row.managementReviewId}`,
       label: review ? `Mgmt review: ${review}` : "Linked management review",
     });
   }
@@ -307,9 +307,10 @@ export default function CapaPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">
-          Corrective actions — ISO 45001 CAPA
-        </h1>
+        <h1 className="text-xl font-semibold">Corrective action register</h1>
+        <p className="text-sm text-zinc-600">
+          ISO 45001 CAPA — open a row for the full workspace with sources and evidence.
+        </p>
         <OrgSwitcher />
       </div>
 
@@ -811,7 +812,11 @@ export default function CapaPage() {
                   id={`capa-row-${c.id}`}
                   className={isCapaOverdue(c) ? "bg-amber-50/90" : undefined}
                 >
-                  <td className="px-4 py-3 font-medium text-zinc-900">{c.title}</td>
+                  <td className="px-4 py-3 font-medium text-zinc-900">
+                    <Link href={`/dashboard/capa/${c.id}`} className={isoRelatedLinkClass}>
+                      {c.title}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 capitalize">{c.status.replace("_", " ")}</td>
                   <td className="whitespace-nowrap px-4 py-3 text-zinc-800">
                     {c.dueDate

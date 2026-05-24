@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
@@ -12,6 +12,7 @@ import {
   managementCertificate,
   managementOfChange,
   measurementRecord,
+  mocEntityLink,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
 import { orgScope } from "../schemas/orgScope";
@@ -372,5 +373,38 @@ export const programRouter = router({
         }
         return row;
       });
+    }),
+
+  listMocEntityLinks: protectedProcedure
+    .input(orgScope.extend({ mocId: z.string().uuid().optional() }))
+    .query(async ({ ctx, input }) => {
+      await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.MOC_READ);
+
+      const mocConditions = [eq(managementOfChange.organizationId, input.organizationId)];
+      if (input.mocId) {
+        mocConditions.push(eq(managementOfChange.id, input.mocId));
+      }
+
+      const mocs = await ctx.db
+        .select({ id: managementOfChange.id, title: managementOfChange.title })
+        .from(managementOfChange)
+        .where(and(...mocConditions));
+
+      if (mocs.length === 0) return [];
+
+      const mocIds = mocs.map((m) => m.id);
+      const titleByMocId = new Map(mocs.map((m) => [m.id, m.title]));
+
+      const links = await ctx.db
+        .select()
+        .from(mocEntityLink)
+        .where(inArray(mocEntityLink.mocId, mocIds));
+
+      return links.map((l) => ({
+        mocId: l.mocId,
+        mocTitle: titleByMocId.get(l.mocId) ?? l.mocId,
+        entityType: l.entityType,
+        entityId: l.entityId,
+      }));
     }),
 });

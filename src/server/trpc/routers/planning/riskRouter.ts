@@ -32,6 +32,7 @@ export const riskRouter = router({
       orgScope.extend({
         assessmentKind: z.enum(riskAssessmentKinds).optional(),
         siteId: z.string().uuid().optional(),
+        hazardId: z.string().uuid().optional(),
         status: z.enum(riskAssessmentStatuses).optional(),
       }),
     )
@@ -54,6 +55,9 @@ export const riskRouter = router({
       }
       if (input.siteId) {
         parts.push(eq(riskAssessment.siteId, input.siteId));
+      }
+      if (input.hazardId) {
+        parts.push(eq(riskAssessment.hazardId, input.hazardId));
       }
       if (input.status) {
         parts.push(

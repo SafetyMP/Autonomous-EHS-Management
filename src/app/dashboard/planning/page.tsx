@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   dfControl,
   dfHelperXs,
@@ -19,6 +20,8 @@ const OBJ_TYPES = ["oh_safety", "environmental"] as const;
 
 export default function PlanningPage() {
   const { organizationId } = useOrg();
+  const searchParams = useSearchParams();
+  const highlightHazardId = searchParams.get("hazard");
   const utils = trpc.useUtils();
 
   const [hTitle, setHTitle] = useState("");
@@ -76,6 +79,15 @@ export default function PlanningPage() {
     },
   });
 
+  useEffect(() => {
+    if (highlightHazardId && typeof document !== "undefined") {
+      document.getElementById(`hazard-${highlightHazardId}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [highlightHazardId, hazards]);
+
   if (!organizationId) {
     return (
       <div className="space-y-4">
@@ -89,8 +101,10 @@ export default function PlanningPage() {
     <div className="space-y-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold">Planning</h1>
-          <p className={dfMuted}>Hazards, risk, objectives, operational controls (45001 / 14001)</p>
+          <h1 className="text-xl font-semibold">Planning hub</h1>
+          <p className={dfMuted}>
+            Hazards, objectives, and operational controls — linked to risk assessments and environment.
+          </p>
         </div>
         <OrgSwitcher />
       </div>
@@ -131,11 +145,23 @@ export default function PlanningPage() {
               <li className="px-4 py-3 text-zinc-700">No hazards yet.</li>
             ) : (
               hazards?.map((h) => (
-                <li key={h.id} className="px-4 py-3">
+                <li
+                  key={h.id}
+                  id={`hazard-${h.id}`}
+                  className={`px-4 py-3 ${highlightHazardId === h.id ? "bg-emerald-50 ring-2 ring-emerald-600 ring-inset" : ""}`}
+                >
                   <span className="font-medium">{h.title}</span>
                   {h.description ? (
                     <p className="mt-1 text-zinc-600">{h.description}</p>
                   ) : null}
+                  <p className="mt-2">
+                    <Link
+                      href={`/dashboard/risk-assessments?hazard=${h.id}`}
+                      className="text-sm font-medium text-emerald-900 underline underline-offset-2"
+                    >
+                      Risk assessments for this hazard →
+                    </Link>
+                  </p>
                 </li>
               ))
             )}
@@ -290,9 +316,32 @@ export default function PlanningPage() {
                 <li key={c.id} className="px-4 py-3">
                   <span className="font-medium">{c.title}</span>
                   <p className={dfHelperXs}>
-                    {c.hazardId ? "Linked hazard · " : ""}
-                    {c.environmentalAspectId ? "Linked aspect" : ""}
-                    {!c.hazardId && !c.environmentalAspectId ? "No links" : ""}
+                    {c.hazardId ? (
+                      <>
+                        Linked hazard ·{" "}
+                        <Link
+                          href={`/dashboard/planning?hazard=${c.hazardId}`}
+                          className="font-medium text-emerald-900 underline"
+                        >
+                          view
+                        </Link>
+                        {" · "}
+                      </>
+                    ) : (
+                      ""
+                    )}
+                    {c.environmentalAspectId ? (
+                      <>
+                        Linked aspect ·{" "}
+                        <Link
+                          href={`/dashboard/environment?aspect=${c.environmentalAspectId}`}
+                          className="font-medium text-emerald-900 underline"
+                        >
+                          view
+                        </Link>
+                      </>
+                    ) : null}
+                    {!c.hazardId && !c.environmentalAspectId ? "No links" : null}
                   </p>
                 </li>
               ))

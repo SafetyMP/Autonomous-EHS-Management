@@ -48,7 +48,7 @@ export function IncidentLinkedCapaSection({
         <ul className="mt-2 list-inside list-disc text-base text-zinc-900">
           {linkedCapas.map((c) => (
             <li key={c.id}>
-              <Link href={`/dashboard/capa#capa-row-${c.id}`} className={dfInlineNavLink}>
+              <Link href={`/dashboard/capa/${c.id}`} className={dfInlineNavLink}>
                 {c.title}
               </Link>{" "}
               ({c.status.replace("_", " ")})
