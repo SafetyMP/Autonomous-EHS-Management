@@ -12,7 +12,7 @@ import {
 import { writeAuditLog } from "@/server/services/audit";
 import { revokeUserSessions } from "@/server/services/scim/revokeUserSessions";
 
-type DbLike = Pick<Db, "select" | "update" | "insert">;
+type DbLike = Pick<Db, "select" | "update" | "insert" | "delete">;
 
 function newAuthUserId(): string {
   return crypto.randomUUID().replace(/-/g, "");
@@ -181,7 +181,7 @@ export async function applyHrisMembershipSync(
     patch.employmentStatus = input.employmentStatus;
     if (input.employmentStatus === "terminated") {
       patch.lifecycleStatus = "deprovisioned";
-      await revokeUserSessions(db as Pick<Db, "delete">, mem.userId);
+      await revokeUserSessions(db, mem.userId);
     } else if (input.employmentStatus === "leave") {
       patch.lifecycleStatus = "suspended";
     } else if (input.employmentStatus === "active") {
