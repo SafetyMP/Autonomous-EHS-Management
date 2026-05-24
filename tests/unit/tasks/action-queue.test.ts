@@ -54,6 +54,21 @@ describe("scoreActionQueueItem", () => {
 });
 
 describe("buildActionQueueResult", () => {
+  it("supports task hub page limit of 50 items", () => {
+    const items = Array.from({ length: 60 }, (_, i) =>
+      item({
+        id: `capa:${i}`,
+        type: "capa",
+        recordId: String(i),
+        title: `CAPA ${i}`,
+        priorityScore: 30 + i,
+      }),
+    );
+    const result = buildActionQueueResult(items, 50);
+    expect(result.items).toHaveLength(50);
+    expect(result.totalCount).toBe(60);
+  });
+
   it("returns primary as first sorted item", () => {
     const items = [
       item({

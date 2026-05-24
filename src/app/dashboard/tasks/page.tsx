@@ -27,7 +27,12 @@ function typeLabel(type: ActionQueueItem["type"]): string {
 export default function TasksPage() {
   const { organizationId } = useOrg();
 
-  const { data: queue, isLoading } = trpc.tasks.actionQueue.useQuery(
+  const {
+    data: queue,
+    isLoading,
+    isError,
+    error,
+  } = trpc.tasks.actionQueue.useQuery(
     { organizationId: organizationId!, limit: 50, includeOrgWide: true },
     { enabled: !!organizationId },
   );
@@ -57,6 +62,11 @@ export default function TasksPage() {
       {isLoading ? (
         <p className="text-base text-zinc-700" role="status" aria-live="polite">
           Loading your tasks…
+        </p>
+      ) : isError ? (
+        <p className="text-base text-red-800" role="alert">
+          Could not load your tasks{error?.message ? `: ${error.message}` : "."} Try refreshing the
+          page or contact your administrator if this continues.
         </p>
       ) : !queue || queue.items.length === 0 ? (
         <p className="text-base text-zinc-700">You&apos;re caught up on assigned work.</p>

@@ -21,6 +21,20 @@ beforeEach(() => {
 });
 
 describe("tasks.actionQueue", () => {
+  it("rejects limit above 50", async () => {
+    await expect(
+      callTRPCProcedure({
+        router: appRouter,
+        path: "tasks.actionQueue",
+        ctx: ctxWith(createRbacOnlyFakeDb(true), authenticatedSession()),
+        type: "query",
+        getRawInput: async () => ({ organizationId: orgId, limit: 51 }),
+        signal: testAbortSignal,
+        batchIndex: 0,
+      }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
   it("is FORBIDDEN when RBAC denies tasks:read", async () => {
     await expect(
       callTRPCProcedure({

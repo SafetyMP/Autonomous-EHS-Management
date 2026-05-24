@@ -100,7 +100,7 @@ export const tasksRouter = router({
   actionQueue: protectedProcedure
     .input(
       orgScope.extend({
-        limit: z.number().int().min(1).max(20).default(5),
+        limit: z.number().int().min(1).max(50).default(5),
         includeOrgWide: z.boolean().default(true),
       }),
     )
