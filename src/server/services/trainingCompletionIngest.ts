@@ -135,3 +135,57 @@ export async function persistTrainingCompletionEvent(
     return { id: row.id, trainingRecordId };
   });
 }
+
+const REDACTED_EXTERNAL_WORKER_ID = /^\[redacted:\d+chars\]$/;
+
+export async function reapplyTrainingCompletionFromStoredPayload(
+  db: DbIns,
+  organizationId: string,
+  eventId: string,
+  payload: unknown,
+  actorUserId: string,
+): Promise<string | null> {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Invalid stored training payload.");
+  }
+  const raw = payload as Record<string, unknown>;
+  const externalWorkerId = String(raw.externalWorkerId ?? "");
+  if (!externalWorkerId || REDACTED_EXTERNAL_WORKER_ID.test(externalWorkerId)) {
+    throw new Error(
+      "Reprocess requires re-posting from LMS; stored externalWorkerId was redacted.",
+    );
+  }
+
+  const parsed = trainingCompletionIngestSchema.safeParse({
+    organizationId,
+    externalWorkerId,
+    courseCode: raw.courseCode,
+    completedAt: raw.completedAt,
+    issuer: raw.issuer ?? "lms_reprocess",
+  });
+  if (!parsed.success) {
+    throw new Error("Invalid stored training payload.");
+  }
+
+  const userId = await resolveUserIdForExternalWorker(
+    db,
+    organizationId,
+    parsed.data.externalWorkerId,
+  );
+  const trainingRecordId = await upsertTrainingRecordFromCompletion(db, parsed.data, userId);
+
+  await writeAuditLog(db, {
+    organizationId,
+    actorUserId,
+    action: "integration.reprocess_training_completion",
+    entityType: "integration_event",
+    entityId: eventId,
+    payload: {
+      courseCode: parsed.data.courseCode,
+      trainingRecordId,
+      userMatched: Boolean(userId),
+    },
+  });
+
+  return trainingRecordId;
+}

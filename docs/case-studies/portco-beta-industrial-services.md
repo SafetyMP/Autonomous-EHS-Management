@@ -1,5 +1,7 @@
 # PortCo pilot — Beta Industrial Services (anonymized)
 
+> **GTM note:** Synthetic illustrative metrics for procurement conversations. Replace per [PUBLICATION.md](./PUBLICATION.md) before external use.
+
 **Site / scope:** Multi-site industrial services PortCo (3 plants) — HRIS sync + incident programme
 
 **Duration:** 2026-01-01 – 2026-04-30 (16 weeks)

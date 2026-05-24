@@ -2,7 +2,7 @@ import type { Db } from "@/server/db";
 import { cronJobRun } from "@/server/db/schema";
 import { logWarn } from "@/lib/logger";
 
-export const CRON_JOB_KEYS = ["reminders", "data-retention"] as const;
+export const CRON_JOB_KEYS = ["reminders", "data-retention", "integration-roster-reconcile"] as const;
 export type CronJobKey = (typeof CRON_JOB_KEYS)[number];
 
 /** Max length for persisted `cron_job_run.error_message` (operational metrics only). */

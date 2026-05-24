@@ -129,9 +129,9 @@ flowchart LR
 
 | Status | Surface | Role |
 |--------|---------|------|
-| **In-repo stub / event log** | [`integration` router](../src/server/trpc/routers/integration.ts), `integration_event`, `integration_inbound_idempotency`, `integration_connector_mapping` | Enqueue/list pattern; **idempotent inbound** via optional JSON `idempotencyKey` on [`POST /api/integration/inbound`](../src/app/api/integration/inbound/route.ts); with **`PG_BOSS_ENABLED`**, HRIS bodies **queue** (`202`) to [`integration.inboundHris`](../src/server/jobs/types.ts) and [`scripts/job-worker.ts`](../scripts/job-worker.ts). Audited **NDJSON export** for warehouses (`integration.exportEventsWarehouseSlice`, `integration:read`); **tRPC** + inbound insert `training_completion` / HRIS events with redacted worker ids in `payload`. Per-tenant LMS/HRIS **field-mapping JSON** persists for operator runbooks (`integration.listConnectorMappings` / `integration.upsertConnectorMapping`; see [`docs/integration-connector-mapping.md`](integration-connector-mapping.md)). |
-| **Operational outbound webhooks** | `operational_webhook_endpoint`, `organization.operationalWebhooksPanel`, cron [`reminders`](../src/app/api/cron/reminders/route.ts) | Org admins POST JSON to HTTPS receivers—**observation follow-up escalations**, **overdue approval-step escalations** (`approval.step_escalated`), **credential batch expiry** (`program.credential_batch_expired`), and **integration processing_failed** payloads; signed with optional shared secret (`X-EHS-Signature`). See [`docs/operational-webhooks.md`](operational-webhooks.md). |
-| **Planned / partner-built** | — | ERP, LMS/HRIS productized catalogs, e-signature, and document DMS integrations remain roadmap—architecture supports org-scoped events and auditability. **CTO remediation specs:** [procurement-integrations-appendix.md](./procurement-integrations-appendix.md), [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md), [adr/0001-mcp-context-sync-strategy.md](./adr/0001-mcp-context-sync-strategy.md). |
+| **Connected — PortCo inbound** | [`integration` router](../src/server/trpc/routers/integration.ts), `POST /api/integration/inbound`, SCIM `/api/scim/v2/*`, [`portcoIdentity`](../src/server/trpc/routers/portcoIdentity.ts) | **HRIS v2** joiner/mover/leaver ingest, LMS→`training_record`, `hris_contractor_sync`, roster snapshots + drift UI; **SCIM Users/Groups (MVP)** + multi-org OIDC JIT; idempotent inbound via `idempotencyKey`; HRIS async via pg-boss when `PG_BOSS_ENABLED`. Operator UI: `/dashboard/integrations`. Connector mapping JSON is **documentation-only** (iPaaS transforms payloads). See [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md). |
+| **Operational outbound webhooks** | `operational_webhook_endpoint`, cron [`reminders`](../src/app/api/cron/reminders/route.ts), [`integration-roster-reconcile`](../src/app/api/cron/integration-roster-reconcile/route.ts) | Org admins POST JSON to HTTPS receivers—escalations, credential expiry, **`integration.processing_failed`**; nightly roster drift reconcile for orgs with snapshots. |
+| **Planned / partner-built** | — | Native Workday/ADP/BambooHR OAuth, customer MCP server, ERP/DMS productized catalogs — see [portco-deferred-connectors.md](./roadmap/portco-deferred-connectors.md). |
 
 ---
 
@@ -139,7 +139,7 @@ flowchart LR
 
 [`external_party`](../src/server/db/schema.ts) models contractors, visitors, and temporary workers (program router). **`external_party_credential`** stores compliance artifacts (insurance COI, permit, training proof) with validity dates and evidence links; procedures live under **`externalParty.*`** in tRPC ([`externalParty` router](../src/server/trpc/routers/externalParty.ts)); UI: **`/dashboard/contractors`**.
 
-**Roadmap:** visitor kiosks, automated renewal queues, and deep LMS/HRIS integration—see [procurement-readiness.md § Initial wedge](./procurement-readiness.md).
+**Shipped:** `external_party` credentials, **`hris_contractor_sync`** inbound, renewal queue on `/dashboard/contractors`. **Roadmap:** visitor kiosks, native VMS OAuth — see [procurement-readiness.md § Initial wedge](./procurement-readiness.md) and [portco-deferred-connectors.md](./roadmap/portco-deferred-connectors.md).
 
 ---
 

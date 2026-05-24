@@ -60,3 +60,23 @@ describe("resolveRoleSlugFromGroupIds", () => {
     expect(slug).toBe("supervisor");
   });
 });
+
+describe("listScimGroups", () => {
+  it("returns empty array when org has no group mappings", async () => {
+    const { listScimGroups } = await import("@/server/services/scim/scimGroups");
+    const db = {
+      select: () => ({
+        from: () => ({
+          where: async () => [],
+        }),
+      }),
+    };
+
+    const groups = await listScimGroups(db as never, {
+      organizationId: "00000000-0000-4000-8000-000000000001",
+      defaultRoleSlug: "worker",
+    });
+
+    expect(groups).toEqual([]);
+  });
+});

@@ -42,4 +42,4 @@
 ## Production promote
 
 - Enable operational webhook `integration.processing_failed`
-- Schedule nightly `roster_snapshot` + pg-boss `integration.reconcileRoster` worker (`npm run job:worker`)
+- Schedule nightly `roster_snapshot` + Vercel cron `GET /api/cron/integration-roster-reconcile` (or pg-boss `integration.reconcileRoster` via `npm run job:worker`)

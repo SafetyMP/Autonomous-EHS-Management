@@ -8,9 +8,11 @@
 
 ## 1. Executive summary
 
-Autonomous EHS ships **integration plumbing** today (inbound webhook, event log, OIDC SSO pilot, operator UI). It does **not** ship productized Workday, ADP, or BambooHR connectors or SCIM directory sync.
+Autonomous EHS ships **PortCo integration plumbing** today: inbound webhook with v2 HRIS envelopes, SCIM Users/Groups (MVP), multi-org OIDC JIT claim rules, LMS→`training_record`, roster reconciliation, HRIS contractor sync, and the `/dashboard/integrations` operator UI.
 
-This playbook defines:
+It does **not** ship productized Workday, ADP, or BambooHR OAuth connectors — vendor transforms remain in customer iPaaS or SI middleware per [procurement-integrations-appendix.md](../procurement-integrations-appendix.md).
+
+**Phases 1–3 are shipped.** This playbook documents architecture, runbooks, and pilot operations:
 
 1. **Phase 1** — PortCo-ready identity (SCIM, multi-org OIDC JIT, extended HRIS envelope).
 2. **Phase 2** — Named connector packages via **iPaaS-first** recipes (Workday, ADP, BambooHR).
@@ -22,14 +24,16 @@ This playbook defines:
 
 | Component | Location | Behavior |
 |-----------|----------|----------|
-| Inbound webhook | [`src/app/api/integration/inbound/route.ts`](../../src/app/api/integration/inbound/route.ts) | Bearer secret; Zod-validated envelopes |
-| HRIS envelope | [`src/lib/integration/inboundEnvelope.ts`](../../src/lib/integration/inboundEnvelope.ts) | `workerEmail`, `organizationId`, optional `siteId` |
-| HRIS apply | [`src/server/services/hrisMembershipSyncIngest.ts`](../../src/server/services/hrisMembershipSyncIngest.ts) | Updates `membership.siteId` for **existing** member |
-| Async processing | [`docs/JOB_QUEUE.md`](../JOB_QUEUE.md) | `202` + pg-boss job when `PG_BOSS_ENABLED=true` |
-| OIDC JIT | [`docs/OIDC_JIT_PROVISIONING.md`](../OIDC_JIT_PROVISIONING.md) | Single default org + role on first SSO sign-in |
-| Operator UI | [`/dashboard/integrations`](../../src/app/dashboard/integrations/page.tsx) | Events, mapping JSON, webhooks, export |
+| Inbound webhook | [`src/app/api/integration/inbound/route.ts`](../../src/app/api/integration/inbound/route.ts) | Bearer secret; Zod-validated envelopes (`hris_membership_sync`, `training_completion`, `hris_contractor_sync`, `roster_snapshot`) |
+| HRIS envelope v2 | [`src/lib/integration/inboundEnvelope.ts`](../../src/lib/integration/inboundEnvelope.ts) | Joiner/mover/leaver fields: `externalWorkerId`, department, manager, `employmentStatus`, etc. |
+| HRIS apply | [`src/server/services/hrisMembershipSyncIngest.ts`](../../src/server/services/hrisMembershipSyncIngest.ts) | Provisions joiners (user + membership); updates site/profile; `terminated` → `deprovisioned` + session revoke |
+| SCIM 2.0 | [`src/app/api/scim/v2/`](../../src/app/api/scim/v2/) | Users CRUD; Groups GET/PATCH (members); group→role mapping in admin UI |
+| OIDC JIT | [`src/server/services/oidcJitProvisioning.ts`](../../src/server/services/oidcJitProvisioning.ts) | DB claim rules per org + role; env fallback; fail-closed when no rule matches |
+| Async processing | [`docs/JOB_QUEUE.md`](../JOB_QUEUE.md) | HRIS membership: `202` + pg-boss when `PG_BOSS_ENABLED=true`; other kinds inline |
+| Roster reconcile | [`src/server/services/rosterReconciliation.ts`](../../src/server/services/rosterReconciliation.ts) | Snapshot ingest + drift detection; optional nightly cron (`/api/cron/integration-roster-reconcile`) |
+| Operator UI | [`/dashboard/integrations`](../../src/app/dashboard/integrations/page.tsx) | Events, connector presets, SCIM/OIDC panel, roster drift, webhooks, export |
 
-**PortCo gap:** No joiner/mover/leaver automation; no multi-legal-entity IdP group mapping; HRIS sync is site-only.
+**Remaining gaps (optional):** native Workday OAuth, IdP-driven SCIM Group create (groups pre-seeded in UI today), roster auto-remediation, runtime connector-mapping transforms.
 
 ---
 
@@ -76,9 +80,9 @@ flowchart TB
 
 ---
 
-## 4. Phase 1 — PortCo-ready identity
+## 4. Phase 1 — PortCo-ready identity (shipped)
 
-### 4.1 SCIM 2.0 provisioning (design)
+### 4.1 SCIM 2.0 provisioning
 
 **New surface:** `POST/PATCH/DELETE /api/scim/v2/Users`, `Groups` (or subset: Users + Group membership).
 
@@ -149,7 +153,7 @@ Requires Drizzle migration + updated [`hrisMembershipSyncIngest.ts`](../../src/s
 
 ---
 
-## 5. Phase 2 — Named connector packages (iPaaS-first)
+## 5. Phase 2 — Named connector packages (iPaaS-first, shipped)
 
 Each **certified playbook** includes: field mapping table, sample payloads, test fixtures, dashboard preset JSON for `integration_connector_mapping`, and runbook for failures.
 
@@ -227,26 +231,24 @@ Mid-market PortCos often use BambooHR + Okta; SCIM from Okta handles **user crea
 
 ---
 
-## 6. Phase 3 — Reconciliation & LMS depth
+## 6. Phase 3 — Reconciliation & LMS depth (shipped)
 
 ### 6.1 Nightly roster reconciliation
 
-**Job:** `integration.reconcileRoster` (cron or pg-boss scheduled).
+**Job:** `integration.reconcileRoster` (pg-boss worker + optional Vercel cron at `/api/cron/integration-roster-reconcile`).
 
-1. Load latest HRIS export snapshot (S3/blob or warehouse table populated by iPaaS).
-2. Diff against active `membership` rows for org.
-3. Emit `integration_event` rows for mismatches; optional auto-apply when policy allows.
-4. Dashboard widget: “Roster drift: N workers in HRIS not in EHS.”
+1. iPaaS POSTs `roster_snapshot` to inbound webhook (or operator enqueues reconcile from UI).
+2. Diff latest snapshot against active `membership` rows for org.
+3. Emit `roster_reconcile_drift` integration events; audit log. **Detect-only** — no auto-remediation.
+4. Dashboard widget: roster drift count on `/dashboard/integrations`.
 
 ### 6.2 LMS → training records
 
-Today [`training_completion`](../../src/lib/integration/trainingCompletion.ts) logs events only.
-
-**Target:** Match `externalWorkerId` or email → `userId`; upsert `training_record` with course code, completion date, expiry; audit log.
+[`training_completion`](../../src/lib/integration/trainingCompletion.ts) inbound upserts `training_record` when `externalWorkerId` matches membership; always writes `integration_event` + audit log.
 
 ### 6.3 Contractor lifecycle
 
-Link HRIS/VMS contractor workers to [`external_party`](../../src/server/trpc/routers/externalParty.ts) per [procurement-readiness.md](../procurement-readiness.md) §9 wedge.
+`hris_contractor_sync` inbound upserts [`external_party`](../../src/server/trpc/routers/externalParty.ts) by `externalWorkerId` per [procurement-readiness.md](../procurement-readiness.md) §9 wedge.
 
 ---
 
@@ -272,7 +274,7 @@ Link HRIS/VMS contractor workers to [`external_party`](../../src/server/trpc/rou
 
 ### Configure
 
-- [ ] OIDC SSO + JIT mapping rules (or SCIM when shipped)
+- [ ] OIDC SSO + JIT mapping rules **or** SCIM bearer token + group→role mappings
 - [ ] EHS sites created with stable ids for location mapping
 - [ ] RBAC role templates per PortCo function
 - [ ] `INTEGRATION_INBOUND_SECRET` in iPaaS vault

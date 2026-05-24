@@ -9,7 +9,7 @@ export const hrisEmploymentStatusSchema = z.enum(["active", "terminated", "leave
 
 export const hrisMembershipSyncSchema = z.object({
   organizationId: z.string().uuid(),
-  /** Primary org contact email in HRIS; must match an existing Better Auth user. */
+  /** Primary org contact email in HRIS; joiner path creates user + membership when new. */
   workerEmail: z.string().email().max(320),
   siteId: z.string().uuid().optional().nullable(),
   externalWorkerId: z.string().min(1).max(128).optional().nullable(),

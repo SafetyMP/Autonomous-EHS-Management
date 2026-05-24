@@ -44,9 +44,9 @@ Upstream systems (HRIS, iPaaS, or custom middleware) POST a canonical payload va
 
 Processing ([`src/server/services/hrisMembershipSyncIngest.ts`](../src/server/services/hrisMembershipSyncIngest.ts)):
 
-1. Normalizes `workerEmail` and looks up an existing Better Auth user.
-2. Requires an existing `membership` row for `(organizationId, userId)`.
-3. Optionally validates and sets `membership.siteId` when `siteId` is provided.
+1. Normalizes `workerEmail` and **provisions user + membership** when the worker is new (HRIS v2 joiner path).
+2. Updates site, department, job title, manager, cost center, and `externalWorkerId` for existing members.
+3. `employmentStatus: terminated` → `deprovisioned` lifecycle + session revoke (soft deprovision; regulated history retained).
 4. Writes `audit_log` (`integration.hris_membership_sync`) and updates `integration_event` status.
 
 ### What it does **not** do
@@ -68,10 +68,11 @@ Processing ([`src/server/services/hrisMembershipSyncIngest.ts`](../src/server/se
 
 ### Typical PortCo path today
 
-1. Configure **OIDC SSO** against corporate IdP (often shared with HRIS identity).
-2. **Bootstrap users and memberships** (admin invite, seed script, or custom provisioning job).
-3. Route HRIS location/worker updates through **Workato / Boomi / custom worker** → canonical webhook.
-4. Plan **Phase 1 identity** (SCIM, multi-org OIDC JIT) per [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md).
+1. Configure **OIDC SSO** against corporate IdP (often shared with HRIS identity) **or** SCIM provisioning from IdP.
+2. Configure **multi-org OIDC JIT claim rules** or **SCIM group→role mappings** on `/dashboard/integrations` for PE portfolio entities.
+3. Route HRIS location/worker updates through **Workato / Boomi / custom worker** → canonical webhook (see runbooks in `docs/runbooks/`).
+4. Enable **`PG_BOSS_ENABLED`** + job worker for durable HRIS ingest; configure operational webhooks for `integration.processing_failed`.
+5. Optional: nightly `roster_snapshot` + cron `/api/cron/integration-roster-reconcile` for drift monitoring.
 
 ---
 
@@ -137,11 +138,11 @@ Add these rows to diligence responses alongside [procurement-readiness.md](./pro
 
 | Risk / question | Current state | Buyer-facing statement |
 |-----------------|---------------|-------------------------|
-| **Turnkey Workday connector** | Generic webhook + operator mapping docs | Certified Workday playbook and iPaaS recipes are **roadmap**; today requires middleware mapping to canonical JSON. |
-| **Automated joiner/mover/leaver** | Not shipped | User lifecycle is manual or custom until SCIM / directory sync (see HRIS playbook Phase 1). |
-| **LMS → training records** | Event log only | Inbound completions are auditable events; reconciliation into `training_record` is **planned**, not automatic. |
+| **Turnkey Workday connector** | iPaaS playbooks + fixtures ship; no native OAuth module | Workday RAAS/EIB → iPaaS → canonical webhook; native Workday REST OAuth is **optional roadmap** only. |
+| **Automated joiner/mover/leaver** | **Shipped** — HRIS v2 provision path + SCIM Users API + `employmentStatus: terminated` deprovision | IdP SCIM preferred for user create; HRIS webhook handles site/department/manager updates. |
+| **LMS → training records** | **Shipped** — inbound upserts `training_record` when worker id matches membership | Completions are auditable events **and** reconcile into training records. |
 | **MCP server in product** | Not shipped | Context Sync REST is the supported agent interoperability surface; MCP adapter is optional future packaging. |
-| **Multi-entity PE portfolio** | Single-org OIDC JIT pilot | IdP group → org mapping requires Phase 1 identity work for multi-legal-entity portfolios. |
+| **Multi-entity PE portfolio** | **Shipped (pilot)** — OIDC JIT claim rules + SCIM group→role mappings per org | Map IdP groups or claims to org UUID + role template; fail-closed when no rule matches. |
 
 ---
 

@@ -12,5 +12,9 @@ export const config: VercelConfig = {
       path: "/api/cron/data-retention",
       schedule: "30 9 * * *",
     },
+    {
+      path: "/api/cron/integration-roster-reconcile",
+      schedule: "0 3 * * *",
+    },
   ],
 };

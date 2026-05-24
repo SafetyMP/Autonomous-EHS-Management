@@ -25,7 +25,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e --grep @smoke",
-    "job:worker": "tsx scripts/job-worker.ts"
+    "job:worker": "tsx scripts/job-worker.ts",
+    "portco:pilot-verify": "tsx scripts/portco-pilot-verify.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

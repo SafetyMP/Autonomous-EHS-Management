@@ -11,11 +11,17 @@ import {
   ingestRosterSnapshotFromPayload,
 } from "@/server/services/rosterReconciliation";
 import { dispatchOperationalWebhooks } from "@/server/services/operationalWebhookDispatch";
+import { hrisContractorSyncSchema } from "@/lib/integration/hrisContractorSync";
+import { hrisMembershipSyncSchema } from "@/lib/integration/inboundEnvelope";
+import {
+  reapplyTrainingCompletionFromStoredPayload,
+} from "@/server/services/trainingCompletionIngest";
 
-const storedHrisPayloadSchema = z.object({
-  workerEmail: z.string().email(),
-  siteId: z.string().uuid().nullable().optional(),
-});
+const storedHrisPayloadSchema = hrisMembershipSyncSchema
+  .omit({ organizationId: true })
+  .extend({
+    workerEmail: z.string().email(),
+  });
 
 export async function processHrisMembershipSyncInbound(
   db: Db,
@@ -103,8 +109,7 @@ export async function reprocessFailedIntegrationEvent(
     }
     const input: HrisMembershipSyncInput = {
       organizationId: ev.organizationId,
-      workerEmail: parsed.data.workerEmail,
-      siteId: parsed.data.siteId ?? null,
+      ...parsed.data,
     };
     try {
       const now = new Date();
@@ -134,16 +139,77 @@ export async function reprocessFailedIntegrationEvent(
   }
 
   if (ev.eventType === "training_completion") {
-    const now = new Date();
-    await db
-      .update(integrationEvent)
-      .set({
-        processingStatus: "applied",
-        appliedAt: now,
-        processingError: null,
-      })
-      .where(eq(integrationEvent.id, ev.id));
-    return { ok: true };
+    try {
+      const trainingRecordId = await reapplyTrainingCompletionFromStoredPayload(
+        db,
+        ev.organizationId,
+        ev.id,
+        ev.payload,
+        args.actorUserId,
+      );
+      const now = new Date();
+      await db
+        .update(integrationEvent)
+        .set({
+          processingStatus: "applied",
+          appliedAt: now,
+          processingError: null,
+          payload: {
+            ...(typeof ev.payload === "object" && ev.payload ? ev.payload : {}),
+            trainingRecordId,
+            reprocessedAt: now.toISOString(),
+          },
+        })
+        .where(eq(integrationEvent.id, ev.id));
+      return { ok: true };
+    } catch (e) {
+      const msg = (e instanceof Error ? e.message : String(e)).slice(0, 2000);
+      await db
+        .update(integrationEvent)
+        .set({ processingStatus: "failed", processingError: msg })
+        .where(eq(integrationEvent.id, ev.id));
+      return { ok: false, message: msg };
+    }
+  }
+
+  if (ev.eventType === "hris_contractor_sync") {
+    const parsed = hrisContractorSyncSchema.safeParse({
+      organizationId: ev.organizationId,
+      ...(typeof ev.payload === "object" && ev.payload ? ev.payload : {}),
+    });
+    if (!parsed.success) {
+      return { ok: false, message: "Invalid stored contractor payload." };
+    }
+    try {
+      const now = new Date();
+      await db.transaction(async (tx) => {
+        await applyHrisContractorSync(tx, parsed.data, ev.id, args.actorUserId);
+        await tx
+          .update(integrationEvent)
+          .set({
+            processingStatus: "applied",
+            appliedAt: now,
+            processingError: null,
+          })
+          .where(eq(integrationEvent.id, ev.id));
+      });
+      return { ok: true };
+    } catch (e) {
+      const msg = (e instanceof Error ? e.message : String(e)).slice(0, 2000);
+      await db
+        .update(integrationEvent)
+        .set({ processingStatus: "failed", processingError: msg })
+        .where(eq(integrationEvent.id, ev.id));
+      return { ok: false, message: msg };
+    }
+  }
+
+  if (ev.eventType === "roster_snapshot") {
+    return {
+      ok: false,
+      message:
+        "Roster snapshot reprocess is not supported from stored events; re-post the roster_snapshot batch to /api/integration/inbound.",
+    };
   }
 
   return { ok: false, message: `Unsupported eventType: ${ev.eventType}` };
@@ -161,7 +227,12 @@ export async function processHrisContractorSyncInbound(
       payload: {
         externalWorkerId: input.externalWorkerId,
         companyName: input.companyName,
+        contactName: input.contactName ?? null,
+        contactEmail: input.contactEmail ?? null,
+        siteId: input.siteId ?? null,
         partyType: input.partyType,
+        hrisSource: input.hrisSource ?? null,
+        employmentStatus: input.employmentStatus ?? null,
       },
       processingStatus: "pending",
     })

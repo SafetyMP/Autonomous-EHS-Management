@@ -6,6 +6,7 @@ Engineering specs and playbooks derived from enterprise diligence feedback. Thes
 |----------|-------|--------|
 | [action-queue-dashboard-spec.md](./action-queue-dashboard-spec.md) | Unified next-action UX and `tasks.actionQueue` API | Phase A/B shipped; Phase C in progress |
 | [hris-portco-integration-playbook.md](./hris-portco-integration-playbook.md) | SCIM, multi-org OIDC JIT, Workday/ADP/BambooHR iPaaS recipes | **Phase 1–2 shipped** (identity + runbooks); Phase 3 reconciliation/LMS depth shipped; native Workday OAuth optional |
+| [portco-deferred-connectors.md](./portco-deferred-connectors.md) | Explicit non-goals (native HRIS OAuth, customer MCP, VMS kiosks) | Reference for RFP honesty — not scheduled until customer demand |
 
 **Architecture decisions:** [../adr/0001-mcp-context-sync-strategy.md](../adr/0001-mcp-context-sync-strategy.md)
 

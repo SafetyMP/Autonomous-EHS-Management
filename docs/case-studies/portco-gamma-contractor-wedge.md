@@ -1,5 +1,7 @@
 # PortCo pilot — Gamma contractor compliance wedge (anonymized)
 
+> **GTM note:** Synthetic illustrative metrics for procurement conversations. Replace per [PUBLICATION.md](./PUBLICATION.md) before external use.
+
 **Site / scope:** One chemical processing site — contractor & visitor credential programme only
 
 **Duration:** 2025-09-01 – 2025-12-15 (15 weeks)

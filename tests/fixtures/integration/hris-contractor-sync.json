@@ -1,0 +1,12 @@
+{
+  "kind": "hris_contractor_sync",
+  "organizationId": "00000000-0000-4000-8000-000000000001",
+  "externalWorkerId": "VMS-C-4401",
+  "companyName": "Acme Industrial Services LLC",
+  "contactName": "Jordan Tech",
+  "contactEmail": "jordan.tech@acme-ind.example",
+  "partyType": "contractor",
+  "hrisSource": "vms_export",
+  "employmentStatus": "active",
+  "idempotencyKey": "vms:C-4401:2026-05-24"
+}

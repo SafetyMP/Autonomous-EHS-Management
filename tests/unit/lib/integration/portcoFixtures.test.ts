@@ -29,4 +29,13 @@ describe("PortCo iPaaS HRIS fixtures", () => {
       expect(parsed.data.externalWorkerId).toBe("BHR-90210");
     }
   });
+
+  it("validates HRIS contractor sync sample payload", () => {
+    const raw = JSON.parse(readFileSync(resolve(fixtureDir, "hris-contractor-sync.json"), "utf8"));
+    const parsed = integrationInboundSchema.safeParse(raw);
+    expect(parsed.success).toBe(true);
+    if (parsed.success && parsed.data.kind === "hris_contractor_sync") {
+      expect(parsed.data.externalWorkerId).toBe("VMS-C-4401");
+    }
+  });
 });

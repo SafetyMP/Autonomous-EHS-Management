@@ -114,6 +114,37 @@ export const CONNECTOR_PRESETS: ConnectorPreset[] = [
       },
     },
   },
+  {
+    vendor: "hris_contractor",
+    label: "HRIS/VMS contractor sync (iPaaS)",
+    connectorKey: "hris_inbound",
+    schemaVersion: 1,
+    mappingJson: {
+      vendor: "hris_contractor",
+      notesForOperators:
+        "POST hris_contractor_sync to /api/integration/inbound; upserts external_party by externalWorkerId.",
+      trigger: "VMS export or HRIS contractor roster poll",
+      fieldMap: {
+        workerId: "externalWorkerId",
+        companyName: "companyName",
+        contactEmail: "contactEmail",
+        siteCode: "siteId",
+        status: "employmentStatus",
+      },
+    },
+    samplePayload: {
+      kind: "hris_contractor_sync",
+      organizationId: "00000000-0000-4000-8000-000000000001",
+      externalWorkerId: "VMS-C-4401",
+      companyName: "Acme Industrial Services LLC",
+      contactName: "Jordan Tech",
+      contactEmail: "jordan.tech@acme-ind.example",
+      partyType: "contractor",
+      hrisSource: "vms_export",
+      employmentStatus: "active",
+      idempotencyKey: "vms:C-4401:2026-05-24",
+    },
+  },
 ];
 
 export function presetForVendor(vendor: string): ConnectorPreset | undefined {
