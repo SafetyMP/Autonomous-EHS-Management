@@ -43,3 +43,20 @@ Subscriptions are explicit per endpoint (`subscribed_events`).
 Optional shared secret configured on create/update. Requests include **`X-EHS-Signature`** as `sha256=<hex_hmac>` computed over **the exact UTF-8 JSON bytes** of the envelope using **HMAC-SHA256**.
 
 Use your platform’s verifier; this repo publishes `verifyOperationalWebhookSignature` in [`src/server/services/operationalWebhookDispatch.ts`](../src/server/services/operationalWebhookDispatch.ts) for reference tests.
+
+## Slack and Microsoft Teams
+
+When the **target URL** host matches a known pattern, delivery uses channel-specific formatting (see [`src/lib/operationalWebhook/channelAdapters.ts`](../src/lib/operationalWebhook/channelAdapters.ts)):
+
+| Host pattern | Channel | Body shape |
+|--------------|---------|------------|
+| `hooks.slack.com`, `*.slack.com` | Slack | Incoming webhook JSON with `text` + `blocks` |
+| `webhook.office.com`, `outlook.office.com`, `*.office365.com` | Teams | Office 365 Connector **MessageCard** |
+| Other HTTPS URLs | Generic | Raw JSON envelope (table above) |
+
+Org admins can verify wiring from **Dashboard → Integrations → Operational webhooks** via **`organization.sendOperationalWebhookTest`** (UI: **Send test**). The test event id is `operational_webhook.test`; HMAC applies when a secret is configured.
+
+## Operator UX
+
+- **Integrations** (`/dashboard/integrations`): failed HRIS events show remediation hints; **Retry all (up to 25)** calls `integration.reprocessAllFailedEvents`.
+- **Contractor detail**: program-level **site access blocked** banner derives from credential state (not physical gate control).

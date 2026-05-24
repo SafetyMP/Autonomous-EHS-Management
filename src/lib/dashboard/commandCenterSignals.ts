@@ -78,6 +78,20 @@ const ATTENTION_CHIP_RULES: readonly {
     label: (n) => `${n} open observation(s)`,
   },
   {
+    id: "attention-contractor-renewal",
+    href: "/dashboard/contractors",
+    minCount: 1,
+    metric: (k) => k.contractorCompliance?.renewalAttentionCount ?? 0,
+    label: (n) => `${n} contractor credential(s) expired or due in 30d`,
+  },
+  {
+    id: "attention-integration-failed",
+    href: "/dashboard/integrations",
+    minCount: 1,
+    metric: (k) => k.integrationHealth?.failedEventCount ?? 0,
+    label: (n) => `${n} failed integration event(s)`,
+  },
+  {
     id: "attention-program-auto-obs-escalations",
     href: "/dashboard/analytics#operations-sla-escalations",
     minCount: PROGRAM_AUTOMATION_ESCALATION_CHIP_MIN,
@@ -252,6 +266,30 @@ export const COMMAND_CENTER_KPI_TILES: readonly {
     emphasize: (k) =>
       (k?.programAutomation?.observationFollowUpEscalationsRecorded90d ?? 0) > 0,
     sublabel: () => "Recorded when follow-up due dates pass—humans own closure",
+  },
+  {
+    key: "contractor-renewal",
+    title: "Contractor credentials (30d)",
+    href: "/dashboard/contractors",
+    value: (k) =>
+      k?.contractorCompliance ? k.contractorCompliance.renewalAttentionCount : "—",
+    emphasize: (k) => (k?.contractorCompliance?.renewalAttentionCount ?? 0) > 0,
+    sublabel: (k) => {
+      const cc = k?.contractorCompliance;
+      if (!cc || cc.renewalAttentionCount === 0) return undefined;
+      const parts: string[] = [];
+      if (cc.credentialsExpired > 0) parts.push(`${cc.credentialsExpired} expired`);
+      if (cc.credentialsDueSoon30d > 0) parts.push(`${cc.credentialsDueSoon30d} due soon`);
+      return parts.join(" · ");
+    },
+  },
+  {
+    key: "integration-failed",
+    title: "Failed integration events",
+    href: "/dashboard/integrations",
+    value: (k) => (k?.integrationHealth ? k.integrationHealth.failedEventCount : "—"),
+    emphasize: (k) => (k?.integrationHealth?.failedEventCount ?? 0) > 0,
+    sublabel: () => "HRIS/LMS inbound backlog — reprocess when root cause fixed",
   },
   {
     key: "sla-esc-appr",

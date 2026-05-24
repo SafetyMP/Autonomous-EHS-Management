@@ -6,6 +6,8 @@ import {
   complianceObligation,
   correctiveAction,
   environmentalRegulatoryPermit,
+  externalParty,
+  externalPartyCredential,
   managementReview,
   trainingRecord,
   workPermit,
@@ -328,6 +330,55 @@ export async function collectActionQueueItems(
           isOverdue,
           href: buildActionQueueHref("management_review", review.id),
           ctaLabel: ctaLabelForType("management_review"),
+        });
+      }
+    }
+
+    const externalPartyOk = await userHasPermission(
+      db as Db,
+      userId,
+      organizationId,
+      PERMISSIONS.EXTERNAL_PARTY_READ,
+    );
+    if (externalPartyOk) {
+      const horizon = new Date(now.getTime() + 30 * MS_DAY);
+      const renewalRows = await db
+        .select({
+          credential: externalPartyCredential,
+          party: externalParty,
+        })
+        .from(externalPartyCredential)
+        .innerJoin(externalParty, eq(externalPartyCredential.externalPartyId, externalParty.id))
+        .where(
+          and(
+            eq(externalPartyCredential.organizationId, organizationId),
+            isNotNull(externalPartyCredential.validTo),
+            inArray(externalPartyCredential.status, ["active", "pending_review", "expired"]),
+            lte(externalPartyCredential.validTo, horizon),
+          ),
+        )
+        .orderBy(asc(externalPartyCredential.validTo))
+        .limit(25);
+
+      for (const { credential, party } of renewalRows) {
+        const dueAt = credential.validTo!;
+        const { priorityScore, isOverdue } = scoreActionQueueItem({
+          type: "contractor_credential",
+          dueAt,
+          now,
+        });
+        const kindLabel = credential.kind.replace(/_/g, " ");
+        items.push({
+          id: `contractor_credential:${credential.id}`,
+          type: "contractor_credential",
+          recordId: party.id,
+          title: `${party.companyName} — ${kindLabel}`,
+          reason: reasonForItem("contractor_credential", isOverdue),
+          dueAt: dueAt.toISOString(),
+          priorityScore,
+          isOverdue,
+          href: buildActionQueueHref("contractor_credential", party.id),
+          ctaLabel: ctaLabelForType("contractor_credential"),
         });
       }
     }

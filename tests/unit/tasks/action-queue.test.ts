@@ -32,6 +32,9 @@ describe("buildActionQueueHref", () => {
     expect(buildActionQueueHref("obligation_review", "ob-1")).toBe(
       "/dashboard/environment?obligation=ob-1",
     );
+    expect(buildActionQueueHref("contractor_credential", "party-1")).toBe(
+      "/dashboard/contractors/party-1",
+    );
   });
 });
 
@@ -48,8 +51,15 @@ describe("scoreActionQueueItem", () => {
       dueAt: new Date("2026-05-20T12:00:00Z"),
       now,
     });
+    const expiredContractor = scoreActionQueueItem({
+      type: "contractor_credential",
+      dueAt: new Date("2026-05-20T12:00:00Z"),
+      now,
+    });
     expect(overdue.priorityScore).toBeLessThan(capa.priorityScore);
+    expect(expiredContractor.priorityScore).toBeLessThan(capa.priorityScore);
     expect(overdue.isOverdue).toBe(true);
+    expect(expiredContractor.isOverdue).toBe(true);
   });
 });
 

@@ -300,6 +300,74 @@ export const integrationRouter = router({
       return { ok: true as const, queued: false as const };
     }),
 
+  reprocessAllFailedEvents: protectedMutation
+    .input(
+      orgScope.extend({
+        limit: z.number().int().min(1).max(25).optional().default(10),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.INTEGRATION_WRITE,
+      );
+
+      const failed = await ctx.db
+        .select({ id: integrationEvent.id })
+        .from(integrationEvent)
+        .where(
+          and(
+            eq(integrationEvent.organizationId, input.organizationId),
+            eq(integrationEvent.processingStatus, "failed"),
+          ),
+        )
+        .orderBy(desc(integrationEvent.createdAt))
+        .limit(input.limit);
+
+      if (failed.length === 0) {
+        return { ok: true as const, attempted: 0, queued: 0, succeeded: 0 };
+      }
+
+      let queued = 0;
+      let succeeded = 0;
+
+      for (const row of failed) {
+        if (env.PG_BOSS_ENABLED === "true") {
+          await getJobQueue().enqueue(JOB_NAMES.INTEGRATION_REPROCESS_FAILED, {
+            organizationId: input.organizationId,
+            eventId: row.id,
+            actorUserId: ctx.user.id,
+          });
+          queued += 1;
+        } else {
+          const result = await reprocessFailedIntegrationEvent(ctx.db, {
+            organizationId: input.organizationId,
+            eventId: row.id,
+            actorUserId: ctx.user.id,
+          });
+          if (result.ok) succeeded += 1;
+        }
+      }
+
+      await writeAuditLog(ctx.db, {
+        organizationId: input.organizationId,
+        actorUserId: ctx.user.id,
+        action: "integration.reprocess_all_failed",
+        entityType: "organization",
+        entityId: input.organizationId,
+        payload: { attempted: failed.length, queued, succeeded },
+      });
+
+      return {
+        ok: true as const,
+        attempted: failed.length,
+        queued,
+        succeeded,
+      };
+    }),
+
   rosterDriftSummary: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
     await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.INTEGRATION_READ);
     const { getLatestRosterDriftSummary } = await import("@/server/services/rosterReconciliation");

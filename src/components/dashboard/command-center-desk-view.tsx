@@ -6,6 +6,7 @@ import { OrgSwitcher } from "@/components/org-switcher";
 import { DashboardActionQueueHero } from "@/components/dashboard/dashboard-action-queue-hero";
 import { DashboardActivityFeed } from "@/components/dashboard/dashboard-activity-feed";
 import { CommandCenterCsvButton } from "@/components/dashboard/command-center-csv-button";
+import { PortCoPilotProofPanel } from "@/components/dashboard/portco-pilot-proof-panel";
 import { DashboardKpiTile } from "@/components/dashboard/dashboard-kpi-tile";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { DashboardQuickActions } from "@/components/dashboard/dashboard-quick-actions";
@@ -259,6 +260,8 @@ export function CommandCenterDeskView({
               </ul>
             </div>
           </details>
+
+          {showFullKpis ? <PortCoPilotProofPanel /> : null}
 
           <p className="text-center text-xs text-zinc-500 xl:text-right">
             <Link href="/dashboard/analytics" className="font-medium text-emerald-900 underline underline-offset-2">

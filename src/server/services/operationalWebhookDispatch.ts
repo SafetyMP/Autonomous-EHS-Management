@@ -3,6 +3,11 @@ import { and, eq } from "drizzle-orm";
 import type { Db } from "@/server/db";
 import { operationalWebhookEndpoint } from "@/server/db/schema";
 import type { OperationalWebhookEventId } from "@/lib/operationalWebhook/eventTypes";
+import {
+  detectNotificationChannel,
+  formatOperationalWebhookBody,
+  type OperationalWebhookEnvelope,
+} from "@/lib/operationalWebhook/channelAdapters";
 import { logError, logWarn } from "@/lib/logger";
 
 /** Spec version for consumer parsers; bump when payload envelope changes. */
@@ -34,15 +39,16 @@ export function verifyOperationalWebhookSignature(
 async function deliverOne(
   targetUrl: string,
   secret: string | null | undefined,
-  envelope: Record<string, unknown>,
+  envelope: OperationalWebhookEnvelope,
 ): Promise<void> {
-  const raw = JSON.stringify(envelope);
+  const channel = detectNotificationChannel(targetUrl);
+  const { body, contentType } = formatOperationalWebhookBody(channel, envelope);
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "X-EHS-Delivery": "operational_webhook_v1",
+    "Content-Type": contentType,
+    "X-EHS-Delivery": channel === "json" ? "operational_webhook_v1" : `operational_webhook_v1_${channel}`,
   };
   if (secret) {
-    headers["X-EHS-Signature"] = signPayload(secret, raw);
+    headers["X-EHS-Signature"] = signPayload(secret, body);
   }
 
   const ac = new AbortController();
@@ -52,7 +58,7 @@ async function deliverOne(
     const res = await fetch(targetUrl, {
       method: "POST",
       headers,
-      body: raw,
+      body,
       signal: ac.signal,
     });
     if (!res.ok) {
@@ -105,7 +111,7 @@ export async function dispatchOperationalWebhooks(args: {
   }
 
   const occurredAt = new Date().toISOString();
-  const envelope = {
+  const envelope: OperationalWebhookEnvelope = {
     specVersion: WEBHOOK_SPEC_VERSION,
     eventType,
     occurredAt,
@@ -117,7 +123,7 @@ export async function dispatchOperationalWebhooks(args: {
     const subscribed = Array.isArray(row.subscribedEvents) ? row.subscribedEvents : [];
     if (!subscribed.includes(eventType)) continue;
     try {
-      await deliverOne(row.targetUrl, row.secret ?? null, envelope as Record<string, unknown>);
+      await deliverOne(row.targetUrl, row.secret ?? null, envelope);
     } catch (e) {
       logWarn("operational_webhook.deliver_failed", {
         organizationId,
@@ -128,4 +134,33 @@ export async function dispatchOperationalWebhooks(args: {
       });
     }
   }
+}
+
+/** Org-admin test ping using a subscribed event shape (or integration failure sample). */
+export async function deliverOperationalWebhookTest(args: {
+  targetUrl: string;
+  secret: string | null | undefined;
+  organizationId: string;
+  subscribedEvents: OperationalWebhookEventId[];
+}): Promise<{ channel: ReturnType<typeof detectNotificationChannel> }> {
+  const eventType = args.subscribedEvents[0] ?? "integration.processing_failed";
+  const data =
+    eventType === "integration.processing_failed"
+      ? {
+          integrationEventId: "00000000-0000-4000-8000-000000009999",
+          sourceEventType: "operational_webhook.test",
+          processingErrorPreview: "Test delivery from EHS Console — no action required.",
+        }
+      : { message: "Test delivery from EHS Console — no action required." };
+
+  const envelope: OperationalWebhookEnvelope = {
+    specVersion: WEBHOOK_SPEC_VERSION,
+    eventType,
+    occurredAt: new Date().toISOString(),
+    organizationId: args.organizationId,
+    data,
+  };
+  const channel = detectNotificationChannel(args.targetUrl);
+  await deliverOne(args.targetUrl, args.secret ?? null, envelope);
+  return { channel };
 }

@@ -100,6 +100,12 @@ describe("externalParty.getParty", () => {
       signal: testAbortSignal,
       batchIndex: 0,
     });
-    expect(out).toEqual(row);
+    expect(out).toMatchObject({
+      ...row,
+      compliance: expect.objectContaining({
+        siteAccessBlocked: true,
+        siteAccessStatus: "blocked",
+      }),
+    });
   });
 });

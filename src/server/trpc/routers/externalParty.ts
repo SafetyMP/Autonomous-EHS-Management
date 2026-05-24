@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
@@ -9,6 +9,8 @@ import {
   externalPartyCredentialStatusEnum,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { fetchContractorComplianceCounts } from "@/server/services/contractor/complianceSnapshot";
+import { computePartyComplianceSummary } from "@/lib/contractor/siteAccessStatus";
 import { assertExternalPartyInOrg } from "../assertOrgScoped";
 import { protectedMutation, protectedProcedure, router } from "../init";
 import { orgScope } from "../schemas/orgScope";
@@ -117,35 +119,7 @@ export const externalPartyRouter = router({
       input.organizationId,
       PERMISSIONS.EXTERNAL_PARTY_READ,
     );
-    const now = new Date();
-    const horizon = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-
-    const creds = await ctx.db
-      .select({ validTo: externalPartyCredential.validTo, status: externalPartyCredential.status })
-      .from(externalPartyCredential)
-      .where(eq(externalPartyCredential.organizationId, input.organizationId));
-
-    let expired = 0;
-    let dueSoon = 0;
-    let active = 0;
-    for (const c of creds) {
-      if (c.status === "rejected") continue;
-      if (c.validTo && c.validTo < now) expired += 1;
-      else if (c.validTo && c.validTo <= horizon) dueSoon += 1;
-      else active += 1;
-    }
-
-    const [partyCount] = await ctx.db
-      .select({ n: count() })
-      .from(externalParty)
-      .where(eq(externalParty.organizationId, input.organizationId));
-
-    return {
-      externalPartyCount: Number(partyCount?.n ?? 0),
-      credentialsExpired: expired,
-      credentialsDueSoon30d: dueSoon,
-      credentialsActive: active,
-    };
+    return fetchContractorComplianceCounts(ctx.db, input.organizationId);
   }),
 
   listCredentials: protectedProcedure
@@ -319,6 +293,67 @@ export const externalPartyRouter = router({
       if (!party) {
         throw new TRPCError({ code: "NOT_FOUND", message: "External party not found." });
       }
-      return party;
+      const credRows = await ctx.db
+        .select({
+          kind: externalPartyCredential.kind,
+          status: externalPartyCredential.status,
+          validTo: externalPartyCredential.validTo,
+        })
+        .from(externalPartyCredential)
+        .where(
+          and(
+            eq(externalPartyCredential.organizationId, input.organizationId),
+            eq(externalPartyCredential.externalPartyId, input.externalPartyId),
+          ),
+        );
+      const compliance = computePartyComplianceSummary(party.partyType, credRows);
+      return { ...party, compliance };
+    }),
+
+  bulkUpdateCredentialStatus: protectedMutation
+    .input(
+      orgScope.extend({
+        credentialIds: z.array(z.string().uuid()).min(1).max(50),
+        status: z.enum(credentialStatuses),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.EXTERNAL_PARTY_WRITE,
+      );
+
+      return ctx.db.transaction(async (tx) => {
+        const updated: string[] = [];
+        for (const credentialId of input.credentialIds) {
+          const [row] = await tx
+            .update(externalPartyCredential)
+            .set({
+              status: input.status as (typeof externalPartyCredentialStatusEnum.enumValues)[number],
+              updatedAt: new Date(),
+            })
+            .where(
+              and(
+                eq(externalPartyCredential.id, credentialId),
+                eq(externalPartyCredential.organizationId, input.organizationId),
+              ),
+            )
+            .returning({ id: externalPartyCredential.id });
+          if (row) {
+            updated.push(row.id);
+            await writeAuditLog(tx, {
+              organizationId: input.organizationId,
+              actorUserId: ctx.user.id,
+              action: "external_party_credential.bulk_update_status",
+              entityType: "external_party_credential",
+              entityId: row.id,
+              payload: { status: input.status },
+            });
+          }
+        }
+        return { updatedCount: updated.length, credentialIds: updated };
+      });
     }),
 });

@@ -15,6 +15,11 @@ import {
 } from "@/lib/dashboard-field-styles";
 import { INTEGRATION_CONNECTOR_KEYS } from "@/lib/integration/connectorKeys";
 import { CONNECTOR_PRESETS } from "@/lib/integration/connectorPresets";
+import { hintForIntegrationProcessingError } from "@/lib/integration/processingErrorHints";
+import {
+  detectNotificationChannel,
+  OPERATIONAL_WEBHOOK_EVENT_LABELS,
+} from "@/lib/operationalWebhook/channelAdapters";
 import type { OperationalWebhookEventId } from "@/lib/operationalWebhook/eventTypes";
 import { OPERATIONAL_WEBHOOK_EVENT_IDS } from "@/lib/operationalWebhook/eventTypes";
 import { trpc } from "@/trpc/react";
@@ -231,6 +236,8 @@ function OperationalWebhooksAdmin({ organizationId }: { organizationId: string }
     },
   });
 
+  const testHook = trpc.organization.sendOperationalWebhookTest.useMutation();
+
   function toggleSubscription(id: OperationalWebhookEventId, next: boolean) {
     setHookSubs((prev) => ({ ...prev, [id]: next }));
   }
@@ -261,9 +268,17 @@ function OperationalWebhooksAdmin({ organizationId }: { organizationId: string }
       <h2 className={dfPanelHeading}>Operational webhooks (org admin)</h2>
       <p className={`mt-2 text-sm ${dfMuted}`}>
         HTTPS POST targets receive JSON when observation follow-up SLAs breach, approval steps go overdue, contractor
-        credentials expire in bulk, or HRIS inbound processing fails. Optional HMAC header{" "}
+        credentials expire in bulk, or HRIS inbound processing fails. Paste a{" "}
+        <strong>Slack incoming webhook</strong> or <strong>Microsoft Teams connector</strong> URL — we auto-format
+        MessageCard / block payloads. Generic HTTPS receivers get the raw JSON envelope. Optional HMAC header{" "}
         <code className="text-xs">X-EHS-Signature</code>.
       </p>
+      {hookUrl.trim() ? (
+        <p className={`mt-1 text-xs ${dfHelperXs}`}>
+          Detected channel:{" "}
+          <span className="font-medium capitalize">{detectNotificationChannel(hookUrl.trim())}</span>
+        </p>
+      ) : null}
       <form className="mt-4 space-y-3 rounded border border-zinc-200 bg-white p-3" onSubmit={(e) => void submitNewWebhook(e)}>
         <label className="flex flex-col gap-1 text-sm text-zinc-800">
           Target URL
@@ -289,13 +304,18 @@ function OperationalWebhooksAdmin({ organizationId }: { organizationId: string }
         <fieldset className="space-y-2 text-sm text-zinc-800">
           <legend className="font-medium">Subscribe to</legend>
           {OPERATIONAL_WEBHOOK_EVENT_IDS.map((id) => (
-            <label key={id} className="flex items-center gap-2">
+            <label key={id} className="flex items-start gap-2">
               <input
                 type="checkbox"
+                className="mt-1"
                 checked={Boolean(hookSubs[id])}
                 onChange={(e) => toggleSubscription(id, e.target.checked)}
               />
-              <code className="text-xs">{id}</code>
+              <span>
+                <span className="font-medium">{OPERATIONAL_WEBHOOK_EVENT_LABELS[id].label}</span>
+                <span className={`block ${dfHelperXs}`}>{OPERATIONAL_WEBHOOK_EVENT_LABELS[id].hint}</span>
+                <code className="text-xs text-zinc-500">{id}</code>
+              </span>
             </label>
           ))}
         </fieldset>
@@ -330,6 +350,19 @@ function OperationalWebhooksAdmin({ organizationId }: { organizationId: string }
                   <button
                     type="button"
                     className={`${dfSecondaryOutline} text-xs`}
+                    disabled={testHook.isPending}
+                    onClick={() =>
+                      testHook.mutate({
+                        organizationId,
+                        endpointId: ep.id,
+                      })
+                    }
+                  >
+                    {testHook.isPending ? "Sending…" : "Send test"}
+                  </button>
+                  <button
+                    type="button"
+                    className={`${dfSecondaryOutline} text-xs`}
                     onClick={() =>
                       updateHook.mutate({
                         organizationId,
@@ -358,6 +391,16 @@ function OperationalWebhooksAdmin({ organizationId }: { organizationId: string }
       ) : (
         <p className={`mt-3 text-sm ${dfMuted}`}>No operational webhooks configured yet.</p>
       )}
+      {testHook.error ? (
+        <p className="mt-2 text-sm text-red-800" role="alert">
+          {testHook.error.message}
+        </p>
+      ) : null}
+      {testHook.data?.ok ? (
+        <p className="mt-2 text-sm text-emerald-900" role="status">
+          Test delivery accepted ({testHook.data.channel ?? "json"}).
+        </p>
+      ) : null}
     </section>
   );
 }
@@ -378,6 +421,13 @@ export default function IntegrationsPage() {
   );
 
   const reprocess = trpc.integration.reprocessFailedEvent.useMutation({
+    async onSuccess() {
+      await utils.integration.listEvents.invalidate();
+      await utils.integration.failedEventsHealth.invalidate();
+    },
+  });
+
+  const reprocessAll = trpc.integration.reprocessAllFailedEvents.useMutation({
     async onSuccess() {
       await utils.integration.listEvents.invalidate();
       await utils.integration.failedEventsHealth.invalidate();
@@ -474,17 +524,34 @@ export default function IntegrationsPage() {
           className="rounded-lg border border-red-200 bg-red-50/95 p-4 shadow-sm"
           aria-label="Failed integration events"
         >
-          <h2 className={dfPanelHeading}>Failed events ({failedHealth.data.failedCount})</h2>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <h2 className={dfPanelHeading}>Failed events ({failedHealth.data.failedCount})</h2>
+            <button
+              type="button"
+              className={`${dfSecondaryOutline} shrink-0 disabled:opacity-50`}
+              disabled={reprocessAll.isPending || reprocess.isPending}
+              onClick={() =>
+                void reprocessAll.mutateAsync({
+                  organizationId,
+                  limit: Math.min(failedHealth.data.failedCount, 25),
+                })
+              }
+            >
+              {reprocessAll.isPending ? "Retrying…" : "Retry all (up to 25)"}
+            </button>
+          </div>
           <p className={`mt-2 text-sm ${dfMuted}`}>
             Oldest:{" "}
             {failedHealth.data.oldestFailedCreatedAt
               ? new Date(failedHealth.data.oldestFailedCreatedAt).toLocaleString()
               : "—"}
-            . Requires <code className="text-xs">integration:write</code> to retry (
-            <code className="text-xs">integration.reprocessFailedEvent</code>).
+            . Requires <code className="text-xs">integration:write</code> to retry. Fix upstream mapping using hints
+            below before bulk replay.
           </p>
           <ul className="mt-3 divide-y divide-red-100 text-sm">
-            {failedHealth.data.recentFailed.map((ev, idx) => (
+            {failedHealth.data.recentFailed.map((ev, idx) => {
+              const hint = hintForIntegrationProcessingError(ev.processingError);
+              return (
               <li key={`${ev.id}-${idx}`} className="flex flex-wrap items-center justify-between gap-2 py-3">
                 <div className="min-w-0">
                   <p className="font-medium text-zinc-900">{ev.eventType}</p>
@@ -492,6 +559,12 @@ export default function IntegrationsPage() {
                   <p className="mt-1 text-xs text-red-900/90">
                     {ev.processingError ? ev.processingError.slice(0, 240) : "No error message stored."}
                   </p>
+                  {hint ? (
+                    <div className="mt-2 rounded border border-amber-200 bg-amber-50/80 px-2 py-1.5 text-xs text-amber-950">
+                      <p className="font-semibold">{hint.title}</p>
+                      <p className="mt-0.5">{hint.remediation}</p>
+                    </div>
+                  ) : null}
                   <p className="mt-1 text-xs text-zinc-500 tabular-nums">
                     {new Date(ev.createdAt).toLocaleString()}
                   </p>
@@ -505,8 +578,20 @@ export default function IntegrationsPage() {
                   Retry
                 </button>
               </li>
-            ))}
+            );
+            })}
           </ul>
+          {reprocessAll.error ? (
+            <p className="mt-2 text-sm text-red-800" role="alert">
+              {reprocessAll.error.message}
+            </p>
+          ) : null}
+          {reprocessAll.data ? (
+            <p className="mt-2 text-sm text-emerald-900">
+              Bulk replay: {reprocessAll.data.attempted} attempted, {reprocessAll.data.succeeded} succeeded,{" "}
+              {reprocessAll.data.queued} queued.
+            </p>
+          ) : null}
           {reprocess.error ? (
             <p className="mt-2 text-sm text-red-800" role="alert">
               {reprocess.error.message}

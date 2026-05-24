@@ -155,6 +155,8 @@ Next.js **`src/app/api/**`** typically does **not** call `writeAuditLog` directl
 |-------------|-------------------|-----------------|--------------|----------|
 | [`contextSyncProtocol.ts`](../../src/server/trpc/routers/contextSyncProtocol.ts) | `agentClassClaimCreate`, `agentClassClaimDelete` | **Y** | Two mutations; audits **in-router** after successful `createAgentClassClaim` / `deleteAgentClassClaimById` (`context_sync.agent_class_claim.create` / `.delete`). Service helpers do not double-log. | P0 |
 
+| [`portcoIdentity.ts`](../../src/server/trpc/routers/portcoIdentity.ts) | `updateScimConfig`, `rotateScimBearerToken`, `upsertScimGroupMapping`, `deleteScimGroupMapping`, `upsertOidcJitRule`, `deleteOidcJitRule` | **Y** | Six org-admin mutations; six `writeAuditLog` calls. | P1 |
+
 ### `aiAssistant.ts`
 
 | Router file | Notable mutations | `writeAuditLog` | Gaps / notes | Priority |
@@ -188,9 +190,7 @@ Next.js **`src/app/api/**`** typically does **not** call `writeAuditLog` directl
 
 ## Probable gaps (product backlog)
 
-| Router | Mutations | Gap | Priority |
-|--------|-----------|-----|----------|
-| [`portcoIdentity.ts`](../../src/server/trpc/routers/portcoIdentity.ts) | `upsertScimGroupMapping`, `deleteScimGroupMapping`, `upsertOidcJitRule`, `deleteOidcJitRule` | No `writeAuditLog` (SCIM config + token rotate **are** audited) | P1 — PortCo diligence; documented in [portco-uat-signoff-record.md](./portco-uat-signoff-record.md) |
+*None flagged in this pass — `portcoIdentity` SCIM/OIDC rule mutations now audit via `writeAuditLog` (see [portco-uat-signoff-record.md](./portco-uat-signoff-record.md)).*
 
 Re-run methodology greps after refactors; extend this table when new gaps are confirmed.
 

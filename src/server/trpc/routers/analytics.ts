@@ -88,6 +88,8 @@ export const analyticsRouter = router({
         canRisk,
         canEnvPermit,
         canOrgAdmin,
+        canExternalParty,
+        canIntegrationRead,
       ] = await Promise.all([
         userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.INCIDENT_READ),
         userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.CAPA_READ),
@@ -104,6 +106,8 @@ export const analyticsRouter = router({
         userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.RISK_READ),
         userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.ENVIRONMENTAL_PERMIT_READ),
         userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.ORG_ADMIN),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.EXTERNAL_PARTY_READ),
+        userHasPermission(ctx.db, ctx.user.id, orgId, PERMISSIONS.INTEGRATION_READ),
       ]);
 
       return executeCommandCenterQuery(
@@ -130,6 +134,8 @@ export const analyticsRouter = router({
           canRisk,
           canEnvPermit,
           canOrgAdmin,
+          canExternalParty,
+          canIntegrationRead,
         },
       );
     }),

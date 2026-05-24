@@ -12,6 +12,7 @@ import {
   authUser,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { deliverOperationalWebhookTest } from "@/server/services/operationalWebhookDispatch";
 import { protectedMutation, protectedProcedure, router } from "../init";
 
 const operationalWebhookEventZ = z.enum(OPERATIONAL_WEBHOOK_EVENT_IDS);
@@ -529,5 +530,65 @@ export const organizationRouter = router({
       });
 
       return { ok: true as const };
+    }),
+
+  /** Sends a test payload to verify Slack/Teams/generic webhook wiring. Org admins only. */
+  sendOperationalWebhookTest: protectedMutation
+    .input(
+      z.object({
+        organizationId: z.string().uuid(),
+        endpointId: z.string().uuid(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertPermission(
+        ctx.db,
+        ctx.user.id,
+        input.organizationId,
+        PERMISSIONS.ORG_ADMIN,
+      );
+
+      const [existing] = await ctx.db
+        .select()
+        .from(operationalWebhookEndpoint)
+        .where(
+          and(
+            eq(operationalWebhookEndpoint.id, input.endpointId),
+            eq(operationalWebhookEndpoint.organizationId, input.organizationId),
+          ),
+        )
+        .limit(1);
+
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Webhook endpoint not found." });
+      }
+      if (!existing.enabled) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Enable the endpoint before sending a test.",
+        });
+      }
+
+      const subscribed = (Array.isArray(existing.subscribedEvents)
+        ? existing.subscribedEvents
+        : []) as (typeof OPERATIONAL_WEBHOOK_EVENT_IDS)[number][];
+
+      const { channel } = await deliverOperationalWebhookTest({
+        targetUrl: existing.targetUrl,
+        secret: existing.secret,
+        organizationId: input.organizationId,
+        subscribedEvents: subscribed,
+      });
+
+      await writeAuditLog(ctx.db, {
+        organizationId: input.organizationId,
+        actorUserId: ctx.user.id,
+        action: "organization.operational_webhook.test_send",
+        entityType: "operational_webhook_endpoint",
+        entityId: input.endpointId,
+        payload: { channel, targetHost: safeWebhookHost(existing.targetUrl) },
+      });
+
+      return { ok: true as const, channel };
     }),
 });

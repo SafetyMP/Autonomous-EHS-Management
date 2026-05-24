@@ -145,6 +145,17 @@ export const portcoIdentityRouter = router({
         if (!updated) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Group mapping not found." });
         }
+        await writeAuditLog(ctx.db, {
+          organizationId: input.organizationId,
+          actorUserId: ctx.user.id,
+          action: "portco.scim_group_mapping.update",
+          entityType: "scim_group_mapping",
+          entityId: updated.id,
+          payload: {
+            idpGroupId: input.idpGroupId,
+            roleSlug: input.roleSlug,
+          },
+        });
         return updated;
       }
 
@@ -157,6 +168,17 @@ export const portcoIdentityRouter = router({
           roleSlug: input.roleSlug,
         })
         .returning();
+      await writeAuditLog(ctx.db, {
+        organizationId: input.organizationId,
+        actorUserId: ctx.user.id,
+        action: "portco.scim_group_mapping.create",
+        entityType: "scim_group_mapping",
+        entityId: inserted!.id,
+        payload: {
+          idpGroupId: input.idpGroupId,
+          roleSlug: input.roleSlug,
+        },
+      });
       return inserted!;
     }),
 
@@ -164,11 +186,29 @@ export const portcoIdentityRouter = router({
     .input(orgScope.extend({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.ORG_ADMIN);
+      const [existing] = await ctx.db
+        .select()
+        .from(scimGroupMapping)
+        .where(
+          and(eq(scimGroupMapping.id, input.id), eq(scimGroupMapping.organizationId, input.organizationId)),
+        )
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Group mapping not found." });
+      }
       await ctx.db
         .delete(scimGroupMapping)
         .where(
           and(eq(scimGroupMapping.id, input.id), eq(scimGroupMapping.organizationId, input.organizationId)),
         );
+      await writeAuditLog(ctx.db, {
+        organizationId: input.organizationId,
+        actorUserId: ctx.user.id,
+        action: "portco.scim_group_mapping.delete",
+        entityType: "scim_group_mapping",
+        entityId: input.id,
+        payload: { idpGroupId: existing.idpGroupId, roleSlug: existing.roleSlug },
+      });
       return { ok: true as const };
     }),
 
@@ -215,6 +255,19 @@ export const portcoIdentityRouter = router({
         if (!updated) {
           throw new TRPCError({ code: "NOT_FOUND", message: "OIDC JIT rule not found." });
         }
+        await writeAuditLog(ctx.db, {
+          organizationId: input.organizationId,
+          actorUserId: ctx.user.id,
+          action: "portco.oidc_jit_rule.update",
+          entityType: "oidc_jit_claim_rule",
+          entityId: updated.id,
+          payload: {
+            claimKey: input.claimKey,
+            matchValue: input.matchValue,
+            roleSlug: input.roleSlug,
+            enabled: input.enabled,
+          },
+        });
         return updated;
       }
 
@@ -229,6 +282,19 @@ export const portcoIdentityRouter = router({
           enabled: input.enabled,
         })
         .returning();
+      await writeAuditLog(ctx.db, {
+        organizationId: input.organizationId,
+        actorUserId: ctx.user.id,
+        action: "portco.oidc_jit_rule.create",
+        entityType: "oidc_jit_claim_rule",
+        entityId: inserted!.id,
+        payload: {
+          claimKey: input.claimKey,
+          matchValue: input.matchValue,
+          roleSlug: input.roleSlug,
+          enabled: input.enabled,
+        },
+      });
       return inserted!;
     }),
 
@@ -236,11 +302,33 @@ export const portcoIdentityRouter = router({
     .input(orgScope.extend({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.ORG_ADMIN);
+      const [existing] = await ctx.db
+        .select()
+        .from(oidcJitClaimRule)
+        .where(
+          and(eq(oidcJitClaimRule.id, input.id), eq(oidcJitClaimRule.organizationId, input.organizationId)),
+        )
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "OIDC JIT rule not found." });
+      }
       await ctx.db
         .delete(oidcJitClaimRule)
         .where(
           and(eq(oidcJitClaimRule.id, input.id), eq(oidcJitClaimRule.organizationId, input.organizationId)),
         );
+      await writeAuditLog(ctx.db, {
+        organizationId: input.organizationId,
+        actorUserId: ctx.user.id,
+        action: "portco.oidc_jit_rule.delete",
+        entityType: "oidc_jit_claim_rule",
+        entityId: input.id,
+        payload: {
+          claimKey: existing.claimKey,
+          matchValue: existing.matchValue,
+          roleSlug: existing.roleSlug,
+        },
+      });
       return { ok: true as const };
     }),
 });

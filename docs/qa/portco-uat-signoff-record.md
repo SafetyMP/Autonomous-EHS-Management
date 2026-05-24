@@ -63,7 +63,6 @@ These routers instrument **`writeAuditLog`** on regulated mutations. Confirm ent
 
 | Gap | Impact | Mitigation for pilot |
 |-----|--------|----------------------|
-| **`portcoIdentity` SCIM group mapping / OIDC JIT rule CRUD** | `upsertScimGroupMapping`, `deleteScimGroupMapping`, `upsertOidcJitRule`, `deleteOidcJitRule` do **not** call `writeAuditLog` today (only `updateScimConfig` and `rotateScimBearerToken` do) | Document IdP change tickets externally; restrict org-admin to trusted operators; backlog instrumentation |
 | **SCIM REST `/api/scim/v2/*`** | Provisioning audits may flow via membership/integration paths—not every SCIM PATCH field | Review `integration_event` backlog + membership state after bulk SCIM tests |
 | **Cron / SLA escalations** | `escalation_event` records exist; not all appear as user-initiated `audit_log` rows | Accept escalation_event + operational webhooks as ops evidence |
 | **Tier 3 registers** (internal audit, MOC, emergency) | Out of Tier 1 pilot scope; thinner staging coverage | Defer UAT until Phase 2 |
@@ -85,7 +84,8 @@ These routers instrument **`writeAuditLog`** on regulated mutations. Confirm ent
 | Observation create | | |
 | Contractor credential create/update | | |
 | Integration test event / HRIS apply | | |
-| SCIM config update | | |
+| `portcoIdentity` SCIM config update | | |
+| `portcoIdentity` OIDC JIT rule create | | |
 
 ---
 

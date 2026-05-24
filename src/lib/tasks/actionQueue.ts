@@ -3,7 +3,8 @@ export type ActionQueueItemType =
   | "capa"
   | "training"
   | "obligation_review"
-  | "management_review";
+  | "management_review"
+  | "contractor_credential";
 
 export type ActionQueueItem = {
   id: string;
@@ -55,6 +56,8 @@ export function buildActionQueueHref(type: ActionQueueItemType, recordId?: strin
       return recordId
         ? `/dashboard/management-review?review=${recordId}`
         : "/dashboard/management-review";
+    case "contractor_credential":
+      return recordId ? `/dashboard/contractors/${recordId}` : "/dashboard/contractors";
     default:
       return "/dashboard/tasks";
   }
@@ -72,6 +75,8 @@ export function ctaLabelForType(type: ActionQueueItemType): string {
       return "Review obligation";
     case "management_review":
       return "Open review";
+    case "contractor_credential":
+      return "Renew credential";
     default:
       return "Open";
   }
@@ -96,6 +101,9 @@ export function reasonForItem(
   }
   if (type === "management_review") {
     return isOverdue ? "Management review overdue" : "Management review due";
+  }
+  if (type === "contractor_credential") {
+    return isOverdue ? "Contractor credential expired" : "Contractor credential expiring";
   }
   if (entityType) return approvalEntityLabel(entityType);
   return "Action required";
@@ -131,6 +139,13 @@ export function scoreActionQueueItem(input: ScoreInput): { priorityScore: number
   }
   if (type === "management_review") {
     return { priorityScore: isOverdue ? 68 : 70, isOverdue };
+  }
+  if (type === "contractor_credential") {
+    if (isOverdue) return { priorityScore: 15, isOverdue: true };
+    if (dueAt && dueAt.getTime() - now.getTime() <= 7 * MS_DAY) {
+      return { priorityScore: 28, isOverdue: false };
+    }
+    return { priorityScore: 32, isOverdue: false };
   }
   return { priorityScore: 99, isOverdue };
 }

@@ -32,12 +32,14 @@ import {
   environmentalRegulatoryPermit,
   incident,
   inspection,
+  integrationEvent,
   managementReview,
   riskAssessment,
   safetyObservation,
   trainingRecord,
   workPermit,
 } from "@/server/db/schema";
+import { fetchContractorComplianceCounts } from "@/server/services/contractor/complianceSnapshot";
 
 export type CommandCenterQueryInput = {
   organizationId: string;
@@ -62,6 +64,8 @@ export type CommandCenterPermissionFlags = {
   canRisk: boolean;
   canEnvPermit: boolean;
   canOrgAdmin: boolean;
+  canExternalParty: boolean;
+  canIntegrationRead: boolean;
 };
 
 export async function executeCommandCenterQuery(
@@ -91,6 +95,8 @@ export async function executeCommandCenterQuery(
     canRisk,
     canEnvPermit,
     canOrgAdmin,
+    canExternalParty,
+    canIntegrationRead,
   } = permissions;
 
   const [
@@ -112,6 +118,8 @@ export async function executeCommandCenterQuery(
     environmentalPermitsKpi,
     feedRiskAssessments,
     feedEnvironmentalPermits,
+    contractorComplianceKpi,
+    integrationHealthKpi,
   ] = await Promise.all([
     canIncident
       ? (async () => {
@@ -406,6 +414,21 @@ export async function executeCommandCenterQuery(
           .orderBy(desc(environmentalRegulatoryPermit.updatedAt))
           .limit(perType)
       : Promise.resolve([]),
+
+    canExternalParty
+      ? fetchContractorComplianceCounts(db, orgId, todayStart)
+      : Promise.resolve(null),
+
+    canIntegrationRead
+      ? (async () => {
+          const failedWhere = and(
+            eq(integrationEvent.organizationId, orgId),
+            eq(integrationEvent.processingStatus, "failed"),
+          );
+          const [row] = await db.select({ n: count() }).from(integrationEvent).where(failedWhere);
+          return { failedEventCount: Number(row?.n ?? 0) };
+        })()
+      : Promise.resolve(null),
   ]);
 
   const activityFeed = buildSortedActivityFeed(
@@ -444,6 +467,8 @@ export async function executeCommandCenterQuery(
       auditFindings: findingsKpi,
       riskProgram: riskProgramKpi,
       environmentalPermits: environmentalPermitsKpi,
+      contractorCompliance: contractorComplianceKpi,
+      integrationHealth: integrationHealthKpi,
       programAutomation,
       cronHealth,
     },

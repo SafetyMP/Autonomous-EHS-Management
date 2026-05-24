@@ -15,6 +15,7 @@ import {
   controlledDocument,
   correctiveAction,
   externalParty,
+  externalPartyCredential,
   incident,
   membership,
   organization,
@@ -339,6 +340,7 @@ export function createDocumentGetFakeDb(opts: DocumentGetFakeOpts): Db {
 export type ExternalPartyGetFakeOpts = {
   rbacHit: boolean;
   row: Record<string, unknown> | null;
+  credentials?: { kind: string; status: string; validTo: Date | null }[];
 };
 
 /** RBAC + `external_party` keyed fetch (`where` + `limit(1)`). */
@@ -346,15 +348,30 @@ export function createExternalPartyGetFakeDb(opts: ExternalPartyGetFakeOpts): Db
   const rbacRows = opts.rbacHit ? ([{ pk: "grant" }] as RbacRow[]) : ([] as RbacRow[]);
   const bucket = opts.row ? [opts.row] : ([] as Record<string, unknown>[]);
   const oneResolved = Promise.resolve(bucket);
+  const credResolved = Promise.resolve(opts.credentials ?? []);
 
   return {
-    select() {
+    select(selectShape?: unknown) {
       return {
         from(table: unknown) {
           if (table === membership) {
             return rbacMembershipFrom(rbacRows as RbacRow[]);
           }
+          if (table === externalPartyCredential) {
+            return {
+              where(..._ignored: unknown[]) {
+                return credResolved;
+              },
+            };
+          }
           if (table === externalParty) {
+            if (selectShape && typeof selectShape === "object") {
+              return {
+                where(..._ignored: unknown[]) {
+                  return credResolved;
+                },
+              };
+            }
             return {
               where(..._ignored: unknown[]) {
                 const tail = {

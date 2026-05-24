@@ -61,6 +61,8 @@ describe("analytics.commandCenter", () => {
     expect(out.kpis.auditFindings).toBeNull();
     expect(out.kpis.riskProgram).toBeNull();
     expect(out.kpis.environmentalPermits).toBeNull();
+    expect(out.kpis.contractorCompliance).toBeNull();
+    expect(out.kpis.integrationHealth).toBeNull();
     expect(out.kpis.programAutomation.observationFollowUpEscalationsRecorded90d).toBeNull();
     expect(out.kpis.programAutomation.approvalSlaEscalationsRecorded90d).toBeNull();
     expect(out.kpis.cronHealth).toBeNull();

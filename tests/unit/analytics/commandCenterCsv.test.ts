@@ -17,6 +17,8 @@ describe("commandCenterSnapshotToCsv", () => {
         auditFindings: null,
         riskProgram: null,
         environmentalPermits: null,
+        contractorCompliance: null,
+        integrationHealth: null,
         programAutomation: {
           observationFollowUpEscalationsRecorded90d: null,
           approvalSlaEscalationsRecorded90d: null,
