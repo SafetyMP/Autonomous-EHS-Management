@@ -42,3 +42,4 @@ This document aligns product capability with compliance claims. **It is not lega
 2. Map each personal data category to lawful basis and retention.
 3. Align subcontractor list and encryption attestations with the actual database provider.
 4. Review whether “OSHA-ready” or “Tier II-ready” language is acceptable or misleading for your buyer contracts.
+5. Complete [regulatory-posture-boundary.md](docs/regulatory-posture-boundary.md) for PortCo pilots (program-of-record vs agency-of-record).

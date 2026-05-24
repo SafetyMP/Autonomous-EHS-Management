@@ -2,6 +2,8 @@
 
 Operational checklist for a **staging** PortCo tenant before production promotion. Maps to playbook §8 in [hris-portco-integration-playbook.md](../roadmap/hris-portco-integration-playbook.md).
 
+**Tier 1 business scope:** [portco-tier1-pilot-scope.md](./portco-tier1-pilot-scope.md). **Sign-off:** [portco-uat-signoff-record.md](./portco-uat-signoff-record.md).
+
 Automated fixture validation: `npm run portco:pilot-verify` (local). Optional live staging POST when env vars are set (see below).
 
 ## Prerequisites

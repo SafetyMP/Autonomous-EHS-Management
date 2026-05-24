@@ -188,7 +188,11 @@ Next.js **`src/app/api/**`** typically does **not** call `writeAuditLog` directl
 
 ## Probable gaps (product backlog)
 
-*None flagged in this pass — re-run methodology greps after refactors.*
+| Router | Mutations | Gap | Priority |
+|--------|-----------|-----|----------|
+| [`portcoIdentity.ts`](../../src/server/trpc/routers/portcoIdentity.ts) | `upsertScimGroupMapping`, `deleteScimGroupMapping`, `upsertOidcJitRule`, `deleteOidcJitRule` | No `writeAuditLog` (SCIM config + token rotate **are** audited) | P1 — PortCo diligence; documented in [portco-uat-signoff-record.md](./portco-uat-signoff-record.md) |
+
+Re-run methodology greps after refactors; extend this table when new gaps are confirmed.
 
 ---
 

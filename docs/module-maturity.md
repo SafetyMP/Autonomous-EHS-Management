@@ -14,4 +14,4 @@ Engineering and sales alignment for what is **Core** (fully operable), **Connect
 - DSAR — intake on Privacy; see `docs/DSAR_PROCESS.md`
 - OSHA agency export — scaffold on Retention; not filing-ready
 
-Update this table when promoting modules between tiers. Cross-reference [architecture-map.md](./architecture-map.md) and [procurement-readiness.md](./procurement-readiness.md) §12.
+Update this table when promoting modules between tiers. Cross-reference [architecture-map.md](./architecture-map.md), [procurement-readiness.md](./procurement-readiness.md) §12, and PortCo tier mapping in [portco-module-value-assessment.md](./portco-module-value-assessment.md) / [qa/portco-tier1-pilot-scope.md](./qa/portco-tier1-pilot-scope.md).

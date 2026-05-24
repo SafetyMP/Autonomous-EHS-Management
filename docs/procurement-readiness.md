@@ -6,6 +6,8 @@ It covers: ROI framing, pilot structure, economic moat narrative, implementation
 
 **Technical counterpart:** [architecture-map.md](./architecture-map.md).
 
+**PortCo module value & pilot pack:** [portco-module-value-assessment.md](./portco-module-value-assessment.md) — Tier 1 scope, UAT sign-off, integration budget, regulatory boundary.
+
 **Market / competitor snapshot (engineering-grounded):** [competitive-intelligence-market-viability.md](./competitive-intelligence-market-viability.md).
 
 ---
@@ -147,7 +149,7 @@ Use this in **enterprise questionnaires** so buyers do not assume filing-ready a
 |-----------------|---------------|-------------------------|
 | **OSHA agency-formatted electronic filing** | **`compliance.regulatoryOsha.agencyExportPlaceholder` only** — not submission-ready ([`ROADMAP.md`](../ROADMAP.md) barriers, [`oshaAgencyExportScaffold.ts`](../src/lib/regulatory/oshaAgencyExportScaffold.ts)). | Program data and internal injury/illness exports may be available; **direct agency submission formats** require counsel review and additional product work. |
 | **Full DSAR automation** | Intake / policy surfaces exist; end-to-end export/erasure needs **counsel process** ([`ROADMAP.md`](../ROADMAP.md)). | Privacy tooling is **governance-aligned**, not a one-click “erase everything” guarantee. |
-| **Turnkey HRIS / Workday connector** | **iPaaS playbooks ship** ([`docs/runbooks/`](../runbooks/)); named vendor OAuth modules remain roadmap. Plan Workato/Boomi middleware + SCIM for PortCo pilots. |
+| **Turnkey HRIS / Workday connector** | **iPaaS playbooks ship** ([`docs/runbooks/`](../runbooks/)); named vendor OAuth modules remain roadmap. Plan Workato/Boomi middleware + SCIM for PortCo pilots. Budget worksheet: [procurement-portco-integration-budget.md](./procurement-portco-integration-budget.md). |
 | **Customer MCP server** | **Context Sync REST** ships; native MCP server **does not** ([adr/0001-mcp-context-sync-strategy.md](./adr/0001-mcp-context-sync-strategy.md)). | Agent read access is **governed REST**, not MCP-branded; Cursor MCP is **internal dev tooling only**. |
 | **Occupational health clinic depth** | Not targeted at Cority-class medical surveillance in v1. | Occupational health programs may need a **specialist module** or partner system. |
 | **Environmental regulatory permits vs PTW** | **Permits to work** (`/dashboard/permits`) are **field authorization** (PTW). **Environmental permits** (`/dashboard/environmental-permits`) are a **regulatory register** (metadata, renewals, conditions)—**not** agency filing-ready by default (see [COMPLIANCE.md](../COMPLIANCE.md)). | Buyers should map **Cority/Enablon-style** permit tracking to the environmental permit module + obligations/monitoring; **do not** conflate with PTW. |
