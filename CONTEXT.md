@@ -145,7 +145,7 @@ Do not weaken smoke tests in `tests/e2e/smoke/` to green CI.
 ## Modular work guidance for coding agents
 
 - Touch **one router file** plus **matching UI route** unless cross-cutting infra.
-- **Dashboard UI:** Reuse shared primitives under [`src/components/dashboard/`](src/components/dashboard/) (KPI tiles, section chrome, empty states, page headers) before adding one-off layout on new dashboard pages.
+- **Dashboard UI:** Reuse shared primitives under [`src/components/dashboard/`](src/components/dashboard/) (KPI tiles, section chrome, empty states, page headers) before adding one-off layout on new dashboard pages. Sidebar sections and labels are defined in [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts); field vs desk nav filtering lives in [`src/lib/dashboard-nav-filter.ts`](src/lib/dashboard-nav-filter.ts)—update [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md) and [`docs/qa/staging-uat-desk-to-field.md`](docs/qa/staging-uat-desk-to-field.md) when adding or renaming routes.
 - **Planning IMS**: Extend [`src/server/trpc/routers/planning/`](src/server/trpc/routers/planning/) (sub-router file + [`index.ts`](src/server/trpc/routers/planning/index.ts) registration) rather than stuffing unrelated domains into `planning`.
 - Prefer **pure helpers** (`src/lib/workflow/*.ts`) for transition tables — keep procedures thin delegates.
 - When adding migrations: **`schema.ts` → `npm run db:generate` → review SQL → commit** under `drizzle/migrations/`.

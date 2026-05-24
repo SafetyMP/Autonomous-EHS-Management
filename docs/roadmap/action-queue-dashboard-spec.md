@@ -1,8 +1,8 @@
 # Action queue & next-action dashboard — design spec
 
-**Status:** Phase A/B shipped; Phase C (role-aware layout) in progress.  
+**Status:** Phase A/B shipped (`tasks.actionQueue`, nav badges, CAPA detail deep links); Phase C (role-aware layout refinements) in progress.  
 **Addresses:** CTO feedback on information density and “visual dashboard highlighting next action.”  
-**Related:** [workflow-depth.md](../workflow-depth.md) §5, [commandCenterSignals.ts](../../src/lib/dashboard/commandCenterSignals.ts), [staging-uat-desk-to-field.md](../qa/staging-uat-desk-to-field.md).
+**Related:** [workflow-depth.md](../workflow-depth.md) §5, [commandCenterSignals.ts](../../src/lib/dashboard/commandCenterSignals.ts), [staging-uat-desk-to-field.md](../qa/staging-uat-desk-to-field.md), [architecture-map.md](../architecture-map.md) §2a.
 
 ---
 
@@ -14,6 +14,8 @@ The desk command center ([`command-center-desk-view.tsx`](../../src/components/d
 - [`/dashboard/approvals`](../../src/app/dashboard/approvals/page.tsx) — `approval.listMyPendingSteps`
 
 There is **no cross-domain priority ranking**, **no record-level “do this next” hero**, and **no nav badges** on Tasks or Approvals ([`dashboard-nav-links.ts`](../../src/lib/dashboard-nav-links.ts)). Field home ([`dashboard-field-launcher.tsx`](../../src/components/dashboard/dashboard-field-launcher.tsx)) shows intake buttons only.
+
+> **Update (2026):** Phase A/B addressed the gaps above—`tasks.actionQueue`, **Your work** hero, field **Pending for you** strip, sidebar badges, and `/dashboard/capa/[capaId]` deep links are implemented. This section is retained as historical context for Phase C.
 
 ---
 
@@ -184,7 +186,7 @@ New service module [`src/server/services/tasks/actionQueueQuery.ts`](../../src/s
 1. Parallel fetch: approval steps (reuse approval query helpers), owned CAPAs, training horizon, conditional org-wide obligations/reviews.
 2. Map each row to `ActionQueueItem` with shared `buildHref(type, recordId)` using existing route conventions:
    - `approval_step` → `/dashboard/approvals` (or entity detail when entity type known)
-   - `capa` → `/dashboard/capa?id=` or detail route if exists
+   - `capa` → `/dashboard/capa/[capaId]` (register list at `/dashboard/capa`)
    - `training` → `/dashboard/training`
 3. Sort by `priorityScore`, then `dueAt`, slice to `limit`.
 4. Set `primary = items[0] ?? null`.

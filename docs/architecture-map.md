@@ -56,6 +56,19 @@ flowchart LR
 
 ---
 
+## 2a. Dashboard navigation & personal work queue
+
+| Concern | Implementation | Notes |
+|---------|----------------|--------|
+| **Grouped sidebar** | [`src/lib/dashboard-nav-links.ts`](../src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`), rendered via [`dashboard-grouped-nav.tsx`](../src/components/dashboard-grouped-nav.tsx) | Lifecycle-oriented sections: **Today**, **Report & respond**, **Permits**, **Corrective action**, **Plan & comply**, **Assure & improve**, **Records & metrics**, **People**, **Administration**. |
+| **Role / layout filter** | [`src/lib/dashboard-nav-filter.ts`](../src/lib/dashboard-nav-filter.ts) | Field home hides **Administration** unless user is org admin or has `integration:read` / `audit_trail:read`; desk layout shows full nav. |
+| **Unified action queue** | [`tasks.actionQueue`](../src/server/trpc/routers/tasks.ts), [`actionQueueQuery.ts`](../src/server/services/tasks/actionQueueQuery.ts), [`actionQueue.ts`](../src/lib/tasks/actionQueue.ts) | Ranks approvals, owned CAPAs, training renewals, obligation reviews, and management reviews; deep-links include `/dashboard/capa/[capaId]`, `/dashboard/environment?obligation=`, `/dashboard/management-review?review=`. Hero on desk home and field **Pending for you** strip consume the same API—see [action-queue-dashboard-spec.md](./roadmap/action-queue-dashboard-spec.md). |
+| **CAPA detail & traceability** | [`/dashboard/capa/[capaId]`](../src/app/dashboard/capa/[capaId]/page.tsx), [`capa.get`](../src/server/trpc/routers/capa.ts) `sources`, [`capa-source-panel.tsx`](../src/components/dashboard/capa-source-panel.tsx) | Detail view exposes workflow stepper and schema-linked upstream records (incident, audit finding, obligation, etc.). |
+| **Assurance hub** | [`/dashboard/assurance`](../src/app/dashboard/assurance/page.tsx) | Cross-links internal audits, CAPA register, CB audits, and certificates—terminology distinct from transactional **`audit_log`**. |
+| **Program registers (split routes)** | [`/dashboard/program`](../src/app/dashboard/program/page.tsx), [`/dashboard/emergency`](../src/app/dashboard/emergency/page.tsx), [`/dashboard/moc`](../src/app/dashboard/moc/page.tsx) | Program overview (KPIs, external parties); emergency scenarios/drills; management-of-change register and entity links. |
+
+---
+
 ## 3. Workflow engine structure
 
 | Concern | Implementation | Notes |

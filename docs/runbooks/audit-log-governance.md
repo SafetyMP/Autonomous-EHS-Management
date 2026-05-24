@@ -4,7 +4,7 @@
 
 ## Purpose
 
-PostgreSQL **`audit_log`** holds **transactional** records of instrumented mutations (who did what to which logical entity). That is distinct from ISO-style **internal audit programme** artefacts (planned audits, programme rows, findings) surfaced under **`/dashboard/audits`** in the Assurance section of navigation ([`src/lib/dashboard-nav-links.ts`](../../src/lib/dashboard-nav-links.ts)).
+PostgreSQL **`audit_log`** holds **transactional** records of instrumented mutations (who did what to which logical entity). That is distinct from ISO-style **internal audit programme** artefacts (planned audits, programme rows, findings) surfaced under **`/dashboard/audits`** in the **Assure & improve** nav section ([`src/lib/dashboard-nav-links.ts`](../../src/lib/dashboard-nav-links.ts)).
 
 For reviewing **transactional** audit rows in the UI, use **Audit trail** → **`/dashboard/audit-trail`**. Listing and CSV export are served by **`compliance.auditTrail`** ([`src/server/trpc/routers/auditTrailRouter.ts`](../../src/server/trpc/routers/auditTrailRouter.ts)); access requires **`audit_trail:read`** (see [`src/lib/rbac.ts`](../../src/lib/rbac.ts)).
 

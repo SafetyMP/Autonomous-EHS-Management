@@ -71,7 +71,7 @@ Search the codebase for `writeAuditLog` under `src/server/trpc/routers/` for the
 
 ## 5. Operational ownership routing
 
-Ownership is modeled in domain tables (e.g. assignee fields, org/site scoping) and enforced through org-scoped inputs (`orgScope` patterns in routers). **Field UX** for “who owns this next” is implemented via `tasks.actionQueue` on desk/field home and the task hub — see [action-queue-dashboard-spec.md](./roadmap/action-queue-dashboard-spec.md).
+Ownership is modeled in domain tables (e.g. assignee fields, org/site scoping) and enforced through org-scoped inputs (`orgScope` patterns in routers). **Field UX** for “who owns this next” is implemented via **`tasks.actionQueue`** ([`actionQueueQuery.ts`](../src/server/services/tasks/actionQueueQuery.ts), ranking in [`actionQueue.ts`](../src/lib/tasks/actionQueue.ts)) on desk/field home and the task hub — see [action-queue-dashboard-spec.md](./roadmap/action-queue-dashboard-spec.md) (Phase A/B shipped). Command-center attention chips deduplicate user-assigned items already shown in the **Your work** hero ([`filterAttentionChipsForActionQueue`](../src/lib/dashboard/commandCenterSignals.ts)).
 
 ---
 
