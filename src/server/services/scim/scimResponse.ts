@@ -46,3 +46,22 @@ export function scimError(status: number, detail: string): Record<string, unknow
     detail,
   };
 }
+
+export function scimGroupResource(
+  mapping: { idpGroupId: string; idpGroupDisplayName: string | null; roleSlug: string },
+  memberUserIds: string[],
+  baseUrl: string,
+): Record<string, unknown> {
+  const encodedId = encodeURIComponent(mapping.idpGroupId);
+  return {
+    schemas: ["urn:ietf:params:scim:schemas:core:2.0:Group"],
+    id: mapping.idpGroupId,
+    displayName: mapping.idpGroupDisplayName ?? mapping.idpGroupId,
+    members: memberUserIds.map((value) => ({ value, display: value })),
+    meta: {
+      resourceType: "Group",
+      location: `${baseUrl}/api/scim/v2/Groups/${encodedId}`,
+    },
+    roleSlug: mapping.roleSlug,
+  };
+}

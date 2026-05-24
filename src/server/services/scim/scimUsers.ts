@@ -3,11 +3,13 @@ import type { Db } from "@/server/db";
 import {
   authUser,
   membership,
-  role,
+  scimGroupMember,
 } from "@/server/db/schema";
 import { normalizeIntegrationEmail } from "@/lib/integration/inboundEnvelope";
 import { writeAuditLog } from "@/server/services/audit";
 import type { ScimAuthContext } from "./scimAuth";
+import { resolveRoleIdForSlug, resolveRoleSlugFromGroupIds } from "./scimGroupRole";
+import { revokeUserSessions } from "./revokeUserSessions";
 
 function newAuthUserId(): string {
   return crypto.randomUUID().replace(/-/g, "");
@@ -18,15 +20,7 @@ async function resolveRoleId(
   organizationId: string,
   roleSlug: string,
 ): Promise<string> {
-  const [roleRow] = await db
-    .select({ id: role.id })
-    .from(role)
-    .where(and(eq(role.organizationId, organizationId), eq(role.slug, roleSlug)))
-    .limit(1);
-  if (!roleRow) {
-    throw new Error(`Role slug "${roleSlug}" not found in organization.`);
-  }
-  return roleRow.id;
+  return resolveRoleIdForSlug(db, organizationId, roleSlug);
 }
 
 export async function listScimUsers(
@@ -66,6 +60,8 @@ export type ScimCreateUserInput = {
   name?: { formatted?: string };
   externalId?: string;
   active?: boolean;
+  /** SCIM group ids from IdP (maps via scim_group_mapping). */
+  groupIds?: string[];
 };
 
 export async function createScimUser(
@@ -75,7 +71,13 @@ export async function createScimUser(
 ): Promise<{ user: typeof authUser.$inferSelect; membership: typeof membership.$inferSelect }> {
   const email = normalizeIntegrationEmail(input.userName);
   const displayName = input.name?.formatted?.trim() || email.split("@")[0] || "SCIM User";
-  const roleId = await resolveRoleId(db, ctx.organizationId, ctx.defaultRoleSlug);
+  const roleSlug = await resolveRoleSlugFromGroupIds(
+    db,
+    ctx.organizationId,
+    input.groupIds ?? [],
+    ctx.defaultRoleSlug,
+  );
+  const roleId = await resolveRoleId(db, ctx.organizationId, roleSlug);
   const active = input.active !== false;
 
   const [existingUser] = await db
@@ -124,6 +126,20 @@ export async function createScimUser(
     })
     .returning();
 
+  if (input.groupIds?.length) {
+    for (const idpGroupId of input.groupIds) {
+      if (!idpGroupId.trim()) continue;
+      await db
+        .insert(scimGroupMember)
+        .values({
+          organizationId: ctx.organizationId,
+          idpGroupId: idpGroupId.trim(),
+          userId: user.id,
+        })
+        .onConflictDoNothing();
+    }
+  }
+
   await writeAuditLog(db, {
     organizationId: ctx.organizationId,
     actorUserId: null,
@@ -140,7 +156,7 @@ export async function patchScimUser(
   db: Db,
   ctx: ScimAuthContext,
   userId: string,
-  patch: { active?: boolean; externalId?: string; displayName?: string },
+  patch: { active?: boolean; externalId?: string; displayName?: string; userName?: string },
 ): Promise<{ user: typeof authUser.$inferSelect; membership: typeof membership.$inferSelect }> {
   const row = await getScimUserById(db, ctx, userId);
   if (!row) {
@@ -151,13 +167,24 @@ export async function patchScimUser(
     await db.update(authUser).set({ name: patch.displayName }).where(eq(authUser.id, userId));
   }
 
+  if (patch.userName) {
+    const email = normalizeIntegrationEmail(patch.userName);
+    await db.update(authUser).set({ email }).where(eq(authUser.id, userId));
+  }
+
   const memPatch: Partial<typeof membership.$inferInsert> = {};
   if (patch.externalId !== undefined) {
     memPatch.externalWorkerId = patch.externalId;
   }
   if (patch.active !== undefined) {
-    memPatch.lifecycleStatus = patch.active ? "active" : "suspended";
-    memPatch.employmentStatus = patch.active ? "active" : "terminated";
+    if (patch.active) {
+      memPatch.lifecycleStatus = "active";
+      memPatch.employmentStatus = "active";
+    } else {
+      memPatch.lifecycleStatus = "deprovisioned";
+      memPatch.employmentStatus = "terminated";
+      await revokeUserSessions(db, userId);
+    }
   }
 
   if (Object.keys(memPatch).length > 0) {
@@ -189,8 +216,10 @@ export async function deactivateScimUser(
 
   await db
     .update(membership)
-    .set({ lifecycleStatus: "suspended", employmentStatus: "terminated" })
+    .set({ lifecycleStatus: "deprovisioned", employmentStatus: "terminated" })
     .where(eq(membership.id, row.membership.id));
+
+  await revokeUserSessions(db, userId);
 
   await writeAuditLog(db, {
     organizationId: ctx.organizationId,
@@ -214,8 +243,9 @@ export function parseScimPatchBody(body: unknown): {
   active?: boolean;
   externalId?: string;
   displayName?: string;
+  userName?: string;
 } {
-  const out: { active?: boolean; externalId?: string; displayName?: string } = {};
+  const out: { active?: boolean; externalId?: string; displayName?: string; userName?: string } = {};
   if (!body || typeof body !== "object") return out;
 
   const ops = (body as { Operations?: unknown }).Operations;
@@ -230,12 +260,15 @@ export function parseScimPatchBody(body: unknown): {
       out.active = value;
     } else if (path === "externalid" && typeof value === "string") {
       out.externalId = value;
+    } else if (path === "username" && typeof value === "string") {
+      out.userName = value;
     } else if (path === 'name.formatted' && typeof value === "string") {
       out.displayName = value;
     } else if (!path && value && typeof value === "object") {
       const v = value as Record<string, unknown>;
       if (typeof v.active === "boolean") out.active = v.active;
       if (typeof v.externalId === "string") out.externalId = v.externalId;
+      if (typeof v.userName === "string") out.userName = v.userName;
       const name = v.name as { formatted?: string } | undefined;
       if (name?.formatted) out.displayName = name.formatted;
     }

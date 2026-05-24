@@ -176,6 +176,7 @@ export const membershipEmploymentStatusEnum = pgEnum("membership_employment_stat
 export const membershipLifecycleStatusEnum = pgEnum("membership_lifecycle_status", [
   "active",
   "suspended",
+  "deprovisioned",
 ]);
 
 export const membership = pgTable("membership", {
@@ -405,6 +406,9 @@ export const externalParty = pgTable("external_party", {
   companyName: varchar("company_name", { length: 512 }).notNull(),
   contactName: varchar("contact_name", { length: 256 }),
   contactEmail: varchar("contact_email", { length: 256 }),
+  /** HRIS/VMS worker id when synced from upstream contractor roster. */
+  externalWorkerId: varchar("external_worker_id", { length: 128 }),
+  hrisSource: varchar("hris_source", { length: 64 }),
   hseRequirementsNote: text("hse_requirements_note"),
   onboardedAt: timestamp("onboarded_at", { withTimezone: true, mode: "date" }),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
@@ -3058,6 +3062,42 @@ export const scimGroupMapping = pgTable(
   ],
 );
 
+/** SCIM Group membership — IdP group id + user for role assignment via scim_group_mapping. */
+export const scimGroupMember = pgTable(
+  "scim_group_member",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    idpGroupId: varchar("idp_group_id", { length: 256 }).notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => authUser.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("scim_group_member_org_group_user_uq").on(t.organizationId, t.idpGroupId, t.userId),
+    index("scim_group_member_org_group_idx").on(t.organizationId, t.idpGroupId),
+  ],
+);
+
+/** HRIS roster snapshot for nightly reconciliation (PortCo Phase 3). */
+export const integrationRosterSnapshot = pgTable(
+  "integration_roster_snapshot",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    source: varchar("source", { length: 64 }).notNull().default("hris_export"),
+    capturedAt: timestamp("captured_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+    /** Array of { workerEmail, externalWorkerId? } from upstream HRIS export. */
+    workers: jsonb("workers").notNull(),
+  },
+  (t) => [index("integration_roster_snapshot_org_captured_idx").on(t.organizationId, t.capturedAt)],
+);
+
 /** Multi-org OIDC JIT: IdP claim value → org + role (PortCo Phase 1). */
 export const oidcJitClaimRule = pgTable(
   "oidc_jit_claim_rule",
@@ -3207,6 +3247,24 @@ export const organizationScimConfigRelations = relations(organizationScimConfig,
 export const scimGroupMappingRelations = relations(scimGroupMapping, ({ one }) => ({
   organization: one(organization, {
     fields: [scimGroupMapping.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const scimGroupMemberRelations = relations(scimGroupMember, ({ one }) => ({
+  organization: one(organization, {
+    fields: [scimGroupMember.organizationId],
+    references: [organization.id],
+  }),
+  user: one(authUser, {
+    fields: [scimGroupMember.userId],
+    references: [authUser.id],
+  }),
+}));
+
+export const integrationRosterSnapshotRelations = relations(integrationRosterSnapshot, ({ one }) => ({
+  organization: one(organization, {
+    fields: [integrationRosterSnapshot.organizationId],
     references: [organization.id],
   }),
 }));

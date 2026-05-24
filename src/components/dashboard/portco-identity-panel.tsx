@@ -41,6 +41,32 @@ export function PortCoIdentityPanel({ organizationId }: { organizationId: string
     onSuccess: () => void utils.portcoIdentity.listOidcJitRules.invalidate({ organizationId }),
   });
 
+  const [groupIdpId, setGroupIdpId] = useState("");
+  const [groupDisplayName, setGroupDisplayName] = useState("");
+  const [groupRoleSlug, setGroupRoleSlug] = useState("supervisor");
+
+  const upsertGroupMapping = trpc.portcoIdentity.upsertScimGroupMapping.useMutation({
+    onSuccess: () => {
+      void utils.portcoIdentity.scimPanel.invalidate({ organizationId });
+      setGroupIdpId("");
+      setGroupDisplayName("");
+    },
+  });
+  const deleteGroupMapping = trpc.portcoIdentity.deleteScimGroupMapping.useMutation({
+    onSuccess: () => void utils.portcoIdentity.scimPanel.invalidate({ organizationId }),
+  });
+
+  function addGroupMapping(ev: FormEvent) {
+    ev.preventDefault();
+    if (!groupIdpId.trim()) return;
+    upsertGroupMapping.mutate({
+      organizationId,
+      idpGroupId: groupIdpId.trim(),
+      idpGroupDisplayName: groupDisplayName.trim() || null,
+      roleSlug: groupRoleSlug.trim() || "supervisor",
+    });
+  }
+
   if (panel.isLoading) {
     return (
       <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
@@ -130,6 +156,67 @@ export function PortCoIdentityPanel({ organizationId }: { organizationId: string
             Copy now — token will not be shown again: {newToken}
           </p>
         ) : null}
+
+        <div className="mt-6 border-t border-indigo-200 pt-4">
+          <h3 className="text-sm font-semibold text-zinc-900">IdP group → role mapping</h3>
+          <p className={`mt-1 ${dfHelperXs}`}>
+            Groups exposed at <code className="text-xs">GET /api/scim/v2/Groups</code>. IdP group id
+            must match <code className="text-xs">idpGroupId</code> below.
+          </p>
+          <form className="mt-3 flex flex-wrap items-end gap-3" onSubmit={addGroupMapping}>
+            <label className="flex flex-col gap-1 text-sm">
+              IdP group id
+              <input
+                className="min-w-[12rem] rounded border border-zinc-300 px-2 py-1.5 text-sm"
+                value={groupIdpId}
+                onChange={(e) => setGroupIdpId(e.target.value)}
+                placeholder="EHS-Supervisors"
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              Display name
+              <input
+                className="rounded border border-zinc-300 px-2 py-1.5 text-sm"
+                value={groupDisplayName}
+                onChange={(e) => setGroupDisplayName(e.target.value)}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              Role slug
+              <input
+                className="rounded border border-zinc-300 px-2 py-1.5 text-sm"
+                value={groupRoleSlug}
+                onChange={(e) => setGroupRoleSlug(e.target.value)}
+              />
+            </label>
+            <button type="submit" className={dfSecondaryOutline} disabled={upsertGroupMapping.isPending}>
+              Add mapping
+            </button>
+          </form>
+          <ul className="mt-3 divide-y divide-zinc-100 text-sm">
+            {(panel.data?.groupMappings ?? []).length === 0 ? (
+              <li className="py-2 text-zinc-600">No group mappings — SCIM uses default role only.</li>
+            ) : (
+              panel.data?.groupMappings.map((g) => (
+                <li key={g.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                  <span>
+                    <code className="text-xs">{g.idpGroupId}</code>
+                    {g.idpGroupDisplayName ? ` (${g.idpGroupDisplayName})` : null} → role{" "}
+                    <code className="text-xs">{g.roleSlug}</code>
+                  </span>
+                  <button
+                    type="button"
+                    className="text-xs text-red-800 underline"
+                    onClick={() => deleteGroupMapping.mutate({ organizationId, id: g.id })}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
       </section>
 
       <section

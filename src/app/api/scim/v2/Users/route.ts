@@ -18,6 +18,7 @@ const createUserSchema = z.object({
   externalId: z.string().max(128).optional(),
   active: z.boolean().optional(),
   name: z.object({ formatted: z.string().optional() }).optional(),
+  groups: z.array(z.object({ value: z.string().min(1) })).optional(),
 });
 
 export async function GET(request: Request) {
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
       externalId: parsed.data.externalId,
       active: parsed.data.active,
       name: parsed.data.name,
+      groupIds: parsed.data.groups?.map((g) => g.value),
     });
     const base = scimBaseUrl(request);
     return scimJson(scimUserResource(row.user, row.membership, base), 201);

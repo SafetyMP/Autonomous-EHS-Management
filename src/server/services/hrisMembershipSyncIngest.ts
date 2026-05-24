@@ -2,10 +2,102 @@ import { and, eq } from "drizzle-orm";
 import type { Db } from "@/server/db";
 import type { HrisMembershipSyncInput } from "@/lib/integration/inboundEnvelope";
 import { normalizeIntegrationEmail } from "@/lib/integration/inboundEnvelope";
-import { authUser, membership, site } from "@/server/db/schema";
+import {
+  authUser,
+  membership,
+  organizationScimConfig,
+  role,
+  site,
+} from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { revokeUserSessions } from "@/server/services/scim/revokeUserSessions";
 
 type DbLike = Pick<Db, "select" | "update" | "insert">;
+
+function newAuthUserId(): string {
+  return crypto.randomUUID().replace(/-/g, "");
+}
+
+async function defaultRoleSlugForOrg(db: DbLike, organizationId: string): Promise<string> {
+  const [config] = await db
+    .select({ defaultRoleSlug: organizationScimConfig.defaultRoleSlug })
+    .from(organizationScimConfig)
+    .where(eq(organizationScimConfig.organizationId, organizationId))
+    .limit(1);
+  return config?.defaultRoleSlug ?? "supervisor";
+}
+
+async function resolveRoleId(db: DbLike, organizationId: string, roleSlug: string): Promise<string> {
+  const [roleRow] = await db
+    .select({ id: role.id })
+    .from(role)
+    .where(and(eq(role.organizationId, organizationId), eq(role.slug, roleSlug)))
+    .limit(1);
+  if (!roleRow) {
+    throw new Error(`Role slug "${roleSlug}" not found in organization.`);
+  }
+  return roleRow.id;
+}
+
+async function ensureUserAndMembership(
+  db: DbLike,
+  input: HrisMembershipSyncInput,
+): Promise<{ userId: string; membershipId: string; created: boolean }> {
+  const email = normalizeIntegrationEmail(input.workerEmail);
+
+  let [u] = await db
+    .select({ id: authUser.id })
+    .from(authUser)
+    .where(eq(authUser.email, email))
+    .limit(1);
+
+  let userCreated = false;
+  if (!u) {
+    const userId = newAuthUserId();
+    const displayName = email.split("@")[0] || "HRIS Worker";
+    const [inserted] = await db
+      .insert(authUser)
+      .values({
+        id: userId,
+        name: displayName,
+        email,
+        emailVerified: true,
+      })
+      .returning({ id: authUser.id });
+    u = inserted!;
+    userCreated = true;
+  }
+
+  const [existingMem] = await db
+    .select({ id: membership.id })
+    .from(membership)
+    .where(
+      and(eq(membership.organizationId, input.organizationId), eq(membership.userId, u.id)),
+    )
+    .limit(1);
+
+  if (existingMem) {
+    return { userId: u.id, membershipId: existingMem.id, created: userCreated };
+  }
+
+  const roleSlug = await defaultRoleSlugForOrg(db, input.organizationId);
+  const roleId = await resolveRoleId(db, input.organizationId, roleSlug);
+
+  const [mem] = await db
+    .insert(membership)
+    .values({
+      userId: u.id,
+      organizationId: input.organizationId,
+      roleId,
+      siteId: null,
+      externalWorkerId: input.externalWorkerId ?? null,
+      lifecycleStatus: "active",
+      employmentStatus: "active",
+    })
+    .returning({ id: membership.id });
+
+  return { userId: u.id, membershipId: mem!.id, created: true };
+}
 
 export function hrisPayloadForIntegrationEvent(input: HrisMembershipSyncInput): Record<string, unknown> {
   return {
@@ -25,7 +117,8 @@ export async function applyHrisMembershipSync(
   input: HrisMembershipSyncInput,
   eventId: string,
   actorUserId: string | null,
-): Promise<{ membershipId: string }> {
+): Promise<{ membershipId: string; provisioned?: boolean }> {
+  const ensured = await ensureUserAndMembership(db, input);
   const email = normalizeIntegrationEmail(input.workerEmail);
 
   const [u] = await db
@@ -34,11 +127,11 @@ export async function applyHrisMembershipSync(
     .where(eq(authUser.email, email))
     .limit(1);
   if (!u) {
-    throw new Error("No user matches workerEmail; user must exist (sign-in identity).");
+    throw new Error("No user matches workerEmail after provision attempt.");
   }
 
   const [mem] = await db
-    .select({ id: membership.id })
+    .select({ id: membership.id, userId: membership.userId })
     .from(membership)
     .where(
       and(eq(membership.organizationId, input.organizationId), eq(membership.userId, u.id)),
@@ -87,6 +180,9 @@ export async function applyHrisMembershipSync(
   if (input.employmentStatus !== undefined && input.employmentStatus !== null) {
     patch.employmentStatus = input.employmentStatus;
     if (input.employmentStatus === "terminated") {
+      patch.lifecycleStatus = "deprovisioned";
+      await revokeUserSessions(db as Pick<Db, "delete">, mem.userId);
+    } else if (input.employmentStatus === "leave") {
       patch.lifecycleStatus = "suspended";
     } else if (input.employmentStatus === "active") {
       patch.lifecycleStatus = "active";
@@ -100,15 +196,16 @@ export async function applyHrisMembershipSync(
   await writeAuditLog(db, {
     organizationId: input.organizationId,
     actorUserId,
-    action: "integration.hris_membership_sync",
+    action: ensured.created ? "integration.hris_membership_provision" : "integration.hris_membership_sync",
     entityType: "membership",
     entityId: mem.id,
     payload: {
       integrationEventId: eventId,
       siteIdSet: siteIdToSet ?? undefined,
       fieldsUpdated: Object.keys(patch),
+      provisioned: ensured.created,
     },
   });
 
-  return { membershipId: mem.id };
+  return { membershipId: mem.id, provisioned: ensured.created };
 }
