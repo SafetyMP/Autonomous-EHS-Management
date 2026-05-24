@@ -88,6 +88,26 @@ const ACTIONS: readonly {
     ),
   },
   {
+    href: "/dashboard/analytics/incidence-rates",
+    label: "Incidence rates",
+    primary: false,
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5 shrink-0" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25a4.5 4.5 0 0 0 4.5-4.5V6.375a4.125 4.125 0 1 1 8.25 0v2.25a4.5 4.5 0 0 0 4.5 4.5h2.25a3.375 3.375 0 0 1 3.375 3.375V19.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V16.125Z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/dashboard/assurance",
+    label: "Assurance hub",
+    primary: false,
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className="h-5 w-5 shrink-0" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+      </svg>
+    ),
+  },
+  {
     href: "/dashboard/import",
     label: "CSV import",
     primary: false,

@@ -3,6 +3,7 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import Link from "next/link";
 import { OrgSwitcher } from "@/components/org-switcher";
+import { DashboardProgramUpdates } from "@/components/dashboard/dashboard-program-updates";
 import { DashboardActionQueueHero } from "@/components/dashboard/dashboard-action-queue-hero";
 import { DashboardActivityFeed } from "@/components/dashboard/dashboard-activity-feed";
 import { CommandCenterCsvButton } from "@/components/dashboard/command-center-csv-button";
@@ -78,6 +79,8 @@ export type CommandCenterDeskViewProps = {
   organizationId: string;
   orgName: string | undefined;
   persona: "desk_contributor" | "desk_supervisor";
+  isAdmin: boolean;
+  canIntegrationRead: boolean;
   cc: CommandCenterOut | undefined;
   ccLoading: boolean;
   actionQueue: ActionQueueOut | undefined;
@@ -91,6 +94,8 @@ export function CommandCenterDeskView({
   organizationId,
   orgName,
   persona,
+  isAdmin,
+  canIntegrationRead,
   cc,
   ccLoading,
   actionQueue,
@@ -135,6 +140,12 @@ export function CommandCenterDeskView({
         </Link>{" "}
         — large buttons for incident, observation, inspection, and permit intake.
       </p>
+
+      <DashboardProgramUpdates
+        isAdmin={isAdmin}
+        canIntegrationRead={canIntegrationRead}
+        persona={persona}
+      />
 
       <DashboardActionQueueHero queue={actionQueue} loading={actionQueueLoading} />
 

@@ -69,9 +69,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
 
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-1 flex-col justify-center px-4 py-16">
-      <h1 className="text-2xl font-semibold">Sign in</h1>
+      <h1 className="text-2xl font-semibold">Sign in to EHS Console</h1>
       <p className="mt-1 text-sm text-zinc-700">
-        Use your organization credentials.{" "}
+        <span className="font-medium text-zinc-900">Autonomous EHS</span> — ISO 45001 &amp; 14001
+        management system. Use your organization credentials.{" "}
         <Link
           href="/sign-up"
           className="font-medium text-emerald-800 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"

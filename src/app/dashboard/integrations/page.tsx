@@ -475,7 +475,9 @@ export default function IntegrationsPage() {
             warehouse export for lake / CDC pipelines.
           </p>
           <p className={`mt-2 ${dfHelperXs}`}>
-            Inbound webhook: <code className="text-xs">POST /api/integration/inbound</code> with Bearer{" "}
+            Stable HTTP contract for partners:{" "}
+            <code className="text-xs">docs/integration-inbound-contract.md</code>. Inbound webhook:{" "}
+            <code className="text-xs">POST /api/integration/inbound</code> with Bearer{" "}
             <code className="text-xs">INTEGRATION_INBOUND_SECRET</code>; optional JSON field{" "}
             <code className="text-xs">idempotencyKey</code> for safe replays (cached responses stored in Postgres). With{" "}
             <code className="text-xs">PG_BOSS_ENABLED=true</code>, HRIS payloads return <code className="text-xs">202</code>{" "}

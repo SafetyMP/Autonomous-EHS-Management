@@ -3,10 +3,10 @@ import type { MetadataRoute } from "next";
 /** PWA shell for field install (see UI competitive positioning — installable web client). */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "EHS Management — ISO 45001 & 14001",
-    short_name: "EHS",
+    name: "Autonomous EHS — ISO 45001 & 14001 IMS",
+    short_name: "EHS Console",
     description:
-      "Occupational health, safety, and environmental management system of record.",
+      "Autonomous compliance operations platform — incident, CAPA, and environmental management with human approval for material changes.",
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",

@@ -141,6 +141,8 @@ function DashboardHomeContent() {
         organizationId={organizationId}
         orgName={orgName}
         persona={deskPersona}
+        isAdmin={homeLayout?.isAdmin ?? false}
+        canIntegrationRead={homeLayout?.permissions.canIntegrationRead ?? false}
         cc={cc}
         ccLoading={ccLoading}
         actionQueue={actionQueue}

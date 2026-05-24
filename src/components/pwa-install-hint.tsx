@@ -58,7 +58,7 @@ export function PwaInstallHint() {
         <p className="min-w-0">
           {deferred ? (
             <>
-              <span className="font-semibold">Install EHS on this device</span> — opens like an app
+              <span className="font-semibold">Install EHS Console on this device</span> — opens like an app
               for quicker field access (offline queue works in the browser).
             </>
           ) : (

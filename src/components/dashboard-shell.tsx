@@ -7,6 +7,7 @@ import {
 } from "@/components/field-outbox-ui-bridge";
 import { FieldOutboxGlobalSync } from "@/components/field-outbox-global-sync";
 import { DashboardAuthenticatedLayout } from "@/components/dashboard-authenticated-layout";
+import { DashboardWhatsNewBanner } from "@/components/dashboard/dashboard-whats-new-banner";
 import { OrgProvider } from "@/components/org-context";
 import { trpc } from "@/trpc/react";
 
@@ -103,6 +104,7 @@ function OrgGate({
         <FieldOutboxGlobalSync />
         <DashboardAuthenticatedLayout>
           <div className={`mx-auto flex w-full ${shellMax} flex-1 flex-col gap-4 p-4 sm:p-6`}>
+            <DashboardWhatsNewBanner />
             <div
               className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-base ${
                 sessionDense ? "py-2.5 sm:py-2" : "py-3"

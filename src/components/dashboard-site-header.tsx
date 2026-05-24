@@ -22,6 +22,7 @@ export function DashboardSiteHeader({
       <div className="mx-auto flex w-full max-w-[90rem] items-center justify-between gap-3 px-4 pb-3 sm:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <Link href="/dashboard" className={brandLinkClassName}>
+            <span className="sr-only">Autonomous EHS — </span>
             EHS Console
           </Link>
           <button type="button" className={menuBtnClass} onClick={onMenuClick} aria-label="Open workspace menu">
