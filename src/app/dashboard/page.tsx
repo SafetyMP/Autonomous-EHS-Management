@@ -65,6 +65,12 @@ function DashboardHomeContent() {
     { organizationId: organizationId! },
     { enabled: !!organizationId && effectiveLayout === "desk" },
   );
+
+  const { data: actionQueue, isLoading: actionQueueLoading } = trpc.tasks.actionQueue.useQuery(
+    { organizationId: organizationId!, limit: 5, includeOrgWide: effectiveLayout !== "field" },
+    { enabled: !!organizationId && !!effectiveLayout },
+  );
+
   const completeStep = trpc.organization.completeSetupStep.useMutation({
     onSuccess: () => void utils.organization.setupSteps.invalidate(),
   });
@@ -95,7 +101,12 @@ function DashboardHomeContent() {
   if (effectiveLayout === "field" && homeLayout) {
     return (
       <>
-        <DashboardFieldLauncher orgName={orgName} permissions={homeLayout.permissions} />
+        <DashboardFieldLauncher
+          orgName={orgName}
+          permissions={homeLayout.permissions}
+          actionQueue={actionQueue}
+          actionQueueLoading={actionQueueLoading}
+        />
         <p className="mt-6 text-center text-xs text-zinc-500">
           Prefer the overview tiles?{" "}
           <Link
@@ -115,6 +126,8 @@ function DashboardHomeContent() {
       orgName={orgName}
       cc={cc}
       ccLoading={ccLoading}
+      actionQueue={actionQueue}
+      actionQueueLoading={actionQueueLoading}
       integrationHealth={integrationHealth}
       doneKeys={doneKeys}
       onCompleteSetupStep={(stepKey) => completeStep.mutate({ organizationId, stepKey })}

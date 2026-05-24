@@ -1,13 +1,18 @@
-import { and, eq, isNotNull, lte, or } from "drizzle-orm";
+import { z } from "zod";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
+import {
+  queryActionQueue,
+  queryActionQueueCounts,
+} from "@/server/services/tasks/actionQueueQuery";
+import { orgScope } from "../schemas/orgScope";
+import { protectedProcedure, router } from "../init";
+import { and, eq, isNotNull, lte, or } from "drizzle-orm";
 import {
   complianceObligation,
   correctiveAction,
   managementReview,
   trainingRecord,
 } from "@/server/db/schema";
-import { orgScope } from "../schemas/orgScope";
-import { protectedProcedure, router } from "../init";
 
 export const tasksRouter = router({
   myOpenItems: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
@@ -90,5 +95,25 @@ export const tasksRouter = router({
       upcomingTraining,
       overdueManagementReviews: reviews,
     };
+  }),
+
+  actionQueue: protectedProcedure
+    .input(
+      orgScope.extend({
+        limit: z.number().int().min(1).max(20).default(5),
+        includeOrgWide: z.boolean().default(true),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.TASKS_READ);
+      return queryActionQueue(ctx.db, input.organizationId, ctx.user.id, {
+        limit: input.limit,
+        includeOrgWide: input.includeOrgWide,
+      });
+    }),
+
+  actionQueueCounts: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+    await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.TASKS_READ);
+    return queryActionQueueCounts(ctx.db, input.organizationId, ctx.user.id);
   }),
 });

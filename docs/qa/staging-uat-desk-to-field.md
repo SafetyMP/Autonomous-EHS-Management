@@ -10,7 +10,7 @@
 
 | Area | Route(s) | Verify on staging |
 |------|----------|-------------------|
-| **Command center** | `/dashboard` | KPIs and activity load; home layout matches role (field launcher vs full desk); no broken quick actions; sensitive tiles respect permissions. |
+| **Command center** | `/dashboard` | KPIs and activity load; **Your work** hero shows ranked next actions; home layout matches role (field launcher vs full desk); sidebar badges on Tasks & Approvals when pending; no broken quick actions; sensitive tiles respect permissions. |
 | **Incidents** | `/dashboard/incidents`, `/dashboard/incidents/new`, `/dashboard/incidents/[id]` | Create and open a minimal incident; confirm status/type/severity flow; **without sensitive-read**: see warning banner and **no** full narrative; **with sensitive-read**: full narrative and investigation fields; changes you expect in **Audit trail** appear after saves (not every background action is guaranteed—see [COMPLIANCE.md](../../COMPLIANCE.md)). |
 | **Observations** | `/dashboard/observations`, `/dashboard/observations/new`, `/dashboard/observations/[id]` | Create observation; confirm list/detail; follow-up or escalation labels if your org uses them; RBAC prevents cross-site abuse. |
 | **Inspections** | `/dashboard/inspections`, `/dashboard/inspections/new`, `/dashboard/inspections/[id]` | Create inspection; complete required fields; confirm readback and any approval handoff your process defines. |

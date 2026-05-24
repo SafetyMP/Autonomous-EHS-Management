@@ -167,6 +167,17 @@ export const rolePermission = pgTable(
   (t) => [primaryKey({ columns: [t.roleId, t.permissionId] })],
 );
 
+export const membershipEmploymentStatusEnum = pgEnum("membership_employment_status", [
+  "active",
+  "terminated",
+  "leave",
+]);
+
+export const membershipLifecycleStatusEnum = pgEnum("membership_lifecycle_status", [
+  "active",
+  "suspended",
+]);
+
 export const membership = pgTable("membership", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id")
@@ -179,6 +190,14 @@ export const membership = pgTable("membership", {
   roleId: uuid("role_id")
     .notNull()
     .references(() => role.id, { onDelete: "restrict" }),
+  /** HRIS worker id (e.g. Workday Worker_ID) — optional sync from inbound webhook. */
+  externalWorkerId: varchar("external_worker_id", { length: 128 }),
+  department: varchar("department", { length: 256 }),
+  jobTitle: varchar("job_title", { length: 256 }),
+  managerUserId: text("manager_user_id").references(() => authUser.id, { onDelete: "set null" }),
+  costCenter: varchar("cost_center", { length: 128 }),
+  employmentStatus: membershipEmploymentStatusEnum("employment_status"),
+  lifecycleStatus: membershipLifecycleStatusEnum("lifecycle_status").notNull().default("active"),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
     .notNull()
     .defaultNow(),
@@ -215,6 +234,7 @@ export const membershipRelations = relations(membership, ({ one }) => ({
   }),
   site: one(site, { fields: [membership.siteId], references: [site.id] }),
   role: one(role, { fields: [membership.roleId], references: [role.id] }),
+  manager: one(authUser, { fields: [membership.managerUserId], references: [authUser.id] }),
 }));
 
 /* ——— Audit trail ——— */

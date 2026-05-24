@@ -2,11 +2,19 @@ import { z } from "zod";
 import { trainingCompletionIngestSchema } from "@/lib/integration/trainingCompletion";
 import type { TrainingCompletionIngestInput } from "@/lib/integration/trainingCompletion";
 
+export const hrisEmploymentStatusSchema = z.enum(["active", "terminated", "leave"]);
+
 export const hrisMembershipSyncSchema = z.object({
   organizationId: z.string().uuid(),
   /** Primary org contact email in HRIS; must match an existing Better Auth user. */
   workerEmail: z.string().email().max(320),
   siteId: z.string().uuid().optional().nullable(),
+  externalWorkerId: z.string().min(1).max(128).optional().nullable(),
+  department: z.string().min(1).max(256).optional().nullable(),
+  jobTitle: z.string().min(1).max(256).optional().nullable(),
+  managerEmail: z.string().email().max(320).optional().nullable(),
+  costCenter: z.string().min(1).max(128).optional().nullable(),
+  employmentStatus: hrisEmploymentStatusSchema.optional().nullable(),
   /** Optional connector replay key — stored in `integration_inbound_idempotency`. */
   idempotencyKey: z.string().min(1).max(256).optional(),
 });
@@ -45,6 +53,12 @@ export function hrisSyncInputFromInbound(
     organizationId: data.organizationId,
     workerEmail: data.workerEmail,
     siteId: data.siteId ?? null,
+    externalWorkerId: data.externalWorkerId ?? null,
+    department: data.department ?? null,
+    jobTitle: data.jobTitle ?? null,
+    managerEmail: data.managerEmail ?? null,
+    costCenter: data.costCenter ?? null,
+    employmentStatus: data.employmentStatus ?? null,
     ...(data.idempotencyKey ? { idempotencyKey: data.idempotencyKey } : {}),
   };
 }

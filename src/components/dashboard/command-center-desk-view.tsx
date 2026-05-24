@@ -3,6 +3,7 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import Link from "next/link";
 import { OrgSwitcher } from "@/components/org-switcher";
+import { DashboardActionQueueHero } from "@/components/dashboard/dashboard-action-queue-hero";
 import { DashboardActivityFeed } from "@/components/dashboard/dashboard-activity-feed";
 import { CommandCenterCsvButton } from "@/components/dashboard/command-center-csv-button";
 import { DashboardKpiTile } from "@/components/dashboard/dashboard-kpi-tile";
@@ -15,6 +16,8 @@ import {
   type CommandCenterOut,
 } from "@/lib/dashboard/commandCenterSignals";
 import type { AppRouter } from "@/server/trpc/root";
+
+type ActionQueueOut = inferRouterOutputs<AppRouter>["tasks"]["actionQueue"];
 
 type IntegrationFailedHealth = inferRouterOutputs<AppRouter>["integration"]["failedEventsHealth"];
 
@@ -49,6 +52,8 @@ export type CommandCenterDeskViewProps = {
   orgName: string | undefined;
   cc: CommandCenterOut | undefined;
   ccLoading: boolean;
+  actionQueue: ActionQueueOut | undefined;
+  actionQueueLoading: boolean;
   integrationHealth: IntegrationFailedHealth | undefined;
   doneKeys: Set<string>;
   onCompleteSetupStep: (stepKey: string) => void;
@@ -60,6 +65,8 @@ export function CommandCenterDeskView({
   orgName,
   cc,
   ccLoading,
+  actionQueue,
+  actionQueueLoading,
   integrationHealth,
   doneKeys,
   onCompleteSetupStep,
@@ -89,6 +96,8 @@ export function CommandCenterDeskView({
         </Link>{" "}
         — large buttons for incident, observation, inspection, and permit intake.
       </p>
+
+      <DashboardActionQueueHero queue={actionQueue} loading={actionQueueLoading} />
 
       {ccLoading ? (
         <div

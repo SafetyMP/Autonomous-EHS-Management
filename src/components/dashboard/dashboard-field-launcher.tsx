@@ -2,19 +2,25 @@
 
 import Link from "next/link";
 import type { inferRouterOutputs } from "@trpc/server";
+import { DashboardActionQueueFieldStrip } from "@/components/dashboard/dashboard-action-queue-field-strip";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { OrgSwitcher } from "@/components/org-switcher";
 import type { AppRouter } from "@/server/trpc/root";
 
 type HomeLayoutOut = inferRouterOutputs<AppRouter>["organization"]["dashboardHomeLayout"];
+type ActionQueueOut = inferRouterOutputs<AppRouter>["tasks"]["actionQueue"];
 type Perms = HomeLayoutOut["permissions"];
 
 export function DashboardFieldLauncher({
   orgName,
   permissions,
+  actionQueue,
+  actionQueueLoading,
 }: {
   orgName?: string;
   permissions: Perms;
+  actionQueue?: ActionQueueOut;
+  actionQueueLoading?: boolean;
 }) {
   const actions: { href: string; label: string; show: boolean }[] = [
     { href: "/dashboard/incidents/new", label: "Report incident", show: permissions.canIncidentCreate },
@@ -83,6 +89,11 @@ export function DashboardFieldLauncher({
           </p>
         ) : null}
       </section>
+
+      <DashboardActionQueueFieldStrip
+        queue={actionQueue}
+        loading={actionQueueLoading ?? false}
+      />
 
       <section aria-labelledby="field-lists-heading">
         <h2 id="field-lists-heading" className="mb-3 text-lg font-semibold text-zinc-900">
