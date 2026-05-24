@@ -1,5 +1,5 @@
 import "server-only";
-import PgBoss from "pg-boss";
+import { PgBoss } from "pg-boss";
 import { env } from "@/lib/env";
 import type { JobEnqueueOptions, JobName, JobPayloadMap, JobQueue } from "./types";
 

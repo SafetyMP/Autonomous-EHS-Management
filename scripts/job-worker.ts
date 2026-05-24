@@ -2,7 +2,7 @@
  * Long-lived pg-boss worker for async jobs (integration replay, HRIS inbound, retention chunks).
  * Run on Kubernetes/VM — not on Vercel serverless. See docs/JOB_QUEUE.md.
  */
-import PgBoss from "pg-boss";
+import { PgBoss } from "pg-boss";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import { loadEnvFiles } from "./lib/load-env";
