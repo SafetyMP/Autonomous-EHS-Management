@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.0...v1.4.1) (2026-05-24)
+
+
+### Bug Fixes
+
+* **build:** use pg-boss named import for Vercel typecheck ([6c6d66f](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/6c6d66fe479075ee4fc4db783ebd3fbb0613322d))
+
 # [1.4.0](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.3.10...v1.4.0) (2026-05-13)
 
 
