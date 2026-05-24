@@ -51,7 +51,7 @@ export function DashboardFieldLauncher({
     },
     {
       href: "/dashboard/permits",
-      label: "Permits to work",
+      label: "Work permits (PTW)",
       show: permissions.canPermitRead,
     },
   ];
@@ -114,6 +114,14 @@ export function DashboardFieldLauncher({
             ))}
         </ul>
       </section>
+
+      <p className="text-center text-xs text-zinc-500">
+        Pending work is ranked on the command center and in{" "}
+        <Link href="/dashboard/tasks" className="font-medium text-emerald-900 underline underline-offset-2">
+          Tasks &amp; reviews
+        </Link>
+        .
+      </p>
 
       <p className="text-center">
         <Link

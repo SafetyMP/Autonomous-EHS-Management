@@ -1,3 +1,7 @@
+/**
+ * @deprecated Dashboard uses `program.*Emergency*` procedures. This router remains for
+ * API/tests and drill→incident/CAPA links; prefer `/dashboard/program` for operator UX.
+ */
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";

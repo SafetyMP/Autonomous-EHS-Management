@@ -3,6 +3,7 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import Link from "next/link";
 import { useEffect, useId, useMemo, useState } from "react";
+import { EhsEvidenceRegistrySection } from "@/components/dashboard/ehs-evidence-registry-section";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import { dfMuted, dfSecondaryOutline } from "@/lib/dashboard-field-styles";
@@ -144,6 +145,7 @@ export default function CapaPage() {
   const [advancingId, setAdvancingId] = useState<string | null>(null);
   const [newOwnerUserId, setNewOwnerUserId] = useState("");
   const [capaInitialFlow, setCapaInitialFlow] = useState<"planned" | "pending_approval">("planned");
+  const [evidenceCapaId, setEvidenceCapaId] = useState("");
   const [planApproverUserId, setPlanApproverUserId] = useState("");
   const [planExtraApprovers, setPlanExtraApprovers] = useState<string[]>([]);
   const [planSlaDays, setPlanSlaDays] = useState(7);
@@ -993,6 +995,32 @@ export default function CapaPage() {
           </tbody>
         </table>
       </div>
+
+      {capas && capas.length > 0 ? (
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold text-zinc-900">CAPA evidence</h2>
+          <label className="block text-sm font-semibold text-zinc-900">
+            Select CAPA
+            <select
+              className={inputClass}
+              value={evidenceCapaId || capas[0]?.id || ""}
+              onChange={(e) => setEvidenceCapaId(e.target.value)}
+            >
+              {capas.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <EhsEvidenceRegistrySection
+            organizationId={organizationId}
+            entityType="corrective_action"
+            entityId={evidenceCapaId || capas[0]!.id}
+            canRegister
+          />
+        </section>
+      ) : null}
     </div>
   );
 }

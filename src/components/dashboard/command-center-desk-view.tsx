@@ -13,13 +13,12 @@ import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import {
   buildAttentionChips,
   COMMAND_CENTER_KPI_TILES,
+  filterAttentionChipsForActionQueue,
   type CommandCenterOut,
 } from "@/lib/dashboard/commandCenterSignals";
 import type { AppRouter } from "@/server/trpc/root";
 
 type ActionQueueOut = inferRouterOutputs<AppRouter>["tasks"]["actionQueue"];
-
-type IntegrationFailedHealth = inferRouterOutputs<AppRouter>["integration"]["failedEventsHealth"];
 
 const ONBOARDING_STEPS = [
   { key: "context_scope", label: "Organization context & scope (Clause 4)", href: "/dashboard/context" },
@@ -28,6 +27,33 @@ const ONBOARDING_STEPS = [
   { key: "planning", label: "Hazards, risk & operational controls", href: "/dashboard/planning" },
   { key: "program_iso", label: "Program register (MOC, drills, CB audits)", href: "/dashboard/program" },
 ] as const;
+
+function KpiSection({ cc, collapsed }: { cc: CommandCenterOut | undefined; collapsed: boolean }) {
+  const grid = (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+      <KpiBlock cc={cc} />
+    </div>
+  );
+
+  if (!collapsed) {
+    return (
+      <DashboardSection id="dash-kpis" title="Key indicators" variant="muted">
+        {grid}
+      </DashboardSection>
+    );
+  }
+
+  return (
+    <details className="rounded-lg border border-zinc-200 bg-zinc-50 shadow-sm open:bg-white">
+      <summary className="cursor-pointer touch-target list-none rounded-lg px-5 py-4 text-base font-semibold text-zinc-900 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 marker:text-emerald-800">
+        Key indicators (program snapshot)
+      </summary>
+      <div id="dash-kpis" className="border-t border-zinc-100 px-5 pb-5 pt-4">
+        {grid}
+      </div>
+    </details>
+  );
+}
 
 function KpiBlock({ cc }: { cc: CommandCenterOut | undefined }) {
   const k = cc?.kpis;
@@ -50,11 +76,11 @@ function KpiBlock({ cc }: { cc: CommandCenterOut | undefined }) {
 export type CommandCenterDeskViewProps = {
   organizationId: string;
   orgName: string | undefined;
+  persona: "desk_contributor" | "desk_supervisor";
   cc: CommandCenterOut | undefined;
   ccLoading: boolean;
   actionQueue: ActionQueueOut | undefined;
   actionQueueLoading: boolean;
-  integrationHealth: IntegrationFailedHealth | undefined;
   doneKeys: Set<string>;
   onCompleteSetupStep: (stepKey: string) => void;
   completeSetupStepPending: boolean;
@@ -63,16 +89,22 @@ export type CommandCenterDeskViewProps = {
 export function CommandCenterDeskView({
   organizationId,
   orgName,
+  persona,
   cc,
   ccLoading,
   actionQueue,
   actionQueueLoading,
-  integrationHealth,
   doneKeys,
   onCompleteSetupStep,
   completeSetupStepPending,
 }: CommandCenterDeskViewProps) {
-  const attention = buildAttentionChips(cc?.kpis);
+  const actionQueueHasPersonalWork = (actionQueue?.totalCount ?? 0) > 0;
+  const attention = filterAttentionChipsForActionQueue(
+    buildAttentionChips(cc?.kpis),
+    actionQueueHasPersonalWork,
+  );
+  const showFullKpis = persona === "desk_supervisor";
+  const showQuickActions = persona === "desk_supervisor";
 
   return (
     <div className="space-y-8">
@@ -88,6 +120,12 @@ export function CommandCenterDeskView({
       />
 
       <p className="-mt-4 text-xs text-zinc-700">
+        {persona === "desk_contributor" ? (
+          <>
+            Your assigned work is ranked below. Program KPIs are collapsed — expand when you need the
+            full picture.{" "}
+          </>
+        ) : null}
         <Link
           href="/dashboard?view=field"
           className="font-medium text-emerald-900 underline underline-offset-2"
@@ -138,93 +176,7 @@ export function CommandCenterDeskView({
         </div>
       ) : null}
 
-      {integrationHealth && integrationHealth.failedCount > 0 ? (
-        <section
-          className="rounded-xl border border-red-200 bg-red-50/90 p-4 shadow-sm"
-          aria-labelledby="dash-integration-failed-heading"
-        >
-          <h2 id="dash-integration-failed-heading" className="text-base font-semibold text-red-950">
-            Integration backlog ({integrationHealth.failedCount} failed)
-          </h2>
-          <p className="mt-1 text-sm text-red-900">
-            Oldest failure:{" "}
-            {integrationHealth.oldestFailedCreatedAt
-              ? new Date(integrationHealth.oldestFailedCreatedAt).toLocaleString()
-              : "—"}
-            . Retry from{" "}
-            <Link
-              href="/dashboard/integrations#integration-failed"
-              className="font-medium underline decoration-red-800 underline-offset-2"
-            >
-              Integrations
-            </Link>{" "}
-            (needs <code className="rounded bg-red-100 px-1 text-xs">integration:write</code>).
-          </p>
-          <p className={`mt-2 text-xs text-red-900/90`}>
-            Operator notes:{" "}
-            <code className="rounded bg-red-100 px-1">docs/integration-connector-mapping.md</code>
-          </p>
-          <ul className="mt-3 divide-y divide-red-100 text-sm text-red-950">
-            {integrationHealth.recentFailed.map((ev, idx) => (
-              <li key={`${ev.id}-${idx}`} className="flex flex-wrap items-baseline justify-between gap-2 py-2">
-                <span className="font-medium">
-                  {ev.eventType.startsWith("demo.") ? (
-                    <span className="mr-1 rounded bg-red-200/80 px-1.5 py-0.5 text-xs font-semibold text-red-950">
-                      Demo
-                    </span>
-                  ) : null}
-                  {ev.eventType}{" "}
-                  <span className="font-mono text-xs font-normal text-red-900/80">({ev.id.slice(0, 8)}…)</span>
-                </span>
-                <span className="tabular-nums text-xs text-red-900/90">
-                  {new Date(ev.createdAt).toLocaleString()}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {cc?.kpis?.cronHealth && cc.kpis.cronHealth.jobs.length > 0 ? (
-        <section
-          className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
-          aria-labelledby="dash-cron-health-heading"
-        >
-          <h2 id="dash-cron-health-heading" className="text-base font-semibold text-zinc-900">
-            Scheduled job health (org admin)
-          </h2>
-          <p className="mt-1 text-sm text-zinc-600">
-            Latest completed run per deployment cron key. Humans and SRE own remediation. Runbooks:{" "}
-            <code className="rounded bg-zinc-100 px-1 text-xs">docs/runbooks/cron-metrics-observability.md</code>
-            {" · "}
-            <code className="rounded bg-zinc-100 px-1 text-xs">docs/integration-connector-mapping.md</code>
-            .
-          </p>
-          <ul className="mt-3 divide-y divide-zinc-100 text-sm">
-            {cc.kpis.cronHealth.jobs.map((j) => (
-              <li key={j.jobKey} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                <span className="font-mono text-xs text-zinc-800">{j.jobKey}</span>
-                <span className="text-zinc-700">
-                  {j.lastOk ? (
-                    <span className="text-emerald-800">OK</span>
-                  ) : (
-                    <span className="font-medium text-red-800">Failed</span>
-                  )}
-                  <span className="ml-2 tabular-nums text-zinc-600">
-                    {new Date(j.lastStartedAt).toLocaleString()} · {j.lastDurationMs} ms
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <DashboardSection id="dash-kpis" title="Key indicators" variant="muted">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-          <KpiBlock cc={cc} />
-        </div>
-      </DashboardSection>
+      <KpiSection cc={cc} collapsed={!showFullKpis} />
 
       <div className="grid gap-6 xl:grid-cols-12">
         <div className="space-y-6 xl:col-span-7">
@@ -246,9 +198,11 @@ export function CommandCenterDeskView({
             />
           </DashboardSection>
 
-          <DashboardSection id="dash-quick-actions" title="Quick actions" variant="muted">
-            <DashboardQuickActions />
-          </DashboardSection>
+          {showQuickActions ? (
+            <DashboardSection id="dash-quick-actions" title="Quick actions" variant="muted">
+              <DashboardQuickActions />
+            </DashboardSection>
+          ) : null}
         </div>
 
         <aside className="space-y-4 xl:col-span-5" aria-labelledby="dash-onboarding-summary">

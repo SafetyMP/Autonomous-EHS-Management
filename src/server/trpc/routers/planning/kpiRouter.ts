@@ -1,3 +1,4 @@
+/** @deprecated Use `program.*` KPI procedures on `/dashboard/program` — no dashboard consumer for planning.kpi. */
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";

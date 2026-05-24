@@ -13,6 +13,7 @@ Welcome to **EHS Console**. This guide helps safety managers and field workers r
 5. [Your organization (workspace)](#your-organization-workspace)
 6. [Moving around the app](#moving-around-the-app)
 7. [Command center (operations home)](#command-center-operations-home)
+7a. [Your work (next actions)](#your-work)
 8. [Metrics (Safety metrics)](#metrics-safety-metrics)
 9. [Incidence rates](#incidence-rates)
 10. [Incidents](#incidents)
@@ -195,21 +196,37 @@ A **PWA install** strip (**Install EHS on this device**) may appear below the si
 ### Desk layout versus field layout
 
 - **Desk (operations dashboard):** The sections below describe this layout. Your org may open it by default after sign-in.
-- **Field workspace:** You may land on a compact screen titled **Field —** *org* (or **Field workspace**) with subtitle *Quick actions for intake in the field…* Under **Start here**, large buttons match permissions (**Report incident**, **Log observation**, **Start inspection**, **New permit**). **Recent lists** links include **Incidents**, **Observations**, **Inspections**, and **Permits to work** when you can read those modules. At the bottom, **Full operations dashboard** (and inline *Prefer the overview tiles? Open full operations dashboard*) switches to desk layout (`/dashboard?view=desk`). From the desk layout, **Compact field menu** returns to field layout (`/dashboard?view=field`). Either path stays on `/dashboard`.
+- **Field workspace:** You may land on a compact screen titled **Field —** *org* (or **Field workspace**) with subtitle *Quick actions for intake in the field…* Under **Start here**, large buttons match permissions (**Report incident**, **Log observation**, **Start inspection**, **New permit**). A **Pending for you** strip lists up to three ranked items (approvals, due CAPAs). **Recent lists** links include **Incidents**, **Observations**, **Inspections**, and **Work permits (PTW)** when you can read those modules. At the bottom, **Full operations dashboard** switches to desk layout. Your layout preference is remembered in the browser.
+
+## Your work
+
+The **Your work** panel on the desk command center (and the **Pending for you** strip on field home) shows one **primary next action** plus up to four more items, ranked across approvals, CAPAs, training renewals, and compliance reviews you can see.
+
+### SOP — Complete your next action
+
+1. Sign in and open **Command center** (`/dashboard`) or stay on **Field workspace** if that is your default.
+2. Read **Your next action** on desk layout—or the top row on the field pending strip.
+3. Tap the green button (**Review & decide**, **Open CAPA**, etc.) to open the exact record.
+4. For the full ranked list, open **Tasks & reviews** (`/dashboard/tasks`) or **View all tasks** from the Your work panel.
+5. Amber sidebar badges on **Tasks & reviews** and **Approvals** show pending counts; they match the same queue where possible.
+
+Desk supervisors still see program **Needs attention** chips and KPI tiles; desk contributors see KPIs collapsed below **Your work** to reduce clutter.
+
+---
 
 ### SOP — Review the command center
 
 1. Confirm your **Organization** in the header if you have more than one; until you pick a site you may see **Select an organization** with the picker.
-2. Optional: tap **Download command center CSV** (when the snapshot has loaded) to save the command-center figures your account may export—useful for leadership packs or audits.
-3. When data loads, note **Snapshot as of** *date/time* under the header (if shown)—figures reflect that moment.
-4. If **Needs attention:** appears, read the amber pill links—they deep-link into the owning area. Labels follow live logic, for example: **risk review(s) overdue**, **environmental permit(s) in 30d renewal window**, **overdue CAPA**, **open audit NC**, **overdue inspection**, **approval step(s)** (your inbox count), **overdue observation follow-up**, **permit approval chain(s)** (permits to work), **open observation(s)**. When escalation counts are high enough, pills may also point to **observation SLA escalation(s) recorded (90d)** or **approval SLA escalation(s) recorded (90d)** on **Safety metrics** (automation section). Each pill opens the right module or anchor.
-5. If your organization has integration monitoring enabled and failed inbound events exist, you may see **Integration backlog (*N* failed)** with context such as oldest failure time and a link to **[Integrations](/dashboard/integrations#integration-failed)**. The panel may cite **`integration:write`** and document paths for administrators—coordinate with IT if you are not sure.
-6. Administrators may see **Scheduled job health (org admin)** (cron summaries with runtimes). Day-to-day coordinators can rely on KPIs elsewhere; escalation goes to operations or IT per your charter.
-7. Under **Key indicators**, scan the clickable tiles (your role may hide some). In the current desk layout the tiles appear in this order: **Open incidents**, **Open audit NCs**, **Overdue CAPAs**, **Environmental aspects**, **Compliance obligations**, **Risk reviews overdue**, **Env permits (30d window)** (renewal attention), **Active work permits**, **Open observations**, **Overdue inspections**, **Your approval inbox**, **Tasks workbench items**, **Observations (30d)**, **Observation SLA escalations (90d)**, **Approval SLA escalations (90d)**—each linking to its module except observation/approval SLA tiles emphasize automation signals. A tile showing **—** means no number yet or still loading.
-8. Open **Recent activity** for a timestamped feed described as latest updates across modules you can read; links open record detail.
-9. Expand **ISO setup checklist** in the sidebar panel. Inside, the summary reads *Track rollout steps when you are aligning the management system—expand and mark items complete for your org.* Tap a checklist link (**Organization context & scope (Clause 4)**, **Environmental aspects & obligations**, **Controlled documents**, **Hazards, risk & operational controls**, **Program register (MOC, drills, CB audits)**), then **Mark done** when leadership confirms—completed rows show **Complete**.
-10. In **Quick actions**, primary (green-bordered) buttons: **Report incident**, **Log observation**, **New permit**, **Start inspection**. Secondary buttons: **Metrics**, **CAPA register**, **Incidents**, **Tasks & reviews**, **CSV import**.
-11. Use **Full safety & metrics dashboard →** under the checklist when you want the dedicated **Safety metrics** page (`/dashboard/analytics`).
+2. Review **Your work** first (see [Your work](#your-work)) before scanning program-wide alerts.
+3. Optional: tap **Download command center CSV** (when the snapshot has loaded) to save the command-center figures your account may export—useful for leadership packs or audits.
+4. When data loads, note **Snapshot as of** *date/time* under the header (if shown)—figures reflect that moment.
+5. If **Needs attention:** appears, read the amber pill links for program-level alerts (personal approvals are deduplicated when shown in **Your work**).
+6. Integration backlog and scheduled job health moved to **[Integrations](/dashboard/integrations)** for administrators.
+7. Under **Key indicators**, scan tiles (supervisors see the full grid; contributors may see them collapsed). Integration and cron panels no longer appear on the desk home.
+8. Open **Recent activity** for a timestamped feed; links open record detail.
+9. Expand **ISO setup checklist** in the sidebar panel when aligning the management system.
+10. Supervisors see **Quick actions** on desk home; field users use the compact field menu instead.
+11. Use **Full safety & metrics dashboard →** for the dedicated **Safety metrics** page (`/dashboard/analytics`).
 
 ### What if things go wrong?
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ModuleMaturityBanner } from "@/components/dashboard/module-maturity-banner";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -55,6 +56,12 @@ export default function PrivacyRequestsPage() {
         </div>
         <OrgSwitcher />
       </div>
+
+      <ModuleMaturityBanner tier="intake">
+        <strong>Intake-only module.</strong> DSAR export and erasure automation are not production-ready.
+        Counsel must define identity verification and delivery. See docs/DSAR_PROCESS.md and
+        docs/module-maturity.md.
+      </ModuleMaturityBanner>
 
       <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
         <h2 className={dfSectionHeading}>New intake</h2>

@@ -107,6 +107,24 @@ export function buildAttentionChips(
   return chips;
 }
 
+/** Chip ids suppressed when the same personal work appears in the action queue hero. */
+const PERSONAL_WORK_CHIP_IDS = new Set([
+  "attention-approval-inbox",
+  "attention-permit-approval-pending",
+]);
+
+/**
+ * Per action-queue spec §4.1: do not duplicate user-assigned items in attention chips
+ * when they already appear in the personal work hero.
+ */
+export function filterAttentionChipsForActionQueue(
+  chips: { id: string; label: string; href: string }[],
+  actionQueueHasPersonalWork: boolean,
+): { id: string; label: string; href: string }[] {
+  if (!actionQueueHasPersonalWork) return chips;
+  return chips.filter((c) => !PERSONAL_WORK_CHIP_IDS.has(c.id));
+}
+
 export const COMMAND_CENTER_KPI_TILES: readonly {
   key: string;
   title: string;

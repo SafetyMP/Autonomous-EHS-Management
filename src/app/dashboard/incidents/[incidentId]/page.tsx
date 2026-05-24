@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { OrgSwitcher } from "@/components/org-switcher";
+import { IncidentLinkedCapaSection } from "@/components/dashboard/incident-linked-capa-section";
 import { OshaInjuryIllnessSection } from "@/components/osha-injury-illness-section";
 import { useOrg } from "@/components/org-context";
 import { trpc } from "@/trpc/react";
@@ -1745,30 +1746,11 @@ export default function IncidentDetailPage() {
 
       <OshaInjuryIllnessSection organizationId={organizationId} incidentId={incidentId} />
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className={dfSectionHeading}>Linked corrective actions</h2>
-        {linkedCapas.length === 0 ? (
-          <p className={`mt-2 text-base ${dfMuted}`}>None linked yet.</p>
-        ) : (
-          <ul className="mt-2 list-inside list-disc text-base text-zinc-900">
-            {linkedCapas.map((c: CapaRow) => (
-              <li key={c.id}>
-                <Link href="/dashboard/capa" className={dfInlineNavLink}>
-                  {c.title}
-                </Link>{" "}
-                ({c.status.replace("_", " ")})
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className={`mt-3 ${dfHelperXs}`}>
-          Create or link CAPAs from the{" "}
-          <Link href="/dashboard/capa" className={dfInlineNavLink}>
-            CAPA
-          </Link>{" "}
-          screen.
-        </p>
-      </div>
+      <IncidentLinkedCapaSection
+        organizationId={organizationId}
+        incidentId={incidentId}
+        linkedCapas={linkedCapas}
+      />
     </div>
   );
 }

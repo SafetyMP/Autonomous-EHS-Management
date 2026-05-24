@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import { IntegrationsPlatformPanel } from "@/components/dashboard/integrations-platform-panel";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -391,6 +392,8 @@ export default function IntegrationsPage() {
           <OrgSwitcher />
         </div>
       </div>
+
+      <IntegrationsPlatformPanel organizationId={organizationId} />
 
       <ConnectorMappingsEditor key={`${organizationId}:connector-mappings`} organizationId={organizationId} />
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import {
   dfControl,
@@ -9,11 +10,11 @@ import {
   dfSecondaryOutline,
   dfSectionHeading,
 } from "@/lib/dashboard-field-styles";
+import { ConsultationRecordsPanel } from "@/components/dashboard/consultation-records-panel";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import { trpc } from "@/trpc/react";
 
-const RISK_RATINGS = ["low", "medium", "high", "very_high"] as const;
 const OBJ_TYPES = ["oh_safety", "environmental"] as const;
 
 export default function PlanningPage() {
@@ -22,10 +23,6 @@ export default function PlanningPage() {
 
   const [hTitle, setHTitle] = useState("");
   const [hDesc, setHDesc] = useState("");
-
-  const [rHazardId, setRHazardId] = useState("");
-  const [rContext, setRContext] = useState("");
-  const [rRating, setRRating] = useState<(typeof RISK_RATINGS)[number]>("medium");
 
   const [oType, setOType] = useState<(typeof OBJ_TYPES)[number]>("oh_safety");
   const [oTitle, setOTitle] = useState("");
@@ -39,15 +36,10 @@ export default function PlanningPage() {
     { organizationId: organizationId! },
     { enabled: !!organizationId },
   );
-  const { data: risks, isLoading: loadingRisks } = trpc.planning.risk.list.useQuery(
+  const { data: objectives, isLoading: loadingObj } = trpc.planning.objective.list.useQuery(
     { organizationId: organizationId! },
     { enabled: !!organizationId },
   );
-  const { data: objectives, isLoading: loadingObj } =
-    trpc.planning.objective.list.useQuery(
-      { organizationId: organizationId! },
-      { enabled: !!organizationId },
-    );
   const { data: controls, isLoading: loadingCtrl } =
     trpc.planning.operationalControl.list.useQuery(
       { organizationId: organizationId! },
@@ -63,13 +55,6 @@ export default function PlanningPage() {
       void utils.planning.hazard.list.invalidate();
       setHTitle("");
       setHDesc("");
-    },
-  });
-  const createRisk = trpc.planning.risk.create.useMutation({
-    onSuccess: () => {
-      void utils.planning.risk.list.invalidate();
-      setRContext("");
-      setRHazardId("");
     },
   });
   const createObjective = trpc.planning.objective.create.useMutation({
@@ -159,63 +144,24 @@ export default function PlanningPage() {
 
         <div className="space-y-3">
           <h2 className={dfSectionHeading}>Risk assessments</h2>
-          <form
-            className="space-y-2 rounded-lg border border-zinc-200 bg-white p-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              createRisk.mutate({
-                organizationId,
-                context: rContext,
-                hazardId: rHazardId || undefined,
-                residualRating: rRating,
-              });
-            }}
-          >
-            <select className={dfControl} value={rHazardId} aria-label="Hazard link (optional)"
-              onChange={(e) => setRHazardId(e.target.value)}
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4 text-sm text-zinc-800">
+            <p>
+              Task- and site-based risk assessments with JSA steps, review dates, and audit trail live
+              in the dedicated roster — not on this planning page.
+            </p>
+            <Link
+              href="/dashboard/risk-assessments"
+              className="mt-3 inline-flex min-h-11 touch-target items-center rounded-md bg-emerald-800 px-4 py-2 font-semibold text-white hover:bg-emerald-900"
             >
-              <option value="">— Hazard (optional) —</option>
-              {hazards?.map((h) => (
-                <option key={h.id} value={h.id}>
-                  {h.title}
-                </option>
-              ))}
-            </select>
-            <textarea required minLength={10} placeholder="Context / scenario (min 10 chars)" rows={3} className={dfControl}
-              value={rContext}
-              onChange={(e) => setRContext(e.target.value)}
-            />
-            <select className={dfControl} value={rRating} aria-label="Residual risk rating"
-              onChange={(e) =>
-                setRRating(e.target.value as (typeof RISK_RATINGS)[number])
-              }
+              Open risk assessments →
+            </Link>
+            <Link
+              href="/dashboard/risk-assessments/new"
+              className="mt-2 block font-medium text-emerald-900 underline underline-offset-2"
             >
-              {RISK_RATINGS.map((x) => (
-                <option key={x} value={x}>
-                  {x.replace("_", " ")}
-                </option>
-              ))}
-            </select>
-            <button type="submit" disabled={createRisk.isPending} aria-busy={createRisk.isPending} className={dfPrimarySubmit}>
-              Record assessment
-            </button>
-          </form>
-          <ul className="divide-y rounded-lg border border-zinc-200 bg-white text-sm">
-            {loadingRisks ? (
-              <li className="px-4 py-3 text-zinc-700" role="status" aria-live="polite">
-                Loading…
-              </li>
-            ) : risks?.length === 0 ? (
-              <li className="px-4 py-3 text-zinc-700">No assessments yet.</li>
-            ) : (
-              risks?.map((r) => (
-                <li key={r.id} className="px-4 py-3">
-                  <span className={`capitalize ${dfHelperXs}`}>{r.residualRating}</span>
-                  <p className="mt-1 whitespace-pre-wrap text-zinc-800">{r.context}</p>
-                </li>
-              ))
-            )}
-          </ul>
+              Create new assessment
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -354,6 +300,8 @@ export default function PlanningPage() {
           </ul>
         </div>
       </section>
+
+      <ConsultationRecordsPanel organizationId={organizationId} />
     </div>
   );
 }

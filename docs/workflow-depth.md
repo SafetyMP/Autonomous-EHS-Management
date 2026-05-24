@@ -71,7 +71,7 @@ Search the codebase for `writeAuditLog` under `src/server/trpc/routers/` for the
 
 ## 5. Operational ownership routing
 
-Ownership is modeled in domain tables (e.g. assignee fields, org/site scoping) and enforced through org-scoped inputs (`orgScope` patterns in routers). **Field UX** for “who owns this next” belongs in dashboard flows; server-side, org membership + permission keys gate visibility and edits. **Design spec (not yet implemented):** [action-queue-dashboard-spec.md](./roadmap/action-queue-dashboard-spec.md).
+Ownership is modeled in domain tables (e.g. assignee fields, org/site scoping) and enforced through org-scoped inputs (`orgScope` patterns in routers). **Field UX** for “who owns this next” is implemented via `tasks.actionQueue` on desk/field home and the task hub — see [action-queue-dashboard-spec.md](./roadmap/action-queue-dashboard-spec.md).
 
 ---
 

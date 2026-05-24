@@ -4,7 +4,7 @@ Engineering specs and playbooks derived from enterprise diligence feedback. Thes
 
 | Document | Theme | Status |
 |----------|-------|--------|
-| [action-queue-dashboard-spec.md](./action-queue-dashboard-spec.md) | Unified next-action UX and `tasks.actionQueue` API | Spec only |
+| [action-queue-dashboard-spec.md](./action-queue-dashboard-spec.md) | Unified next-action UX and `tasks.actionQueue` API | Phase A/B shipped; Phase C in progress |
 | [hris-portco-integration-playbook.md](./hris-portco-integration-playbook.md) | SCIM, multi-org OIDC JIT, Workday/ADP/BambooHR iPaaS recipes | Spec only |
 
 **Architecture decisions:** [../adr/0001-mcp-context-sync-strategy.md](../adr/0001-mcp-context-sync-strategy.md)

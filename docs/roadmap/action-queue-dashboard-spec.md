@@ -1,6 +1,6 @@
 # Action queue & next-action dashboard — design spec
 
-**Status:** Design spec (not implemented).  
+**Status:** Phase A/B shipped; Phase C (role-aware layout) in progress.  
 **Addresses:** CTO feedback on information density and “visual dashboard highlighting next action.”  
 **Related:** [workflow-depth.md](../workflow-depth.md) §5, [commandCenterSignals.ts](../../src/lib/dashboard/commandCenterSignals.ts), [staging-uat-desk-to-field.md](../qa/staging-uat-desk-to-field.md).
 

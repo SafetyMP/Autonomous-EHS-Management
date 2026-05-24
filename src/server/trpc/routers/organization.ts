@@ -72,9 +72,10 @@ export const organizationRouter = router({
       const canObservationRead = await userHasPermission(db, uid, oid, PERMISSIONS.SAFETY_OBSERVATION_READ);
       const canInspectionRead = await userHasPermission(db, uid, oid, PERMISSIONS.INSPECTION_READ);
       const canPermitRead = await userHasPermission(db, uid, oid, PERMISSIONS.WORK_PERMIT_READ);
-      const [canIntegrationRead, canIntegrationWrite] = await Promise.all([
+      const [canIntegrationRead, canIntegrationWrite, canAuditTrailRead] = await Promise.all([
         userHasPermission(db, uid, oid, PERMISSIONS.INTEGRATION_READ),
         userHasPermission(db, uid, oid, PERMISSIONS.INTEGRATION_WRITE),
+        userHasPermission(db, uid, oid, PERMISSIONS.AUDIT_TRAIL_READ),
       ]);
 
       const managementReads = await Promise.all([
@@ -101,8 +102,19 @@ export const organizationRouter = router({
         layout = "field";
       }
 
+      const persona: "field" | "desk_contributor" | "desk_supervisor" =
+        layout === "field"
+          ? "field"
+          : admin || mgmtScore >= 2
+            ? "desk_supervisor"
+            : "desk_contributor";
+
       return {
         layout,
+        persona,
+        showFullKpis: persona === "desk_supervisor",
+        showAdminPanelsOnHome: false,
+        isAdmin: admin,
         permissions: {
           canIncidentCreate,
           canObservationCreate,
@@ -114,6 +126,7 @@ export const organizationRouter = router({
           canPermitRead,
           canIntegrationRead,
           canIntegrationWrite,
+          canAuditTrailRead,
         },
       };
     }),

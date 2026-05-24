@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { EnvironmentalMonitoringPanel } from "@/components/dashboard/environmental-monitoring-panel";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import { ASPECT_SIGNIFICANCES } from "@/lib/ehs-enums";
@@ -724,6 +725,8 @@ export default function EnvironmentPage() {
           </div>
         ) : null}
       </section>
+
+      {organizationId ? <EnvironmentalMonitoringPanel organizationId={organizationId} /> : null}
     </div>
   );
 }

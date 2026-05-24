@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDashboardNavBadges } from "@/components/dashboard-nav-badge-context";
+import { useOrg } from "@/components/org-context";
 import type { DashboardNavSection } from "@/lib/dashboard-nav-links";
-import { DASHBOARD_NAV_SECTIONS } from "@/lib/dashboard-nav-links";
+import { navSectionsForUser, sectionContainsPath } from "@/lib/dashboard-nav-filter";
+import { trpc } from "@/trpc/react";
 
 const navItemClass =
   "inline-flex min-h-11 w-full touch-target items-center rounded-md px-3 py-2 text-base text-zinc-800 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 md:text-sm";
@@ -41,6 +43,21 @@ export function DashboardGroupedNav({
 }) {
   const pathname = usePathname();
   const badges = useDashboardNavBadges();
+  const { organizationId } = useOrg();
+
+  const { data: homeLayout } = trpc.organization.dashboardHomeLayout.useQuery(
+    { organizationId: organizationId! },
+    { enabled: !!organizationId },
+  );
+
+  const sections: readonly DashboardNavSection[] = homeLayout
+    ? navSectionsForUser({
+        layout: homeLayout.layout,
+        isAdmin: homeLayout.isAdmin,
+        canIntegrationRead: homeLayout.permissions.canIntegrationRead,
+        canAuditTrailRead: homeLayout.permissions.canAuditTrailRead,
+      })
+    : [];
 
   const renderLink = (item: { href: string; label: string }) => {
     const count = badgeCountForHref(item.href, badges);
@@ -66,13 +83,20 @@ export function DashboardGroupedNav({
           : "flex flex-col gap-4 px-3 py-4"
       }
     >
-      {DASHBOARD_NAV_SECTIONS.map((section: DashboardNavSection) =>
+      {sections.map((section: DashboardNavSection) =>
         variant === "drawer" ? (
-          <details key={section.title} className="group rounded-md border border-zinc-200 bg-zinc-50">
+          <details
+            key={section.title}
+            open={sectionContainsPath(section, pathname)}
+            className="group rounded-md border border-zinc-200 bg-zinc-50"
+          >
             <summary className="min-h-11 cursor-pointer touch-target select-none px-3 py-2 font-semibold text-zinc-900 marker:text-emerald-800">
               {section.title}
             </summary>
-            <nav aria-label={section.ariaLabel ?? section.title} className="flex flex-col gap-0 border-t border-zinc-200 bg-white py-2">
+            <nav
+              aria-label={section.ariaLabel ?? section.title}
+              className="flex flex-col gap-0 border-t border-zinc-200 bg-white py-2"
+            >
               {section.items.map((item) => (
                 <div key={item.href} className="pl-3">
                   {renderLink(item)}
