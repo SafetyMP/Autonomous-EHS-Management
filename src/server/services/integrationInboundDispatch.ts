@@ -3,7 +3,13 @@ import { z } from "zod";
 import type { Db } from "@/server/db";
 import { integrationEvent } from "@/server/db/schema";
 import type { HrisMembershipSyncInput } from "@/lib/integration/inboundEnvelope";
+import type { HrisContractorSyncInput } from "@/lib/integration/hrisContractorSync";
+import type { RosterSnapshotWorker } from "@/lib/integration/rosterSnapshot";
 import { applyHrisMembershipSync, hrisPayloadForIntegrationEvent } from "@/server/services/hrisMembershipSyncIngest";
+import { applyHrisContractorSync } from "@/server/services/hrisContractorSyncIngest";
+import {
+  ingestRosterSnapshotFromPayload,
+} from "@/server/services/rosterReconciliation";
 import { dispatchOperationalWebhooks } from "@/server/services/operationalWebhookDispatch";
 
 const storedHrisPayloadSchema = z.object({
@@ -141,4 +147,90 @@ export async function reprocessFailedIntegrationEvent(
   }
 
   return { ok: false, message: `Unsupported eventType: ${ev.eventType}` };
+}
+
+export async function processHrisContractorSyncInbound(
+  db: Db,
+  input: HrisContractorSyncInput,
+): Promise<{ id: string; processingStatus: string; error?: string }> {
+  const [inserted] = await db
+    .insert(integrationEvent)
+    .values({
+      organizationId: input.organizationId,
+      eventType: "hris_contractor_sync",
+      payload: {
+        externalWorkerId: input.externalWorkerId,
+        companyName: input.companyName,
+        partyType: input.partyType,
+      },
+      processingStatus: "pending",
+    })
+    .returning({ id: integrationEvent.id });
+
+  if (!inserted) {
+    throw new Error("Failed to insert integration event.");
+  }
+
+  try {
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      await applyHrisContractorSync(tx, input, inserted.id, null);
+      await tx
+        .update(integrationEvent)
+        .set({
+          processingStatus: "applied",
+          appliedAt: now,
+          processingError: null,
+        })
+        .where(eq(integrationEvent.id, inserted.id));
+    });
+    return { id: inserted.id, processingStatus: "applied" };
+  } catch (e) {
+    const msg = (e instanceof Error ? e.message : String(e)).slice(0, 2000);
+    await db
+      .update(integrationEvent)
+      .set({ processingStatus: "failed", processingError: msg })
+      .where(eq(integrationEvent.id, inserted.id));
+    return { id: inserted.id, processingStatus: "failed", error: msg };
+  }
+}
+
+export async function processRosterSnapshotInbound(
+  db: Db,
+  organizationId: string,
+  workers: RosterSnapshotWorker[],
+  source?: string,
+): Promise<{ id: string; processingStatus: string; driftCount: number }> {
+  const [inserted] = await db
+    .insert(integrationEvent)
+    .values({
+      organizationId,
+      eventType: "roster_snapshot",
+      payload: { workerCount: workers.length, source: source ?? "hris_export" },
+      processingStatus: "pending",
+    })
+    .returning({ id: integrationEvent.id });
+
+  if (!inserted) {
+    throw new Error("Failed to insert integration event.");
+  }
+
+  const { snapshotId, driftCount } = await ingestRosterSnapshotFromPayload(
+    db,
+    organizationId,
+    workers,
+  );
+
+  const now = new Date();
+  await db
+    .update(integrationEvent)
+    .set({
+      processingStatus: "applied",
+      appliedAt: now,
+      processingError: null,
+      payload: { snapshotId, workerCount: workers.length, driftCount, source: source ?? "hris_export" },
+    })
+    .where(eq(integrationEvent.id, inserted.id));
+
+  return { id: inserted.id, processingStatus: "applied", driftCount };
 }

@@ -116,7 +116,7 @@ Avoid claiming **contractor network effects** until network features exist.
 
 **Strategic focus:** High-friction contractor onboarding, training proof, insurance/permit tracking, renewals.
 
-**Current codebase:** `external_party` + `external_party_credential` (see [architecture-map §10](./architecture-map.md)); general IMS + training + audits. **Roadmap:** visitor kiosks, automated renewal queues, full HRIS-backed contractor lifecycle.
+**Current codebase:** `external_party` + credentials + HRIS contractor sync (`hris_contractor_sync`) + renewal queue on `/dashboard/contractors`. **Roadmap:** visitor kiosks, native VMS OAuth.
 
 ---
 
@@ -147,7 +147,7 @@ Use this in **enterprise questionnaires** so buyers do not assume filing-ready a
 |-----------------|---------------|-------------------------|
 | **OSHA agency-formatted electronic filing** | **`compliance.regulatoryOsha.agencyExportPlaceholder` only** — not submission-ready ([`ROADMAP.md`](../ROADMAP.md) barriers, [`oshaAgencyExportScaffold.ts`](../src/lib/regulatory/oshaAgencyExportScaffold.ts)). | Program data and internal injury/illness exports may be available; **direct agency submission formats** require counsel review and additional product work. |
 | **Full DSAR automation** | Intake / policy surfaces exist; end-to-end export/erasure needs **counsel process** ([`ROADMAP.md`](../ROADMAP.md)). | Privacy tooling is **governance-aligned**, not a one-click “erase everything” guarantee. |
-| **Turnkey HRIS / Workday connector** | **`hris_membership_sync`** updates site for **existing** members only — no SCIM, no named vendor modules ([procurement-integrations-appendix.md](./procurement-integrations-appendix.md), [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md)). | Integration **plumbing ships**; **roster provisioning and certified connectors** are roadmap — plan iPaaS middleware for pilots. |
+| **Turnkey HRIS / Workday connector** | **iPaaS playbooks ship** ([`docs/runbooks/`](../runbooks/)); named vendor OAuth modules remain roadmap. Plan Workato/Boomi middleware + SCIM for PortCo pilots. |
 | **Customer MCP server** | **Context Sync REST** ships; native MCP server **does not** ([adr/0001-mcp-context-sync-strategy.md](./adr/0001-mcp-context-sync-strategy.md)). | Agent read access is **governed REST**, not MCP-branded; Cursor MCP is **internal dev tooling only**. |
 | **Occupational health clinic depth** | Not targeted at Cority-class medical surveillance in v1. | Occupational health programs may need a **specialist module** or partner system. |
 | **Environmental regulatory permits vs PTW** | **Permits to work** (`/dashboard/permits`) are **field authorization** (PTW). **Environmental permits** (`/dashboard/environmental-permits`) are a **regulatory register** (metadata, renewals, conditions)—**not** agency filing-ready by default (see [COMPLIANCE.md](../COMPLIANCE.md)). | Buyers should map **Cority/Enablon-style** permit tracking to the environmental permit module + obligations/monitoring; **do not** conflate with PTW. |

@@ -10,6 +10,51 @@ import {
 } from "@/lib/dashboard-field-styles";
 import { trpc } from "@/trpc/react";
 
+function RosterDriftPanel({ organizationId }: { organizationId: string }) {
+  const drift = trpc.integration.rosterDriftSummary.useQuery({ organizationId });
+  const reconcile = trpc.integration.enqueueRosterReconcile.useMutation({
+    onSuccess: () => void drift.refetch(),
+  });
+
+  return (
+    <section className="rounded-lg border border-amber-200 bg-amber-50/30 p-4 shadow-sm" aria-label="Roster drift">
+      <h2 className={dfPanelHeading}>Roster drift</h2>
+      <p className={`mt-1 text-sm ${dfMuted}`}>
+        Compare latest HRIS export snapshot (<code className="text-xs">roster_snapshot</code> inbound) against
+        active memberships. Run reconcile to emit drift events for operators.
+      </p>
+      {drift.isLoading ? (
+        <p className="mt-2 text-sm text-zinc-600" role="status">
+          Loading drift summary…
+        </p>
+      ) : (
+        <p className="mt-2 text-sm text-zinc-900">
+          <strong>{drift.data?.driftCount ?? 0}</strong> workers out of sync
+          {drift.data?.capturedAt ? (
+            <>
+              {" "}
+              · snapshot{" "}
+              <time dateTime={drift.data.capturedAt}>
+                {new Date(drift.data.capturedAt).toLocaleString()}
+              </time>
+            </>
+          ) : (
+            " · no snapshot ingested yet"
+          )}
+        </p>
+      )}
+      <button
+        type="button"
+        className={`${dfSecondaryOutline} mt-3`}
+        disabled={reconcile.isPending}
+        onClick={() => reconcile.mutate({ organizationId })}
+      >
+        {reconcile.isPending ? "Running…" : "Run roster reconcile"}
+      </button>
+    </section>
+  );
+}
+
 export function IntegrationsPlatformPanel({ organizationId }: { organizationId: string }) {
   const utils = trpc.useUtils();
   const orgs = trpc.organization.mine.useQuery();
@@ -53,13 +98,13 @@ export function IntegrationsPlatformPanel({ organizationId }: { organizationId: 
       ) : null}
 
       <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm" aria-label="LMS training events">
-        <h2 className={dfPanelHeading}>LMS → training (reconcile manually)</h2>
+        <h2 className={dfPanelHeading}>LMS → training records</h2>
         <p className={`mt-1 text-sm ${dfMuted}`}>
-          Inbound LMS completions are logged as integration events. Confirm each row against{" "}
+          Inbound LMS completions upsert{" "}
           <Link href="/dashboard/training" className={dfInlineNavLink}>
-            Training records
+            training records
           </Link>{" "}
-          until automated reconciliation ships.
+          when the worker&apos;s <code className="text-xs">externalWorkerId</code> matches org membership.
         </p>
         <ul className="mt-3 divide-y divide-zinc-100 text-sm">
           {lmsEvents.length === 0 ? (
@@ -70,7 +115,7 @@ export function IntegrationsPlatformPanel({ organizationId }: { organizationId: 
                 <span>{ev.eventType}</span>
                 <time className={dfHelperXs}>{new Date(ev.createdAt).toLocaleString()}</time>
                 <Link href="/dashboard/training" className={dfSecondaryOutline}>
-                  Reconcile in Training
+                  View training
                 </Link>
               </li>
             ))
@@ -98,6 +143,8 @@ export function IntegrationsPlatformPanel({ organizationId }: { organizationId: 
           )}
         </ul>
       </section>
+
+      <RosterDriftPanel organizationId={organizationId} />
 
       {cc.data?.kpis?.cronHealth && cc.data.kpis.cronHealth.jobs.length > 0 ? (
         <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm" aria-label="Cron health">

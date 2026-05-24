@@ -12,13 +12,15 @@ This appendix supports **RFP / diligence** conversations for PortCo and enterpri
 |------------|-------------|------------------------|
 | **Enterprise SSO (OIDC pilot)** | Optional Better Auth Generic OAuth when `OIDC_*` env vars are set | Supports corporate IdP sign-in; **does not** auto-provision tenants or map IdP groups to orgs without additional configuration ([OIDC_JIT_PROVISIONING.md](./OIDC_JIT_PROVISIONING.md)). |
 | **Inbound integration webhook** | `POST /api/integration/inbound` with bearer `INTEGRATION_INBOUND_SECRET` | Canonical JSON envelopes for LMS and HRIS events; idempotent replays; optional async processing via pg-boss ([JOB_QUEUE.md](./JOB_QUEUE.md)). |
-| **HRIS membership sync** | `hris_membership_sync` envelope | Updates **`membership.siteId`** for an **existing** user who **already has org membership** — not full roster provisioning. |
-| **LMS training completion** | `training_completion` envelope | Logs to `integration_event`; **does not** automatically write `training_record` rows (reconciliation is operator-owned). |
+| **HRIS membership sync** | `hris_membership_sync` envelope v2 | Provisions **joiners** (user + membership), updates site/department/manager/employment for org members; terminated → deprovision + session revoke. |
+| **LMS training completion** | `training_completion` envelope | Upserts `training_record` when `externalWorkerId` matches membership; always logs `integration_event`. |
+| **HRIS contractor sync** | `hris_contractor_sync` envelope | Upserts `external_party` by `externalWorkerId` (PortCo contractor wedge). |
+| **Roster reconciliation** | `roster_snapshot` inbound + `integration.reconcileRoster` job | Compares HRIS export to active memberships; drift widget on `/dashboard/integrations`. |
 | **Integration operator UI** | `/dashboard/integrations` | Event backlog, connector mapping JSON, operational webhooks, warehouse export slice. |
 | **Outbound operational webhooks** | Org-configured HTTPS POST + HMAC | Failure notifications and SLA escalations — see [operational-webhooks.md](./operational-webhooks.md). |
 | **Context Sync REST (agent read)** | `/api/contextsync/*` when tenant opt-in enabled | Governed read/sync for IDE and agent clients — **not** branded as MCP; see §3. |
 | **Named HRIS connectors (Workday, ADP, BambooHR)** | **Not productized** | iPaaS or SI middleware maps vendor APIs to canonical envelopes — see [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md). |
-| **SCIM / directory sync** | **Not shipped** | Roadmap prerequisite for turnkey PortCo roster sync — see HRIS playbook. |
+| **SCIM / directory sync** | **Shipped (MVP)** | `POST/PATCH/DELETE /api/scim/v2/Users`, `GET/PATCH /api/scim/v2/Groups`, per-org bearer token, group→role mapping UI on `/dashboard/integrations`. |
 | **Customer MCP server** | **Not shipped** | Governed agent access via Context Sync REST; optional MCP adapter on roadmap — see [adr/0001-mcp-context-sync-strategy.md](./adr/0001-mcp-context-sync-strategy.md). |
 | **Cursor MCP (Vercel, Neon, Slack, etc.)** | **Internal dev tooling only** | Contributor IDE ergonomics — **never** list as a customer integration ([cursor-tool-connections-deployment.md](./cursor-tool-connections-deployment.md)). |
 
@@ -51,11 +53,11 @@ Processing ([`src/server/services/hrisMembershipSyncIngest.ts`](../src/server/se
 
 | Limit | Implication for PortCo rollout |
 |-------|--------------------------------|
-| **No user creation** | New hires from Workday/ADP do not appear in EHS until provisioned elsewhere (invite, seed, SCIM — future). |
-| **No membership creation** | HRIS cannot add a user to an org via webhook alone. |
-| **No role / RBAC updates** | Role assignment remains in-app or via future directory sync. |
-| **No deprovisioning** | Terminated workers are not auto-deactivated; offboarding is manual until SCIM/JML ships. |
-| **Site assignment only** | Department, manager, job title, cost center are **not** in the current envelope. |
+| **No user creation** | ~~New hires…~~ **Resolved:** HRIS v2 provisions user + membership when worker email is new. SCIM remains preferred for IdP-driven JML. |
+| **No membership creation** | ~~HRIS cannot add…~~ **Resolved** via HRIS provision path and SCIM Users API. |
+| **No role / RBAC updates** | SCIM **Groups** PATCH updates role via `scim_group_mapping`; HRIS webhook does not change roles. |
+| **No deprovisioning** | **Partial:** `employmentStatus: terminated` or SCIM deactivate sets `deprovisioned` and revokes sessions. |
+| **Site assignment only** | ~~Department, manager…~~ **Resolved:** v2 envelope fields apply on inbound sync. |
 | **Connector mapping JSON is documentation** | Rows in `integration_connector_mapping` do **not** transform payloads at runtime ([integration-connector-mapping.md](./integration-connector-mapping.md)). |
 
 ### Failure handling

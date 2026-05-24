@@ -1,0 +1,11 @@
+{
+  "kind": "hris_membership_sync",
+  "organizationId": "00000000-0000-4000-8000-000000000001",
+  "workerEmail": "sam.contractor@portco.example",
+  "externalWorkerId": "BHR-90210",
+  "department": "Field Services",
+  "jobTitle": "Site Technician",
+  "managerEmail": "lead.manager@portco.example",
+  "employmentStatus": "active",
+  "idempotencyKey": "bamboohr:BHR-90210:2026-05-24"
+}

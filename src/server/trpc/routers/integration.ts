@@ -299,4 +299,28 @@ export const integrationRouter = router({
       }
       return { ok: true as const, queued: false as const };
     }),
+
+  rosterDriftSummary: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
+    await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.INTEGRATION_READ);
+    const { getLatestRosterDriftSummary } = await import("@/server/services/rosterReconciliation");
+    const summary = await getLatestRosterDriftSummary(ctx.db, input.organizationId);
+    return {
+      driftCount: summary.driftCount,
+      capturedAt: summary.capturedAt?.toISOString() ?? null,
+      snapshotId: summary.snapshotId,
+    };
+  }),
+
+  enqueueRosterReconcile: protectedMutation.input(orgScope).mutation(async ({ ctx, input }) => {
+    await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.INTEGRATION_WRITE);
+    if (env.PG_BOSS_ENABLED === "true") {
+      await getJobQueue().enqueue(JOB_NAMES.INTEGRATION_RECONCILE_ROSTER, {
+        organizationId: input.organizationId,
+      });
+      return { ok: true as const, queued: true as const };
+    }
+    const { reconcileRosterForOrg } = await import("@/server/services/rosterReconciliation");
+    const result = await reconcileRosterForOrg(ctx.db, input.organizationId);
+    return { ok: true as const, queued: false as const, ...result };
+  }),
 });

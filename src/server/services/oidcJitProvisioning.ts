@@ -161,6 +161,11 @@ export async function provisionOidcJitMembershipIfEnabled(
     });
   }
 
+  const allowDefaultOrg = env.OIDC_JIT_ALLOW_DEFAULT_ORG !== "false";
+  if (!allowDefaultOrg) {
+    return { linked: false, reason: "no_claim_match_fail_closed" };
+  }
+
   const orgId = env.OIDC_JIT_DEFAULT_ORG_ID?.trim();
   if (!orgId) {
     return { linked: false, reason: "no_claim_match_and_no_default_org" };

@@ -94,6 +94,16 @@ function ConnectorMappingsEditor({ organizationId }: { organizationId: string })
     setConnectorErr(null);
   }
 
+  let fieldMapPreview: [string, string][] = [];
+  try {
+    const parsed = JSON.parse(displayDraft) as { fieldMap?: Record<string, string> };
+    if (parsed.fieldMap && typeof parsed.fieldMap === "object") {
+      fieldMapPreview = Object.entries(parsed.fieldMap);
+    }
+  } catch {
+    fieldMapPreview = [];
+  }
+
   return (
     <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm" aria-label="Connector mappings">
       <h2 className={dfPanelHeading}>Connector field mapping</h2>
@@ -141,6 +151,26 @@ function ConnectorMappingsEditor({ organizationId }: { organizationId: string })
         <p className="mt-2 text-sm text-red-800" role="alert">
           {connectorErr}
         </p>
+      ) : null}
+      {fieldMapPreview.length > 0 ? (
+        <div className="mt-4 overflow-x-auto rounded border border-zinc-200">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-zinc-50 text-xs uppercase text-zinc-600">
+              <tr>
+                <th className="px-3 py-2">Vendor field</th>
+                <th className="px-3 py-2">EHS envelope field</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fieldMapPreview.map(([vendorField, ehsField]) => (
+                <tr key={vendorField} className="border-t border-zinc-100">
+                  <td className="px-3 py-2 font-mono text-xs">{vendorField}</td>
+                  <td className="px-3 py-2 font-mono text-xs">{ehsField}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : null}
       {upsertMapping.error ? (
         <p className="mt-2 text-sm text-red-800" role="alert">

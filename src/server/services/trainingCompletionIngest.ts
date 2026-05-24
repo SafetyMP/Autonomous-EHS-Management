@@ -1,5 +1,6 @@
+import { and, eq } from "drizzle-orm";
 import type { Db } from "@/server/db";
-import { integrationEvent } from "@/server/db/schema";
+import { integrationEvent, membership, trainingRecord } from "@/server/db/schema";
 import {
   type TrainingCompletionIngestInput,
   redactTrainingCompletionForStorage,
@@ -20,13 +21,83 @@ export function parseTrainingCompletionPayload(
   return { success: true, data: parsed.data };
 }
 
-type DbIns = Pick<Db, "insert" | "transaction" | "update">;
+const MS_YEAR = 365 * 24 * 60 * 60 * 1000;
+
+async function resolveUserIdForExternalWorker(
+  db: Pick<Db, "select">,
+  organizationId: string,
+  externalWorkerId: string,
+): Promise<string | null> {
+  const [mem] = await db
+    .select({ userId: membership.userId })
+    .from(membership)
+    .where(
+      and(
+        eq(membership.organizationId, organizationId),
+        eq(membership.externalWorkerId, externalWorkerId),
+      ),
+    )
+    .limit(1);
+  return mem?.userId ?? null;
+}
+
+async function upsertTrainingRecordFromCompletion(
+  db: Pick<Db, "select" | "insert" | "update">,
+  input: TrainingCompletionIngestInput,
+  userId: string | null,
+): Promise<string | null> {
+  const expiresOn = new Date(input.completedAt.getTime() + MS_YEAR);
+  const courseTitle = input.courseCode;
+
+  if (userId) {
+    const [existing] = await db
+      .select({ id: trainingRecord.id })
+      .from(trainingRecord)
+      .where(
+        and(
+          eq(trainingRecord.organizationId, input.organizationId),
+          eq(trainingRecord.userId, userId),
+          eq(trainingRecord.courseTitle, courseTitle),
+        ),
+      )
+      .limit(1);
+
+    if (existing) {
+      await db
+        .update(trainingRecord)
+        .set({
+          completedOn: input.completedAt,
+          expiresOn,
+          evidenceNote: `LMS issuer: ${input.issuer}`,
+        })
+        .where(eq(trainingRecord.id, existing.id));
+      return existing.id;
+    }
+  }
+
+  const [inserted] = await db
+    .insert(trainingRecord)
+    .values({
+      organizationId: input.organizationId,
+      userId,
+      traineeName: userId ? courseTitle : `Worker ${input.externalWorkerId.slice(0, 8)}`,
+      courseTitle,
+      completedOn: input.completedAt,
+      expiresOn,
+      evidenceNote: `LMS issuer: ${input.issuer}; externalWorkerId: ${input.externalWorkerId}`,
+    })
+    .returning({ id: trainingRecord.id });
+
+  return inserted?.id ?? null;
+}
+
+type DbIns = Pick<Db, "insert" | "transaction" | "update" | "select">;
 
 export async function persistTrainingCompletionEvent(
   db: DbIns,
   input: TrainingCompletionIngestInput,
   actorUserId: string | null,
-): Promise<{ id: string }> {
+): Promise<{ id: string; trainingRecordId: string | null }> {
   return db.transaction(async (tx) => {
     const now = new Date();
     const [row] = await tx
@@ -44,15 +115,23 @@ export async function persistTrainingCompletionEvent(
       throw new Error("Failed to insert integration event.");
     }
 
+    const userId = await resolveUserIdForExternalWorker(tx, input.organizationId, input.externalWorkerId);
+    const trainingRecordId = await upsertTrainingRecordFromCompletion(tx, input, userId);
+
     await writeAuditLog(tx, {
       organizationId: input.organizationId,
       actorUserId,
       action: "integration.ingest_training_completion",
       entityType: "integration_event",
       entityId: row.id,
-      payload: { eventType: "training_completion", courseCode: input.courseCode },
+      payload: {
+        eventType: "training_completion",
+        courseCode: input.courseCode,
+        trainingRecordId,
+        userMatched: Boolean(userId),
+      },
     });
 
-    return row;
+    return { id: row.id, trainingRecordId };
   });
 }

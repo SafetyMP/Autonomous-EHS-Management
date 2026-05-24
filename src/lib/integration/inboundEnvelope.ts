@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { trainingCompletionIngestSchema } from "@/lib/integration/trainingCompletion";
 import type { TrainingCompletionIngestInput } from "@/lib/integration/trainingCompletion";
+import { hrisContractorSyncSchema } from "@/lib/integration/hrisContractorSync";
+import type { HrisContractorSyncInput } from "@/lib/integration/hrisContractorSync";
+import { rosterSnapshotInboundSchema } from "@/lib/integration/rosterSnapshot";
 
 export const hrisEmploymentStatusSchema = z.enum(["active", "terminated", "leave"]);
 
@@ -29,7 +32,18 @@ const inboundHris = hrisMembershipSyncSchema.extend({
   kind: z.literal("hris_membership_sync"),
 });
 
-export const integrationInboundSchema = z.discriminatedUnion("kind", [inboundTraining, inboundHris]);
+const inboundContractor = hrisContractorSyncSchema.extend({
+  kind: z.literal("hris_contractor_sync"),
+});
+
+const inboundRosterSnapshot = rosterSnapshotInboundSchema;
+
+export const integrationInboundSchema = z.discriminatedUnion("kind", [
+  inboundTraining,
+  inboundHris,
+  inboundContractor,
+  inboundRosterSnapshot,
+]);
 
 export type IntegrationInboundPayload = z.infer<typeof integrationInboundSchema>;
 
@@ -58,6 +72,23 @@ export function hrisSyncInputFromInbound(
     jobTitle: data.jobTitle ?? null,
     managerEmail: data.managerEmail ?? null,
     costCenter: data.costCenter ?? null,
+    employmentStatus: data.employmentStatus ?? null,
+    ...(data.idempotencyKey ? { idempotencyKey: data.idempotencyKey } : {}),
+  };
+}
+
+export function hrisContractorInputFromInbound(
+  data: Extract<IntegrationInboundPayload, { kind: "hris_contractor_sync" }>,
+): HrisContractorSyncInput {
+  return {
+    organizationId: data.organizationId,
+    externalWorkerId: data.externalWorkerId,
+    companyName: data.companyName,
+    contactName: data.contactName ?? null,
+    contactEmail: data.contactEmail ?? null,
+    siteId: data.siteId ?? null,
+    partyType: data.partyType,
+    hrisSource: data.hrisSource ?? null,
     employmentStatus: data.employmentStatus ?? null,
     ...(data.idempotencyKey ? { idempotencyKey: data.idempotencyKey } : {}),
   };

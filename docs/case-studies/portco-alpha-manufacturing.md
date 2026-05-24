@@ -1,5 +1,7 @@
 # PortCo pilot — Alpha Manufacturing (anonymized)
 
+> **GTM note:** Synthetic illustrative metrics for procurement conversations. Replace with approved customer data and screenshots in `docs/case-studies/assets/` before external publication.
+
 **Site / scope:** Single plant, Midwest US — incident → CAPA → closure evidence
 
 **Duration:** 2025-11-01 – 2026-02-28 (16 weeks)

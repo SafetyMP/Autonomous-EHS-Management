@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { db } from "@/server/db";
 import {
   authenticateScimRequest,
@@ -5,7 +6,7 @@ import {
   scimJson,
 } from "@/server/services/scim/scimRouteHelper";
 import { listScimGroups } from "@/server/services/scim/scimGroups";
-import { scimError, scimGroupResource, scimListResponse } from "@/server/services/scim/scimResponse";
+import { scimGroupResource, scimListResponse } from "@/server/services/scim/scimResponse";
 
 export async function GET(request: Request) {
   const auth = await authenticateScimRequest(request);
@@ -20,5 +21,8 @@ export async function GET(request: Request) {
 }
 
 export async function OPTIONS() {
-  return scimJson(null, 204);
+  return new NextResponse(null, {
+    status: 204,
+    headers: { Allow: "GET, OPTIONS" },
+  });
 }

@@ -10,6 +10,8 @@ export const JOB_NAMES = {
   INTEGRATION_REPROCESS_FAILED: "integration.reprocessFailed",
   /** HRIS inbound webhook body processed off the serverless request path when pg-boss is enabled. */
   INTEGRATION_INBOUND_HRIS: "integration.inboundHris",
+  /** Nightly roster drift reconciliation for PortCo HRIS exports. */
+  INTEGRATION_RECONCILE_ROSTER: "integration.reconcileRoster",
 } as const;
 
 export type JobName = (typeof JOB_NAMES)[keyof typeof JOB_NAMES];
@@ -27,6 +29,9 @@ export type JobPayloadMap = {
   [JOB_NAMES.INTEGRATION_INBOUND_HRIS]: {
     input: HrisMembershipSyncInput;
     idempotencyKey: string | null;
+  };
+  [JOB_NAMES.INTEGRATION_RECONCILE_ROSTER]: {
+    organizationId: string;
   };
 };
 

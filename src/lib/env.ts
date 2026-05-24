@@ -67,6 +67,8 @@ export const env = createEnv({
     OIDC_JIT_DEFAULT_ORG_ID: z.string().uuid().optional(),
     /** Role slug within that org (default `admin`). */
     OIDC_JIT_ROLE_SLUG: z.string().min(1).max(64).optional(),
+    /** When `"false"`, OIDC JIT denies sign-in when no claim rule matches (PortCo fail-closed). Default allows env default org. */
+    OIDC_JIT_ALLOW_DEFAULT_ORG: z.enum(["true", "false"]).optional(),
     /** Shared secret for `POST /api/integration/inbound` (LMS + HRIS webhooks). Optional until route is used. */
     INTEGRATION_INBOUND_SECRET: z.string().min(16).optional(),
     /** Optional HTTPS webhook (e.g. Slack incoming) for cron handler failures. */
@@ -123,6 +125,7 @@ export const env = createEnv({
     OIDC_JIT_ENABLED: process.env.OIDC_JIT_ENABLED,
     OIDC_JIT_DEFAULT_ORG_ID: process.env.OIDC_JIT_DEFAULT_ORG_ID,
     OIDC_JIT_ROLE_SLUG: process.env.OIDC_JIT_ROLE_SLUG,
+    OIDC_JIT_ALLOW_DEFAULT_ORG: process.env.OIDC_JIT_ALLOW_DEFAULT_ORG,
     INTEGRATION_INBOUND_SECRET: process.env.INTEGRATION_INBOUND_SECRET,
     CRON_FAILURE_WEBHOOK_URL: process.env.CRON_FAILURE_WEBHOOK_URL,
     JOB_QUEUE_ENABLED: process.env.JOB_QUEUE_ENABLED,

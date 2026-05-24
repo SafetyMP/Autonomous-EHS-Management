@@ -5,8 +5,8 @@ Engineering and sales alignment for what is **Core** (fully operable), **Connect
 | Tier | Meaning | Examples |
 |------|---------|----------|
 | **Core** | Full workflow, audit trail, UAT coverage | Incidents, CAPA (register + detail + source traceability), inspections, approvals, audit trail |
-| **Connected** | Dashboard UI and links into core spine | Risk assessments roster, env monitoring, consultation records, RAG corpus, incident→CAPA, **assurance hub**, **emergency prep**, **MOC register**, grouped lifecycle navigation |
-| **Plumbing** | Backend/integration only — banner in UI where exposed | HRIS provision, LMS auto-reconcile, DSAR automation, OSHA agency filing, Tier II inventory UI |
+| **Connected** | Dashboard UI and links into core spine | Risk assessments roster, env monitoring, consultation records, RAG corpus, incident→CAPA, **assurance hub**, **emergency prep**, **MOC register**, grouped lifecycle navigation, **PortCo identity (SCIM/OIDC JIT)**, **HRIS/LMS inbound**, contractor renewal queue |
+| **Plumbing** | Backend/integration only — banner in UI where exposed | DSAR automation, OSHA agency filing, Tier II inventory UI, native Workday OAuth |
 
 **Gated (no nav / explicit banner):**
 

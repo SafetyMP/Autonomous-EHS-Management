@@ -13,6 +13,7 @@ import {
   processHrisMembershipSyncInbound,
   reprocessFailedIntegrationEvent,
 } from "../src/server/services/integrationInboundDispatch";
+import { reconcileRosterForOrg } from "../src/server/services/rosterReconciliation";
 import { storeIntegrationInboundCache } from "../src/server/services/integrationInboundIdempotencyCache";
 import { runDataRetentionCron } from "../src/server/services/dataRetention";
 
@@ -82,8 +83,15 @@ async function main() {
     }
   });
 
+  await boss.work(JOB_NAMES.INTEGRATION_RECONCILE_ROSTER, async (jobs) => {
+    for (const job of jobs) {
+      const data = job.data as JobPayloadMap[typeof JOB_NAMES.INTEGRATION_RECONCILE_ROSTER];
+      await reconcileRosterForOrg(db, data.organizationId);
+    }
+  });
+
   console.log(
-    `pg-boss worker listening on ${JOB_NAMES.INTEGRATION_REPROCESS_FAILED}, ${JOB_NAMES.DATA_RETENTION_RUN_CHUNK}, ${JOB_NAMES.INTEGRATION_INBOUND_HRIS} (boss schema: ${schemaName ?? "pgboss"})`,
+    `pg-boss worker listening on ${JOB_NAMES.INTEGRATION_REPROCESS_FAILED}, ${JOB_NAMES.DATA_RETENTION_RUN_CHUNK}, ${JOB_NAMES.INTEGRATION_INBOUND_HRIS}, ${JOB_NAMES.INTEGRATION_RECONCILE_ROSTER} (boss schema: ${schemaName ?? "pgboss"})`,
   );
 
   process.on("SIGINT", async () => {

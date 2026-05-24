@@ -10,8 +10,7 @@ describe("PortCo iPaaS HRIS fixtures", () => {
     const raw = JSON.parse(readFileSync(resolve(fixtureDir, "workday-hris-sync.json"), "utf8"));
     const parsed = integrationInboundSchema.safeParse(raw);
     expect(parsed.success).toBe(true);
-    if (parsed.success) {
-      expect(parsed.data.kind).toBe("hris_membership_sync");
+    if (parsed.success && parsed.data.kind === "hris_membership_sync") {
       expect(parsed.data.externalWorkerId).toBe("WD-10482");
     }
   });
@@ -20,5 +19,14 @@ describe("PortCo iPaaS HRIS fixtures", () => {
     const raw = JSON.parse(readFileSync(resolve(fixtureDir, "adp-hris-sync.json"), "utf8"));
     const parsed = integrationInboundSchema.safeParse(raw);
     expect(parsed.success).toBe(true);
+  });
+
+  it("validates BambooHR sample payload", () => {
+    const raw = JSON.parse(readFileSync(resolve(fixtureDir, "bamboohr-hris-sync.json"), "utf8"));
+    const parsed = integrationInboundSchema.safeParse(raw);
+    expect(parsed.success).toBe(true);
+    if (parsed.success && parsed.data.kind === "hris_membership_sync") {
+      expect(parsed.data.externalWorkerId).toBe("BHR-90210");
+    }
   });
 });

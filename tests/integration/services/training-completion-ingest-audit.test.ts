@@ -15,6 +15,13 @@ describe("persistTrainingCompletionEvent", () => {
     const spy = vi.spyOn(audit, "writeAuditLog").mockResolvedValue(undefined);
 
     const tx = {
+      select: () => ({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      }),
       insert: () => ({
         values: () => ({
           returning: () => Promise.resolve([{ id: eventId }]),
@@ -47,7 +54,11 @@ describe("persistTrainingCompletionEvent", () => {
         action: "integration.ingest_training_completion",
         entityType: "integration_event",
         entityId: eventId,
-        payload: { eventType: "training_completion", courseCode: "HSE-101" },
+        payload: expect.objectContaining({
+          eventType: "training_completion",
+          courseCode: "HSE-101",
+          userMatched: false,
+        }),
       }),
     );
 
@@ -61,7 +72,16 @@ describe("persistTrainingCompletionEvent", () => {
       }),
     });
 
-    const tx = { insert: insertSpy };
+    const tx = {
+      select: () => ({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      }),
+      insert: insertSpy,
+    };
     const db = {
       transaction: async <T>(fn: (inner: typeof tx) => Promise<T>) => fn(tx),
     };
