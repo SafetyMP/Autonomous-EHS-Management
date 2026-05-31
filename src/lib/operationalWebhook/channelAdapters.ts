@@ -25,12 +25,15 @@ export function operationalWebhookEventTitle(eventType: string): string {
 /** Infer Slack / Teams formatting from webhook URL host. */
 export function detectNotificationChannel(targetUrl: string): NotificationChannel {
   try {
-    const host = new URL(targetUrl).host.toLowerCase();
-    if (host.includes("hooks.slack.com") || host.includes("slack.com")) return "slack";
+    const hostname = new URL(targetUrl).hostname.toLowerCase();
+    const matchesDomain = (domain: string) =>
+      hostname === domain || hostname.endsWith(`.${domain}`);
+
+    if (matchesDomain("hooks.slack.com") || matchesDomain("slack.com")) return "slack";
     if (
-      host.includes("webhook.office.com") ||
-      host.includes("outlook.office.com") ||
-      host.includes("office365.com")
+      matchesDomain("webhook.office.com") ||
+      matchesDomain("outlook.office.com") ||
+      matchesDomain("office365.com")
     ) {
       return "teams";
     }
