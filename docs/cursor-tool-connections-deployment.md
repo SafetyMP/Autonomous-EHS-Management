@@ -60,7 +60,7 @@ Teams often combine **Vercel Preview deployments** with **branching Postgres** (
 
 | Runtime | Scheduling |
 |---------|-------------|
-| **Vercel** | `vercel.ts` configures HTTP crons (`/api/cron/reminders`, `/api/cron/data-retention`). All use `Authorization: Bearer <CRON_SECRET>`. Preview deployments typically **must not** run duplicate schedules against prod-like data unless intentionally isolated envs. Prefer **staging** projects with isolated DBs when testing cron side effects. |
+| **Vercel** | `vercel.ts` configures HTTP crons (`/api/cron/reminders`, `/api/cron/data-retention`, `/api/cron/integration-roster-reconcile`). All use `Authorization: Bearer <CRON_SECRET>`. Preview deployments typically **must not** run duplicate schedules against prod-like data unless intentionally isolated envs. Prefer **staging** projects with isolated DBs when testing cron side effects. |
 | **Kubernetes** | `vercel.ts` cron **does not** run inside the cluster. Use `CronJob` manifests under `deploy/k8s/` calling the **same secured routes**. See DevOps skill. |
 | **`/api/cron/metrics`** | **Not scheduled** — Prometheus-style scrape endpoint; scrape from your collector (`docs/runbooks/cron-metrics-observability.md`). |
 

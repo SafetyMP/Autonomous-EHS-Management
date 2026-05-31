@@ -149,7 +149,7 @@ flowchart LR
 - **Cron run metrics (scrape):** [`src/app/api/cron/metrics/route.ts`](../src/app/api/cron/metrics/route.ts) — `GET /api/cron/metrics` returns Prometheus text or JSON rollups over `cron_job_run`; same `Bearer` `CRON_SECRET` gate as other cron handlers; intended for external monitoring/SLO dashboards (not a `vercel.ts` scheduled path).
 - **Demo guard:** [`src/instrumentation.ts`](../src/instrumentation.ts) blocks `DEMO_MODE` on Vercel production.
 
-For **deployment** topology (Vercel, Kubernetes, Docker), see [README.md](../README.md), [`vercel.ts`](../vercel.ts), and [`.cursor/skills/devops-sre/SKILL.md`](../.cursor/skills/devops-sre/SKILL.md).
+For **deployment** topology (Vercel, Kubernetes, Docker), see [README.md](../README.md) (operators section summarizes §9–10), [`vercel.ts`](../vercel.ts), and [`.cursor/skills/devops-sre/SKILL.md`](../.cursor/skills/devops-sre/SKILL.md).
 
 ---
 

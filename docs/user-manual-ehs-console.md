@@ -37,6 +37,9 @@ Welcome to **EHS Console**—the signed-in experience for **Autonomous EHS**, an
 24. [Organization context (ISO Clause 4)](#organization-context-iso-clause-4)
 25. [Tasks & reviews (Task hub)](#tasks-reviews-task-hub)
 26. [Program register](#program-register)
+26a. [Assurance hub](#assurance-hub)
+26b. [Emergency prep](#emergency-prep)
+26c. [Management of change (MOC)](#management-of-change-moc)
 27. [Import CSV](#import-csv)
 28. [Integrations](#integrations)
 29. [Data retention & exports](#data-retention--exports)
@@ -207,6 +210,10 @@ The short description under the title: *Permission-scoped snapshot of open work,
 
 A **PWA install** strip (**Install EHS on this device**) may appear below the site header on supported browsers—optional shortcut for field use.
 
+### What's new banner
+
+After a major release, a dismissible **What's new** banner may appear at the top of the dashboard. It highlights recent capabilities (for example lifecycle navigation, assurance hub, or incidence rates). Tap **Dismiss** to hide it in your browser; it may reappear when the product ships a new release bundle. This is informational only—it does not change your permissions or records.
+
 ### Desk layout versus field layout
 
 - **Desk (operations dashboard):** The sections below describe this layout. Your org may open it by default after sign-in.
@@ -235,7 +242,7 @@ Desk supervisors still see program **Needs attention** chips and KPI tiles; desk
 3. Optional: tap **Download command center CSV** (when the snapshot has loaded) to save the command-center figures your account may export—useful for leadership packs or audits.
 4. When data loads, note **Snapshot as of** *date/time* under the header (if shown)—figures reflect that moment.
 5. If **Needs attention:** appears, read the amber pill links for program-level alerts (personal approvals are deduplicated when shown in **Your work**).
-6. Integration backlog and scheduled job health moved to **[Integrations](/dashboard/integrations)** for administrators.
+6. Integration backlog and scheduled job health moved to **[Integrations](/dashboard/integrations)** for administrators. Supervisors may also see a **PortCo pilot proof** panel summarizing integration health when your organization runs a portfolio pilot—details live on **Integrations**, not on the desk home.
 7. Under **Key indicators**, scan tiles (supervisors see the full grid; contributors may see them collapsed). Integration and cron panels no longer appear on the desk home.
 8. Open **Recent activity** for a timestamped feed; links open record detail.
 9. Expand **ISO setup checklist** in the sidebar panel when aligning the management system.
@@ -976,7 +983,9 @@ Navigation label: **Tasks & reviews** (path `/dashboard/tasks`).
 
 ### What this does
 
-**Task hub** aggregates:
+**Task hub** shows your **unified ranked action queue**—the same items surfaced as **Your work** on the command center and **Pending for you** on field home (`tasks.actionQueue`). Items are ranked across approvals, due CAPAs, training renewals, and compliance reviews you can see.
+
+The page may also list **legacy bucket links** when data exists:
 
 - Open CAPAs assigned to you (**My CAPAs**).
 - Obligation deadlines (**Overdue / due obligation reviews** links to Environment).
@@ -988,7 +997,10 @@ Potential empty placeholders: **None open.**, **None in this window.**, etc.
 ### SOP — Use the Task hub
 
 1. Open **Tasks & reviews** from **Today** (or **Quick actions**).
-2. Tap any linked title to reach the module owning that item.
+2. Start with the ranked queue at the top—the green action button opens the exact record (same as **Your work** on the command center).
+3. Tap any linked title in the bucket sections below to reach the module owning that item.
+
+See also [Your work](#your-work) on the command center.
 
 ### What if things go wrong?
 
@@ -1012,9 +1024,23 @@ Sections:
 2. **KPI definitions** – **Add**
 3. **Program indicator measurements** – value + unit (**Log measurement (now)** records current timestamp listing)
 
-Links at the top point to **Emergency prep**, **Management of change**, and **Assurance hub** when you need those registers.
+Links at the top point to **[Emergency prep](#emergency-prep)**, **[Management of change (MOC)](#management-of-change-moc)**, and **[Assurance hub](#assurance-hub)** when you need those registers.
+
+### Emergency prep
+
+Route **`/dashboard/emergency`** — sidebar **Administration** → **Emergency prep**. See [Emergency prep](#emergency-prep) for full steps.
+
+### Management of change (MOC)
+
+Route **`/dashboard/moc`** — sidebar **Administration** → **Management of change**. See [Management of change (MOC)](#management-of-change-moc) for full steps.
+
+### Assurance hub
+
+Route **`/dashboard/assurance`** — sidebar **Assure & improve** → **Assurance hub**. See [Assurance hub](#assurance-hub) for full steps.
 
 ### Emergency preparedness (`/dashboard/emergency`)
+
+<a id="emergency-prep"></a>
 
 Under **Administration** → **Emergency prep**.
 
@@ -1023,12 +1049,16 @@ Under **Administration** → **Emergency prep**.
 
 ### Management of change (`/dashboard/moc`)
 
+<a id="management-of-change-moc"></a>
+
 Under **Administration** → **Management of change**.
 
 1. **Create MOC** – Title + Description / scope → submit; rows show statuses
 2. **Entity links** – filter by MOC to see linked program records
 
 ### Assurance hub (`/dashboard/assurance`)
+
+<a id="assurance-hub"></a>
 
 Under **Assure & improve** → **Assurance hub**. Cross-links **internal audits**, open CAPAs, **certification body audits**, and **certificates**—distinct from the transactional **Audit trail** (who changed what in the system).
 
@@ -1080,11 +1110,13 @@ Identity administrators, integration engineers, anyone granted **integration:rea
 ### SOP — Check status
 
 1. Open **Integrations**. Heading **Integrations**. Intro text explains events are readable with **`integration:read`** and points to NDJSON warehouse export—the following paragraphs list inbound URLs, bearer secrets, and doc paths for administrators.
-2. **Download NDJSON (500 newest)** gathers a downloadable slice once data returns (shows **Preparing export…** while running).
-3. **Connector field mapping (operator notes)** stores JSON mapping drafts per connector; pick **Connector** from the drop-down list, edit the textarea JSON, tap **Save mapping** (**Saving…** while storing).
-4. **Operational webhooks (org admin)** appears when permitted—under **Subscribe to** tick the operational event codes your stack needs, submit **Add webhook** (**Creating…** while busy), then manage listed endpoints with **Disable**, **Enable**, or **Delete**.
-5. **Failed events** (`#integration-failed`, count in heading) lists recent failures requiring **`integration:write`** to tap **Retry** on each row. Success copy may read *Replay queued for worker* depending on orchestration settings.
-6. **Recent events (last 100)** table lists timestamps, types, statuses, and IDs when integrations have run (**No integration events recorded for this organization yet** when fresh).
+2. **PortCo identity (SCIM & OIDC JIT)** — when your role includes org admin controls, configure **SCIM 2.0** bearer tokens and **group→role mappings**, or **OIDC JIT claim rules** for multi-entity portfolios. Rotate tokens when counsel or IdP policy requires it. Engineering detail: [OIDC_JIT_PROVISIONING.md](../OIDC_JIT_PROVISIONING.md), [hris-portco-integration-playbook.md](../roadmap/hris-portco-integration-playbook.md).
+3. **HRIS platform & roster drift** — copy the **inbound URL** and **bearer secret** for iPaaS connectors; pick connector presets (Workday, ADP, BambooHR) when shown. Review **Roster drift** rows after nightly reconciliation; use **Reconcile now** when your runbook calls for manual follow-up. Connector runbooks: [docs/runbooks/](../runbooks/).
+4. **Download NDJSON (500 newest)** gathers a downloadable slice once data returns (shows **Preparing export…** while running).
+5. **Connector field mapping (operator notes)** stores JSON mapping drafts per connector; pick **Connector** from the drop-down list, edit the textarea JSON, tap **Save mapping** (**Saving…** while storing).
+6. **Operational webhooks (org admin)** appears when permitted—under **Subscribe to** tick the operational event codes your stack needs, submit **Add webhook** (**Creating…** while busy), then manage listed endpoints with **Disable**, **Enable**, or **Delete**.
+7. **Failed events** (`#integration-failed`, count in heading) lists recent failures requiring **`integration:write`** to tap **Retry** on each row. Success copy may read *Replay queued for worker* depending on orchestration settings.
+8. **Recent events (last 100)** table lists timestamps, types, statuses, and IDs when integrations have run (**No integration events recorded for this organization yet** when fresh).
 
 Command center may spotlight **Integration backlog (*N* failed)** with shortcuts back here (`/dashboard/integrations#integration-failed`).
 
@@ -1338,7 +1370,7 @@ Topics end users normally should **not** need:
 3. **“No organization membership” engineering panel:** Replace or hide technical instructions in customer-facing builds; keep a support runbook entry mapping symptoms to membership provisioning.
 4. **PWA install prompt:** The `beforeinstallprompt` hook is Chromium-oriented; Safari users often see no install banner—expected.
 5. **Field outbox / offline queue:** Tenant configuration controls whether intake can queue offline; engineering detail lives in [offline-field-outbox.md](./offline-field-outbox.md).
-6. **Integrations & audit exports:** Inbound secrets, queue toggles (`PG_BOSS_ENABLED`), connector JSON, and webhook signatures are documented under [integration-connector-mapping.md](./integration-connector-mapping.md), [operational-webhooks.md](./operational-webhooks.md), and [JOB_QUEUE.md](./JOB_QUEUE.md)—keep those aligned when the **Integrations** or **System audit trail** screens change.
+6. **Integrations & audit exports:** Inbound secrets, SCIM bearer tokens, OIDC JIT rules, queue toggles (`PG_BOSS_ENABLED`), connector JSON, roster reconciliation cron, and webhook signatures are documented under [integration-connector-mapping.md](./integration-connector-mapping.md), [operational-webhooks.md](./operational-webhooks.md), [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md), and [JOB_QUEUE.md](./JOB_QUEUE.md)—keep those aligned when the **Integrations** or **System audit trail** screens change.
 7. **Privacy intakes (DSAR):** The **Privacy** screen may literally cite `docs/DSAR_PROCESS.md` in a code font for operators. In this repository that file is [DSAR_PROCESS.md](./DSAR_PROCESS.md)—for engineering / DPO alignment, not a substitute for your company’s counsel-approved DSAR runbook. Field procedures should point to internal policy, not this path alone.
 
 When you modernize UI copy, keep end-user phrasing aligned with Appendix A.

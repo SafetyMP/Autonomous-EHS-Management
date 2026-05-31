@@ -4,7 +4,7 @@
 
 ## What “autonomous” means here
 
-In this product, **autonomous** refers to **operations that keep moving without ad hoc spreadsheet chasing**: scheduled jobs (reminders, data retention, SLA checks), **recorded escalation events** when follow-ups or approvals breach deadlines, durable **field outbox replay**, **integration ingest**, and **incidence-rate analytics (TRIR-style)** from IMS recordables and establishment hours—not a substitute for official OSHA filings—all with PostgreSQL as the auditable system of record. **Optional AI** suggests wording or retrieves policy context; it does **not** auto-close incidents, auto-approve CAPAs, or change regulated status without human action through normal, permission-gated workflows ([docs/ai-governed-intake.md](docs/ai-governed-intake.md), [docs/procurement-readiness.md](docs/procurement-readiness.md)).
+In this product, **autonomous** refers to **operations that keep moving without ad hoc spreadsheet chasing**: scheduled jobs (reminders, data retention, roster reconciliation, SLA checks), **recorded escalation events** when follow-ups or approvals breach deadlines, **integration failure triage** (failed inbound events with operator retry—not silent drops), durable **field outbox replay**, **integration ingest**, and **incidence-rate analytics (TRIR-style)** from IMS recordables and establishment hours—not a substitute for official OSHA filings—all with PostgreSQL as the auditable system of record. **Optional AI** suggests wording or retrieves policy context; it does **not** auto-close incidents, auto-approve CAPAs, or change regulated status without human action through normal, permission-gated workflows ([docs/ai-governed-intake.md](docs/ai-governed-intake.md), [docs/procurement-readiness.md](docs/procurement-readiness.md)).
 
 ## Who this is for
 
@@ -40,11 +40,11 @@ Autonomous EHS ships under **Apache 2.0** ([LICENSE](LICENSE)). You run, modify,
 
 Optional **proposal-only AI** (when enabled) suggests intake wording or retrieves policy excerpts—it does **not** auto-submit incidents, approve CAPAs, or change regulated status. See [docs/ai-governed-intake.md](docs/ai-governed-intake.md).
 
-**Architecture & diligence:** [docs/architecture-map.md](docs/architecture-map.md) (system map), [docs/workflow-depth.md](docs/workflow-depth.md) (state machines + audit patterns), [docs/procurement-readiness.md](docs/procurement-readiness.md) (ROI / pilot / positioning workbook), [docs/approval-workflow.md](docs/approval-workflow.md) (CAPA approval gate), [docs/case-studies/pilot-template.md](docs/case-studies/pilot-template.md).
+**Architecture & diligence:** [docs/README.md](docs/README.md) (full documentation index), [docs/architecture-map.md](docs/architecture-map.md) (system map), [docs/workflow-depth.md](docs/workflow-depth.md) (state machines + audit patterns), [docs/procurement-readiness.md](docs/procurement-readiness.md) (ROI / pilot / positioning workbook), [docs/approval-workflow.md](docs/approval-workflow.md) (CAPA approval gate), [docs/case-studies/pilot-template.md](docs/case-studies/pilot-template.md), [docs/module-maturity.md](docs/module-maturity.md) (feature maturity), [docs/operational-webhooks.md](docs/operational-webhooks.md) (outbound event delivery), [docs/roadmap/hris-portco-integration-playbook.md](docs/roadmap/hris-portco-integration-playbook.md) (SCIM / HRIS identity), [docs/roadmap/action-queue-dashboard-spec.md](docs/roadmap/action-queue-dashboard-spec.md) (unified **Your work** queue), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` directory guide).
 
-**Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Records & metrics → Incidence rates** (TRIR-style analytics). The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`).
+**Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Records & metrics → Incidence rates** (TRIR-style analytics) and the **Your work** action queue on command center / task hub. The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`).
 
-**Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (governance notes).
+**Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [docs/README.md](docs/README.md) (documentation index), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` map), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (governance notes).
 
 Diagram, SSO, full demo walkthrough, Codespaces, non-demo development, and production deploy pointers are below.
 
@@ -86,11 +86,26 @@ Deeper maps: [docs/architecture-map.md](docs/architecture-map.md).
 
 ## Operators and integrations (self-host)
 
-These surfaces are primarily for **platform engineers**, **SRE**, and **governed tool access**—not day-to-day EHS Console menus.
+These surfaces are primarily for **platform engineers**, **SRE**, and **governed tool access**—not day-to-day EHS Console menus. Operator UI for integrations, SCIM/OIDC JIT, roster drift, and failed-event triage lives at **`/dashboard/integrations`**.
 
-- **Context Sync (REST):** Session-authenticated HTTP routes under **`/api/contextsync/*`** for **Context Sync**—IMS-linked artifacts, permissions, and provenance—when the organization enables the capability. Access is rate-limited like other gated APIs; optional caps: **`CONTEXT_SYNC_ORG_DAILY_READ_LIMIT`** and **`CONTEXT_SYNC_PROVENANCE_MAX_LIMIT`** (see [`src/lib/env.ts`](src/lib/env.ts), [`.env.example`](.env.example)). Architecture: [`docs/architecture-map.md`](docs/architecture-map.md). Provenance and ops: [`docs/runbooks/context-sync-provenance.md`](docs/runbooks/context-sync-provenance.md).
+| Surface | Route / API | Doc link |
+|---------|-------------|----------|
+| Inbound integration | `POST /api/integration/inbound` | [integration-inbound-contract.md](docs/integration-inbound-contract.md) |
+| SCIM 2.0 | `/api/scim/v2/Users`, `/api/scim/v2/Groups` | [hris-portco-integration-playbook.md](docs/roadmap/hris-portco-integration-playbook.md) |
+| Operational outbound webhooks | tRPC + integrations UI | [operational-webhooks.md](docs/operational-webhooks.md) |
+| Context Sync (REST) | `/api/contextsync/*` | [runbooks/context-sync-provenance.md](docs/runbooks/context-sync-provenance.md) |
 
-- **Cron observability:** [`vercel.ts`](vercel.ts) schedules **HTTP cron** handlers for **`/api/cron/reminders`** and **`/api/cron/data-retention`** only. **`GET /api/cron/metrics`** is a separate **pull/scrape** endpoint (Bearer **`CRON_SECRET`**, Prometheus or JSON)—it is **not** invoked by the platform cron schedule; configure an external scraper or agent in Kubernetes or your observability stack. Runbook: [`docs/runbooks/cron-metrics-observability.md`](docs/runbooks/cron-metrics-observability.md).
+- **Context Sync (REST):** Session-authenticated HTTP routes under **`/api/contextsync/*`** for **Context Sync**—IMS-linked artifacts, permissions, and provenance—when the organization enables the capability. Access is rate-limited like other gated APIs; optional caps: **`CONTEXT_SYNC_ORG_DAILY_READ_LIMIT`** and **`CONTEXT_SYNC_PROVENANCE_MAX_LIMIT`** (see [`src/lib/env.ts`](src/lib/env.ts), [`.env.example`](.env.example)). Architecture: [`docs/architecture-map.md`](docs/architecture-map.md).
+
+- **Scheduled HTTP crons:** [`vercel.ts`](vercel.ts) schedules three platform cron handlers (Bearer **`CRON_SECRET`**):
+
+  | Route | Schedule (UTC) | Purpose |
+  |-------|----------------|---------|
+  | `GET /api/cron/reminders` | `0 8 * * *` | SLA reminders, escalations, operational webhook dispatch |
+  | `GET /api/cron/data-retention` | `30 9 * * *` | Retention policy execution |
+  | `GET /api/cron/integration-roster-reconcile` | `0 3 * * *` | Nightly HRIS roster drift for orgs with snapshots (detect + manual reconcile) |
+
+  **`GET /api/cron/metrics`** is a separate **pull/scrape** endpoint (Prometheus or JSON)—it is **not** in the `vercel.ts` schedule; configure an external scraper or agent in Kubernetes or your observability stack. Runbook: [`docs/runbooks/cron-metrics-observability.md`](docs/runbooks/cron-metrics-observability.md).
 
 - **Background jobs:** When **`PG_BOSS_ENABLED=true`**, enqueue paths use **pg-boss** in Postgres; run a worker process with **`npm run job:worker`** alongside the web app. Details: [`docs/JOB_QUEUE.md`](docs/JOB_QUEUE.md).
 
@@ -229,6 +244,8 @@ npm run test:e2e:smoke  # smoke only
 ```
 
 **Local Playwright smoke (signed-in flows):** CI always runs `@smoke` E2E against a service Postgres after **`npm run db:migrate`** and **`npm run db:seed:ci`**. On a developer machine, the same tests are **skipped** unless you set **`PLAYWRIGHT_E2E_EMAIL`** and **`PLAYWRIGHT_E2E_PASSWORD`** (see [`.env.example`](.env.example)) **and** use a migrated, seeded database. Flow coverage is listed in [AGENTS.md](AGENTS.md) (Smoke E2E table).
+
+**PortCo staging checklist:** after configuring integrations on a pilot org, run **`npm run portco:pilot-verify`** against your database — see [docs/qa/portco-staging-pilot.md](docs/qa/portco-staging-pilot.md).
 
 ---
 

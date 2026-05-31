@@ -1,0 +1,36 @@
+# Replaces Vercel cron for GET /api/cron/integration-roster-reconcile (vercel.ts + src/app/api/cron/integration-roster-reconcile/route.ts).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ehs-cron-integration-roster-reconcile
+  labels:
+    app.kubernetes.io/name: ehs-cron-integration-roster-reconcile
+spec:
+  # Match vercel.ts: "0 3 * * *"
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: curl
+              image: curlimages/curl:8.11.1
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  curl -fsS \
+                    -H "Authorization: Bearer ${CRON_SECRET}" \
+                    "http://ehs-web:3000/api/cron/integration-roster-reconcile"
+              env:
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: ehs-app-secrets
+                      key: CRON_SECRET

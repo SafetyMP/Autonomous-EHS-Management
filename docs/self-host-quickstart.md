@@ -82,9 +82,9 @@ Link first admin: `SEED_ADMIN_EMAIL=admin@example.com npm run db:seed`.
 
 ## 3. Cron jobs (Vercel substitute)
 
-On **Vercel**, [`vercel.ts`](../vercel.ts) schedules HTTP cron for reminders and data retention. On **Kubernetes**, use [`deploy/k8s/cronjob-reminders.yaml`](../deploy/k8s/cronjob-reminders.yaml) and [`deploy/k8s/cronjob-data-retention.yaml`](../deploy/k8s/cronjob-data-retention.yaml).
+On **Vercel**, [`vercel.ts`](../vercel.ts) schedules HTTP cron for reminders, data retention, and integration roster reconciliation. On **Kubernetes**, use [`deploy/k8s/cronjob-reminders.yaml`](../deploy/k8s/cronjob-reminders.yaml), [`deploy/k8s/cronjob-data-retention.yaml`](../deploy/k8s/cronjob-data-retention.yaml), and [`deploy/k8s/cronjob-integration-roster-reconcile.yaml`](../deploy/k8s/cronjob-integration-roster-reconcile.yaml).
 
-Both curl the web service with:
+All three curl the web service with:
 
 ```http
 Authorization: Bearer <CRON_SECRET>
@@ -94,6 +94,7 @@ Authorization: Bearer <CRON_SECRET>
 |-------|-----------------------------------|
 | `GET /api/cron/reminders` | `0 8 * * *` |
 | `GET /api/cron/data-retention` | `30 9 * * *` |
+| `GET /api/cron/integration-roster-reconcile` | `0 3 * * *` |
 
 **Metrics scrape (not a CronJob):** configure Prometheus or your collector to **`GET /api/cron/metrics`** with the same bearer token. See [cron-metrics-observability.md](./runbooks/cron-metrics-observability.md) and [`prometheus-scrape-cron-metrics.example.yml`](../deploy/k8s/prometheus-scrape-cron-metrics.example.yml).
 

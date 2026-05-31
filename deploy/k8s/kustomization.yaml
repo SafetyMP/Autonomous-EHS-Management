@@ -16,6 +16,7 @@ resources:
   - ingress.yaml
   - cronjob-reminders.yaml
   - cronjob-data-retention.yaml
+  - cronjob-integration-roster-reconcile.yaml
 
 # Rewrites the placeholder image in deployment.yaml (must match docker-publish:
 # ghcr.io/<lowercase github owner>/<lowercase repo>/ehs-web).

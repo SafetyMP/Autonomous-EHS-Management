@@ -11,3 +11,5 @@ Engineering specs and playbooks derived from enterprise diligence feedback. Thes
 **Architecture decisions:** [../adr/0001-mcp-context-sync-strategy.md](../adr/0001-mcp-context-sync-strategy.md)
 
 **Procurement / RFP:** [../procurement-integrations-appendix.md](../procurement-integrations-appendix.md)
+
+**Full docs index:** [../README.md](../README.md)

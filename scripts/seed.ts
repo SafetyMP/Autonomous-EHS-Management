@@ -2,7 +2,7 @@
  * Seeds RBAC, demo org/site, and admin membership for SEED_ADMIN_EMAIL.
  * Run after migrations and after the user has signed up once (Better Auth user row exists).
  *
- * Usage: SEED_ADMIN_EMAIL=you@corp.com npx tsx scripts/seed.ts
+ * Usage: SEED_ADMIN_EMAIL=you@corp.com npm run db:seed
  */
 import { loadEnvFiles } from "./lib/load-env";
 
