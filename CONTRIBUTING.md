@@ -2,7 +2,7 @@
 
 ## Before you start
 
-Read **[AGENTS.md](AGENTS.md)** (verification bar, CI, skills index), **[docs/README.md](docs/README.md)** (documentation index), and, when touching regulated workflows, **[COMPLIANCE.md](COMPLIANCE.md)**.
+Read **[AGENTS.md](AGENTS.md)** (verification bar, CI, skills index), **[GOVERNANCE.md](GOVERNANCE.md)** (maintainers, releases, evergreen OSS), **[docs/README.md](docs/README.md)** (documentation index), and, when touching regulated workflows, **[COMPLIANCE.md](COMPLIANCE.md)**.
 
 ## Workflow
 

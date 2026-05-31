@@ -149,6 +149,7 @@ Downstream Admission / policy engines (Kyverno, Ratify, Sigstore Admission) cons
 | File | Notes |
 |------|--------|
 | [`LICENSE`](LICENSE) | **Apache License 2.0**. **`package.json`** `"license"` must stay **`Apache-2.0`** (**SPDX**). |
+| [`GOVERNANCE.md`](GOVERNANCE.md) | Evergreen OSS: maintainers, merge bar, releases, security, forks. |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Entry path for contributors; merge bar stays **[`AGENTS.md`](AGENTS.md)**. |
 | [`SECURITY.md`](SECURITY.md) | Responsible disclosure — enable **Security → Private vulnerability reporting** on the GitHub repo. |
 

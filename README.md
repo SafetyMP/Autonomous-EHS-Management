@@ -20,6 +20,20 @@ Autonomous EHS ships under **Apache 2.0** ([LICENSE](LICENSE)). You run, modify,
 
 **Open source & TCO:** [`docs/open-source-tco.md`](docs/open-source-tco.md) — license snapshot and illustrative self-host vs seat-priced inspection SaaS math.
 
+## Open source, maintained for the long term
+
+Autonomous EHS is an **evergreen open source project**: Apache 2.0, auditable **PostgreSQL + Drizzle** schema with migrations in-repo, and a public merge bar (`npm run verify`, same as CI). We optimize for **forkability, self-host longevity, and tenant-owned data**—not a single mandatory SaaS SKU.
+
+| Signal | Where to look |
+|--------|----------------|
+| **License & economics** | [LICENSE](LICENSE), [docs/open-source-tco.md](docs/open-source-tco.md) |
+| **Governance & maintainers** | [GOVERNANCE.md](GOVERNANCE.md), [`.github/CODEOWNERS`](.github/CODEOWNERS) |
+| **Honest product scope** | [docs/module-maturity.md](docs/module-maturity.md) |
+| **Direction & community** | [ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
+| **Security reporting** | [SECURITY.md](SECURITY.md) |
+
+Production still requires **your** ops, backups, IAM, counsel, and compliance review ([COMPLIANCE.md](COMPLIANCE.md)). There is **no separate LTS branch** today—pin image digests or git SHAs and test upgrades in your environment ([GOVERNANCE.md](GOVERNANCE.md)).
+
 ## Quick start
 
 1. **Clone and install:** `git clone <repo-url> && cd <repo-dir> && npm ci`  
@@ -44,7 +58,7 @@ Optional **proposal-only AI** (when enabled) suggests intake wording or retrieve
 
 **Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Records & metrics → Incidence rates** (TRIR-style analytics) and the **Your work** action queue on command center / task hub. The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`).
 
-**Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [docs/README.md](docs/README.md) (documentation index), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` map), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (governance notes).
+**Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [GOVERNANCE.md](GOVERNANCE.md) (evergreen OSS), [docs/README.md](docs/README.md) (documentation index), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` map), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (regulatory / data governance).
 
 Diagram, SSO, full demo walkthrough, Codespaces, non-demo development, and production deploy pointers are below.
 
@@ -261,4 +275,4 @@ npm run test:e2e:smoke  # smoke only
 
 Licensed under **Apache License 2.0** — see **[LICENSE](LICENSE)**. SPDX: **`Apache-2.0`** (also set in **`package.json`**).
 
-Contributing and security reporting: **[CONTRIBUTING.md](CONTRIBUTING.md)**, **[SECURITY.md](SECURITY.md)**. GitHub org setup: **[REPO_SETUP.md](REPO_SETUP.md)**.
+Contributing, governance, and security: **[CONTRIBUTING.md](CONTRIBUTING.md)**, **[GOVERNANCE.md](GOVERNANCE.md)**, **[SECURITY.md](SECURITY.md)**. GitHub org setup: **[REPO_SETUP.md](REPO_SETUP.md)**.

@@ -14,6 +14,21 @@ Canonical map of repository documentation. **Start at the root [README](../READM
 | **Integration engineer** | [integration-inbound-contract.md](./integration-inbound-contract.md), [integration-connector-mapping.md](./integration-connector-mapping.md), [roadmap/hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md) |
 | **QA / UAT** | [qa/](./qa/) |
 | **Compliance / DPO** | [COMPLIANCE.md](../COMPLIANCE.md), [DSAR_PROCESS.md](./DSAR_PROCESS.md), [regulatory-posture-boundary.md](./regulatory-posture-boundary.md) |
+| **Open source adopter / fork** | [GOVERNANCE.md](../GOVERNANCE.md), [open-source-tco.md](./open-source-tco.md), [module-maturity.md](./module-maturity.md) |
+
+## Open source & project health
+
+Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a demo dump or mandatory SaaS lock-in.
+
+| Document | Topic |
+|----------|--------|
+| [GOVERNANCE.md](../GOVERNANCE.md) | Maintainers, merge bar, releases, security, forks |
+| [open-source-tco.md](./open-source-tco.md) | License + self-host economics |
+| [module-maturity.md](./module-maturity.md) | Shipped vs in-progress modules (honest scope) |
+| [ROADMAP.md](../ROADMAP.md) | Direction, barriers, community |
+| [CONTRIBUTING.md](../CONTRIBUTING.md) | PR workflow |
+| [SECURITY.md](../SECURITY.md) | Vulnerability reporting |
+| [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) | Community standards |
 
 ## Architecture & product depth
 
@@ -79,6 +94,7 @@ Canonical map of repository documentation. **Start at the root [README](../READM
 
 | File | Purpose |
 |------|---------|
+| [GOVERNANCE.md](../GOVERNANCE.md) | Evergreen OSS: maintainers, releases, community, forks |
 | [AGENTS.md](../AGENTS.md) | Verify bar, CI, smoke E2E, skills index |
 | [CONTEXT.md](../CONTEXT.md) | Stack pins, API map, anti-patterns |
 | [COMPLIANCE.md](../COMPLIANCE.md) | Retention, legal hold, regulatory scope |
