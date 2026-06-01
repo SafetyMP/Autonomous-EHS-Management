@@ -22,18 +22,19 @@ export function operationalWebhookEventTitle(eventType: string): string {
   return EVENT_TITLES[eventType] ?? eventType;
 }
 
+function matchesHost(hostname: string, domain: string): boolean {
+  return hostname === domain || hostname.endsWith(`.${domain}`);
+}
+
 /** Infer Slack / Teams formatting from webhook URL host. */
 export function detectNotificationChannel(targetUrl: string): NotificationChannel {
   try {
     const hostname = new URL(targetUrl).hostname.toLowerCase();
-    const matchesDomain = (domain: string) =>
-      hostname === domain || hostname.endsWith(`.${domain}`);
-
-    if (matchesDomain("hooks.slack.com") || matchesDomain("slack.com")) return "slack";
+    if (matchesHost(hostname, "hooks.slack.com") || matchesHost(hostname, "slack.com")) return "slack";
     if (
-      matchesDomain("webhook.office.com") ||
-      matchesDomain("outlook.office.com") ||
-      matchesDomain("office365.com")
+      matchesHost(hostname, "webhook.office.com") ||
+      matchesHost(hostname, "outlook.office.com") ||
+      matchesHost(hostname, "office365.com")
     ) {
       return "teams";
     }
