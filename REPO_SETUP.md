@@ -18,20 +18,13 @@ Suggested topics for discoverability:
 
 > Web console for safety teams: incidents, corrective/preventive action (CAPA) plans, metrics, documents, training, audits—role-aware, PostgreSQL-backed.
 
-With [**GitHub CLI**](https://cli.github.com/) authenticated against the repo:
+With [**GitHub CLI**](https://cli.github.com/) authenticated against the repo, prefer the consolidated script (replaces all topics, stays within the 20-topic cap):
 
 ```bash
-gh repo edit SafetyMP/Autonomous-EHS-Management \
-  --description "Web console for safety teams: incidents, CAPA plans, metrics, documents, training, audits—role-aware, PostgreSQL-backed." \
-  --add-topic ehs --add-topic safety-management --add-topic occupational-health \
-  --add-topic incident-management --add-topic environmental-health-and-safety \
-  --add-topic capa --add-topic iso-45001 --add-topic compliance \
-  --add-topic nextjs --add-topic react --add-topic typescript --add-topic postgresql \
-  --add-topic drizzle-orm --add-topic trpc --add-topic better-auth \
-  --add-topic playwright-testing --add-topic docker --add-topic kubernetes --add-topic gitops
+bash scripts/apply-github-about.sh
 ```
 
-(Add `--homepage https://…` when you have a public product URL.)
+(Add `--homepage https://…` is included in the script; currently `https://autonomous-ehs-management.vercel.app`.)
 
 ---
 
@@ -155,7 +148,47 @@ Downstream Admission / policy engines (Kyverno, Ratify, Sigstore Admission) cons
 
 ---
 
-## 10. Cursor IDE tool connections (optional)
+## 10. OSS health badges & social preview
+
+### Repository About (run once after clone or org transfer)
+
+Apply the description, homepage, and topics from § **Repository About** at the top of this file (removes the legacy `oepn` typo topic and demo credentials from the About field). GitHub caps repositories at **20 topics** — use the consolidated script:
+
+```bash
+bash scripts/apply-github-about.sh
+```
+
+Or manually with [`gh`](https://cli.github.com/) (same end state as the script):
+
+### Social preview image
+
+1. Source asset (committed): [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png) (1280×640).
+2. Upload: **Settings → General → Social preview** on the GitHub repo (or drag the PNG onto the About card in the web UI).
+3. Verify: paste the repo URL into Slack/LinkedIn and confirm the custom card renders.
+
+### OpenSSF Best Practices Badge (Passing)
+
+Self-certify at [bestpractices.dev](https://www.bestpractices.dev/en) (free; maintainer account required):
+
+1. **Add project** → enter repo URL `https://github.com/SafetyMP/Autonomous-EHS-Management`.
+2. Work through **Passing** criteria; cite these in-repo evidence URLs:
+
+| Criterion area | Evidence in this repo |
+|----------------|----------------------|
+| Description & interaction | [README.md](README.md), [docs/README.md](docs/README.md) |
+| Contribution process | [CONTRIBUTING.md](CONTRIBUTING.md), [`.github/pull_request_template.md`](.github/pull_request_template.md) |
+| Vulnerability reporting | [SECURITY.md](SECURITY.md) (private advisory path enabled) |
+| Build & test | [`.github/workflows/ci.yml`](.github/workflows/ci.yml), `npm run verify` in [AGENTS.md](AGENTS.md) |
+| Static analysis | [`.github/workflows/codeql-analysis.yml`](.github/workflows/codeql-analysis.yml) |
+| Dependency updates | [`.github/dependabot.yml`](.github/dependabot.yml) |
+| License | [LICENSE](LICENSE) (Apache-2.0) |
+
+3. When **Passing** is awarded, add the badge Markdown from the BadgeApp UI to [README.md](README.md) (hero badge row, after the Release shield).
+4. Optional next step: pursue **OpenSSF Baseline** on the same project entry.
+
+---
+
+## 11. Cursor IDE tool connections (optional)
 
 Some teams attach **Cursor** MCP servers (Vercel, Neon, Slack, AWS/Azure helpers, docs proxies) or use the Cursor SDK for **internal** automation. These do **not** replace GitHub **Environment** approvals, **`VERCEL_TOKEN`**, IAM OIDC, or kubectl RBAC—they are tooling around the same APIs.
 

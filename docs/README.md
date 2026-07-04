@@ -2,6 +2,8 @@
 
 Canonical map of repository documentation. **Start at the root [README](../README.md)** for quick start and deploy; use this index when you need a specific audience or workflow.
 
+**New here?** [Quick start](../README.md#quick-start) → [Turnkey local demo](../README.md#turnkey-local-demo-docker-postgres) → [Module maturity](./module-maturity.md) (honest shipped vs planned scope).
+
 ## By role
 
 | Role | Start here |
