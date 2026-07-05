@@ -14,12 +14,35 @@ import os
 import re
 import sys
 import uuid
+from pathlib import Path
 from typing import Any
 
 CURSOR_HOME = os.path.expanduser("~/.cursor")
 LOG_DIR = os.environ.get("CURSOR_HOOK_LOG_DIR", os.path.join(CURSOR_HOME, "logs"))
 MEMORY_DIR = os.path.join(CURSOR_HOME, "memory")
 _TRACE_ID = os.environ.get("CURSOR_TRACE_ID") or uuid.uuid4().hex
+
+
+def _repo_profile_name() -> str | None:
+    try:
+        prof = read_repo_profile()
+        return prof.get("profile") if prof else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def read_repo_profile() -> dict[str, Any] | None:
+    """Best-effort read of .harness/profile.yaml from cwd."""
+    try:
+        path = Path(os.getcwd()) / ".harness" / "profile.yaml"
+        if not path.is_file():
+            return None
+        import yaml  # type: ignore
+
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else None
+    except Exception:  # noqa: BLE001
+        return None
 
 
 def log_event(event: str, data: dict[str, Any]) -> None:
@@ -32,6 +55,8 @@ def log_event(event: str, data: dict[str, Any]) -> None:
             "trace_id": _TRACE_ID,
             "span_id": uuid.uuid4().hex[:16],
             "event": event,
+            "workspace_root": os.environ.get("CURSOR_WORKSPACE_ROOT") or os.getcwd(),
+            "profile": _repo_profile_name(),
             **data,
         }
         with open(os.path.join(LOG_DIR, f"{day}.jsonl"), "a", encoding="utf-8") as fh:
