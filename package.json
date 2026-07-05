@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SafetyMP/Autonomous-EHS-Management.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SafetyMP/Autonomous-EHS-Management/issues"
+  },
+  "homepage": "https://autonomous-ehs-management.vercel.app",
   "engines": {
     "node": ">=22 <23"
   },
