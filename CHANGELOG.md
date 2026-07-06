@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.1...v1.4.2) (2026-07-06)
+
+
+### Bug Fixes
+
+* **harness:** sync C17 workspace_root attribution in hook logs ([0e19d94](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/0e19d94f855af88b3ce6b1b8c3616280aa4f029b))
+
 ## [1.4.1](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.0...v1.4.1) (2026-05-24)
 
 
