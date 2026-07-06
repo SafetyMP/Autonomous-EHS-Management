@@ -39,7 +39,7 @@ def main() -> int:
         return 0
     for pattern, why in _ASK_PATTERNS:
         if pattern.search(command):
-            log_event("network", {"decision": "ask", "reason": why, "command": command[:500]})
+            log_event("network", {"decision": "ask", "reason": why, "command": command[:500]}, context=payload)
             ask(
                 user_message=f"Review network command: {why}",
                 agent_message=(
@@ -49,7 +49,7 @@ def main() -> int:
                 ),
             )
             return 0
-    log_event("network", {"decision": "allow", "command": command[:200]})
+    log_event("network", {"decision": "allow", "command": command[:200]}, context=payload)
     allow()
     return 0
 

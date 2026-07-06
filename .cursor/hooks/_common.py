@@ -23,20 +23,45 @@ MEMORY_DIR = os.path.join(CURSOR_HOME, "memory")
 _TRACE_ID = os.environ.get("CURSOR_TRACE_ID") or uuid.uuid4().hex
 
 
-def _repo_profile_name() -> str | None:
-    try:
-        prof = read_repo_profile()
-        return prof.get("profile") if prof else None
-    except Exception:  # noqa: BLE001
+_TRACE_ID = os.environ.get("CURSOR_TRACE_ID") or uuid.uuid4().hex
+_HOOK_CONTEXT: dict[str, Any] | None = None
+
+
+def resolve_workspace_root(
+    payload: dict[str, Any] | None = None,
+    *,
+    cwd: str | None = None,
+) -> str:
+    """Best-effort repo root for C17 log attribution (IDE + cloud)."""
+    if payload:
+        for key in ("workspace_roots", "workspaceRoots", "roots"):
+            roots = payload.get(key)
+            if isinstance(roots, list) and roots:
+                root = str(roots[0]).strip()
+                if root:
+                    return root
+        for key in ("cwd", "workingDirectory", "working_directory"):
+            value = payload.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+    for env_key in (
+        "CURSOR_PROJECT_DIR",
+        "CURSOR_WORKSPACE_ROOT",
+        "CLAUDE_PROJECT_DIR",
+    ):
+        value = os.environ.get(env_key)
+        if value and value.strip():
+            return value.strip()
+    if cwd and cwd.strip():
+        return cwd.strip()
+    return os.getcwd()
+
+
+def _repo_profile_at(root: Path) -> dict[str, Any] | None:
+    path = root / ".harness" / "profile.yaml"
+    if not path.is_file():
         return None
-
-
-def read_repo_profile() -> dict[str, Any] | None:
-    """Best-effort read of .harness/profile.yaml from cwd."""
     try:
-        path = Path(os.getcwd()) / ".harness" / "profile.yaml"
-        if not path.is_file():
-            return None
         import yaml  # type: ignore
 
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -45,9 +70,30 @@ def read_repo_profile() -> dict[str, Any] | None:
         return None
 
 
-def log_event(event: str, data: dict[str, Any]) -> None:
+def _repo_profile_name_for(root: str) -> str | None:
+    try:
+        prof = _repo_profile_at(Path(root))
+        return prof.get("profile") if prof else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def read_repo_profile(workspace_root: str | None = None) -> dict[str, Any] | None:
+    """Best-effort read of .harness/profile.yaml from a workspace root."""
+    root = workspace_root or resolve_workspace_root()
+    return _repo_profile_at(Path(root))
+
+
+def log_event(
+    event: str,
+    data: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> None:
     """Append a structured event to today's JSONL session log. Never raises."""
     try:
+        ctx = context if context is not None else _HOOK_CONTEXT
+        workspace_root = resolve_workspace_root(ctx)
         os.makedirs(LOG_DIR, exist_ok=True)
         day = datetime.date.today().isoformat()
         record = {
@@ -55,10 +101,12 @@ def log_event(event: str, data: dict[str, Any]) -> None:
             "trace_id": _TRACE_ID,
             "span_id": uuid.uuid4().hex[:16],
             "event": event,
-            "workspace_root": os.environ.get("CURSOR_WORKSPACE_ROOT") or os.getcwd(),
-            "profile": _repo_profile_name(),
+            "workspace_root": workspace_root,
+            "profile": _repo_profile_name_for(workspace_root),
             **data,
         }
+        if ctx and ctx.get("loop_count") is not None and "loop_count" not in record:
+            record["loop_count"] = ctx.get("loop_count")
         with open(os.path.join(LOG_DIR, f"{day}.jsonl"), "a", encoding="utf-8") as fh:
             fh.write(json.dumps(record) + "\n")
     except Exception:
@@ -67,10 +115,14 @@ def log_event(event: str, data: dict[str, Any]) -> None:
 
 def read_input() -> dict[str, Any]:
     """Read and parse the JSON payload Cursor sends on stdin. Never raises."""
+    global _HOOK_CONTEXT
     try:
         raw = sys.stdin.read()
-        return json.loads(raw) if raw.strip() else {}
+        payload = json.loads(raw) if raw.strip() else {}
+        _HOOK_CONTEXT = payload if isinstance(payload, dict) else {}
+        return _HOOK_CONTEXT
     except Exception:
+        _HOOK_CONTEXT = {}
         return {}
 
 

@@ -86,7 +86,7 @@ def main() -> int:
     summary = _summary(payload)
     why = find_data_destructive(blob) or _unknown_exec_block(payload)
     if why:
-        log_event("mcp", {"decision": "deny", "reason": why, **summary})
+        log_event("mcp", {"decision": "deny", "reason": why, **summary}, context=payload)
         deny(
             user_message=f"Blocked by guard-mcp: {why}",
             agent_message=(
@@ -97,7 +97,7 @@ def main() -> int:
         )
         return 0
 
-    log_event("mcp", {"decision": "allow", **summary})
+    log_event("mcp", {"decision": "allow", **summary}, context=payload)
     allow()
     return 0
 

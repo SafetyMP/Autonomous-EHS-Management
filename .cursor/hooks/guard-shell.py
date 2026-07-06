@@ -49,7 +49,7 @@ def main() -> int:
     if not why and command:
         why = find_reason(command)
     if why:
-        log_event("shell", {"decision": "deny", "reason": why, "command": command[:500]})
+        log_event("shell", {"decision": "deny", "reason": why, "command": command[:500]}, context=payload)
         deny(
             user_message=f"Blocked by guard-shell: {why}",
             agent_message=(
@@ -61,7 +61,7 @@ def main() -> int:
         )
         return 0
     if command:
-        log_event("shell", {"decision": "allow", "command": command[:500]})
+        log_event("shell", {"decision": "allow", "command": command[:500]}, context=payload)
     allow()
     return 0
 
