@@ -11,6 +11,12 @@
   <img src="docs/assets/demo.gif" alt="Autonomous EHS demo — command center, incidents, and CAPA register (synthetic demo data)" width="900" />
 </p>
 
+## Screenshots
+
+| Command center | Incidents | CAPA register |
+|----------------|-----------|---------------|
+| ![Command center](docs/assets/command-center.png) | ![Incidents](docs/assets/incidents.png) | ![CAPA register](docs/assets/capa.png) |
+
 - **Live demo:** [autonomous-ehs-management.vercel.app](https://autonomous-ehs-management.vercel.app) — or run locally in ~5 minutes ([Turnkey local demo](#turnkey-local-demo-docker-postgres))
 - **License:** [Apache 2.0](LICENSE) · **Docs:** [docs/README.md](docs/README.md) · **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md)
 - **OSS health:** [OpenSSF badge setup](REPO_SETUP.md#10-oss-health-badges--social-preview) · social preview source in [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png)
