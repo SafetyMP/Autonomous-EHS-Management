@@ -7,6 +7,10 @@
 
 **Autonomous compliance operations platform** — give your team one place to log what happened, assign fixes, and prove the follow-up.
 
+<p align="center">
+  <img src="docs/assets/demo.gif" alt="Autonomous EHS demo — command center, incidents, and CAPA register (synthetic demo data)" width="900" />
+</p>
+
 - **Live demo:** [autonomous-ehs-management.vercel.app](https://autonomous-ehs-management.vercel.app) — or run locally in ~5 minutes ([Turnkey local demo](#turnkey-local-demo-docker-postgres))
 - **License:** [Apache 2.0](LICENSE) · **Docs:** [docs/README.md](docs/README.md) · **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md)
 - **OSS health:** [OpenSSF badge setup](REPO_SETUP.md#10-oss-health-badges--social-preview) · social preview source in [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png)
@@ -171,6 +175,7 @@ Verification (same bar as CI `verify` job):
 npm run verify          # eslint, tsc, vitest
 npm run verify:all      # + Playwright smoke
 npm run test:e2e:smoke  # smoke only
+npm run screenshots     # README demo GIF (2s per frame; demo stack + dev server)
 ```
 
 **Local Playwright smoke (signed-in flows):** CI always runs `@smoke` E2E against a service Postgres after **`npm run db:migrate`** and **`npm run db:seed:ci`**. On a developer machine, the same tests are **skipped** unless you set **`PLAYWRIGHT_E2E_EMAIL`** and **`PLAYWRIGHT_E2E_PASSWORD`** (see [`.env.example`](.env.example)) **and** use a migrated, seeded database. Flow coverage is listed in [AGENTS.md](AGENTS.md) (Smoke E2E table).

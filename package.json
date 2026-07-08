@@ -34,6 +34,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e --grep @smoke",
+    "screenshots": "node scripts/capture-screenshots.mjs",
     "job:worker": "tsx scripts/job-worker.ts",
     "portco:pilot-verify": "tsx scripts/portco-pilot-verify.ts"
   },
@@ -76,7 +77,9 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^10",
     "eslint-config-next": "16.2.6",
+    "gifenc": "^1.0.3",
     "jsdom": "^29.1.1",
+    "pngjs": "^7.0.0",
     "semantic-release": "^25.0.3",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
