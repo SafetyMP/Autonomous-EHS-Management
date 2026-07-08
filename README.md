@@ -17,6 +17,14 @@
 |----------------|-----------|---------------|
 | ![Command center](docs/assets/command-center.png) | ![Incidents](docs/assets/incidents.png) | ![CAPA register](docs/assets/capa.png) |
 
+| Approvals | Tasks & reviews | Inspections |
+|-----------|-----------------|-------------|
+| ![Approvals](docs/assets/approvals.png) | ![Tasks & reviews](docs/assets/tasks.png) | ![Inspections](docs/assets/inspections.png) |
+
+| Metrics | Audit trail | Observations | Work permits |
+|---------|-------------|--------------|--------------|
+| ![Metrics](docs/assets/analytics.png) | ![Audit trail](docs/assets/audit-trail.png) | ![Observations](docs/assets/observations.png) | ![Work permits](docs/assets/permits.png) |
+
 - **Live demo:** [autonomous-ehs-management.vercel.app](https://autonomous-ehs-management.vercel.app) — or run locally in ~5 minutes ([Turnkey local demo](#turnkey-local-demo-docker-postgres))
 - **License:** [Apache 2.0](LICENSE) · **Docs:** [docs/README.md](docs/README.md) · **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md)
 - **OSS health:** [OpenSSF badge setup](REPO_SETUP.md#10-oss-health-badges--social-preview) · social preview source in [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png)

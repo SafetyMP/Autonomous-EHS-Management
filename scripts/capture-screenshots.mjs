@@ -6,7 +6,10 @@
  *   npm run demo:up && npm run dev
  *   npm run screenshots
  *
- * Optional: SCREENSHOT_BASE_URL=http://localhost:3011 npm run screenshots
+ * Rebuild GIF only from existing PNGs (no browser):
+ *   npm run screenshots:rebuild-gif
+ *
+ * Optional: SCREENSHOT_BASE_URL=http://localhost:3000 npm run screenshots
  * (Keep BETTER_AUTH_URL / NEXT_PUBLIC_APP_URL aligned with SCREENSHOT_BASE_URL.)
  *
  * CI: set CI=1 to use bundled Chromium instead of system Chrome.
@@ -14,7 +17,7 @@
 import { config as loadEnv } from "dotenv";
 import { chromium } from "playwright";
 import gifenc from "gifenc";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PNG } from "pngjs";
@@ -38,6 +41,23 @@ const pages = [
   { path: "/dashboard", file: "command-center.png", name: "Command center" },
   { path: "/dashboard/incidents", file: "incidents.png", name: "Incidents" },
   { path: "/dashboard/capa", file: "capa.png", name: "CAPA register" },
+  { path: "/dashboard/approvals", file: "approvals.png", name: "Approvals" },
+  { path: "/dashboard/tasks", file: "tasks.png", name: "Tasks & reviews" },
+  { path: "/dashboard/inspections", file: "inspections.png", name: "Inspections" },
+  { path: "/dashboard/analytics", file: "analytics.png", name: "Metrics" },
+  { path: "/dashboard/audit-trail", file: "audit-trail.png", name: "Audit trail" },
+  { path: "/dashboard/observations", file: "observations.png", name: "Observations" },
+  { path: "/dashboard/permits", file: "permits.png", name: "Work permits" },
+];
+
+/** README hero GIF frames (subset of `pages`). */
+const gifFrameFiles = [
+  "command-center.png",
+  "incidents.png",
+  "capa.png",
+  "approvals.png",
+  "tasks.png",
+  "analytics.png",
 ];
 
 /** Frame duration in milliseconds (gifenc stores delay/10 as GIF centiseconds). */
@@ -51,10 +71,15 @@ function launchOptions() {
 }
 
 async function waitForSignedInDashboard(page) {
+  await page.waitForURL(/\/dashboard/, { timeout: 30_000 });
   await page.getByRole("heading", { level: 1 }).waitFor({
     state: "visible",
     timeout: 30_000,
   });
+  const heading = await page.getByRole("heading", { level: 1 }).textContent();
+  if (!heading || /sign in to ehs console/i.test(heading)) {
+    throw new Error("Still on sign-in page after login attempt.");
+  }
 }
 
 async function signInDemoAdmin(page) {
@@ -80,6 +105,13 @@ async function signInDemoAdmin(page) {
   await waitForSignedInDashboard(page);
 }
 
+async function assertAuthenticatedRoute(page, route) {
+  const url = page.url();
+  if (url.includes("/sign-in")) {
+    throw new Error(`Session lost before ${route}; landed on sign-in (${url}).`);
+  }
+}
+
 async function writeDemoGif(frames) {
   const encoder = GIFEncoder();
   for (const { buffer, name } of frames) {
@@ -95,7 +127,20 @@ async function writeDemoGif(frames) {
   console.log(`Captured demo GIF -> docs/assets/demo.gif`);
 }
 
-async function main() {
+async function rebuildGifFromExisting() {
+  await mkdir(outDir, { recursive: true });
+  const frames = [];
+  for (const file of gifFrameFiles) {
+    const pageMeta = pages.find((entry) => entry.file === file);
+    const name = pageMeta?.name ?? file;
+    const buffer = await readFile(path.join(outDir, file));
+    frames.push({ buffer, name });
+    console.log(`Loaded ${name} -> docs/assets/${file}`);
+  }
+  await writeDemoGif(frames);
+}
+
+async function captureLive() {
   await mkdir(outDir, { recursive: true });
 
   const browser = await chromium.launch(launchOptions());
@@ -111,15 +156,26 @@ async function main() {
   for (const { path: route, file, name } of pages) {
     await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle" });
     await page.waitForTimeout(500);
+    await assertAuthenticatedRoute(page, route);
     const buffer = await page.screenshot({ fullPage: false });
     const dest = path.join(outDir, file);
     await writeFile(dest, buffer);
-    gifFrames.push({ buffer, name });
     console.log(`Captured ${name} -> docs/assets/${file}`);
+    if (gifFrameFiles.includes(file)) {
+      gifFrames.push({ buffer, name });
+    }
   }
 
   await writeDemoGif(gifFrames);
   await browser.close();
+}
+
+async function main() {
+  if (process.argv.includes("--from-existing")) {
+    await rebuildGifFromExisting();
+    return;
+  }
+  await captureLive();
 }
 
 main().catch((error) => {

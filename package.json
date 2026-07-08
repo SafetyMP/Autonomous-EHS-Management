@@ -35,6 +35,7 @@
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e --grep @smoke",
     "screenshots": "node scripts/capture-screenshots.mjs",
+    "screenshots:rebuild-gif": "node scripts/capture-screenshots.mjs --from-existing",
     "job:worker": "tsx scripts/job-worker.ts",
     "portco:pilot-verify": "tsx scripts/portco-pilot-verify.ts"
   },
