@@ -36,7 +36,7 @@ Create a **ruleset** targeting **`main`** and **`master`** (or unify on one trun
 |-------------|----------------|
 | **Pull requests** | Require PR before merge; block direct pushes unless bypass role is deliberate. |
 | **Linear history** | Require **squash merge** only *or* require linear history (pick one policy). |
-| **Status checks** | Require **`supply-chain-audit`** (runs `npm audit --omit=dev --audit-level=high` against **production transitive** vulnerabilities), **`verify`**, and **`e2e-smoke`** from workflow [`CI`](.github/workflows/ci.yml). Optionally require **`Analyze`** from [`CodeQL`](.github/workflows/codeql-analysis.yml) if Advanced Security is enabled. DevDependency advisories are primarily handled by **[Dependabot](.github/dependabot.yml)**. |
+| **Status checks** | Require **`supply-chain-audit`** (runs `npm audit --omit=dev --audit-level=high` against **production transitive** vulnerabilities), **`verify`**, and **`e2e-smoke`** from workflow [`CI`](.github/workflows/ci.yml). Optionally require **`Analyze`** from [`CodeQL`](.github/workflows/codeql-analysis.yml) if Advanced Security is enabled. After the first run, optionally require **`Scorecard analysis`** from [`OpenSSF Scorecard`](.github/workflows/scorecard.yml). DevDependency advisories are primarily handled by **[Dependabot](.github/dependabot.yml)**. |
 | **Reviews** | Require **≥1** approving review from humans; map “AI review” via optional **Copilot** or bot checks (**GitHub does not enforce AI vs human** explicitly). |
 | **Verified commits** | Enable **verified signatures** or **verified authors** where your org allows it. |
 | **Bypass lists** | Keep empty for developers; optionally allow **`release`** automation only via a dedicated GitHub App or fine-grained token if `semantic-release` cannot tag (see §4). |
@@ -113,6 +113,7 @@ Where licensed:
 | **Dependabot alerts** | PRs filed via [`.github/dependabot.yml`](.github/dependabot.yml). |
 | **Secret scanning + push protection** | Block leaked secrets. |
 | **CodeQL** ([`codeql-analysis.yml`](.github/workflows/codeql-analysis.yml)) | SAST complement to `eslint`/`tsc`; pin the **`Analyze`** job in branch rulesets if it should gate merges once Advanced Security is available. |
+| **OpenSSF Scorecard** ([`scorecard.yml`](.github/workflows/scorecard.yml)) | Weekly and push supply-chain posture; publishes to [scorecard.dev](https://scorecard.dev) for the README badge after the first successful run. |
 
 **Artifact attestations** (build provenance pushed with the image):
 
@@ -180,6 +181,7 @@ Self-certify at [bestpractices.dev](https://www.bestpractices.dev/en) (free; mai
 | Vulnerability reporting | [SECURITY.md](SECURITY.md) (private advisory path enabled) |
 | Build & test | [`.github/workflows/ci.yml`](.github/workflows/ci.yml), `npm run verify` in [AGENTS.md](AGENTS.md) |
 | Static analysis | [`.github/workflows/codeql-analysis.yml`](.github/workflows/codeql-analysis.yml) |
+| Supply-chain scorecard | [`.github/workflows/scorecard.yml`](.github/workflows/scorecard.yml) |
 | Dependency updates | [`.github/dependabot.yml`](.github/dependabot.yml) |
 | License | [LICENSE](LICENSE) (Apache-2.0) |
 

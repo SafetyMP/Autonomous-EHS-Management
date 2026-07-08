@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/codeql-analysis.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/SafetyMP/Autonomous-EHS-Management/badge)](https://scorecard.dev/viewer/?uri=github.com/SafetyMP/Autonomous-EHS-Management)
 [![License: Apache-2.0](https://img.shields.io/github/license/SafetyMP/Autonomous-EHS-Management)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/SafetyMP/Autonomous-EHS-Management)](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)
 
@@ -27,7 +28,7 @@
 
 - **Live demo:** [autonomous-ehs-management.vercel.app](https://autonomous-ehs-management.vercel.app) — or run locally in ~5 minutes ([Turnkey local demo](#turnkey-local-demo-docker-postgres))
 - **License:** [Apache 2.0](LICENSE) · **Docs:** [docs/README.md](docs/README.md) · **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md)
-- **OSS health:** [OpenSSF badge setup](REPO_SETUP.md#10-oss-health-badges--social-preview) · social preview source in [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png)
+- **OSS health:** [OpenSSF badge setup](REPO_SETUP.md#10-oss-health-badges--social-preview) · [OpenSSF Scorecard](.github/workflows/scorecard.yml) · social preview source in [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png)
 
 ## Contents
 
