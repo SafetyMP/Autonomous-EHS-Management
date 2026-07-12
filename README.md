@@ -48,13 +48,15 @@
 
 ## Quick start
 
+**Prerequisites:** Node.js **22.x** (see `.nvmrc`), npm, Docker (for demo Postgres). Matches CI and the production `Dockerfile`.
+
 1. **Clone and install:** `git clone <repo-url> && cd <repo-dir> && npm ci`  
    **Path tip:** Avoid a **working directory name with a trailing space** (some macOS / archive flows introduce `"…System "`). That can break scripts, tooling, and shell `cd` unless you always **quote paths**—prefer renaming the folder to remove stray spaces.
 2. **Configure:** pick a row in **Environment snapshots** below and copy the listed template to `.env.local` (fill secrets).
 3. **Run:**
    - **Docker demo:** `npm run demo:up` then `npm run dev` → [http://localhost:3000/sign-in](http://localhost:3000/sign-in) (details in [Turnkey local demo](#turnkey-local-demo-docker-postgres)).
    - **Your own Postgres:** `npm run db:migrate` then `SEED_ADMIN_EMAIL=you@company.com npm run db:seed` then `npm run dev`.
-4. **Before a PR:** `npm run verify` — same bar as CI ([AGENTS.md](AGENTS.md)).
+4. **Before a PR:** `./scripts/verify.sh` — harness DoD wrapper (same bar as `npm run verify` in CI). See [AGENTS.md](AGENTS.md).
 
 ## Environment snapshots
 
