@@ -115,6 +115,8 @@ export const authAccountRelations = relations(authAccount, ({ one }) => ({
 export const organization = pgTable("organization", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 256 }).notNull(),
+  /** Per-organization shared secret for POST /api/integration/inbound (Bearer). */
+  integrationInboundSecret: varchar("integration_inbound_secret", { length: 256 }),
   /**
    * Tenant master switch for REST `/api/contextsync/*` + `contextSyncProtocol` tRPC.
    * Existing orgs are backfilled true in migration; new rows default false at DB level.

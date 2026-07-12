@@ -1,4 +1,6 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import { env } from "@/lib/env";
 import {
   hrisContractorInputFromInbound,
@@ -10,6 +12,7 @@ import {
 import { getJobQueue } from "@/server/jobs/queue";
 import { JOB_NAMES } from "@/server/jobs/types";
 import { db } from "@/server/db";
+import { organization } from "@/server/db/schema";
 import {
   processHrisContractorSyncInbound,
   processHrisMembershipSyncInbound,
@@ -21,19 +24,14 @@ import {
 } from "@/server/services/integrationInboundIdempotencyCache";
 import { persistTrainingCompletionEvent } from "@/server/services/trainingCompletionIngest";
 
+function secretsMatch(provided: string, expected: string): boolean {
+  if (expected.length < 16 || provided.length !== expected.length) {
+    return false;
+  }
+  return timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
+}
+
 export async function POST(request: Request) {
-  const secret = env.INTEGRATION_INBOUND_SECRET;
-  if (!secret) {
-    return NextResponse.json(
-      { error: "Integration inbound is not configured." },
-      { status: 503 },
-    );
-  }
-
-  if (request.headers.get("authorization") !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   let json: unknown;
   try {
     json = await request.json();
@@ -50,6 +48,24 @@ export async function POST(request: Request) {
   }
 
   const orgFromPayload = parsed.data.organizationId;
+  const [orgRow] = await db
+    .select({ secret: organization.integrationInboundSecret })
+    .from(organization)
+    .where(eq(organization.id, orgFromPayload))
+    .limit(1);
+
+  const orgSecret = orgRow?.secret?.trim() ?? "";
+  const globalSecret = env.INTEGRATION_INBOUND_SECRET?.trim() ?? "";
+  const authHeader = request.headers.get("authorization") ?? "";
+  const bearer = authHeader.startsWith("Bearer ") ? authHeader.slice("Bearer ".length).trim() : "";
+
+  const authorized =
+    secretsMatch(bearer, orgSecret) || secretsMatch(bearer, globalSecret);
+
+  if (!authorized) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const idemKey = inboundIdempotencyKeyFromPayload(parsed.data);
 
   async function persistCache(status: number, body: Record<string, unknown>): Promise<void> {
