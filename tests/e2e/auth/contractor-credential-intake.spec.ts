@@ -17,7 +17,11 @@ test.describe("authenticated contractor credential intake", () => {
     await expect(page.getByRole("heading", { name: "Program overview" })).toBeVisible();
 
     await page.getByPlaceholder("Company name").fill(company);
-    await page.getByRole("button", { name: "Add" }).click();
+    await page
+      .locator("form")
+      .filter({ has: page.getByPlaceholder("Company name") })
+      .getByRole("button", { name: "Add" })
+      .click();
     await expect(page.getByText(company)).toBeVisible({ timeout: 15_000 });
 
     await page.goto("/dashboard/contractors");

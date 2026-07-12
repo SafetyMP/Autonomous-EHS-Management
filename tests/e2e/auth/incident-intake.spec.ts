@@ -21,7 +21,7 @@ test.describe("authenticated incident intake", () => {
     await expect(page.getByRole("heading", { name: "Report incident" })).toBeVisible();
 
     await page.getByLabel("Title", { exact: true }).fill(`E2E-${Date.now()}`);
-    await page.getByLabel("Description", { exact: true }).fill(
+    await page.getByLabel("What happened", { exact: true }).fill(
       "Playwright-driven incident — deterministic description length for validators.",
     );
     await page.getByRole("button", { name: /^Submit$/ }).click();
