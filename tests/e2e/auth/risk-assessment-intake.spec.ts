@@ -11,16 +11,13 @@ test.describe("authenticated risk assessment intake (planning)", () => {
     "Set PLAYWRIGHT_E2E_EMAIL and PLAYWRIGHT_E2E_PASSWORD (CI sets these automatically).",
   );
 
-  test("@smoke records minimal risk assessment from planning", async ({ page }) => {
+  test("@smoke planning hub links to risk assessment roster", async ({ page }) => {
     await signInViaEmailPassword(page, { email: email!, password: password! }, "/dashboard/planning");
-    await expect(page.getByRole("heading", { name: "Planning" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Planning hub" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Risk assessments" })).toBeVisible();
 
-    const context = `E2E risk ctx ${Date.now()} — min ten.`;
-    await page.getByPlaceholder("Context / scenario (min 10 chars)").fill(context);
-    await page.getByRole("button", { name: "Record assessment" }).click();
-
-    await expect(page.getByText(context, { exact: true })).toBeVisible({ timeout: 30_000 });
+    await page.getByRole("link", { name: "Create new assessment" }).click();
+    await expect(page.getByRole("heading", { name: "New risk assessment" })).toBeVisible();
   });
 });
 

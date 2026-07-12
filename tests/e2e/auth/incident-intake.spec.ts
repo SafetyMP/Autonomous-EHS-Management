@@ -20,8 +20,8 @@ test.describe("authenticated incident intake", () => {
     await signInViaEmailPassword(page, { email: email!, password: password! }, targetPath);
     await expect(page.getByRole("heading", { name: "Report incident" })).toBeVisible();
 
-    await page.locator("#title").fill(`E2E-${Date.now()}`);
-    await page.locator("#desc").fill(
+    await page.getByLabel("Title", { exact: true }).fill(`E2E-${Date.now()}`);
+    await page.getByLabel("What happened", { exact: true }).fill(
       "Playwright-driven incident — deterministic description length for validators.",
     );
     await page.getByRole("button", { name: /^Submit$/ }).click();
