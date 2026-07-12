@@ -1,3 +1,10 @@
+## [1.4.7](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.6...v1.4.7) (2026-07-12)
+
+
+### Bug Fixes
+
+* **security:** resolve Scorecard quality and supply-chain alerts ([#51](https://github.com/SafetyMP/Autonomous-EHS-Management/issues/51)) ([a5346bf](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/a5346bff30000891d3ae63c729e3752a203d0f02))
+
 ## [1.4.6](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.5...v1.4.6) (2026-07-12)
 
 
