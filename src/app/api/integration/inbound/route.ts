@@ -24,6 +24,13 @@ import {
 } from "@/server/services/integrationInboundIdempotencyCache";
 import { persistTrainingCompletionEvent } from "@/server/services/trainingCompletionIngest";
 
+function secretsMatch(provided: string, expected: string): boolean {
+  if (expected.length < 16 || provided.length !== expected.length) {
+    return false;
+  }
+  return timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
+}
+
 export async function POST(request: Request) {
   let json: unknown;
   try {
@@ -53,10 +60,7 @@ export async function POST(request: Request) {
   const bearer = authHeader.startsWith("Bearer ") ? authHeader.slice("Bearer ".length).trim() : "";
 
   const authorized =
-    (orgSecret.length >= 16 && bearer.length === orgSecret.length && timingSafeEqual(bearer, orgSecret)) ||
-    (globalSecret.length >= 16 &&
-      bearer.length === globalSecret.length &&
-      timingSafeEqual(bearer, globalSecret));
+    secretsMatch(bearer, orgSecret) || secretsMatch(bearer, globalSecret);
 
   if (!authorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
