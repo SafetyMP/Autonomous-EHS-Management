@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.2...v1.4.3) (2026-07-12)
+
+
+### Bug Fixes
+
+* **security:** per-org inbound secrets and SSRF-safe operational webhooks ([#39](https://github.com/SafetyMP/Autonomous-EHS-Management/issues/39)) ([f02e882](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/f02e88233603c7ed4b76a051885ce66229e638e7)), closes [hi#severity](https://github.com/hi/issues/severity)
+
 ## [1.4.2](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.1...v1.4.2) (2026-07-06)
 
 
