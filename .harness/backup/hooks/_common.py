@@ -23,45 +23,20 @@ MEMORY_DIR = os.path.join(CURSOR_HOME, "memory")
 _TRACE_ID = os.environ.get("CURSOR_TRACE_ID") or uuid.uuid4().hex
 
 
-_TRACE_ID = os.environ.get("CURSOR_TRACE_ID") or uuid.uuid4().hex
-_HOOK_CONTEXT: dict[str, Any] | None = None
-
-
-def resolve_workspace_root(
-    payload: dict[str, Any] | None = None,
-    *,
-    cwd: str | None = None,
-) -> str:
-    """Best-effort repo root for C17 log attribution (IDE + cloud)."""
-    if payload:
-        for key in ("workspace_roots", "workspaceRoots", "roots"):
-            roots = payload.get(key)
-            if isinstance(roots, list) and roots:
-                root = str(roots[0]).strip()
-                if root:
-                    return root
-        for key in ("cwd", "workingDirectory", "working_directory"):
-            value = payload.get(key)
-            if isinstance(value, str) and value.strip():
-                return value.strip()
-    for env_key in (
-        "CURSOR_PROJECT_DIR",
-        "CURSOR_WORKSPACE_ROOT",
-        "CLAUDE_PROJECT_DIR",
-    ):
-        value = os.environ.get(env_key)
-        if value and value.strip():
-            return value.strip()
-    if cwd and cwd.strip():
-        return cwd.strip()
-    return os.getcwd()
-
-
-def _repo_profile_at(root: Path) -> dict[str, Any] | None:
-    path = root / ".harness" / "profile.yaml"
-    if not path.is_file():
-        return None
+def _repo_profile_name() -> str | None:
     try:
+        prof = read_repo_profile()
+        return prof.get("profile") if prof else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def read_repo_profile() -> dict[str, Any] | None:
+    """Best-effort read of .harness/profile.yaml from cwd."""
+    try:
+        path = Path(os.getcwd()) / ".harness" / "profile.yaml"
+        if not path.is_file():
+            return None
         import yaml  # type: ignore
 
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -70,30 +45,9 @@ def _repo_profile_at(root: Path) -> dict[str, Any] | None:
         return None
 
 
-def _repo_profile_name_for(root: str) -> str | None:
-    try:
-        prof = _repo_profile_at(Path(root))
-        return prof.get("profile") if prof else None
-    except Exception:  # noqa: BLE001
-        return None
-
-
-def read_repo_profile(workspace_root: str | None = None) -> dict[str, Any] | None:
-    """Best-effort read of .harness/profile.yaml from a workspace root."""
-    root = workspace_root or resolve_workspace_root()
-    return _repo_profile_at(Path(root))
-
-
-def log_event(
-    event: str,
-    data: dict[str, Any],
-    *,
-    context: dict[str, Any] | None = None,
-) -> None:
+def log_event(event: str, data: dict[str, Any]) -> None:
     """Append a structured event to today's JSONL session log. Never raises."""
     try:
-        ctx = context if context is not None else _HOOK_CONTEXT
-        workspace_root = resolve_workspace_root(ctx)
         os.makedirs(LOG_DIR, exist_ok=True)
         day = datetime.date.today().isoformat()
         record = {
@@ -101,12 +55,10 @@ def log_event(
             "trace_id": _TRACE_ID,
             "span_id": uuid.uuid4().hex[:16],
             "event": event,
-            "workspace_root": workspace_root,
-            "profile": _repo_profile_name_for(workspace_root),
+            "workspace_root": os.environ.get("CURSOR_WORKSPACE_ROOT") or os.getcwd(),
+            "profile": _repo_profile_name(),
             **data,
         }
-        if ctx and ctx.get("loop_count") is not None and "loop_count" not in record:
-            record["loop_count"] = ctx.get("loop_count")
         with open(os.path.join(LOG_DIR, f"{day}.jsonl"), "a", encoding="utf-8") as fh:
             fh.write(json.dumps(record) + "\n")
     except Exception:
@@ -115,14 +67,10 @@ def log_event(
 
 def read_input() -> dict[str, Any]:
     """Read and parse the JSON payload Cursor sends on stdin. Never raises."""
-    global _HOOK_CONTEXT
     try:
         raw = sys.stdin.read()
-        payload = json.loads(raw) if raw.strip() else {}
-        _HOOK_CONTEXT = payload if isinstance(payload, dict) else {}
-        return _HOOK_CONTEXT
+        return json.loads(raw) if raw.strip() else {}
     except Exception:
-        _HOOK_CONTEXT = {}
         return {}
 
 
@@ -263,105 +211,3 @@ def find_worktree_integration_block(payload: dict[str, Any]) -> str | None:
 def find_worktree_compose_block(payload: dict[str, Any]) -> str | None:
     """Backward-compatible alias."""
     return find_worktree_integration_block(payload)
-
-
-# --- Fleet / multi-agent session mode (fleet-instruction bundle) ------------
-def repo_root(payload: dict[str, Any]) -> Path:
-    roots = payload.get("workspace_roots") or []
-    if roots:
-        return Path(str(roots[0]))
-    return Path(resolve_workspace_root(payload))
-
-
-def mode_file(root: Path) -> Path:
-    return root / ".cursor" / "session-mode.json"
-
-
-def load_mode(root: Path) -> dict[str, Any]:
-    path = mode_file(root)
-    if not path.is_file():
-        return {"mode": "CLEAR"}
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {"mode": "CLEAR"}
-
-
-def save_mode(root: Path, mode: str, reason: str) -> None:
-    path = mode_file(root)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps({"mode": mode, "reason": reason}, indent=2) + "\n",
-        encoding="utf-8",
-    )
-
-
-def mandate_status(root: Path) -> str | None:
-    mandate = root / "specs" / "MANDATE.md"
-    if not mandate.is_file():
-        return None
-    text = mandate.read_text(encoding="utf-8")
-    match = re.search(r"^Status:\s*(\w+)", text, re.MULTILINE)
-    return match.group(1).upper() if match else None
-
-
-HALT_PATTERNS = [
-    re.compile(r"\b(stop|halt)\b", re.IGNORECASE),
-    re.compile(r"neither agent", re.IGNORECASE),
-    re.compile(r"(?:no|don't|do not)\s+(?:allow|permit)?\s*(?:either of you|you).{0,40}work", re.IGNORECASE),
-    re.compile(r"debrief only", re.IGNORECASE),
-]
-NEGOTIATE_PATTERNS = [
-    re.compile(r"\bnegotiate\b", re.IGNORECASE),
-    re.compile(r"joint conclusion", re.IGNORECASE),
-    re.compile(r"no implement", re.IGNORECASE),
-    re.compile(r"negotiat(?:e|ion)[\s-]*only", re.IGNORECASE),
-]
-PROCEED_PATTERNS = [
-    re.compile(r"\bproceed\b", re.IGNORECASE),
-    re.compile(r"\byou may work\b", re.IGNORECASE),
-    re.compile(r"lift the pause", re.IGNORECASE),
-    re.compile(r"resume work", re.IGNORECASE),
-    re.compile(r"(?:^|\.\s*)execute\b", re.IGNORECASE),
-]
-
-MUTATING_TOOLS = frozenset({
-    "Write", "StrReplace", "Delete", "Shell", "Task", "ApplyPatch",
-})
-
-
-def detect_instruction_mode(prompt: str) -> str | None:
-    for pattern in PROCEED_PATTERNS:
-        if pattern.search(prompt):
-            return "CLEAR"
-    for pattern in HALT_PATTERNS:
-        if pattern.search(prompt):
-            return "HALTED"
-    for pattern in NEGOTIATE_PATTERNS:
-        if pattern.search(prompt):
-            return "NEGOTIATE_ONLY"
-    return None
-
-
-def effective_mode(root: Path) -> tuple[str, str]:
-    state = load_mode(root)
-    mode = state.get("mode", "CLEAR")
-    reason = state.get("reason", "session file")
-    if mandate_status(root) == "HALTED":
-        return "HALTED", "MANDATE Status: HALTED"
-    return mode, reason
-
-
-def tool_path(tool_name: str, tool_input: dict[str, Any]) -> str:
-    for key in ("path", "file_path", "target_file", "target_directory"):
-        value = tool_input.get(key)
-        if isinstance(value, str) and value:
-            return value
-    return ""
-
-
-def is_specs_write(path: str) -> bool:
-    if not path:
-        return False
-    normalized = path.replace("\\", "/").lstrip("./")
-    return normalized.startswith("specs/")
