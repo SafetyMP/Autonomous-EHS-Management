@@ -2,6 +2,7 @@ import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { OPERATIONAL_WEBHOOK_EVENT_IDS } from "@/lib/operationalWebhook/eventTypes";
+import { assertSafeOperationalWebhookUrl } from "@/lib/operationalWebhook/urlValidation";
 import { PERMISSIONS, assertPermission, userHasPermission } from "@/lib/rbac";
 import {
   membership,
@@ -14,6 +15,17 @@ import {
 import { writeAuditLog } from "@/server/services/audit";
 import { deliverOperationalWebhookTest } from "@/server/services/operationalWebhookDispatch";
 import { protectedMutation, protectedProcedure, router } from "../init";
+
+function assertSafeOperationalWebhookTarget(targetUrl: string): void {
+  try {
+    assertSafeOperationalWebhookUrl(targetUrl);
+  } catch (err) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: err instanceof Error ? err.message : "Invalid webhook URL.",
+    });
+  }
+}
 
 const operationalWebhookEventZ = z.enum(OPERATIONAL_WEBHOOK_EVENT_IDS);
 
@@ -381,6 +393,8 @@ export const organizationRouter = router({
         PERMISSIONS.ORG_ADMIN,
       );
 
+      assertSafeOperationalWebhookTarget(input.targetUrl);
+
       const [{ n }] = await ctx.db
         .select({ n: count() })
         .from(operationalWebhookEndpoint)
@@ -462,7 +476,10 @@ export const organizationRouter = router({
       };
 
       const dataPatch: DataPatch = {};
-      if (input.targetUrl !== undefined) dataPatch.targetUrl = input.targetUrl;
+      if (input.targetUrl !== undefined) {
+        assertSafeOperationalWebhookTarget(input.targetUrl);
+        dataPatch.targetUrl = input.targetUrl;
+      }
       if (input.subscribedEvents !== undefined)
         dataPatch.subscribedEvents = input.subscribedEvents;
       if (input.enabled !== undefined) dataPatch.enabled = input.enabled;
