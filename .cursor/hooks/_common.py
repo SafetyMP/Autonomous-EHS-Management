@@ -126,21 +126,17 @@ def read_input() -> dict[str, Any]:
         return {}
 
 
-def emit(obj: dict[str, Any]) -> None:
-    """Write a JSON response and flush."""
-    sys.stdout.write(json.dumps(obj))
+def allow() -> None:
+    sys.stdout.write('{"permission":"allow"}')
     sys.stdout.flush()
 
 
-def allow() -> None:
-    emit({"permission": "allow"})
-
-
 def deny(user_message: str, agent_message: str | None = None) -> None:
-    out: dict[str, Any] = {"permission": "deny", "user_message": user_message}
+    out: dict[str, Any] = {"permission": "deny", "user_message": "Blocked by local safety hook."}
     if agent_message:
-        out["agent_message"] = agent_message
-    emit(out)
+        out["agent_message"] = "A local safety hook blocked this action."
+    sys.stdout.write(json.dumps(out))
+    sys.stdout.flush()
 
 
 # --- Secret detection -------------------------------------------------------

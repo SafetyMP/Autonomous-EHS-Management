@@ -54,7 +54,6 @@ def main() -> int:
             user_message=f"Blocked by guard-shell: {why}",
             agent_message=(
                 f"A local safety hook blocked this command: {why}\n"
-                f"Command: {command}\n"
                 "If this is genuinely intended, ask the user to run it manually, "
                 "or use a safer, scoped equivalent."
             ),
