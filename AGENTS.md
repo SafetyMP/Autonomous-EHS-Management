@@ -39,8 +39,8 @@ These are selected with **`@smoke`** and run from the full `tests/e2e` tree in C
 | Observation intake | `auth/observation-intake.spec.ts` | **In CI:** `@smoke` flow creates a minimal observation via `/dashboard/observations/new`. |
 | Inspection intake | `auth/inspection-intake.spec.ts` | **In CI:** `@smoke` flow creates a minimal inspection via `/dashboard/inspections/new`. |
 | Environmental regulatory permit | `auth/environmental-permit-intake.spec.ts` | **In CI:** `@smoke` flow creates a minimal permit via `/dashboard/environmental-permits/new`. |
-| Risk assessment (planning) | `auth/risk-assessment-intake.spec.ts` | **In CI:** `@smoke` flow records a minimal assessment on `/dashboard/planning` and from **`/dashboard/risk-assessments/new`** (roster). |
-| Contractor credential intake | `auth/contractor-credential-intake.spec.ts` | **In CI:** `@smoke` adds external party + COI credential via program register and contractor detail. |
+| Risk assessment (planning) | `auth/risk-assessment-intake.spec.ts` | **In CI:** `@smoke` verifies Planning hub links to **`/dashboard/risk-assessments/new`**; roster test creates a minimal assessment. |
+| Contractor credential intake | `auth/contractor-credential-intake.spec.ts` | **In CI:** `@smoke` adds external party + COI credential via program overview and contractor detail. |
 | Integration inbound auth | `smoke/integration-inbound-auth.spec.ts` | **In CI:** `@smoke` rejects anonymous **`POST /api/integration/inbound`** with **`401`**. |
 
 Run locally:

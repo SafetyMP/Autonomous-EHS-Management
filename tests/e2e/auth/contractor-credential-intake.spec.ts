@@ -14,7 +14,7 @@ test.describe("authenticated contractor credential intake", () => {
   test("@smoke creates external party and adds COI credential", async ({ page }) => {
     const company = `E2E Contractor ${Date.now()}`;
     await signInViaEmailPassword(page, { email: email!, password: password! }, "/dashboard/program");
-    await expect(page.getByRole("heading", { name: "Program register" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Program overview" })).toBeVisible();
 
     await page.getByPlaceholder("Company name").fill(company);
     await page.getByRole("button", { name: "Add" }).click();
