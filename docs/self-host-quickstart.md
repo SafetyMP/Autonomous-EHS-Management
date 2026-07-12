@@ -2,7 +2,7 @@
 
 Reference deployment for **tenant-owned** Autonomous EHS: Docker image, Kubernetes manifests, scheduled cron HTTP jobs, optional pg-boss worker, and metrics scrape. Same Apache 2.0 application source as managed SaaS—your Postgres bill and cluster ops stay under your account.
 
-**Related:** [open-source-tco.md](./open-source-tco.md), [README Deploy](../README.md#deploy), [JOB_QUEUE.md](./JOB_QUEUE.md), [runbooks/cron-metrics-observability.md](./runbooks/cron-metrics-observability.md), [REPO_SETUP.md](../REPO_SETUP.md).
+**Related:** [GOVERNANCE.md](../GOVERNANCE.md), [open-source-tco.md](./open-source-tco.md), [README Deploy](../README.md#deploy), [JOB_QUEUE.md](./JOB_QUEUE.md), [runbooks/cron-metrics-observability.md](./runbooks/cron-metrics-observability.md), [REPO_SETUP.md](../REPO_SETUP.md).
 
 ---
 

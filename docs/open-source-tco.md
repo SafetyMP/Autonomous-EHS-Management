@@ -2,6 +2,17 @@
 
 This repository ships under the **Apache License 2.0** — see the root [`LICENSE`](../LICENSE) file. You may run, modify, and redistribute the software under those terms; production deployments still need your own **counsel / compliance** review (see [`COMPLIANCE.md`](../COMPLIANCE.md)).
 
+## Evergreen open source (long-term maintenance)
+
+Autonomous EHS is positioned as a **long-lived OSS product**, not a throwaway demo:
+
+- **Schema in git** — Drizzle migrations are the deploy path; PostgreSQL remains the auditable system of record.
+- **Public quality bar** — `npm run verify` on `main` matches CI ([`AGENTS.md`](../AGENTS.md)).
+- **Honest scope** — module maturity and roadmap are published ([`module-maturity.md`](./module-maturity.md), [`ROADMAP.md`](../ROADMAP.md)).
+- **Governance** — maintainers, releases, security, and fork expectations: [`GOVERNANCE.md`](../GOVERNANCE.md).
+
+**Not included:** unlimited free support, zero ops cost, or a separate LTS branch (adopters pin releases and test upgrades themselves).
+
 ## What “cheap but effective” means here
 
 Autonomous EHS optimizes for **tenant-owned infrastructure** and **predictable ops cost**:
@@ -29,4 +40,4 @@ Numbers are **order-of-magnitude** only: real invoices include tax, bundles, ent
 - Prefer **Autonomous EHS** when you need **one auditable chain** from event → investigation/CAPA → evidence, **RBAC** aligned to roles, **retention / legal hold** hooks, and **data residency** under your cloud account.
 - Prefer **template-first inspection apps** when the primary win is **checklist digitization** and **guaranteed mobile polish** on day one with minimal internal IT.
 
-For pilot framing and ROI language, use [`docs/procurement-readiness.md`](./procurement-readiness.md). **Self-host path:** [`docs/self-host-quickstart.md`](./self-host-quickstart.md).
+For pilot framing and ROI language, use [`docs/procurement-readiness.md`](./procurement-readiness.md). **Self-host path:** [`docs/self-host-quickstart.md`](./self-host-quickstart.md). **Project governance:** [`GOVERNANCE.md`](../GOVERNANCE.md).

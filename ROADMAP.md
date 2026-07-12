@@ -55,4 +55,15 @@ Execution sequencing and ownership: **[`docs/barrier-resolution-playbook.md`](do
 
 ## Community
 
-- See [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) and [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/).
+Autonomous EHS is **Apache 2.0** software intended to stay **maintained and forkable**—see [GOVERNANCE.md](GOVERNANCE.md).
+
+| Surface | Purpose |
+|---------|---------|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | PR workflow, `npm run verify`, compliance templates |
+| [GOVERNANCE.md](GOVERNANCE.md) | Maintainers (`CODEOWNERS`), releases, security, forks |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Expected behavior for contributors and partners |
+| [SECURITY.md](SECURITY.md) | Responsible disclosure |
+| [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/) | Bug, feature, and compliance change intake |
+| [docs/module-maturity.md](docs/module-maturity.md) | Honest shipped vs planned scope |
+
+**Ways to participate:** fix docs, extend tests, harden integrations, or self-host and report gaps via issues—no sales conversation required for evaluation ([README.md](README.md) quick start).
