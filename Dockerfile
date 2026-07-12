@@ -32,7 +32,7 @@
 #   env at runtime   → ConfigMap + Secret (never commit raw Secret YAML with data)
 # =============================================================================
 
-FROM node:26-bookworm-slim AS base
+FROM node:22-bookworm-slim AS base
 WORKDIR /app
 # Disable Next telemetry in CI/images unless org policy wants it.
 ENV NEXT_TELEMETRY_DISABLED=1

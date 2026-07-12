@@ -73,4 +73,4 @@ Branch/preview URLs must avoid pointing at production `DATABASE_URL`. Treat prev
 ## Related documentation
 
 - [procurement-readiness.md — customer vs internal Cursor tooling](./procurement-readiness.md#customer-facing-integrations-vs-internal-cursor-tooling)
-- [REPO_SETUP.md § 10 Cursor IDE](./REPO_SETUP.md#10-cursor-ide-tool-connections-optional)
+- [REPO_SETUP.md § 11 Cursor IDE](../REPO_SETUP.md#11-cursor-ide-tool-connections-optional)
