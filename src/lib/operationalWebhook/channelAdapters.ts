@@ -22,7 +22,7 @@ export function operationalWebhookEventTitle(eventType: string): string {
   return EVENT_TITLES[eventType] ?? eventType;
 }
 
-function isHostnameAllowed(hostname: string, domain: string): boolean {
+function matchesHost(hostname: string, domain: string): boolean {
   return hostname === domain || hostname.endsWith(`.${domain}`);
 }
 
@@ -30,16 +30,11 @@ function isHostnameAllowed(hostname: string, domain: string): boolean {
 export function detectNotificationChannel(targetUrl: string): NotificationChannel {
   try {
     const hostname = new URL(targetUrl).hostname.toLowerCase();
+    if (matchesHost(hostname, "hooks.slack.com") || matchesHost(hostname, "slack.com")) return "slack";
     if (
-      isHostnameAllowed(hostname, "hooks.slack.com") ||
-      isHostnameAllowed(hostname, "slack.com")
-    ) {
-      return "slack";
-    }
-    if (
-      isHostnameAllowed(hostname, "webhook.office.com") ||
-      isHostnameAllowed(hostname, "outlook.office.com") ||
-      isHostnameAllowed(hostname, "office365.com")
+      matchesHost(hostname, "webhook.office.com") ||
+      matchesHost(hostname, "outlook.office.com") ||
+      matchesHost(hostname, "office365.com")
     ) {
       return "teams";
     }

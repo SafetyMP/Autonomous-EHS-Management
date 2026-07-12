@@ -39,7 +39,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # GHCR requires lowercase org/repo in image URL paths.
       - name: Image coordinates

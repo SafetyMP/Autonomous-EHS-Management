@@ -22,6 +22,8 @@ It covers: ROI framing, pilot structure, economic moat narrative, implementation
 
 **Supporting line:** *Labor replacement + compliance infrastructure + system-of-record ownership* (outcomes buyers fund).
 
+**Open source evergreen:** Apache 2.0, migrations in-repo, and published governance ([`GOVERNANCE.md`](../GOVERNANCE.md), [`open-source-tco.md`](./open-source-tco.md)) support **tenant-owned longevity** and forkability—distinct from per-seat SaaS lock-in, without implying zero ops or a commercial support SLA unless your org contracts for one separately.
+
 ---
 
 ## 2. Implementation methodology (for enterprise pilots)
@@ -138,6 +140,7 @@ Avoid claiming **contractor network effects** until network features exist.
 | Use case documentation | [user-manual-ehs-console.md](./user-manual-ehs-console.md) |
 | Case studies | `docs/case-studies/` when available |
 | OSS / TCO snapshot | [`open-source-tco.md`](./open-source-tco.md) |
+| OSS governance & evergreen intent | [`GOVERNANCE.md`](../GOVERNANCE.md) |
 | Self-host reference deployment | [`self-host-quickstart.md`](./self-host-quickstart.md) |
 | Integration inbound contract | [`integration-inbound-contract.md`](./integration-inbound-contract.md) |
 
