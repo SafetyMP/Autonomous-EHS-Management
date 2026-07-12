@@ -10,6 +10,10 @@ on:
     # Weekly (UTC); keeps default branch covered when no PR churn.
     - cron: "0 5 * * 1"
 
+
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -29,8 +33,7 @@ jobs:
         language: [javascript-typescript]
 
     steps:
-      - uses: actions/checkout@v7
-
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
