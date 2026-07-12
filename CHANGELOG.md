@@ -1,3 +1,10 @@
+## [1.4.6](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.5...v1.4.6) (2026-07-12)
+
+
+### Bug Fixes
+
+* **security:** remove duplicate Scorecard permissions block ([92ae96b](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/92ae96bb4e2a765fd7163ac2ec87055445bc724b))
+
 ## [1.4.5](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.4...v1.4.5) (2026-07-12)
 
 
