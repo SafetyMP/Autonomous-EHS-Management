@@ -12,8 +12,10 @@
   },
   "homepage": "https://autonomous-ehs-management.vercel.app",
   "engines": {
-    "node": ">=22 <23"
+    "node": ">=22 <23",
+    "npm": ">=10.9.2 <11"
   },
+  "packageManager": "npm@10.9.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",

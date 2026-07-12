@@ -3,10 +3,11 @@
 ## Merge / handoff verification bar
 
 ```bash
+npx npm@10.9.2 ci   # lockfile must match CI (npm 10 on Node 22)
 ./scripts/verify.sh
 ```
 
-Harness Definition of Done — delegates to `npm run verify` (`eslint` → `tsc --noEmit` → `vitest run`). Same as CI `verify` job (without Playwright).
+Harness Definition of Done — runs `npm ci` then `npm run verify` (`eslint` → `tsc --noEmit` → `vitest run`). Same as CI `verify` job (without Playwright).
 
 **Enterprise / technical diligence:** keep [docs/architecture-map.md](docs/architecture-map.md), [docs/workflow-depth.md](docs/workflow-depth.md), [docs/procurement-readiness.md](docs/procurement-readiness.md), and [docs/approval-workflow.md](docs/approval-workflow.md) aligned with real behavior when you change workflows, RBAC, retention, approvals, or integrations. Documentation index: [docs/README.md](docs/README.md); source tree: [docs/codebase-layout.md](docs/codebase-layout.md). For **staging / business UAT**, use [docs/qa/staging-uat-desk-to-field.md](docs/qa/staging-uat-desk-to-field.md); for **transactional `writeAuditLog` completeness**, maintain [docs/qa/mutation-auditability-matrix.md](docs/qa/mutation-auditability-matrix.md) when adding regulated mutations. After large router or delegation refactors, run **`npm run audit:matrix-greps`** (`scripts/audit-matrix-greps.sh`; **ripgrep** preferred, `find`+`grep` fallback) and refresh the matrix prose if counts shift. **Cursor MCP vs ship path:** contributors using IDE tool connections should follow [docs/cursor-tool-connections-deployment.md](docs/cursor-tool-connections-deployment.md) so staging/prod stay GitHub-/Vercel-/EKS-authoritative—not MCP-authoritative.
 
