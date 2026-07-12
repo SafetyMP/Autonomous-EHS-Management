@@ -1,3 +1,10 @@
+## [1.4.5](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.4...v1.4.5) (2026-07-12)
+
+
+### Bug Fixes
+
+* **security:** apply dependency audit remediations ([#41](https://github.com/SafetyMP/Autonomous-EHS-Management/issues/41)) ([508736b](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/508736bb4597c79cf6e396a3ed92e839b8e18873))
+
 ## [1.4.4](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.3...v1.4.4) (2026-07-12)
 
 
