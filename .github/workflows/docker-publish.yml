@@ -27,10 +27,7 @@ on:
 
 permissions:
   contents: read
-  packages: write
   id-token: write
-  attestations: write
-  artifact-metadata: write
 
 env:
   IMAGE_NAME: ehs-web
@@ -38,6 +35,12 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # GHCR requires lowercase org/repo in image URL paths.
       - name: Image coordinates
@@ -56,7 +59,7 @@ jobs:
 
       - name: Build and push
         id: push
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
           context: .
           push: true
@@ -69,7 +72,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Attest provenance (SLSA-aligned)
-        uses: actions/attest-build-provenance@v4
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4
         with:
           subject-name: ${{ steps.image.outputs.registry }}
           subject-digest: ${{ steps.push.outputs.digest }}

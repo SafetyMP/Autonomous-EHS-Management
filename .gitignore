@@ -16,8 +16,10 @@
 /playwright-report/
 /blob-report/
 
-# Cursor (keep skills/rules tracked; omit local logs)
+# Cursor (keep skills/rules tracked; omit local logs and bytecode)
 .cursor/*.log
+.cursor/**/__pycache__/
+*.pyc
 
 # next.js
 /.next/
