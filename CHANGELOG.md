@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.3...v1.4.4) (2026-07-12)
+
+
+### Bug Fixes
+
+* **ci:** align smoke E2E selectors with current dashboard UI ([#40](https://github.com/SafetyMP/Autonomous-EHS-Management/issues/40)) ([f5a797b](https://github.com/SafetyMP/Autonomous-EHS-Management/commit/f5a797b71b8f27dc2ea1e94342609cfdb38df2fd))
+
 ## [1.4.3](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.2...v1.4.3) (2026-07-12)
 
 
