@@ -78,15 +78,15 @@
     "@vercel/config": "^0.5.5",
     "@vitejs/plugin-react": "^6.0.3",
     "drizzle-kit": "^0.31.10",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-next": "16.2.10",
     "gifenc": "^1.0.3",
     "jsdom": "^29.1.1",
     "pngjs": "^7.0.0",
-    "semantic-release": "^25.0.5",
+    "semantic-release": "^25.0.6",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",
-    "typescript": "^6",
+    "typescript": "^7",
     "vitest": "^4.1.10"
   },
   "overrides": {
