@@ -242,7 +242,7 @@ Desk supervisors still see program **Needs attention** chips and KPI tiles; desk
 3. Optional: tap **Download command center CSV** (when the snapshot has loaded) to save the command-center figures your account may export—useful for leadership packs or audits.
 4. When data loads, note **Snapshot as of** *date/time* under the header (if shown)—figures reflect that moment.
 5. If **Needs attention:** appears, read the amber pill links for program-level alerts (personal approvals are deduplicated when shown in **Your work**).
-6. Integration backlog and scheduled job health moved to **[Integrations](/dashboard/integrations)** for administrators. Supervisors may also see a **PortCo pilot proof** panel summarizing integration health when your organization runs a portfolio pilot—details live on **Integrations**, not on the desk home.
+6. Integration backlog and scheduled job health moved to **Integrations** (`/dashboard/integrations`) for administrators. Supervisors may also see a **PortCo pilot proof** panel summarizing integration health when your organization runs a portfolio pilot—details live on **Integrations**, not on the desk home.
 7. Under **Key indicators**, scan tiles (supervisors see the full grid; contributors may see them collapsed). Integration and cron panels no longer appear on the desk home.
 8. Open **Recent activity** for a timestamped feed; links open record detail.
 9. Expand **ISO setup checklist** in the sidebar panel when aligning the management system.
@@ -1110,8 +1110,8 @@ Identity administrators, integration engineers, anyone granted **integration:rea
 ### SOP — Check status
 
 1. Open **Integrations**. Heading **Integrations**. Intro text explains events are readable with **`integration:read`** and points to NDJSON warehouse export—the following paragraphs list inbound URLs, bearer secrets, and doc paths for administrators.
-2. **PortCo identity (SCIM & OIDC JIT)** — when your role includes org admin controls, configure **SCIM 2.0** bearer tokens and **group→role mappings**, or **OIDC JIT claim rules** for multi-entity portfolios. Rotate tokens when counsel or IdP policy requires it. Engineering detail: [OIDC_JIT_PROVISIONING.md](../OIDC_JIT_PROVISIONING.md), [hris-portco-integration-playbook.md](../roadmap/hris-portco-integration-playbook.md).
-3. **HRIS platform & roster drift** — copy the **inbound URL** and **bearer secret** for iPaaS connectors; pick connector presets (Workday, ADP, BambooHR) when shown. Review **Roster drift** rows after nightly reconciliation; use **Reconcile now** when your runbook calls for manual follow-up. Connector runbooks: [docs/runbooks/](../runbooks/).
+2. **PortCo identity (SCIM & OIDC JIT)** — when your role includes org admin controls, configure **SCIM 2.0** bearer tokens and **group→role mappings**, or **OIDC JIT claim rules** for multi-entity portfolios. Rotate tokens when counsel or IdP policy requires it. Engineering detail: [OIDC_JIT_PROVISIONING.md](./OIDC_JIT_PROVISIONING.md), [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md).
+3. **HRIS platform & roster drift** — copy the **inbound URL** and **bearer secret** for iPaaS connectors; pick connector presets (Workday, ADP, BambooHR) when shown. Review **Roster drift** rows after nightly reconciliation; use **Reconcile now** when your runbook calls for manual follow-up. Connector runbooks: [docs/runbooks/](./runbooks/).
 4. **Download NDJSON (500 newest)** gathers a downloadable slice once data returns (shows **Preparing export…** while running).
 5. **Connector field mapping (operator notes)** stores JSON mapping drafts per connector; pick **Connector** from the drop-down list, edit the textarea JSON, tap **Save mapping** (**Saving…** while storing).
 6. **Operational webhooks (org admin)** appears when permitted—under **Subscribe to** tick the operational event codes your stack needs, submit **Add webhook** (**Creating…** while busy), then manage listed endpoints with **Disable**, **Enable**, or **Delete**.
@@ -1122,7 +1122,7 @@ Command center may spotlight **Integration backlog (*N* failed)** with shortcuts
 
 ### Context Sync (org administrators)
 
-Separate from **Organization context (ISO 4)** above. When your role includes org admin controls, the **Context Sync (org admin)** panel on this page enables **governed REST read access** for IDE and agent tooling (`/api/contextsync/*`)—tenant opt-in, rate limits, and audit expectations apply. This is **not** a customer MCP server and **not** ISO scope editing. Engineering details: [procurement-integrations-appendix.md](../procurement-integrations-appendix.md).
+Separate from **Organization context (ISO 4)** above. When your role includes org admin controls, the **Context Sync (org admin)** panel on this page enables **governed REST read access** for IDE and agent tooling (`/api/contextsync/*`)—tenant opt-in, rate limits, and audit expectations apply. This is **not** a customer MCP server and **not** ISO scope editing. Engineering details: [procurement-integrations-appendix.md](./procurement-integrations-appendix.md).
 
 ### What if things go wrong?
 

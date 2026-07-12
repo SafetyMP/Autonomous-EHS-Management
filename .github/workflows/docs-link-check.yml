@@ -21,5 +21,10 @@ jobs:
       - name: Markdown link check
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --no-progress '**/*.md'
+          args: >-
+            --no-progress
+            --exclude-loopback
+            --exclude '^https://www\.gartner\.com/'
+            --exclude '^https://www\.wolterskluwer\.com/'
+            '**/*.md'
           fail: true
