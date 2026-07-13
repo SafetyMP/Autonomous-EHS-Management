@@ -85,4 +85,14 @@ jobs:
       - run: npm run db:migrate
       - run: npm run db:seed:ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e:smoke
+      - name: Integration E2E
+        run: ./scripts/integration-e2e.sh
+
+      - name: Adversarial tier
+        run: |
+          npm run start &
+          for _ in $(seq 1 60); do
+            curl -fsS http://localhost:3000 >/dev/null 2>&1 && break
+            sleep 2
+          done
+          ./scripts/adversarial.sh

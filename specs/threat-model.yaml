@@ -1,0 +1,23 @@
+schema: threat-model/v1
+product: Autonomous EHS Management System
+updated: "2026-07-13"
+
+cells:
+  - id: integration_inbound
+    method: POST
+    path: /api/integration/inbound
+    principals: [integration_service]
+    auth_mechanism: integration_bearer
+    trust_boundary: integration_authenticated
+    establishment_failure: "401 Unauthorized"
+
+deny_cases:
+  - id: anonymous_integration_inbound
+    cell: integration_inbound
+    principal: anonymous
+    fixture:
+      path: /api/integration/inbound
+      body: '{}'
+    expect:
+      status: 401
+      reason_substring: Unauthorized
