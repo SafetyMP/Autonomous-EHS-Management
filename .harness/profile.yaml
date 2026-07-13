@@ -21,6 +21,7 @@ requires:
     stop: verify-on-stop
   commands:
     verify: ./scripts/verify.sh
+    integration: ./scripts/integration-e2e.sh
 bundles_applied:
 - cloud-guards
 - verify-on-stop
@@ -34,6 +35,10 @@ verify:
 extensions:
   fleet: null
   eval: null
+  compose:
+    deny_compose_from_worktree: true
+    integration_cmd: ./scripts/integration-e2e.sh
+    integration_ci_required: true
 harness_disclosure:
   schema: harness-disclosure/v1
   scope: repo
