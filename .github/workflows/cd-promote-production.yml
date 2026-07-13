@@ -70,7 +70,7 @@ jobs:
 
       - name: Install Vercel CLI
         if: ${{ github.event.inputs.deploy_vercel == 'true' }}
-        run: npm install --global vercel@55.0.0
+        run: npx npm@10.9.2 install --global vercel@55.0.0
 
       - name: Pull Vercel env (production)
         if: ${{ github.event.inputs.deploy_vercel == 'true' }}
