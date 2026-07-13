@@ -17,6 +17,8 @@ Full check including smoke E2E (signed-in smoke **skips locally** unless `PLAYWR
 
 ```bash
 npm run verify:all
+# Or integration script (same as CI e2e-smoke job):
+./scripts/integration-e2e.sh
 ```
 
 ## Smoke E2E (must stay green on PR)
