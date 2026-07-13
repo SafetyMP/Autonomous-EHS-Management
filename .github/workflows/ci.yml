@@ -91,7 +91,7 @@ jobs:
       - name: Adversarial tier
         run: |
           npm run build
-          npm run start &
+          node .next/standalone/server.js &
           for _ in $(seq 1 60); do
             curl -fsS http://localhost:3000 >/dev/null 2>&1 && break
             sleep 2

@@ -19,7 +19,7 @@ log "anonymous_integration_inbound (expect 401)"
 code=$(curl -s -o /tmp/ehs-adversarial.json -w "%{http_code}" \
   -X POST "$BASE/api/integration/inbound" \
   -H "Content-Type: application/json" \
-  -d '{}')
+  -d '{"kind":"hris_membership_sync","organizationId":"00000000-0000-4000-8000-000000000001","workerEmail":"adversarial@example.com"}')
 [[ "$code" == "401" ]]
 grep -qi 'Unauthorized' /tmp/ehs-adversarial.json
 echo "  ${code} (as expected)"
