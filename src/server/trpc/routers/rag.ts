@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { getAiGateway } from "@/lib/ai/gateway";
 import { redactForRagIngest } from "@/lib/pii/redact";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
+import { isSafeHttpUrl } from "@/lib/safe-http-url";
 import { ragChunk, ragSource, site } from "@/server/db/schema";
 import { chunkText } from "@/lib/rag/chunkText";
 import {
@@ -14,6 +15,12 @@ import { writeAuditLog } from "@/server/services/audit";
 import { rateLimitOrThrow } from "@/server/ratelimit";
 import { orgScope } from "../schemas/orgScope";
 import { protectedMutation, protectedProcedure, router } from "../init";
+
+const sourceUriSchema = z
+  .string()
+  .max(2048)
+  .url()
+  .refine(isSafeHttpUrl, "Source URI must use HTTP or HTTPS.");
 
 export const ragRouter = router({
   listSources: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
@@ -182,7 +189,7 @@ export const ragRouter = router({
       orgScope.extend({
         title: z.string().min(2).max(512),
         rawText: z.string().min(1).max(500_000),
-        sourceUri: z.string().max(2048).optional(),
+        sourceUri: sourceUriSchema.optional(),
         siteId: z.string().uuid().optional(),
         programTag: z.string().max(64).optional(),
         topicTags: z.array(z.string().max(128)).max(32).optional(),

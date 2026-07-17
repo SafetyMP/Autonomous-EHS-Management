@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
 import { trainingRecord } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { assertOrgMemberUserId } from "../assertOrgScoped";
 import { orgScope } from "../schemas/orgScope";
 import { protectedMutation, protectedProcedure, router } from "../init";
 
@@ -41,6 +42,10 @@ export const trainingRouter = router({
         input.organizationId,
         PERMISSIONS.TRAINING_CREATE,
       );
+
+      if (input.userId) {
+        await assertOrgMemberUserId(ctx.db, input.organizationId, input.userId);
+      }
 
       return ctx.db.transaction(async (tx) => {
         const [row] = await tx
@@ -109,6 +114,10 @@ export const trainingRouter = router({
 
       if (!existing) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Training record not found." });
+      }
+
+      if (input.userId) {
+        await assertOrgMemberUserId(ctx.db, input.organizationId, input.userId);
       }
 
       return ctx.db.transaction(async (tx) => {

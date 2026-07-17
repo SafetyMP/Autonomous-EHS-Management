@@ -381,7 +381,16 @@ export const integrationRouter = router({
 
   enqueueRosterReconcile: protectedMutation.input(orgScope).mutation(async ({ ctx, input }) => {
     await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.INTEGRATION_WRITE);
-    if (env.PG_BOSS_ENABLED === "true") {
+    const queued = env.PG_BOSS_ENABLED === "true";
+    await writeAuditLog(ctx.db, {
+      organizationId: input.organizationId,
+      actorUserId: ctx.user.id,
+      action: "integration.roster_reconcile.requested",
+      entityType: "organization",
+      entityId: input.organizationId,
+      payload: { queued },
+    });
+    if (queued) {
       await getJobQueue().enqueue(JOB_NAMES.INTEGRATION_RECONCILE_ROSTER, {
         organizationId: input.organizationId,
       });

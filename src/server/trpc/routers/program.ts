@@ -15,6 +15,7 @@ import {
   mocEntityLink,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { assertSiteInOrg } from "../assertOrgScoped";
 import { orgScope } from "../schemas/orgScope";
 import { protectedMutation, protectedProcedure, router } from "../init";
 
@@ -42,6 +43,9 @@ export const programRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.EXTERNAL_PARTY_WRITE);
+      if (input.siteId) {
+        await assertSiteInOrg(ctx.db, input.organizationId, input.siteId);
+      }
       return ctx.db.transaction(async (tx) => {
         const [row] = await tx
           .insert(externalParty)

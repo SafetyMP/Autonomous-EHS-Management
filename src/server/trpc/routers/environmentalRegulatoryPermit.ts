@@ -140,10 +140,14 @@ export const environmentalRegulatoryPermitRouter = router({
         conditions: z.array(conditionInput).max(200).optional(),
         idempotencyKey: z.string().uuid().optional(),
       })
-        .refine((i) => i.status !== "pending_approval", {
-          message: "Use submit for approval to enter pending approval.",
-          path: ["status"],
-        }),
+        .refine(
+          (i) => i.status !== "pending_approval" && i.status !== "active",
+          {
+            message:
+              "Create as draft (default). Use submit for approval to activate; do not set active/pending_approval directly.",
+            path: ["status"],
+          },
+        ),
     )
     .mutation(async ({ ctx, input }) => {
       await assertPermission(
@@ -444,24 +448,26 @@ export const environmentalRegulatoryPermitRouter = router({
 
   update: protectedMutation
     .input(
-      orgScope.extend({
-        permitId: z.string().uuid(),
-        title: z.string().min(2).max(512).optional(),
-        permitIdentifier: z.string().min(1).max(256).optional(),
-        agency: z.string().max(256).optional().nullable(),
-        jurisdiction: z.string().max(256).optional().nullable(),
-        media: z.enum(mediaValues).optional(),
-        status: z.enum(statusValues).optional(),
-        siteId: z.string().uuid().optional().nullable(),
-        issuedAt: z.coerce.date().optional().nullable(),
-        effectiveFrom: z.coerce.date().optional().nullable(),
-        expiresAt: z.coerce.date().optional().nullable(),
-        legalCitations: z.string().max(50_000).optional().nullable(),
-        limits: limitsSchema.nullable(),
-        complianceObligationId: z.string().uuid().optional().nullable(),
-        ownerUserId: z.string().optional().nullable(),
-        replaceConditions: z.array(conditionInput).max(200).optional(),
-      }),
+      orgScope
+        .extend({
+          permitId: z.string().uuid(),
+          title: z.string().min(2).max(512).optional(),
+          permitIdentifier: z.string().min(1).max(256).optional(),
+          agency: z.string().max(256).optional().nullable(),
+          jurisdiction: z.string().max(256).optional().nullable(),
+          media: z.enum(mediaValues).optional(),
+          /** Lifecycle ops only — activation is via submitForApproval / approval.decideRequest. */
+          status: z.enum(["draft", "suspended", "expired", "closed"] as const).optional(),
+          siteId: z.string().uuid().optional().nullable(),
+          issuedAt: z.coerce.date().optional().nullable(),
+          effectiveFrom: z.coerce.date().optional().nullable(),
+          expiresAt: z.coerce.date().optional().nullable(),
+          legalCitations: z.string().max(50_000).optional().nullable(),
+          limits: limitsSchema.nullable(),
+          complianceObligationId: z.string().uuid().optional().nullable(),
+          ownerUserId: z.string().optional().nullable(),
+          replaceConditions: z.array(conditionInput).max(200).optional(),
+        }),
     )
     .mutation(async ({ ctx, input }) => {
       await assertPermission(
@@ -529,7 +535,10 @@ export const environmentalRegulatoryPermitRouter = router({
             jurisdiction:
               input.jurisdiction !== undefined ? input.jurisdiction?.trim() ?? null : existing.jurisdiction,
             media: input.media !== undefined ? (input.media as (typeof environmentalRegulatoryPermitMediaEnum.enumValues)[number]) : existing.media,
-            status: input.status !== undefined ? (input.status as (typeof environmentalRegulatoryPermitStatusEnum.enumValues)[number]) : existing.status,
+            status:
+              input.status !== undefined
+                ? (input.status as (typeof environmentalRegulatoryPermitStatusEnum.enumValues)[number])
+                : existing.status,
             siteId: input.siteId !== undefined ? input.siteId : existing.siteId,
             issuedAt: input.issuedAt !== undefined ? input.issuedAt : existing.issuedAt,
             effectiveFrom:

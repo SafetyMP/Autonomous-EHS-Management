@@ -5,6 +5,7 @@ import { environmentalAspect, aspectSignificanceEnum } from "@/server/db/schema"
 import { writeAuditLog } from "@/server/services/audit";
 import { getAiGateway } from "@/lib/ai/gateway";
 import { redactForPrompt } from "@/lib/pii/redact";
+import { assertSiteInOrg } from "../assertOrgScoped";
 import { orgScope } from "../schemas/orgScope";
 import { protectedMutation, router } from "../init";
 
@@ -72,6 +73,10 @@ export const aiDraftsRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.ASPECT_CREATE);
+
+      if (input.siteId) {
+        await assertSiteInOrg(ctx.db, input.organizationId, input.siteId);
+      }
 
       const row = await ctx.db.transaction(async (tx) => {
         const [inserted] = await tx

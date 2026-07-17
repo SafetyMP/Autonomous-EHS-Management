@@ -39,10 +39,27 @@ function createAuthInstance() {
       : null;
 
   const canonicalBase = env.BETTER_AUTH_URL;
+  // This deployment's Vercel hosts only — never trust arbitrary *.vercel.app.
+  const deploymentOrigins = [
+    process.env.VERCEL_URL,
+    process.env.VERCEL_BRANCH_URL,
+  ]
+    .filter((raw): raw is string => Boolean(raw))
+    .map((raw) =>
+      raw.startsWith("http://") || raw.startsWith("https://") ? raw : `https://${raw}`,
+    );
+
   const allowedHosts = [
     hostnameFromUrl(env.BETTER_AUTH_URL),
     hostnameFromUrl(env.NEXT_PUBLIC_APP_URL),
+    ...deploymentOrigins.map(hostnameFromUrl),
   ].filter((h, i, arr) => h.length > 0 && arr.indexOf(h) === i);
+
+  const trustedOrigins = [
+    env.BETTER_AUTH_URL,
+    env.NEXT_PUBLIC_APP_URL,
+    ...deploymentOrigins,
+  ].filter((o, i, arr) => arr.indexOf(o) === i);
 
   return betterAuth({
     database: drizzleAdapter(db, {
@@ -81,15 +98,11 @@ function createAuthInstance() {
     },
     secret: env.BETTER_AUTH_SECRET,
     baseURL: {
-      allowedHosts: [...allowedHosts, "*.vercel.app"],
+      allowedHosts,
       fallback: canonicalBase,
       protocol: "auto",
     },
-    trustedOrigins: [
-      env.BETTER_AUTH_URL,
-      env.NEXT_PUBLIC_APP_URL,
-      "https://*.vercel.app",
-    ].filter((o, i, arr) => arr.indexOf(o) === i),
+    trustedOrigins,
     plugins: [nextCookies(), ...(oidcPlugin ? [oidcPlugin] : [])],
   });
 }
