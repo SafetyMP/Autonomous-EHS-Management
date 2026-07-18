@@ -1,0 +1,10 @@
+---
+description: Keep site work within the approved corporate handoff and evidence gates
+alwaysApply: true
+---
+
+For an active site program, read the corporate handoff before editing. Site specialists
+implement as root-dispatched, nondelegating workers; the root runs gate commands; operations
+excellence reviews immutable root-produced evidence. Use isolated workspaces for independent
+writers. Do not alter corporate approvals, weaken tests, infer gate success, or grant user
+approval.

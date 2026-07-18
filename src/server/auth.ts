@@ -95,6 +95,8 @@ function createAuthInstance() {
     },
     emailAndPassword: {
       enabled: true,
+      // Prefer requireEmailVerification once a transactional mailer is wired.
+      // Until then, SCIM/HRIS refuse silent reuse of unverified authUser rows.
     },
     secret: env.BETTER_AUTH_SECRET,
     baseURL: {

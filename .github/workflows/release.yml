@@ -1,11 +1,13 @@
 # Semantic versioning + GitHub Releases from Conventional Commit messages merged to trunk.
+# Runs only after a successful CI workflow for the same commit (no race with red verify/e2e).
 # Requires repository rules allowing this workflow's GITHUB_TOKEN to create tags/releases.
 #
 name: Release
 
 on:
-  push:
-    branches: [main, master]
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
 
 concurrency:
   group: semantic-release-${{ github.repository }}
@@ -15,15 +17,21 @@ permissions: read-all
 
 jobs:
   release:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.head_branch == 'main' ||
+       github.event.workflow_run.head_branch == 'master')
     runs-on: ubuntu-latest
     permissions:
       contents: write
       issues: write
       pull-requests: write
+      actions: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:

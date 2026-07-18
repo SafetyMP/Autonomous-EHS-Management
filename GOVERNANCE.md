@@ -44,7 +44,7 @@ Contributions are licensed under **Apache 2.0** ([LICENSE](LICENSE)).
 ## Releases and versioning
 
 - **Application version** in `package.json` follows semver for packaging convenience; it is not a separate commercial SKU.
-- **Ship path:** merge to **`main`** → CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) → optional container publish ([`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml)) and manual production promotion ([`.github/workflows/cd-promote-production.yml`](.github/workflows/cd-promote-production.yml)).
+- **Ship path:** merge to **`main`** → CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) → on CI success, Release + optional container publish ([`.github/workflows/release.yml`](.github/workflows/release.yml), [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml)) → manual production promotion by **git SHA** ([`.github/workflows/cd-promote-production.yml`](.github/workflows/cd-promote-production.yml)).
 - **Database upgrades:** apply Drizzle migrations on deploy (`npm run db:migrate` or your orchestrator equivalent). Do not skip migrations across environments.
 - **Breaking changes:** call out in PR description and [ROADMAP.md](ROADMAP.md); prefer Drizzle migrations with backward-compatible phases when production data exists.
 

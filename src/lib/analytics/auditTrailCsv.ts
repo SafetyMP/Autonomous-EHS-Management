@@ -16,10 +16,12 @@ export type AuditTrailCsvRow = {
 };
 
 function csvEscapeCell(cell: string): string {
-  if (/[",\n\r]/.test(cell)) {
-    return `"${cell.replace(/"/g, '""')}"`;
+  // Neutralize spreadsheet formula injection (=, +, -, @, tab, CR).
+  const neutralized = /^[=+\-@\t\r]/.test(cell) ? `'${cell}` : cell;
+  if (/[",\n\r]/.test(neutralized)) {
+    return `"${neutralized.replace(/"/g, '""')}"`;
   }
-  return cell;
+  return neutralized;
 }
 
 const HEADER: (keyof AuditTrailCsvRow)[] = [

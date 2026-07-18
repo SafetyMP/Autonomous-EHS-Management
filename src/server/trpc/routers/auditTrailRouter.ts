@@ -6,7 +6,7 @@ import { PERMISSIONS, assertPermission } from "@/lib/rbac";
 import { auditLog, authUser } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
 import { orgScope } from "../schemas/orgScope";
-import { protectedProcedure, router } from "../init";
+import { protectedProcedure, protectedRateLimitedProcedure, router } from "../init";
 
 const auditTrailFilterFields = {
   entityType: z.string().min(1).max(128).optional(),
@@ -151,7 +151,7 @@ export const auditTrailRouter = router({
    * Auditor / diligence CSV: newest rows first, same filter shape as `list` (no cursor). Max **5000** rows.
    * Permission: `audit_trail:read`. Writes `audit_log` (`compliance.audit_trail.export_csv`).
    */
-  exportCsv: protectedProcedure.input(exportCsvInputSchema).query(async ({ ctx, input }) => {
+  exportCsv: protectedRateLimitedProcedure.input(exportCsvInputSchema).query(async ({ ctx, input }) => {
     await assertPermission(
       ctx.db,
       ctx.user.id,

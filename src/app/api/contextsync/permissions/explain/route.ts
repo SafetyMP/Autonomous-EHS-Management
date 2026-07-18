@@ -3,7 +3,10 @@ import { db } from "@/server/db";
 import { parseCtxUri } from "@/server/services/contextSync/parseCtxUri";
 import { parseImsLinkedUri } from "@/server/services/contextSync/imsLinkedUri";
 import { gateContextSyncOrgEnabled } from "@/server/services/contextSync/orgCapability";
-import { explainContextSyncAccess } from "@/server/services/contextSync/authorize";
+import {
+  assertOrgMembership,
+  explainContextSyncAccess,
+} from "@/server/services/contextSync/authorize";
 import { ctxErrResponse, gateContextSyncOrgDailyReadQuota, gateContextSyncRateLimit, resolveContextActor } from "../../_lib/http";
 
 const opSchema = new Set(["read", "write", "suggest", "approve", "admin"]);
@@ -55,6 +58,14 @@ export async function GET(request: NextRequest) {
 
     const capEx = await gateContextSyncOrgEnabled(db, orgRaw);
     if (capEx) return capEx;
+
+    if (!(await assertOrgMembership(db, actorRes.userId, orgRaw))) {
+      return NextResponse.json(
+        { error: "forbidden", reason: "not_org_member" },
+        { status: 403 },
+      );
+    }
+
     const quota = await gateContextSyncOrgDailyReadQuota(orgRaw);
     if (quota) return quota;
 

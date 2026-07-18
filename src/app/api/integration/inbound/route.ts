@@ -48,19 +48,30 @@ export async function POST(request: Request) {
   }
 
   const orgFromPayload = parsed.data.organizationId;
-  const [orgRow] = await db
-    .select({ secret: organization.integrationInboundSecret })
-    .from(organization)
-    .where(eq(organization.id, orgFromPayload))
-    .limit(1);
-
-  const orgSecret = orgRow?.secret?.trim() ?? "";
   const globalSecret = env.INTEGRATION_INBOUND_SECRET?.trim() ?? "";
   const authHeader = request.headers.get("authorization") ?? "";
   const bearer = authHeader.startsWith("Bearer ") ? authHeader.slice("Bearer ".length).trim() : "";
 
-  const authorized =
-    secretsMatch(bearer, orgSecret) || secretsMatch(bearer, globalSecret);
+  // Reject missing/short bearers before any DB lookup (fail closed without amplifying DB errors).
+  if (!bearer || bearer.length < 16) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  let authorized = secretsMatch(bearer, globalSecret);
+  if (!authorized) {
+    try {
+      const [orgRow] = await db
+        .select({ secret: organization.integrationInboundSecret })
+        .from(organization)
+        .where(eq(organization.id, orgFromPayload))
+        .limit(1);
+      const orgSecret = orgRow?.secret?.trim() ?? "";
+      authorized = secretsMatch(bearer, orgSecret);
+    } catch {
+      // Fail closed on auth lookup errors (do not amplify DB outages into 500s).
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
 
   if (!authorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

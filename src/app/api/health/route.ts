@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { logError } from "@/lib/logger";
 import { db } from "@/server/db";
 
 export const dynamic = "force-dynamic";
@@ -12,13 +13,9 @@ export async function GET() {
     await db.execute(sql`select 1`);
     return NextResponse.json({ ok: true, database: "up" });
   } catch (e) {
-    return NextResponse.json(
-      {
-        ok: false,
-        database: "down",
-        error: e instanceof Error ? e.message : "unknown",
-      },
-      { status: 503 },
-    );
+    logError("health.database_down", {
+      error: e instanceof Error ? e.message : String(e),
+    });
+    return NextResponse.json({ ok: false, database: "down" }, { status: 503 });
   }
 }

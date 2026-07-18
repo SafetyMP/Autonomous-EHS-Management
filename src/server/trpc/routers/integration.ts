@@ -11,7 +11,7 @@ import { reprocessFailedIntegrationEvent } from "@/server/services/integrationIn
 import { writeAuditLog } from "@/server/services/audit";
 import { persistTrainingCompletionEvent } from "@/server/services/trainingCompletionIngest";
 import { orgScope } from "../schemas/orgScope";
-import { protectedMutation, protectedProcedure, router } from "../init";
+import { protectedMutation, protectedProcedure, protectedRateLimitedProcedure, router } from "../init";
 
 const connectorKeyZ = z.enum(INTEGRATION_CONNECTOR_KEYS);
 
@@ -75,7 +75,7 @@ export const integrationRouter = router({
    * Newline-delimited JSON slice of `integration_event` for warehouse / lake ingest.
    * Permission: `integration:read`. Writes `audit_log` (`integration.export_events_warehouse`).
    */
-  exportEventsWarehouseSlice: protectedProcedure
+  exportEventsWarehouseSlice: protectedRateLimitedProcedure
     .input(
       orgScope.extend({
         limit: z.number().int().min(1).max(5000).optional().default(500),

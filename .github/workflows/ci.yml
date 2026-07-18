@@ -69,6 +69,8 @@ jobs:
           --health-retries=8
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: "22"
@@ -88,6 +90,13 @@ jobs:
       - name: Integration E2E
         run: ./scripts/integration-e2e.sh
 
+      - name: Threat model PR gate
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_HEAD_SHA: ${{ github.sha }}
+        run: bash ./scripts/check-threat-model.sh --pr-strict
+
       - name: Adversarial tier
         run: |
           npm run build
@@ -96,4 +105,11 @@ jobs:
             curl -fsS http://localhost:3000 >/dev/null 2>&1 && break
             sleep 2
           done
-          bash ./scripts/adversarial.sh
+          SCOPE=full
+          [[ "${{ github.event_name }}" == "pull_request" ]] && SCOPE=pr
+          bash ./scripts/adversarial.sh --scope "$SCOPE"
+        env:
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+          GITHUB_HEAD_SHA: ${{ github.sha }}
+          # CI fixture for threat-model auth (min 16 chars); not a production secret.
+          INTEGRATION_INBOUND_SECRET: ci-integration-inbound-secret-ok

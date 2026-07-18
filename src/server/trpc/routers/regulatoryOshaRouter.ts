@@ -19,7 +19,7 @@ import {
   assertPersonSubjectInOrg,
 } from "../assertOrgScoped";
 import { orgScope } from "../schemas/orgScope";
-import { protectedMutation, protectedProcedure, router } from "../init";
+import { protectedMutation, protectedProcedure, protectedRateLimitedProcedure, router } from "../init";
 
 const classifications = oshaRecordableClassificationEnum.enumValues as [string, ...string[]];
 const categories = injuryIllnessCategoryEnum.enumValues as [string, ...string[]];
@@ -406,7 +406,7 @@ export const regulatoryOshaRouter = router({
    * Audited JSON snapshot for OSHA-oriented injury/illness records (no KMS ciphertext or raw PHI fields).
    * Counsel should review what may be exported in your jurisdiction before relying on this as a regulatory filing.
    */
-  exportInjuryIllnessSnapshot: protectedProcedure.input(orgScope).mutation(async ({ ctx, input }) => {
+  exportInjuryIllnessSnapshot: protectedRateLimitedProcedure.input(orgScope).mutation(async ({ ctx, input }) => {
     await assertPermission(
       ctx.db,
       ctx.user.id,

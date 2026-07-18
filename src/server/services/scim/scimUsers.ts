@@ -8,6 +8,7 @@ import {
 import { normalizeIntegrationEmail } from "@/lib/integration/inboundEnvelope";
 import { writeAuditLog } from "@/server/services/audit";
 import type { ScimAuthContext } from "./scimAuth";
+import { userHasMembershipOutsideOrg } from "./crossTenantIdentity";
 import { resolveRoleIdForSlug, resolveRoleSlugFromGroupIds } from "./scimGroupRole";
 import { revokeUserSessions } from "./revokeUserSessions";
 
@@ -99,6 +100,11 @@ export async function createScimUser(
       })
       .returning();
     user = inserted!;
+  } else if (!user.emailVerified) {
+    // Block email-squatting: self-signup without verification must not be linked via SCIM.
+    throw new Error(
+      "Cannot provision: an unverified account already exists for this email. Verify or remove it before SCIM reuse.",
+    );
   }
 
   const [existingMem] = await db
@@ -163,6 +169,15 @@ export async function patchScimUser(
     throw new Error("User not found.");
   }
 
+  const mutatesGlobalIdentity = Boolean(patch.displayName || patch.userName);
+  if (mutatesGlobalIdentity) {
+    if (await userHasMembershipOutsideOrg(db, userId, ctx.organizationId)) {
+      throw new Error(
+        "Cannot mutate cross-tenant identity: user is a member of another organization.",
+      );
+    }
+  }
+
   if (patch.displayName) {
     await db.update(authUser).set({ name: patch.displayName }).where(eq(authUser.id, userId));
   }
@@ -183,7 +198,7 @@ export async function patchScimUser(
     } else {
       memPatch.lifecycleStatus = "deprovisioned";
       memPatch.employmentStatus = "terminated";
-      await revokeUserSessions(db, userId);
+      await revokeUserSessions(db, userId, ctx.organizationId);
     }
   }
 
@@ -219,7 +234,7 @@ export async function deactivateScimUser(
     .set({ lifecycleStatus: "deprovisioned", employmentStatus: "terminated" })
     .where(eq(membership.id, row.membership.id));
 
-  await revokeUserSessions(db, userId);
+  await revokeUserSessions(db, userId, ctx.organizationId);
 
   await writeAuditLog(db, {
     organizationId: ctx.organizationId,

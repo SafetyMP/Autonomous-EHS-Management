@@ -18,6 +18,8 @@
 | `npx tsc --noEmit`            | ✅ / ⏭️                                                                  |
 | `npm test` (Vitest)           | ✅ / ⏭️                                                                  |
 | `npm run test:e2e:smoke` @smoke | ✅ / ⏭️                                                                  |
+| Threat model (`check-threat-model.sh`, CI `e2e-smoke`) | ✅ / ⏭️ |
+| Adversarial (`./scripts/adversarial.sh`, CI `e2e-smoke`) | ✅ / ⏭️ |
 
 > PR authors must paste output or CI links for failing checks explaining why **skip** applies.
 
