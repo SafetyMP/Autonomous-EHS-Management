@@ -1,11 +1,27 @@
-schema: threat-model/v1
+schema: threat-model/v1.1
 product: Autonomous EHS Management System
 updated: "2026-07-13"
+
+runtime:
+  base_url_env: ADVERSARIAL_BASE_URL
+  default_base_url: http://localhost:3000
+
+auth:
+  global_inbound_bearer:
+    env: INTEGRATION_INBOUND_SECRET
+  short_bearer:
+    bearer: short
+  wrong_bearer:
+    bearer: wrong-tier3-bearer-not-valid-secret
 
 cells:
   - id: integration_inbound
     method: POST
     path: /api/integration/inbound
+    pr_scope:
+      - src/app/api/integration/**
+      - src/lib/integration/**
+    baseline: true
     principals: [integration_service]
     auth_mechanism: integration_bearer
     trust_boundary: integration_authenticated
@@ -15,9 +31,43 @@ deny_cases:
   - id: anonymous_integration_inbound
     cell: integration_inbound
     principal: anonymous
+    baseline: true
     fixture:
-      path: /api/integration/inbound
-      body: '{}'
+      method: POST
+      body: '{"kind":"hris_membership_sync","organizationId":"00000000-0000-4000-8000-000000000001","workerEmail":"adversarial@example.com"}'
     expect:
       status: 401
       reason_substring: Unauthorized
+
+  - id: short_bearer_inbound
+    cell: integration_inbound
+    principal: anonymous
+    fixture:
+      method: POST
+      auth: short_bearer
+      body: '{"kind":"hris_membership_sync","organizationId":"00000000-0000-4000-8000-000000000001","workerEmail":"adversarial@example.com"}'
+    expect:
+      status: 401
+      reason_substring: Unauthorized
+
+  - id: wrong_bearer_inbound
+    cell: integration_inbound
+    principal: anonymous
+    fixture:
+      method: POST
+      auth: wrong_bearer
+      body: '{"kind":"hris_membership_sync","organizationId":"00000000-0000-4000-8000-000000000001","workerEmail":"adversarial@example.com"}'
+    expect:
+      status: 401
+      reason_substring: Unauthorized
+
+  - id: invalid_payload_inbound
+    cell: integration_inbound
+    principal: global_inbound_bearer
+    fixture:
+      method: POST
+      auth: global_inbound_bearer
+      body: '{}'
+    expect:
+      status: 400
+      reason_substring: Validation failed

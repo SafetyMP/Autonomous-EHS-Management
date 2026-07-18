@@ -1,0 +1,24 @@
+{
+  "schema": "harness-v4-archive/v1",
+  "site_id": "ehs",
+  "local_path": "/Users/sagehart/Downloads/Autonomous EHS Management System ",
+  "utc": "20260717T192824Z",
+  "archived": [
+    {
+      "path": ".harness",
+      "sha256": "4d7e8be811603732a8ee3820d175da4b04ba564b705b02d9143aacd0f3613377"
+    },
+    {
+      "path": ".cursor/hooks.json",
+      "sha256": "422b14c73cfc16070d411d5a41c55df66a9753530aa172bac19f1eb30b602f0b"
+    },
+    {
+      "path": ".cursor/hooks",
+      "sha256": "4b9f81919d4742a27e331a9fc2ac1b59aeb57028bb0002a42deed97471b1e776"
+    },
+    {
+      "path": "AGENTS.md.pre-corp-site",
+      "sha256": "d2d1c66ec85553fd7e4873ab23aacc5bcc25bf9242dc157213fbdc19e1f80aee"
+    }
+  ]
+}

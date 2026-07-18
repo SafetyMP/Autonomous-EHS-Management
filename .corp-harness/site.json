@@ -1,0 +1,12 @@
+{
+  "schema": "corporate-site-site/v1",
+  "site_id": "ehs",
+  "corporate_program": null,
+  "corporate_handoff_sha256": null,
+  "verify_argv": [
+    "./scripts/verify.sh"
+  ],
+  "adversarial_argv": [
+    "./scripts/adversarial.sh"
+  ]
+}

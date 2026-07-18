@@ -1,0 +1,38 @@
+{
+  "schema": "corporate-site-component-contracts/v1",
+  "origin": {
+    "namespace": "project",
+    "origin_id": "site"
+  },
+  "shared_components": {
+    "operations-excellence": {
+      "authority": "review-only",
+      "evidence_source": "root-produced-immutable",
+      "may_approve": false,
+      "may_delegate": false,
+      "may_execute_site_commands": false,
+      "readonly": true
+    },
+    "site-delivery": {
+      "atomic_rework_snapshot_required": true,
+      "corporate_rework_authority": "user",
+      "dispatch_owner": "root-orchestrator",
+      "maximum_delegation_depth": 1,
+      "workers_may_delegate": false
+    },
+    "site-manager": {
+      "authority": "decompose-only",
+      "dispatch_owner": "root-orchestrator",
+      "may_approve": false,
+      "may_delegate": false,
+      "readonly": true
+    },
+    "site-specialist": {
+      "authority": "adr-bounded-write",
+      "dispatch_owner": "root-orchestrator",
+      "may_approve": false,
+      "may_delegate": false,
+      "readonly": false
+    }
+  }
+}
