@@ -10,6 +10,7 @@ import {
   internalAuditStatusEnum,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
+import { assertOrgMemberUserId } from "../assertOrgScoped";
 import { orgScope } from "../schemas/orgScope";
 import { protectedMutation, protectedProcedure, router } from "../init";
 
@@ -83,6 +84,15 @@ const findingRouter = router({
         PERMISSIONS.FINDING_CREATE,
       );
 
+      if (input.findingType === "major_nc") {
+        await assertPermission(
+          ctx.db,
+          ctx.user.id,
+          input.organizationId,
+          PERMISSIONS.CAPA_CREATE,
+        );
+      }
+
       const audit = await getAuditInOrg(
         ctx.db,
         input.organizationId,
@@ -138,8 +148,20 @@ const findingRouter = router({
             internalAuditId: input.internalAuditId,
             findingType: input.findingType,
             draftCapa: correctiveActionId !== null,
+            correctiveActionId,
           },
         });
+
+        if (correctiveActionId) {
+          await writeAuditLog(tx, {
+            organizationId: input.organizationId,
+            actorUserId: ctx.user.id,
+            action: "capa.create_from_audit_finding",
+            entityType: "corrective_action",
+            entityId: correctiveActionId,
+            payload: { auditFindingId: row.id },
+          });
+        }
 
         return row;
       });
@@ -182,6 +204,14 @@ export const internalAuditRouter = router({
         input.organizationId,
         PERMISSIONS.AUDIT_CREATE,
       );
+
+      if (input.leadAuditorUserId) {
+        await assertOrgMemberUserId(
+          ctx.db,
+          input.organizationId,
+          input.leadAuditorUserId,
+        );
+      }
 
       return ctx.db.transaction(async (tx) => {
         const [row] = await tx
@@ -245,6 +275,14 @@ export const internalAuditRouter = router({
       );
       if (!existing) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Audit not found." });
+      }
+
+      if (input.leadAuditorUserId) {
+        await assertOrgMemberUserId(
+          ctx.db,
+          input.organizationId,
+          input.leadAuditorUserId,
+        );
       }
 
       return ctx.db.transaction(async (tx) => {

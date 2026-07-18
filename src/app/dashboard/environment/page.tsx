@@ -8,6 +8,7 @@ import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import { ASPECT_SIGNIFICANCES } from "@/lib/ehs-enums";
 import { RAG_EMBEDDING_DIM } from "@/lib/rag/embeddingDim";
+import { safeExternalHttpHref } from "@/lib/safe-http-url";
 import { trpc } from "@/trpc/react";
 import {
   dfAmberGhost,
@@ -665,22 +666,25 @@ export default function EnvironmentPage() {
           ) : kbSearch.data?.length === 0 ? (
             <li className="py-2 text-base text-zinc-700">No excerpts matched.</li>
           ) : (
-            kbSearch.data?.map((row) => (
-              <li key={row.chunkId} className="py-2">
-                <p className="text-xs font-medium text-emerald-900">{row.citation}</p>
-                <p className="mt-1 line-clamp-3 text-xs text-zinc-600">{row.excerpt}</p>
-                {row.sourceUri ? (
-                  <a
-                    href={row.sourceUri}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1 inline-flex min-h-11 items-center rounded-md px-2 text-sm font-semibold text-emerald-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
-                  >
-                    Open source
-                  </a>
-                ) : null}
-              </li>
-            ))
+            kbSearch.data?.map((row) => {
+              const sourceHref = safeExternalHttpHref(row.sourceUri);
+              return (
+                <li key={row.chunkId} className="py-2">
+                  <p className="text-xs font-medium text-emerald-900">{row.citation}</p>
+                  <p className="mt-1 line-clamp-3 text-xs text-zinc-600">{row.excerpt}</p>
+                  {sourceHref ? (
+                    <a
+                      href={sourceHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-flex min-h-11 items-center rounded-md px-2 text-sm font-semibold text-emerald-900 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                    >
+                      Open source
+                    </a>
+                  ) : null}
+                </li>
+              );
+            })
           )}
         </ul>
       </section>

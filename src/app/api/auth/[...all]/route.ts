@@ -39,22 +39,21 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const [{ POST: basePost }, { isRateLimiterConfigured, rateLimitAllow }] =
-    await Promise.all([authHandlers(), import("@/server/ratelimit")]);
+  const [{ POST: basePost }, { rateLimitAllow }] = await Promise.all([
+    authHandlers(),
+    import("@/server/ratelimit"),
+  ]);
 
   const ip = getClientIpFromHeaders(req.headers);
 
-  // Without Upstash, `rateLimitAllow` is a no-op in dev but returns false in production.
-  // Only enforce sliding-window limits when Redis is configured so sign-in still works on
-  // Vercel before optional UPSTASH_* env vars are added.
-  if (isRateLimiterConfigured()) {
-    const allowed = await rateLimitAllow(`auth:${ip}`);
-    if (!allowed) {
-      return NextResponse.json(
-        { error: "Too many requests. Try again shortly." },
-        { status: 429 },
-      );
-    }
+  // Always enforce: in production without Upstash, rateLimitAllow fails closed (unless
+  // RATE_LIMIT_DISABLED=true). In development without Redis it remains a no-op pass.
+  const allowed = await rateLimitAllow(`auth:${ip}`);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Try again shortly." },
+      { status: 429 },
+    );
   }
   return basePost(req);
 }

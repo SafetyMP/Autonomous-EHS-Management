@@ -60,6 +60,8 @@ async function deliverOne(
       headers,
       body,
       signal: ac.signal,
+      // Initial URL is allowlisted; do not follow redirects to unvalidated hosts (SSRF).
+      redirect: "error",
     });
     if (!res.ok) {
       logWarn("operational_webhook.http_not_ok", {

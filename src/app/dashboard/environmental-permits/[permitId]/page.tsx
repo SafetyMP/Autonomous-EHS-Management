@@ -21,7 +21,17 @@ import { trpc } from "@/trpc/react";
 const inputClass =
   "mt-1 min-h-11 w-full rounded-md border border-zinc-300 px-3 py-2 text-base text-zinc-900 shadow-sm focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600 sm:text-sm";
 
+/** Status values writable via update (activation is approval-only). */
+const EDITABLE_PERMIT_STATUSES = ["draft", "suspended", "expired", "closed"] as const;
+type EditablePermitStatus = (typeof EDITABLE_PERMIT_STATUSES)[number];
+
 type CondDraft = { conditionText: string; referenceCode: string };
+
+function isEditablePermitStatus(
+  value: string,
+): value is EditablePermitStatus {
+  return (EDITABLE_PERMIT_STATUSES as readonly string[]).includes(value);
+}
 
 function toDateInput(d: Date | null | undefined): string {
   if (!d) return "";
@@ -234,7 +244,7 @@ export default function EnvironmentalPermitDetailPage() {
       agency: agency.trim() || null,
       jurisdiction: jurisdiction.trim() || null,
       media,
-      status,
+      ...(isEditablePermitStatus(status) ? { status } : {}),
       siteId: siteId || null,
       issuedAt: issuedAt ? new Date(`${issuedAt}T12:00:00`) : null,
       effectiveFrom: effectiveFrom ? new Date(`${effectiveFrom}T12:00:00`) : null,
@@ -505,24 +515,40 @@ export default function EnvironmentalPermitDetailPage() {
                   <p className={`mt-1 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 ${dfMuted}`}>
                     Pending approval (set via workflow)
                   </p>
-                ) : (
+                ) : data.permit.status === "active" ? (
                   <select
                     id="ep-status"
                     className={inputClass}
-                    value={status}
+                    value={isEditablePermitStatus(status) ? status : "active"}
                     onChange={(e) =>
                       setStatus(
                         e.target.value as (typeof ENVIRONMENTAL_REGULATORY_PERMIT_STATUS)[number],
                       )
                     }
                   >
-                    {ENVIRONMENTAL_REGULATORY_PERMIT_STATUS.filter((s) => s !== "pending_approval").map(
-                      (s) => (
-                        <option key={s} value={s}>
-                          {s.replaceAll("_", " ")}
-                        </option>
-                      ),
-                    )}
+                    <option value="active">active (via approval)</option>
+                    {EDITABLE_PERMIT_STATUSES.filter((s) => s !== "draft").map((s) => (
+                      <option key={s} value={s}>
+                        {s.replaceAll("_", " ")}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <select
+                    id="ep-status"
+                    className={inputClass}
+                    value={isEditablePermitStatus(status) ? status : "draft"}
+                    onChange={(e) =>
+                      setStatus(
+                        e.target.value as (typeof ENVIRONMENTAL_REGULATORY_PERMIT_STATUS)[number],
+                      )
+                    }
+                  >
+                    {EDITABLE_PERMIT_STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s.replaceAll("_", " ")}
+                      </option>
+                    ))}
                   </select>
                 )}
               </div>

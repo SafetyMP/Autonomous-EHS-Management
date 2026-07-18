@@ -128,7 +128,8 @@ export default function NewEnvironmentalPermitPage() {
       agency: agency.trim() || null,
       jurisdiction: jurisdiction.trim() || null,
       media,
-      status: status === "pending_approval" ? "draft" : status,
+      status:
+        status === "pending_approval" || status === "active" ? "draft" : status,
       siteId: siteId || null,
       issuedAt: issuedAt ? new Date(`${issuedAt}T12:00:00`).toISOString() : null,
       effectiveFrom: effectiveFrom ? new Date(`${effectiveFrom}T12:00:00`).toISOString() : null,
@@ -163,7 +164,8 @@ export default function NewEnvironmentalPermitPage() {
       agency: agency.trim() || null,
       jurisdiction: jurisdiction.trim() || null,
       media,
-      status: status === "pending_approval" ? "draft" : status,
+      status:
+        status === "pending_approval" || status === "active" ? "draft" : status,
       siteId: siteId || null,
       issuedAt: issuedAt ? new Date(`${issuedAt}T12:00:00`) : null,
       effectiveFrom: effectiveFrom ? new Date(`${effectiveFrom}T12:00:00`) : null,
@@ -291,13 +293,13 @@ export default function NewEnvironmentalPermitPage() {
                   )
                 }
               >
-                {ENVIRONMENTAL_REGULATORY_PERMIT_STATUS.filter((s) => s !== "pending_approval").map(
-                  (s) => (
-                    <option key={s} value={s}>
-                      {s.replaceAll("_", " ")}
-                    </option>
-                  ),
-                )}
+                {ENVIRONMENTAL_REGULATORY_PERMIT_STATUS.filter(
+                  (s) => s !== "pending_approval" && s !== "active",
+                ).map((s) => (
+                  <option key={s} value={s}>
+                    {s.replaceAll("_", " ")}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="md:col-span-2">
