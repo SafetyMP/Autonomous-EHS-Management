@@ -47,3 +47,8 @@ export const protectedProcedure = t.procedure.use(enforceUser);
 export const protectedMutation = protectedProcedure
   .use(demoReadOnly)
   .use(rateLimited);
+
+/** Authenticated procedures with side effects or expensive I/O that remain queries. */
+export const protectedRateLimitedProcedure = protectedProcedure
+  .use(demoReadOnly)
+  .use(rateLimited);

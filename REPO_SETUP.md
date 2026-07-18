@@ -36,13 +36,15 @@ Create a **ruleset** targeting **`main`** and **`master`** (or unify on one trun
 |-------------|----------------|
 | **Pull requests** | Require PR before merge; block direct pushes unless bypass role is deliberate. |
 | **Linear history** | Require **squash merge** only *or* require linear history (pick one policy). |
-| **Status checks** | Require **`supply-chain-audit`** (runs `npm audit --omit=dev --audit-level=high` against **production transitive** vulnerabilities), **`verify`**, and **`e2e-smoke`** from workflow [`CI`](.github/workflows/ci.yml). Optionally require **`Analyze`** from [`CodeQL`](.github/workflows/codeql-analysis.yml) if Advanced Security is enabled. After the first run, optionally require **`Scorecard analysis`** from [`OpenSSF Scorecard`](.github/workflows/scorecard.yml). DevDependency advisories are primarily handled by **[Dependabot](.github/dependabot.yml)**. |
+| **Status checks** | Require **`supply-chain-audit`** (runs `npm audit --omit=dev --audit-level=high` against **production transitive** vulnerabilities), **`verify`**, and **`e2e-smoke`** from workflow [`CI`](.github/workflows/ci.yml). The **`e2e-smoke`** job also runs the threat-model PR gate and **`./scripts/adversarial.sh`** — treat failures there as merge blockers. Optionally require **`Analyze`** from [`CodeQL`](.github/workflows/codeql-analysis.yml) if Advanced Security is enabled. **Do not** pin **`Scorecard analysis`** as a PR required check (Scorecard runs on trunk push / weekly schedule only). DevDependency advisories are primarily handled by **[Dependabot](.github/dependabot.yml)**. |
 | **Reviews** | Require **≥1** approving review from humans; map “AI review” via optional **Copilot** or bot checks (**GitHub does not enforce AI vs human** explicitly). |
 | **Verified commits** | Enable **verified signatures** or **verified authors** where your org allows it. |
 | **Bypass lists** | Keep empty for developers; optionally allow **`release`** automation only via a dedicated GitHub App or fine-grained token if `semantic-release` cannot tag (see §4). |
 | **`CODEOWNERS`** | Ensure `@SafetyMP/…` teams in [`.github/CODEOWNERS`](.github/CODEOWNERS) exist under the org—or substitute `@username`/team slugs—so rulesets can require owner review. |
 
-**CI database (Playwright):** the **`e2e-smoke`** job starts **PostgreSQL (pgvector)**, runs **`npm run db:migrate`** and **`npm run db:seed:ci`**, then smoke tests (including signed-in). Forked PRs from untrusted contributors should not receive repo secrets unless your org explicitly allows it.
+**CI database (Playwright):** the **`e2e-smoke`** job starts **PostgreSQL (pgvector)**, runs **`npm run db:migrate`** and **`npm run db:seed:ci`**, then smoke tests (including signed-in), threat-model (on `pull_request`), and adversarial probes against the standalone build. Forked PRs from untrusted contributors should not receive repo secrets unless your org explicitly allows it.
+
+**Post-merge sequencing:** [`Release`](.github/workflows/release.yml) and [`Container image`](.github/workflows/docker-publish.yml) trigger via `workflow_run` after **CI** succeeds on `main`/`master` (they do not race a red suite). **Promote production** requires a **full 40-char git SHA** for both Vercel checkout and GHCR `ehs-web:<sha>` — never `latest`.
 
 ---
 

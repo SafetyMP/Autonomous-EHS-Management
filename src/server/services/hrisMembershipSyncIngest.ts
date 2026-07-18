@@ -46,7 +46,7 @@ async function ensureUserAndMembership(
   const email = normalizeIntegrationEmail(input.workerEmail);
 
   let [u] = await db
-    .select({ id: authUser.id })
+    .select({ id: authUser.id, emailVerified: authUser.emailVerified })
     .from(authUser)
     .where(eq(authUser.email, email))
     .limit(1);
@@ -63,9 +63,13 @@ async function ensureUserAndMembership(
         email,
         emailVerified: true,
       })
-      .returning({ id: authUser.id });
+      .returning({ id: authUser.id, emailVerified: authUser.emailVerified });
     u = inserted!;
     userCreated = true;
+  } else if (!u.emailVerified) {
+    throw new Error(
+      "Cannot provision: an unverified account already exists for this email. Verify or remove it before HRIS reuse.",
+    );
   }
 
   const [existingMem] = await db
@@ -181,7 +185,7 @@ export async function applyHrisMembershipSync(
     patch.employmentStatus = input.employmentStatus;
     if (input.employmentStatus === "terminated") {
       patch.lifecycleStatus = "deprovisioned";
-      await revokeUserSessions(db, mem.userId);
+      await revokeUserSessions(db, mem.userId, input.organizationId);
     } else if (input.employmentStatus === "leave") {
       patch.lifecycleStatus = "suspended";
     } else if (input.employmentStatus === "active") {

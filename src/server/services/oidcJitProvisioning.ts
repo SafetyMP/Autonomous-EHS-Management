@@ -44,19 +44,37 @@ async function findOidcJitMatch(db: Db, userId: string): Promise<JitMatch | null
     .where(eq(oidcJitClaimRule.enabled, true))
     .orderBy(asc(oidcJitClaimRule.priority), asc(oidcJitClaimRule.createdAt));
 
+  const matches: JitMatch[] = [];
   for (const rule of rules) {
+    // Org-binding claims must equal the rule's organizationId (prevents claim spoofing).
+    const orgBoundKey =
+      rule.claimKey === "organization_id" ||
+      rule.claimKey === "org_id" ||
+      rule.claimKey === "ehs_organization_id";
+    if (orgBoundKey && rule.matchValue !== rule.organizationId) {
+      continue;
+    }
+
     const values = claimValuesFromPayload(payload, rule.claimKey);
     if (values.includes(rule.matchValue)) {
-      return {
+      matches.push({
         organizationId: rule.organizationId,
         roleSlug: rule.roleSlug,
         matchValue: rule.matchValue,
         claimKey: rule.claimKey,
-      };
+      });
     }
   }
 
-  return null;
+  if (matches.length === 0) return null;
+
+  // Fail closed when more than one org claims this identity (cross-tenant capture).
+  const orgIds = new Set(matches.map((m) => m.organizationId));
+  if (orgIds.size > 1) {
+    return null;
+  }
+
+  return matches[0] ?? null;
 }
 
 async function linkMembership(

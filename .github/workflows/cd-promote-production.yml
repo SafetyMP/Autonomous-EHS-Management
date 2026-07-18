@@ -8,15 +8,17 @@
 #   designed for Vercel workloads calling *outbound* cloud APIs, not yet a full replacement
 #   for Actions → Vercel deploy auth.
 #
+# Artifact identity: `image_tag` must be a full 40-char git SHA. Vercel builds that SHA;
+# EKS rolls out `ehs-web:<same-sha>`. Never use `latest` for production.
+#
 name: Promote production
 
 on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: "GHCR image tag (e.g. git SHA from Container image workflow, or latest)"
+        description: "Full git SHA (must match GHCR tag ehs-web:<sha> and the Vercel checkout)"
         required: true
-        default: latest
         type: string
       deploy_vercel:
         description: Run Vercel production deploy (vercel pull/build/deploy --prebuilt)
@@ -43,19 +45,26 @@ jobs:
     env:
       SKIP_ENV_VALIDATION: "1"
     steps:
-      - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
       - name: Validate inputs
         env:
           WANT_VERCEL: ${{ github.event.inputs.deploy_vercel }}
           WANT_EKS: ${{ github.event.inputs.rollout_eks }}
+          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
         run: |
           set -euo pipefail
           if [ "${WANT_VERCEL}" != "true" ] && [ "${WANT_EKS}" != "true" ]; then
             echo "::error::Enable at least one of deploy_vercel or rollout_eks."
             exit 1
           fi
+          if [[ ! "${IMAGE_TAG}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::image_tag must be a full 40-char lowercase git SHA (not latest)."
+            exit 1
+          fi
+
+      - name: Checkout deploy SHA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.inputs.image_tag }}
 
       - name: Setup Node (Vercel prebuilt)
         if: ${{ github.event.inputs.deploy_vercel == 'true' }}
@@ -118,10 +127,11 @@ jobs:
         if: ${{ github.event.inputs.rollout_eks == 'true' }}
         env:
           NS: ${{ vars.K8S_NAMESPACE }}
+          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
         run: |
           set -euo pipefail
           OWNER_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE="ghcr.io/${OWNER_REPO}/ehs-web:${{ github.event.inputs.image_tag }}"
+          IMAGE="ghcr.io/${OWNER_REPO}/ehs-web:${IMAGE_TAG}"
           echo "Deploying ${IMAGE}"
           kubectl -n "${NS}" set image deployment/ehs-web ehs-web="${IMAGE}"
           kubectl -n "${NS}" rollout status deployment/ehs-web --timeout=300s
