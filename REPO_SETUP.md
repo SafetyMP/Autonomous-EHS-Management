@@ -39,7 +39,7 @@ Create a **ruleset** targeting **`main`** and **`master`** (or unify on one trun
 | **Status checks** | Require **`supply-chain-audit`** (runs `npm audit --omit=dev --audit-level=high` against **production transitive** vulnerabilities), **`verify`**, and **`e2e-smoke`** from workflow [`CI`](.github/workflows/ci.yml). The **`e2e-smoke`** job also runs the threat-model PR gate and **`./scripts/adversarial.sh`** — treat failures there as merge blockers. Optionally require **`Analyze`** from [`CodeQL`](.github/workflows/codeql-analysis.yml) if Advanced Security is enabled. **Do not** pin **`Scorecard analysis`** as a PR required check (Scorecard runs on trunk push / weekly schedule only). DevDependency advisories are primarily handled by **[Dependabot](.github/dependabot.yml)**. |
 | **Reviews** | Require **≥1** approving review from humans; map “AI review” via optional **Copilot** or bot checks (**GitHub does not enforce AI vs human** explicitly). |
 | **Verified commits** | Enable **verified signatures** or **verified authors** where your org allows it. |
-| **Bypass lists** | Keep empty for developers; optionally allow **`release`** automation only via a dedicated GitHub App or fine-grained token if `semantic-release` cannot tag (see §4). |
+| **Bypass lists** | Keep empty for developers. Release automation does **not** need a bypass when using API-only `@semantic-release/github` (see §4). |
 | **`CODEOWNERS`** | Ensure `@SafetyMP/…` teams in [`.github/CODEOWNERS`](.github/CODEOWNERS) exist under the org—or substitute `@username`/team slugs—so rulesets can require owner review. |
 
 **CI database (Playwright):** the **`e2e-smoke`** job starts **PostgreSQL (pgvector)**, runs **`npm run db:migrate`** and **`npm run db:seed:ci`**, then smoke tests (including signed-in), threat-model (on `pull_request`), and adversarial probes against the standalone build. Forked PRs from untrusted contributors should not receive repo secrets unless your org explicitly allows it.
@@ -93,8 +93,9 @@ Issue template links: [`.github/ISSUE_TEMPLATE/config.yml`](.github/ISSUE_TEMPLA
 Job: **`release`** in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) + [`.releaserc.json`](.releaserc.json).
 
 - **Conventional Commits:** `feat:`, `fix:`, etc. Squash-merge PR titles should contain a compliant subject line.
-- **`GITHUB_TOKEN` permissions:** **`contents: write`**, **`issues: write`**, **`pull-requests: write`** — required for Releases and changelog commits ([`CHANGELOG.md`](CHANGELOG.md) updates use **`[skip ci]`** in the git plugin message so trunk CI is not rerun for the housekeeping commit alone).
-- If Rulesets block tag pushes from `GITHUB_TOKEN`, add a **`release`** bypass for the **`Release`** workflow or switch to a **GitHub App** installation token documented out-of-repo.
+- **`GITHUB_TOKEN` permissions:** **`contents: write`**, **`issues: write`**, **`pull-requests: write`** — required for GitHub Releases and tags via the GitHub API.
+- **No direct push to trunk:** release notes and version tags are published with **`@semantic-release/github`** only. Do **not** use **`@semantic-release/git`** to commit [`CHANGELOG.md`](CHANGELOG.md) (or similar) back to `main`/`master` — the **`main-protection`** ruleset requires PRs and status checks, so that push fails with **GH013**. Historical changelog entries remain in-repo; new notes live on the GitHub Release.
+- Optional alternative: a dedicated GitHub App (or fine-grained token) with a narrow ruleset bypass if you later need in-repo changelog commits — keep developer bypass lists empty.
 
 ---
 
@@ -202,4 +203,4 @@ Canonical guidance tying MCP scope to Drizzle migrations, preview DBs, and cron 
 
 ---
 
-_Last updated July 2026 (ruleset required checks, Production env, CI `needs:` for release/publish, CODEOWNERS @SafetyMP)._
+_Last updated July 2026 (ruleset required checks, Production env, API-only semantic-release, CODEOWNERS @SafetyMP)._
