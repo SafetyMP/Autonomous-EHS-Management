@@ -56,7 +56,7 @@
 3. **Run:**
    - **Docker demo:** `npm run demo:up` then `npm run dev` → [http://localhost:3000/sign-in](http://localhost:3000/sign-in) (details in [Turnkey local demo](#turnkey-local-demo-docker-postgres)).
    - **Your own Postgres:** `npm run db:migrate` then `SEED_ADMIN_EMAIL=you@company.com npm run db:seed` then `npm run dev`.
-4. **Before a PR:** `./scripts/verify.sh` — harness DoD wrapper (same bar as `npm run verify` in CI). See [AGENTS.md](AGENTS.md).
+4. **Before a PR:** `./scripts/verify.sh` (lint/`tsc`/Vitest + threat-model). Full CI also runs smoke E2E and adversarial probes — see [AGENTS.md](AGENTS.md).
 
 ## Environment snapshots
 
@@ -72,7 +72,7 @@ Optional **proposal-only AI** (when enabled) suggests intake wording or retrieve
 
 **Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Records & metrics → Incidence rates** (TRIR-style analytics) and the **Your work** action queue on command center / task hub. The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`).
 
-**Contributors & agents:** [AGENTS.md](AGENTS.md) (verify / CI), [GOVERNANCE.md](GOVERNANCE.md) (evergreen OSS), [docs/README.md](docs/README.md) (documentation index), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` map), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (regulatory / data governance).
+**Contributors & agents:** [AGENTS.md](AGENTS.md) (site + CI gates), [`.cursor/skills/README.md`](.cursor/skills/README.md) (skills index), [GOVERNANCE.md](GOVERNANCE.md) (evergreen OSS), [docs/README.md](docs/README.md) (documentation index), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` map), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (regulatory / data governance).
 
 ---
 
@@ -186,16 +186,18 @@ The repo includes [`.devcontainer/devcontainer.json`](.devcontainer/devcontainer
 4. Sign up once, then link RBAC:  
    `SEED_ADMIN_EMAIL=you@company.com npm run db:seed`
 
-Verification (same bar as CI `verify` job):
+Verification (see [AGENTS.md](AGENTS.md) for the full local ↔ CI matrix):
 
 ```bash
-npm run verify          # eslint, tsc, vitest
+./scripts/verify.sh     # preferred: lint, tsc, vitest, threat-model
+npm run verify          # eslint, tsc, vitest (CI verify job)
 npm run verify:all      # + Playwright smoke
-npm run test:e2e:smoke  # smoke only
+./scripts/integration-e2e.sh  # smoke path used inside CI e2e-smoke
+./scripts/adversarial.sh      # threat-model deny cases (app must be running)
 npm run screenshots     # README demo GIF (2s per frame; demo stack + dev server)
 ```
 
-**Local Playwright smoke (signed-in flows):** CI always runs `@smoke` E2E against a service Postgres after **`npm run db:migrate`** and **`npm run db:seed:ci`**. On a developer machine, the same tests are **skipped** unless you set **`PLAYWRIGHT_E2E_EMAIL`** and **`PLAYWRIGHT_E2E_PASSWORD`** (see [`.env.example`](.env.example)) **and** use a migrated, seeded database. Flow coverage is listed in [AGENTS.md](AGENTS.md) (Smoke E2E table).
+**Local Playwright smoke (signed-in flows):** CI always runs `@smoke` E2E against a service Postgres after **`npm run db:migrate`** and **`npm run db:seed:ci`**, then threat-model (PRs) and adversarial probes. On a developer machine, signed-in smoke **skips** unless you set **`PLAYWRIGHT_E2E_EMAIL`** and **`PLAYWRIGHT_E2E_PASSWORD`** (see [`.env.example`](.env.example)) **and** use a migrated, seeded database. Specs live under [`tests/e2e/smoke/`](tests/e2e/smoke/) — see [AGENTS.md](AGENTS.md).
 
 **PortCo staging checklist:** after configuring integrations on a pilot org, run **`npm run portco:pilot-verify`** against your database — see [docs/qa/portco-staging-pilot.md](docs/qa/portco-staging-pilot.md).
 
@@ -263,7 +265,7 @@ Autonomous EHS ships under **Apache 2.0** ([LICENSE](LICENSE)). You run, modify,
 
 ## Open source, maintained for the long term
 
-Autonomous EHS is an **evergreen open source project**: Apache 2.0, auditable **PostgreSQL + Drizzle** schema with migrations in-repo, and a public merge bar (`npm run verify`, same as CI). We optimize for **forkability, self-host longevity, and tenant-owned data**—not a single mandatory SaaS SKU.
+Autonomous EHS is an **evergreen open source project**: Apache 2.0, auditable **PostgreSQL + Drizzle** schema with migrations in-repo, and a public merge bar (`./scripts/verify.sh` / CI `verify` + `e2e-smoke`). We optimize for **forkability, self-host longevity, and tenant-owned data**—not a single mandatory SaaS SKU.
 
 | Signal | Where to look |
 |--------|----------------|

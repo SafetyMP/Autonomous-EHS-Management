@@ -10,13 +10,13 @@ This checklist is **manual**: GitHub org/repo settings and cloud IAM consoles. I
 
 **Topics** live under **repository → ⚙️ (gear) → Topics** or **Settings → General** (depending on GitHub UI). GitHub caps **about 20** topics—trim if needed.
 
-Suggested topics for discoverability:
+Suggested topics for discoverability (applied by `scripts/apply-github-about.sh`, 20-topic cap):
 
-`ehs` · `safety-management` · `occupational-health` · `incident-management` · `environmental-health-and-safety` · `capa` · `iso-45001` · `compliance` · `nextjs` · `react` · `typescript` · `postgresql` · `drizzle-orm` · `trpc` · `better-auth` · `playwright-testing` · `docker` · `kubernetes` · `gitops`
+`ehs` · `safety-management` · `occupational-health` · `incident-management` · `environmental-health-and-safety` · `capa` · `iso-45001` · `compliance` · `open-source` · `self-hosted` · `gitops` · `nextjs` · `react` · `typescript` · `postgresql` · `drizzle-orm` · `trpc` · `better-auth` · `docker` · `kubernetes`
 
 **Recommended short description** (About field):
 
-> Web console for safety teams: incidents, corrective/preventive action (CAPA) plans, metrics, documents, training, audits—role-aware, PostgreSQL-backed.
+> Open-source EHS web console: incidents, CAPA, metrics, documents, training, and audits—role-aware, PostgreSQL-backed, self-hostable.
 
 With [**GitHub CLI**](https://cli.github.com/) authenticated against the repo, prefer the consolidated script (replaces all topics, stays within the 20-topic cap):
 
@@ -200,4 +200,4 @@ Canonical guidance tying MCP scope to Drizzle migrations, preview DBs, and cron 
 
 ---
 
-_Last updated alongside Autonomous EHS GitOps refactor (May 2026)._
+_Last updated July 2026 (corp-site gates, CI-gated Release/GHCR, SHA-bound promote)._

@@ -18,7 +18,8 @@ These `SKILL.md` files steer **persona**, **checklists**, and **repo-local sourc
 | **Staff Release Engineer & GitOps Architect** | [staff-release-gitops-architect/SKILL.md](staff-release-gitops-architect/SKILL.md) | GitHub Actions/rulesets/Environments, OIDC deploy auth, semantic-release, Dependabot & supply-chain gates, attestations/`REPO_SETUP.md` — not app/RBAC/schema |
 | **DevEx Engineer** | [devex-engineer/SKILL.md](devex-engineer/SKILL.md) | Demo stack (Docker/pgvector, devcontainer), realistic seeds, `DEMO_*` / read-only sandbox, README quick starts, low-friction onboarding without weakening prod auth |
 | **Competitive intelligence & market analyst** | [competitive-intelligence-strategist/SKILL.md](competitive-intelligence-strategist/SKILL.md) | Repo-grounded competitive analysis, competitor landscape, feature gaps, engineering “attack vectors”; strict report format; web/GitHub recon |
+| **Site delivery** | [site-delivery/SKILL.md](site-delivery/SKILL.md) | Corporate handoff → ADR-scoped implementation, isolated writers, site gates (`verify.sh` / `adversarial.sh`) |
 
-**Workspace rule:** [.cursor/rules/compliance-data-governance.mdc](../rules/compliance-data-governance.mdc) — requestable hook for complianceScope tasks.
+**Workspace rule:** [.cursor/rules/compliance-data-governance.mdc](../rules/compliance-data-governance.mdc) — requestable hook for complianceScope tasks. Site contract: [.cursor/rules/site-contract.mdc](../rules/site-contract.mdc).
 
-**Handbook:** [AGENTS.md](../../AGENTS.md) — merge verification, CI/containers/Kubernetes index, and skill list.
+**Handbook:** [AGENTS.md](../../AGENTS.md) — site contract, contributor/CI gates, threat model, and this skills index.

@@ -11,7 +11,7 @@ Autonomous EHS is an **open source, long-lived** compliance operations platform.
 **Evergreen** here means:
 
 - **Forkable system of record** — PostgreSQL schema and Drizzle migrations in-repo; no TypeScript-only “shadow schema.”
-- **Trunk-based development** on **`main`** with a public merge bar ([AGENTS.md](AGENTS.md)).
+- **Trunk-based development** on **`main`** with a public merge bar ([AGENTS.md](AGENTS.md) — `verify` + `e2e-smoke`, including threat-model/adversarial).
 - **Honest scope** — shipped vs planned modules are tracked in [docs/module-maturity.md](docs/module-maturity.md) and [ROADMAP.md](ROADMAP.md), not hidden behind marketing copy.
 - **Tenant-owned deployments** — you run Postgres, backups, IAM, and counsel review; the license does not replace ops or compliance work ([docs/open-source-tco.md](docs/open-source-tco.md)).
 
