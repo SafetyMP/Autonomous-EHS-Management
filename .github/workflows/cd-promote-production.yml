@@ -41,7 +41,8 @@ jobs:
   promote:
     name: Deploy production (Vercel + EKS)
     runs-on: ubuntu-latest
-    environment: production
+    # GitHub normalizes the Environment name to "Production" in the UI/API.
+    environment: Production
     env:
       SKIP_ENV_VALIDATION: "1"
     steps:

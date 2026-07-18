@@ -9,7 +9,7 @@ Production and staging deployments **must** remain:
 | Path | Artifact |
 |------|----------|
 | CI / merge verification | `.github/workflows/ci.yml` (`npm run verify`, smoke E2E) |
-| Container image | `.github/workflows/docker-publish.yml` → GHCR |
+| Container image | CI job `publish` in `.github/workflows/ci.yml` → GHCR |
 | Controlled promotion | `.github/workflows/cd-promote-production.yml` — GitHub Environment **`production`**, optional Vercel prebuilt + EKS rollout |
 | Contracts | `src/lib/env.ts`, `vercel.ts`, `deploy/k8s/` |
 
@@ -40,7 +40,7 @@ Use this matrix when onboarding operators who use Cursor:
 | Operational task | Canonical mechanism | MCP / IDE helper role |
 |--------------------|---------------------|-------------------------|
 | Merge to trunk | PR + required checks | None required |
-| Build & attest image | `docker-publish.yml` | — |
+| Build & attest image | CI `publish` job | — |
 | Promote prod | Manual `workflow_dispatch` + approvals | Inspect failed Vercel build or rollout context *after the fact* |
 | Env parity | `vercel env pull`, terraform outputs, `deploy/k8s/secret.example.yaml` | Vercel / cloud MCP listing env names (not dumping secrets into chat logs) |
 | DB schema | Drizzle migrations in `drizzle/migrations/` + `npm run db:migrate` | Neon/MCP branching for **sandbox** URLs only |

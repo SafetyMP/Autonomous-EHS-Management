@@ -33,7 +33,7 @@ CI workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs three re
 2. **`verify`** — lint, `tsc`, Vitest
 3. **`e2e-smoke`** — Postgres migrate/seed, Playwright smoke, threat-model (PRs), adversarial probes
 
-Release and GHCR publish run only after a successful CI `workflow_run` on `main`/`master`. Production promote requires a full git SHA (not `latest`).
+On trunk pushes, CI jobs **`release`** and **`publish`** run only after `supply-chain-audit`, `verify`, and `e2e-smoke` succeed (`needs:`). Production promote requires a full git SHA (not `latest`).
 
 ## Smoke E2E (Playwright `@smoke`)
 
