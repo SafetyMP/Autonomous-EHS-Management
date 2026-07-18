@@ -24,6 +24,7 @@ Site id: `ehs`. Prior Cursor Harness v4 is under `_archives/harness-v4/`.
 | `npm run verify` | CI job `verify` (lint + `tsc` + Vitest) |
 | `./scripts/verify.sh` | CI `verify` + threat-model check |
 | `npm run verify:all` | `verify` + Playwright smoke (not full CI) |
+| `./scripts/integration-e2e.sh` | Same smoke path as CI `e2e-smoke` (before adversarial) |
 | `./scripts/adversarial.sh` | CI `e2e-smoke` adversarial step (needs a running app URL) |
 
 CI workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs three required jobs (pin in rulesets — see [`REPO_SETUP.md`](REPO_SETUP.md)):
