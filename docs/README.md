@@ -97,10 +97,11 @@ Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a d
 | File | Purpose |
 |------|---------|
 | [GOVERNANCE.md](../GOVERNANCE.md) | Evergreen OSS: maintainers, releases, community, forks |
-| [AGENTS.md](../AGENTS.md) | Verify bar, CI, smoke E2E, skills index |
+| [AGENTS.md](../AGENTS.md) | Site contract, CI gates, threat model, skills index |
+| [specs/threat-model.yaml](../specs/threat-model.yaml) | Tier-3 adversarial cells / deny cases |
 | [CONTEXT.md](../CONTEXT.md) | Stack pins, API map, anti-patterns |
 | [COMPLIANCE.md](../COMPLIANCE.md) | Retention, legal hold, regulatory scope |
-| [REPO_SETUP.md](../REPO_SETUP.md) | GitHub environments, OIDC deploy |
+| [REPO_SETUP.md](../REPO_SETUP.md) | GitHub About, rulesets, Environments, OIDC promote |
 | [ROADMAP.md](../ROADMAP.md) | Product backlog (high level) |
 
 When you add or retire a doc under `docs/`, update this index and any adopter table in the root README.

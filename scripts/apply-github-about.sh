@@ -8,10 +8,10 @@ set -euo pipefail
 REPO="${1:-SafetyMP/Autonomous-EHS-Management}"
 
 gh repo edit "$REPO" \
-  --description "Web console for safety teams: incidents, CAPA plans, metrics, documents, training, audits—role-aware, PostgreSQL-backed." \
+  --description "Open-source EHS web console: incidents, CAPA, metrics, documents, training, and audits—role-aware, PostgreSQL-backed, self-hostable." \
   --homepage "https://autonomous-ehs-management.vercel.app"
 
-# GitHub caps repositories at 20 topics — replace the full set (removes legacy "oepn" typo).
+# GitHub caps repositories at 20 topics — replace the full set.
 gh api -X PUT "repos/${REPO}/topics" \
   -H "Accept: application/vnd.github+json" \
   --input - <<'EOF'
@@ -27,6 +27,7 @@ gh api -X PUT "repos/${REPO}/topics" \
     "compliance",
     "open-source",
     "self-hosted",
+    "gitops",
     "nextjs",
     "react",
     "typescript",
@@ -34,7 +35,6 @@ gh api -X PUT "repos/${REPO}/topics" \
     "drizzle-orm",
     "trpc",
     "better-auth",
-    "playwright-testing",
     "docker",
     "kubernetes"
   ]

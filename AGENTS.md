@@ -34,3 +34,17 @@ CI workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs three re
 3. **`e2e-smoke`** — Postgres migrate/seed, Playwright smoke, threat-model (PRs), adversarial probes
 
 Release and GHCR publish run only after a successful CI `workflow_run` on `main`/`master`. Production promote requires a full git SHA (not `latest`).
+
+## Smoke E2E (Playwright `@smoke`)
+
+CI always runs signed-in smoke against service Postgres (`db:migrate` + `db:seed:ci`). Locally, signed-in specs **skip** unless `PLAYWRIGHT_E2E_EMAIL` / `PLAYWRIGHT_E2E_PASSWORD` are set against a migrated, seeded DB (see [`.env.example`](.env.example)).
+
+Primary smoke coverage lives under [`tests/e2e/smoke/`](tests/e2e/smoke/) (dashboard gate, cron auth, integration inbound, Context Sync REST, and related `@smoke` flows). Prefer `./scripts/integration-e2e.sh` or `npm run test:e2e:smoke` over inventing ad-hoc Playwright commands.
+
+## Threat model
+
+Authoritative cells: [`specs/threat-model.yaml`](specs/threat-model.yaml). Static gate: `./scripts/check-threat-model.sh`. Executable denies: `./scripts/adversarial.sh` (requires `ADVERSARIAL_BASE_URL` / default `http://localhost:3000` and, for global inbound cases, `INTEGRATION_INBOUND_SECRET`).
+
+## Agent skills
+
+Project skills index: [`.cursor/skills/README.md`](.cursor/skills/README.md).
