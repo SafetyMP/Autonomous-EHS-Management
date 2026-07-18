@@ -19,15 +19,12 @@ This is **not** a promise of zero-cost hosting, unlimited free support, or a sep
 
 ## Maintainers and code ownership
 
-Default review ownership is declared in [`.github/CODEOWNERS`](.github/CODEOWNERS) (for example `@SafetyMP/ehs-maintainers` on the default path). Replace placeholder team slugs with your org’s real GitHub teams before relying on ruleset bypass behavior ([REPO_SETUP.md](REPO_SETUP.md)).
+Default review ownership is declared in [`.github/CODEOWNERS`](.github/CODEOWNERS) (`@SafetyMP` until org teams exist). When `@SafetyMP/ehs-*` teams are created and publicly visible with write access, restore path-based teams ([REPO_SETUP.md](REPO_SETUP.md)).
 
-| Area | Typical owner path |
-|------|-------------------|
-| Default / product | `@SafetyMP/ehs-maintainers` (configure for your org) |
-| Backend, migrations, scripts | `@SafetyMP/ehs-backend` |
-| App Router / UI | `@SafetyMP/ehs-frontend` |
-| Deploy, Docker, Vercel | `@SafetyMP/ehs-devops` |
-| Compliance-sensitive paths | `@SafetyMP/ehs-compliance` |
+| Area | Owner today |
+|------|-------------|
+| Default / all paths | `@SafetyMP` |
+| Future: backend / frontend / devops / compliance teams | Create under org, then update CODEOWNERS |
 
 Maintainers merge when CI is green and scope matches project conventions ([CONTRIBUTING.md](CONTRIBUTING.md), [.cursor/rules/ehs-ims-conventions.mdc](.cursor/rules/ehs-ims-conventions.mdc)).
 
@@ -44,7 +41,7 @@ Contributions are licensed under **Apache 2.0** ([LICENSE](LICENSE)).
 ## Releases and versioning
 
 - **Application version** in `package.json` follows semver for packaging convenience; it is not a separate commercial SKU.
-- **Ship path:** merge to **`main`** → CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) → on CI success, Release + optional container publish ([`.github/workflows/release.yml`](.github/workflows/release.yml), [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml)) → manual production promotion by **git SHA** ([`.github/workflows/cd-promote-production.yml`](.github/workflows/cd-promote-production.yml)).
+- **Ship path:** merge to **`main`** → CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml): `verify` jobs then `release` + `publish`) → manual production promotion by **git SHA** ([`.github/workflows/cd-promote-production.yml`](.github/workflows/cd-promote-production.yml)).
 - **Database upgrades:** apply Drizzle migrations on deploy (`npm run db:migrate` or your orchestrator equivalent). Do not skip migrations across environments.
 - **Breaking changes:** call out in PR description and [ROADMAP.md](ROADMAP.md); prefer Drizzle migrations with backward-compatible phases when production data exists.
 

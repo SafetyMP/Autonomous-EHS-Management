@@ -28,7 +28,7 @@
 
 - **Live demo:** [autonomous-ehs-management.vercel.app](https://autonomous-ehs-management.vercel.app) — or run locally in ~5 minutes ([Turnkey local demo](#turnkey-local-demo-docker-postgres))
 - **License:** [Apache 2.0](LICENSE) · **Docs:** [docs/README.md](docs/README.md) · **Contribute:** [CONTRIBUTING.md](CONTRIBUTING.md)
-- **OSS health:** [OpenSSF badge setup](REPO_SETUP.md#10-oss-health-badges--social-preview) · [OpenSSF Scorecard](.github/workflows/scorecard.yml) · social preview source in [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png)
+- **OSS health:** [OpenSSF badge setup](REPO_SETUP.md#10-oss-health-badges--social-preview) · [OpenSSF Scorecard](.github/workflows/scorecard.yml) · social preview PNG ([`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png), 1280×640 — upload under **Settings → Social preview**) · OpenSSF Best Practices self-cert at [bestpractices.dev](https://www.bestpractices.dev/en) (add Passing badge to this row when awarded)
 
 ## Contents
 

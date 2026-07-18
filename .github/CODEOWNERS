@@ -1,20 +1,21 @@
-# Canonical org: SafetyMP — each @SafetyMP/<team> must exist under that org or be replaced with
-# @username slugs before rulesets relying on CODEOWNERS behave as expected. See REPO_SETUP.md § 1.
+# Default owner: repo account (org teams under SafetyMP are not provisioned yet).
+# When @SafetyMP/ehs-* teams exist and are publicly visible with write access,
+# restore path-based teams per REPO_SETUP.md §1 / GOVERNANCE.md.
 
-* @SafetyMP/ehs-maintainers
+* @SafetyMP
 
-/.github/ @SafetyMP/ehs-devops
-/next.config.ts @SafetyMP/ehs-devops
-/Dockerfile @SafetyMP/ehs-devops
-/vercel.ts @SafetyMP/ehs-devops
+/.github/ @SafetyMP
+/next.config.ts @SafetyMP
+/Dockerfile @SafetyMP
+/vercel.ts @SafetyMP
 
-/src/server/ @SafetyMP/ehs-backend
-/scripts/ @SafetyMP/ehs-backend
-/drizzle/ @SafetyMP/ehs-backend
+/src/server/ @SafetyMP
+/scripts/ @SafetyMP
+/drizzle/ @SafetyMP
 
-/src/app/ @SafetyMP/ehs-frontend
-/src/components/ @SafetyMP/ehs-frontend
+/src/app/ @SafetyMP
+/src/components/ @SafetyMP
 
-COMPLIANCE.md @SafetyMP/ehs-compliance
-/src/server/services/dataRetention.ts @SafetyMP/ehs-compliance
-/src/server/services/incidentRetentionDefault.ts @SafetyMP/ehs-compliance
+COMPLIANCE.md @SafetyMP
+/src/server/services/dataRetention.ts @SafetyMP
+/src/server/services/incidentRetentionDefault.ts @SafetyMP

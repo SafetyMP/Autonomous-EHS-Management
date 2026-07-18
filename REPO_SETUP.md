@@ -1,6 +1,6 @@
 # Repository setup — GitOps & branch governance
 
-This checklist is **manual**: GitHub org/repo settings and cloud IAM consoles. It matches the pipelines in `.github/workflows/` (`CI`, **Container image**, **Release**, **Promote production**).
+This checklist is **manual**: GitHub org/repo settings and cloud IAM consoles. It matches the pipelines in `.github/workflows/` (`CI` including trunk `release`/`publish` jobs, **Promote production**).
 
 **Clone path:** If your local folder name ends with a **trailing space** (unquoted paths and some CI copy/paste flows), shells and Node tooling may mis-resolve the workspace—**rename the directory** or always `cd`/`open` with a **quoted** path (e.g. `"./Autonomous EHS Management System "`).
 
@@ -44,17 +44,19 @@ Create a **ruleset** targeting **`main`** and **`master`** (or unify on one trun
 
 **CI database (Playwright):** the **`e2e-smoke`** job starts **PostgreSQL (pgvector)**, runs **`npm run db:migrate`** and **`npm run db:seed:ci`**, then smoke tests (including signed-in), threat-model (on `pull_request`), and adversarial probes against the standalone build. Forked PRs from untrusted contributors should not receive repo secrets unless your org explicitly allows it.
 
-**Post-merge sequencing:** [`Release`](.github/workflows/release.yml) and [`Container image`](.github/workflows/docker-publish.yml) trigger via `workflow_run` after **CI** succeeds on `main`/`master` (they do not race a red suite). **Promote production** requires a **full 40-char git SHA** for both Vercel checkout and GHCR `ehs-web:<sha>` — never `latest`.
+**Post-merge sequencing:** on `push` to `main`/`master`, the **CI** workflow runs `supply-chain-audit` / `verify` / `e2e-smoke`, then **`release`** (semantic-release) and **`publish`** (GHCR) jobs via `needs:` (Scorecard-safe; no `workflow_run` checkout). **Promote production** uses GitHub Environment **`Production`** and requires a **full 40-char git SHA** for both Vercel checkout and GHCR `ehs-web:<sha>` — never `latest`.
 
 ---
 
 ## 2. GitHub Environments
 
-### `production`
+### `Production`
 
-1. **Settings → Environments → New environment:** `production`
-2. **Deployment branches:** restrict to **`main`** (and **`master`** only if still in use).
-3. **Required reviewers:** at least two people recommended for segregated-duty; minimum one per org policy.
+GitHub may display the name as **`Production`** (capital P). Workflows should use that exact Environment name ([`cd-promote-production.yml`](.github/workflows/cd-promote-production.yml)).
+
+1. **Settings → Environments → New environment:** `Production` (or rename legacy `production` to match).
+2. **Deployment branches:** custom policy — **`main`** (and **`master`** only if still in use).
+3. **Required reviewers:** at least one reviewer (solo maintainer ok); prefer two for segregated duty when a team exists.
 4. **Wait timer:** optional cool-down between approval and deployment.
 5. **Secrets**
    - **`VERCEL_TOKEN`** — rotate regularly; scopes limited to deployment. Stored here (environment-scoped), **not** committed.
@@ -88,7 +90,7 @@ Issue template links: [`.github/ISSUE_TEMPLATE/config.yml`](.github/ISSUE_TEMPLA
 
 ## 4. Releases & `semantic-release`
 
-Workflow: [`.github/workflows/release.yml`](.github/workflows/release.yml) + [`.releaserc.json`](.releaserc.json).
+Job: **`release`** in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) + [`.releaserc.json`](.releaserc.json).
 
 - **Conventional Commits:** `feat:`, `fix:`, etc. Squash-merge PR titles should contain a compliant subject line.
 - **`GITHUB_TOKEN` permissions:** **`contents: write`**, **`issues: write`**, **`pull-requests: write`** — required for Releases and changelog commits ([`CHANGELOG.md`](CHANGELOG.md) updates use **`[skip ci]`** in the git plugin message so trunk CI is not rerun for the housekeeping commit alone).
@@ -119,7 +121,7 @@ Where licensed:
 
 **Artifact attestations** (build provenance pushed with the image):
 
-- Applies to **`Container image`** workflow (see **`actions/attest-build-provenance`** notes in GitHub docs).
+- Applies to the CI **`publish`** job (see **`actions/attest-build-provenance`** notes in GitHub docs).
 - **Private repos**: attestations generally require appropriate **Enterprise** SKU (see Actions docs).
 - Verification: **`gh attestation verify oci://…`** (consult current CLI docs).
 
@@ -127,7 +129,7 @@ Where licensed:
 
 ## 7. SLSA-aligned container metadata
 
-[`docker-publish.yml`](.github/workflows/docker-publish.yml) ships **`provenance: mode=max`**, **`sbom: true`**, and attestations **`push-to-registry: true`** for **`ghcr.io/.../ehs-web`**.
+CI job **`publish`** ships **`provenance: mode=max`**, **`sbom: true`**, and attestations **`push-to-registry: true`** for **`ghcr.io/.../ehs-web`**.
 
 Downstream Admission / policy engines (Kyverno, Ratify, Sigstore Admission) consume these **subject digests**.
 
@@ -165,8 +167,8 @@ Or manually with [`gh`](https://cli.github.com/) (same end state as the script):
 
 ### Social preview image
 
-1. Source asset (committed): [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png) (1280×640).
-2. Upload: **Settings → General → Social preview** on the GitHub repo (or drag the PNG onto the About card in the web UI).
+1. Source asset (committed): [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png) (**1280×640**).
+2. Upload (manual — no GitHub API): **Settings → General → Social preview** (or drag the PNG onto the About card).
 3. Verify: paste the repo URL into Slack/LinkedIn and confirm the custom card renders.
 
 ### OpenSSF Best Practices Badge (Passing)
@@ -200,4 +202,4 @@ Canonical guidance tying MCP scope to Drizzle migrations, preview DBs, and cron 
 
 ---
 
-_Last updated July 2026 (corp-site gates, CI-gated Release/GHCR, SHA-bound promote)._
+_Last updated July 2026 (ruleset required checks, Production env, CI `needs:` for release/publish, CODEOWNERS @SafetyMP)._

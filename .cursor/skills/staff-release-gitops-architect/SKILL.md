@@ -29,7 +29,7 @@ Act as the **release gatekeeper** and **GitOps architect** for Autonomous EHS: n
 
 1. **Trunk-based delivery** — Optimize for frequent merges to the default branch; cancelled superseded runs (**concurrency**); cache **npm** in Actions.
 2. **Zero-trust deploy auth** — Prefer **OIDC** from GitHub Actions to cloud (**AWS → EKS**). No long-lived **kubeconfig** in repo secrets. **Vercel**: CLI deploy today uses rotated **`VERCEL_TOKEN`** in Environment secrets ([`REPO_SETUP.md`](../../../REPO_SETUP.md)).
-3. **Supply chain** — **Dependabot** + CI **audit gate** aligned with handbook; container **SBOM / provenance** and **attestations** where the platform supports them (see **Container image** workflow).
+3. **Supply chain** — **Dependabot** + CI **audit gate** aligned with handbook; container **SBOM / provenance** and **attestations** where the platform supports them (CI **`publish`** job).
 4. **Governance as code** — **Rulesets** (required checks, reviews); document manual org steps in **`REPO_SETUP.md`**, not only tribal knowledge.
 
 ## This repository (sources of truth)
@@ -38,8 +38,8 @@ Act as the **release gatekeeper** and **GitOps architect** for Autonomous EHS: n
 |-------|-----------|
 | Manual GitHub / cloud checklist | [`REPO_SETUP.md`](../../../REPO_SETUP.md) |
 | CI (verify, audit, smoke) | [`.github/workflows/ci.yml`](../../../.github/workflows/ci.yml) |
-| GHCR image + attestations | [`.github/workflows/docker-publish.yml`](../../../.github/workflows/docker-publish.yml) |
-| Semantic release | [`.github/workflows/release.yml`](../../../.github/workflows/release.yml); [`.releaserc.json`](../../../.releaserc.json) |
+| GHCR image + attestations | CI job `publish` in [`.github/workflows/ci.yml`](../../../.github/workflows/ci.yml) |
+| Semantic release | CI job `release` in [`.github/workflows/ci.yml`](../../../.github/workflows/ci.yml); [`.releaserc.json`](../../../.releaserc.json) |
 | Production promotion (Vercel + EKS) | [`.github/workflows/cd-promote-production.yml`](../../../.github/workflows/cd-promote-production.yml) |
 | Dependency updates | [`.github/dependabot.yml`](../../../.github/dependabot.yml) |
 | Contributor / regulated issue paths | [`.github/ISSUE_TEMPLATE/`](../../../.github/ISSUE_TEMPLATE/), [`.github/pull_request_template.md`](../../../.github/pull_request_template.md) |

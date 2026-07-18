@@ -36,7 +36,7 @@ docker run --rm -p 3000:3000 \
 
 Health: `GET /api/health` → `{ ok, database }`.
 
-CI publishes **`ghcr.io/<owner>/<repo>/ehs-web`** on pushes to `main` when app or Docker paths change (see [`.github/workflows/docker-publish.yml`](../.github/workflows/docker-publish.yml)).
+CI publishes **`ghcr.io/<owner>/<repo>/ehs-web`** on pushes to `main` when app or Docker paths change (CI job **`publish`** in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)).
 
 ---
 

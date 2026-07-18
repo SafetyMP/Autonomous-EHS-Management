@@ -33,7 +33,7 @@ Act as **DevOps / SRE** for this codebase: automate delivery, keep environments 
 | Production-oriented container image | [`Dockerfile`](../../../Dockerfile) (standalone output) |
 | Kubernetes manifests (Kustomize) | [`deploy/k8s/`](../../../deploy/k8s/) |
 | AWS EKS + VPC (Terraform starter) | [`infra/terraform/`](../../../infra/terraform/) |
-| GHCR publish on main | [`.github/workflows/docker-publish.yml`](../../../.github/workflows/docker-publish.yml) |
+| GHCR publish on main | CI job `publish` in [`.github/workflows/ci.yml`](../../../.github/workflows/ci.yml) |
 | Production promotion (Vercel + EKS) | [`.github/workflows/cd-promote-production.yml`](../../../.github/workflows/cd-promote-production.yml) (`REPO_SETUP.md`) |
 | Cursor IDE MCP (optional; not a deploy plane) | [`docs/cursor-tool-connections-deployment.md`](../../../docs/cursor-tool-connections-deployment.md) — inspect/Vercel/Neon helpers only; previews need migrations + cron rules below |
 | Local app + Postgres (Compose) | [`docker-compose.yml`](../../../docker-compose.yml); env template [`.env.docker.example`](../../../.env.docker.example) |

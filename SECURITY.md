@@ -13,7 +13,7 @@
 
 Use one of:
 
-- **GitHub [private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)** for this repository (enable in **Settings → Security** if not already).
+- **GitHub [private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)** for this repository (**Report a vulnerability** on the Security tab).
 - Your **contractual / security channel** with SafetyMP (do not disclose active exploits on a public issue).
 
 Include: affected routes or components, reproduction steps, impact, and suggested fix if any.
