@@ -111,3 +111,5 @@ jobs:
         env:
           GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
           GITHUB_HEAD_SHA: ${{ github.sha }}
+          # CI fixture for threat-model auth (min 16 chars); not a production secret.
+          INTEGRATION_INBOUND_SECRET: ci-integration-inbound-secret-ok
