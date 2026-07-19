@@ -4,6 +4,7 @@ This document aligns product capability with compliance claims. **It is not lega
 
 ## Product positioning
 
+<!-- claim-lint:ignore-start reason="Product-positioning table enumerates R-005 negations (Not claimed / not X); tier reference in docs/module-maturity.md." -->
 | Capability | Status |
 |------------|--------|
 | **ISO 45001 / 14001-style** incident and management workflows | Intended product scope. EMS surfaces support **ISO 14001:2026 transition programme aids** (context environmental conditions, aspect climate/biodiversity relevance, MOC Clause 6.3 planning fields). Standard published **2026-04-15**; CB transition ~**2029**. **Not claimed** as a certification body or IAF transition completion. Details: [docs/regulatory/iso-14001-2026-transition.md](docs/regulatory/iso-14001-2026-transition.md). |
@@ -14,6 +15,7 @@ This document aligns product capability with compliance claims. **It is not lega
 | **Environmental regulatory permit register** | **Internal program register** in-app (`environmental_regulatory_permit`): metadata, conditions, linkage to monitoring and obligations. **Not claimed** as an agency system of record or filing-ready submission unless counsel and customer define that outside the app. |
 | **Risk assessments / JSAs** | **Program records** (`risk_assessment`, optional `risk_assessment_step` for task-based JSAs). **Not claimed** as a substitute for legally mandated risk studies where jurisdiction requires specific formats or approvals. |
 | **GDPR / global privacy** | Technical measures include retention dates, legal hold flags, anonymization jobs, RBAC-separated incident narrative access, and RAG ingest redaction. **Lawful basis, DPIA, and cross-border transfers are organizational decisions**, not enforced by this software alone. |
+<!-- claim-lint:ignore-end -->
 
 ## Encryption at rest
 
@@ -42,5 +44,7 @@ This document aligns product capability with compliance claims. **It is not lega
 1. Confirm target jurisdictions (U.S. federal/state, EU/UK, etc.).
 2. Map each personal data category to lawful basis and retention.
 3. Align subcontractor list and encryption attestations with the actual database provider.
+<!-- claim-lint:ignore-start reason="Counsel-checklist bullet 4 enumerates R-005 phrases as prohibited review targets." -->
 4. Review whether “OSHA-ready” or “Tier II-ready” language is acceptable or misleading for your buyer contracts.
+<!-- claim-lint:ignore-end -->
 5. Complete [regulatory-posture-boundary.md](docs/regulatory-posture-boundary.md) for PortCo pilots (program-of-record vs agency-of-record).

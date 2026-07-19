@@ -67,7 +67,9 @@ It covers: ROI framing, pilot structure, economic moat narrative, implementation
 
 - **Business-facing staging / UAT checklist:** [staging-uat-desk-to-field.md](./qa/staging-uat-desk-to-field.md) — desk-to-field acceptance for pilots and releases.
 - **Mutation auditability inventory:** [mutation-auditability-matrix.md](./qa/mutation-auditability-matrix.md) — which IMS mutations write `audit_log` (spot-check for procurement evidence; coverage is intentionally partial per [COMPLIANCE.md](../COMPLIANCE.md)).
+<!-- claim-lint:ignore-start reason="Buyer-clarity clause enumerates disclaimers (R-005 negation)" -->
 - **Buyer clarity:** UAT scope should not imply the app is an **agency system of record** or filing-ready regulator submission path unless counsel and the customer define that outside the product—see disclaimers in [COMPLIANCE.md](../COMPLIANCE.md) (product positioning table and residual risks).
+<!-- claim-lint:ignore-end -->
 
 ---
 
@@ -152,6 +154,14 @@ For **SAST / appsec** reviews, point auditors to [SECURITY.md](../SECURITY.md), 
 
 ## 12. RFP / diligence risk register (honest gaps)
 
+**Coupling rule (ADR-S-001).** Any tier change in
+[`module-maturity.md`](./module-maturity.md) requires an update to this
+section in the same change; `scripts/module-maturity-check.mjs` enforces the
+coupling when a PR base ref is present. This register catalogues residual
+gaps behind the tier map, framed as buyer-facing negations of the R-005
+banned claims.
+
+<!-- claim-lint:ignore-start reason="§12 gap register enumerates R-005 prohibitions in negation form; only the ADR-S-001 lint should scan positive claim surfaces." -->
 Use this in **enterprise questionnaires** so buyers do not assume filing-ready agency exports or suite breadth that is not yet shipped.
 
 | Risk / question | Current state | Buyer-facing statement |
@@ -166,5 +176,6 @@ Use this in **enterprise questionnaires** so buyers do not assume filing-ready a
 | **Heat NEP / federal heat standard** | **Appendix I program aid shipped** ([`docs/regulatory/heat-nep-cpl-03-00-024.md`](./regulatory/heat-nep-cpl-03-00-024.md)); Cal/OSHA heat rule engine and final federal heat standard **not** claimed. | Programme self-audit for inspection readiness; **not** a compliance determination. |
 | **EPCRA Tier II / Tier2 Submit** | **Plumbing chemicals UI + 2027 hazard catalog shipped**; Tier2 Submit / EPA e-filing **not** claimed ([`docs/regulatory/epcra-hazard-categories-2027.md`](./regulatory/epcra-hazard-categories-2027.md)). | Internal programme inventory toward RY2027; customers submit to agencies. |
 | **ISO 14001:2026 certification / CB transition** | **Context / aspect / MOC Clause 6.3 fields shipped** as transition aids ([`docs/regulatory/iso-14001-2026-transition.md`](./regulatory/iso-14001-2026-transition.md)); **not** a certification body. | Supports transition programme evidence; CB audits remain external (~2029 window). |
+<!-- claim-lint:ignore-end -->
 
-Track resolution in [`docs/barrier-resolution-playbook.md`](./barrier-resolution-playbook.md) when owners are assigned.
+Track resolution in [`docs/barrier-resolution-playbook.md`](./barrier-resolution-playbook.md) when owners are assigned. Marketing / GTM claims that reference any Plumbing or Gated row above must first satisfy [`docs/lifecycle/promotion-packet.md`](./lifecycle/promotion-packet.md) (six artifacts + counsel exception where required).

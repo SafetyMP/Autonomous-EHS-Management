@@ -49,6 +49,12 @@ jobs:
       - run: npm run lint
       - run: npx tsc --noEmit
       - run: npm test
+      - name: Claim lint (ADR-S-001 R-005)
+        run: node scripts/claim-lint.mjs
+      - name: Module maturity check (ADR-S-001 R-001/R-004)
+        env:
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/module-maturity-check.mjs
 
   e2e-smoke:
     runs-on: ubuntu-latest
