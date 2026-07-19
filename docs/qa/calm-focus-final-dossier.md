@@ -107,7 +107,7 @@ From site `operations-calm-focus-r4.json` and corporate_review verify:
 
 ## 8. Explicit non-claims
 
-- Not WCAG 3 conformant / certified
+- WCAG 3 conformance is not claimed; this is design intent only (WCAG 2.2 AA is the gated bar)
 - Not a native iOS/Android / App Store field app (D-006 blocked)
 - Not Plumbing→Core or agency filing readiness via polish
 - Adversary run is adversarial testing, not a formal penetration test
