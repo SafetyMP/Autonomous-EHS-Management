@@ -7,6 +7,10 @@ import type { AppRouter } from "@/server/trpc/root";
 
 type ActionQueueOut = inferRouterOutputs<AppRouter>["tasks"]["actionQueue"];
 
+/**
+ * Field pending strip — navigational rows only (no filled primary CTAs).
+ * AC-004 action-region primaries live on Today hero / Capture create / Decide decide.
+ */
 export function DashboardActionQueueFieldStrip({
   queue,
   loading,
@@ -16,11 +20,11 @@ export function DashboardActionQueueFieldStrip({
 }) {
   if (loading) {
     return (
-      <section aria-labelledby="field-pending-heading" className="rounded-xl border border-zinc-200 bg-white p-4">
-        <h2 id="field-pending-heading" className="text-lg font-semibold text-zinc-900">
+      <section aria-labelledby="field-pending-heading" className="rounded-xl border border-border bg-surface p-4">
+        <h2 id="field-pending-heading" className="text-lg font-semibold text-foreground">
           Pending for you
         </h2>
-        <p role="status" aria-live="polite" className="mt-2 text-base text-zinc-600">
+        <p role="status" aria-live="polite" className="mt-2 text-base text-text-muted">
           Loading…
         </p>
       </section>
@@ -32,8 +36,11 @@ export function DashboardActionQueueFieldStrip({
   if (pending.length === 0) return null;
 
   return (
-    <section aria-labelledby="field-pending-heading" className="rounded-xl border border-amber-200 bg-amber-50/80 p-4">
-      <h2 id="field-pending-heading" className="text-lg font-semibold text-zinc-900">
+    <section
+      aria-labelledby="field-pending-heading"
+      className="rounded-xl border border-warning bg-warning-surface/80 p-4"
+    >
+      <h2 id="field-pending-heading" className="text-lg font-semibold text-foreground">
         Pending for you
       </h2>
       <ul className="mt-3 space-y-2" role="list">
@@ -41,10 +48,10 @@ export function DashboardActionQueueFieldStrip({
           <li key={item.id}>
             <Link
               href={item.href}
-              className="flex min-h-11 touch-target items-center justify-between gap-2 rounded-lg border border-amber-300 bg-white px-4 py-3 text-base font-medium text-zinc-900 hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+              className="flex min-h-11 touch-target items-center justify-between gap-2 rounded-lg border border-border-strong bg-surface px-4 py-3 text-base font-medium text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
             >
               <span className="line-clamp-2">{item.title}</span>
-              <span className="shrink-0 text-sm font-semibold text-emerald-900">{item.ctaLabel} →</span>
+              <span className="shrink-0 text-sm font-semibold text-primary">{item.ctaLabel} →</span>
             </Link>
           </li>
         ))}
@@ -52,7 +59,7 @@ export function DashboardActionQueueFieldStrip({
       <p className="mt-3 text-center text-sm">
         <Link
           href="/dashboard/approvals"
-          className="font-medium text-emerald-900 underline underline-offset-2"
+          className="font-medium text-primary underline underline-offset-2"
         >
           Open approvals inbox
         </Link>

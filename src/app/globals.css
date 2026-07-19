@@ -1,14 +1,54 @@
 @import "tailwindcss";
 
+/**
+ * ADR-UX-002 token layer — semantic CSS variables + Tailwind 4 @theme.
+ * No mandatory UI kit; shell/chrome consume these tokens via thin helpers.
+ */
 :root {
   --background: #fafafa;
   --foreground: #18181b;
+  --surface: #ffffff;
+  --surface-muted: #f4f4f5;
+  --border: #e4e4e7;
+  --border-strong: #a1a1aa;
+  --text-muted: #3f3f46;
+  --text-subtle: #52525b;
+  --danger: #b91c1c;
+  --danger-surface: #fef2f2;
+  --success: #065f46;
+  --success-surface: #ecfdf5;
+  --warning: #b45309;
+  --warning-surface: #fffbeb;
+  --focus: #059669;
+  --primary: #065f46;
+  --primary-hover: #064e3b;
+  --primary-fg: #ffffff;
+  --primary-soft: #ecfdf5;
+  --primary-soft-border: #065f46;
   color-scheme: light;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+  --color-focus: var(--focus);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-border: var(--primary-soft-border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -28,7 +68,95 @@ body {
 }
 
 /**
+ * Safe-area insets for field chrome / outbox status (ADR-UX-003 / AC-017).
+ * Pair with root viewportFit: cover — do not regress.
+ */
+.field-status-region {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+}
+
+/**
+ * Thin token helpers (AC-004 / AC-013) — filled primary ≤1 per stress action region.
+ */
+.btn-primary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  background-color: var(--primary);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-fg);
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--focus);
+}
+.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border: 2px solid var(--border-strong);
+  background-color: var(--surface);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.btn-secondary:hover {
+  background-color: var(--surface-muted);
+}
+.btn-secondary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--focus);
+}
+.btn-secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-primary-soft {
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 2px solid var(--primary-soft-border);
+  background-color: var(--primary-soft);
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.btn-primary-soft:hover {
+  background-color: #d1fae5;
+}
+.btn-primary-soft:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--focus);
+}
+
+/**
  * Skip link: off-screen until focused (2.4.1 Bypass Blocks).
+ * High-contrast primary-on-white focus ring for glare / outdoor use (AC-021).
  */
 .skip-link {
   position: absolute;
@@ -37,8 +165,8 @@ body {
   z-index: 100;
   padding: 0.75rem 1rem;
   border-radius: 0.375rem;
-  background-color: #064e3b;
-  color: #fff;
+  background-color: var(--primary-hover);
+  color: var(--primary-fg);
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
@@ -50,5 +178,12 @@ body {
 }
 .skip-link:focus-visible {
   transform: translateY(0);
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #047857;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--focus);
+}
+
+/**
+ * Glare-tolerant muted copy helper (prefer over zinc-500 on light surfaces).
+ */
+.text-glare-muted {
+  color: var(--text-muted);
 }

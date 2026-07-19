@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ModuleMaturityBanner } from "@/components/dashboard/module-maturity-banner";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -51,6 +52,11 @@ export default function ImportPage() {
         </div>
         <OrgSwitcher />
       </div>
+
+      <ModuleMaturityBanner tier="plumbing">
+        Plumbing maturity — bulk CSV import scaffolds with audit logging. Not a Core intake path.
+        See docs/module-maturity.md.
+      </ModuleMaturityBanner>
 
       <section className="rounded-lg border border-zinc-200 bg-white p-4 sm:p-6" aria-labelledby="import-aspects-h2">
         <h2 id="import-aspects-h2" className={dfPanelHeading}>

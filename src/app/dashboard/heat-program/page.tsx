@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { ModuleMaturityBanner } from "@/components/dashboard/module-maturity-banner";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -416,6 +417,11 @@ export default function HeatProgramPage() {
         </div>
         <OrgSwitcher />
       </div>
+
+      <ModuleMaturityBanner tier="connected">
+        Connected maturity — Heat NEP Appendix I program aid only. Not a federal heat standard or
+        Cal/OSHA compliance determination. See docs/module-maturity.md.
+      </ModuleMaturityBanner>
 
       <div className="rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
         Program aid only — supports OSHA Heat NEP inspection readiness. Not a federal heat standard

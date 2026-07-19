@@ -1,44 +1,35 @@
-# Staging UAT checklist — desk to field
+# Staging UAT — desk ↔ field shells (ADR-UX-002 / AC-002)
 
-**Status:** CONDITIONALLY APPROVED until staging sign-off by EHS program leadership (this document is a **procedure for testers**, not a release artifact).
+**Date:** 2026-07-19  
+**Nav modes:** Today / Capture / Decide / Prove (ADR-UX-001)  
+**Persona map:** [`ux-persona-journey-map.md`](./ux-persona-journey-map.md)  
+**Return-work env:** `pgvector/pgvector:pg16` (`ehs-ux-return-pg` → host `:5434`), `db:migrate` + `db:seed:ci`, `NEXT_PUBLIC_FIELD_OUTBOX=1`
 
-**Purpose:** Turn a desk review into repeatable staging checks: each major area lists **routes** (from the in-app sidebar source [`src/lib/dashboard-nav-links.ts`](../../src/lib/dashboard-nav-links.ts)), what to verify live, and reminders for **RBAC**, **operator friction**, and **audit trail** visibility.
+## Server-backed Administration hide
 
-**PortCo Tier 1 pilots:** Use the scoped subset and sign-off record in [portco-tier1-pilot-scope.md](./portco-tier1-pilot-scope.md) and [portco-uat-signoff-record.md](./portco-uat-signoff-record.md) instead of requiring every row below on day one.
+| Condition | Expected nav | Proof |
+|-----------|--------------|-------|
+| `layout=field`, non-admin, no integration/audit read | **Administration** absent | `cohesion.test.ts` + `filterDashboardNavSections` |
+| `layout=field`, org admin | **Administration** present | same |
+| Source of truth | `organization.dashboardHomeLayout` → `userHasPermission` | `organization.ts` path review |
 
-**How to use:** Sign in with **staging** roles that mirror production (e.g. field contributor vs manager vs admin). Complete rows with **Pass / Fail / N/A** and note failures in your defect tracker with route and role.
+Nav hide is defense-in-depth only; route `assertPermission` remains authoritative.
 
-**Engineering recurrence (cannot replace staging sign-off):** After merges that touch routers, delegated services under `src/server/services/**`, or Context Sync / integration payloads, run **`npm run verify`** locally and (optionally) **`npm run verify:all`** before release; **`npm run audit:matrix-greps`** is the failing R-008 gate from [`mutation-auditability-matrix.md`](./mutation-auditability-matrix.md) (also wired into CI `verify` and `./scripts/verify.sh`). Core-spine Playwright `@smoke` (CAPA → verified, Approvals decide, audit-trail list/export) lives under `tests/e2e/smoke/core-spine-*.spec.ts` — see [`ADR-S-003`](../adr/ADR-S-003-core-spine-audit-smoke.md).
+## Journeys J1–J4 (executable rows)
 
-| Area | Route(s) | Verify on staging |
-|------|----------|-------------------|
-| **Command center** | `/dashboard` | KPIs and activity load; **Your work** hero shows ranked next actions from `tasks.actionQueue`; home layout matches role (field launcher vs full desk); sidebar badges on **Tasks & reviews** and **Approvals** when pending; **Administration** nav hidden on field layout unless admin/integration/audit-trail read; no broken quick actions; sensitive tiles respect permissions. |
-| **Incidents** | `/dashboard/incidents`, `/dashboard/incidents/new`, `/dashboard/incidents/[id]` | Create and open a minimal incident; confirm status/type/severity flow; **without sensitive-read**: see warning banner and **no** full narrative; **with sensitive-read**: full narrative and investigation fields; changes you expect in **Audit trail** appear after saves (not every background action is guaranteed—see [COMPLIANCE.md](../../COMPLIANCE.md)). |
-| **Observations** | `/dashboard/observations`, `/dashboard/observations/new`, `/dashboard/observations/[id]` | Create observation; confirm list/detail; follow-up or escalation labels if your org uses them; RBAC prevents cross-site abuse. |
-| **Inspections** | `/dashboard/inspections`, `/dashboard/inspections/new`, `/dashboard/inspections/[id]` | Create inspection; complete required fields; confirm readback and any approval handoff your process defines. |
-| **CAPA** | `/dashboard/capa`, `/dashboard/capa/[capaId]` | Create or advance CAPA on register; open detail for **Source & context** links and status stepper; approval gate behavior matches [docs/approval-workflow.md](../approval-workflow.md); action-queue deep links land on detail route. |
-| **Assurance hub** | `/dashboard/assurance` | Cross-links internal audits, open CAPAs, CB audits, certificates; copy distinguishes ISO programme from transactional **Audit trail**. |
-| **Internal audits** | `/dashboard/audits` | Plan audit; add finding; create CAPA from finding when needed. |
-| **Management review** | `/dashboard/management-review` | Review records load; obligation/action links if seeded. |
-| **Environment** | `/dashboard/environment` | Aspects/obligations; obligation evidence panel if applicable; deep link `?obligation=` from action queue. |
-| **Program admin** | `/dashboard/program`, `/dashboard/emergency`, `/dashboard/moc` | Program overview (KPIs, external parties); emergency scenarios/drills; MOC register and entity links. |
-| **Permits to work (PTW)** | `/dashboard/permits`, `/dashboard/permits/new`, `/dashboard/permits/[id]` | **Not** environmental regulatory permits: confirm hot work / confined-space style workflow, approvals, cancel path; storage of free-text hazards is program-sensitive. |
-| **Environmental permits (register)** | `/dashboard/environmental-permits`, `/dashboard/environmental-permits/new`, `/dashboard/environmental-permits/[id]` | Distinct from PTW: regulatory permit metadata, conditions, links; access only for roles with environmental permit permissions. |
-| **Planning / risk** | `/dashboard/planning`, `/dashboard/risk-assessments`, `/dashboard/risk-assessments/new`, `/dashboard/risk-assessments/[id]` | Planning roster and risk assessment intake; JSA-style steps if used; linkage to hazards/aspects where applicable. |
-| **Metrics** | `/dashboard/analytics` | Dashboards load; export or CSV if enabled does not leak other orgs; restricted metrics hidden for limited roles. |
-| **Approvals** | `/dashboard/approvals` | Queue shows pending items; approve/deny paths work; escalation or overdue messaging matches program rules. |
-| **Training** | `/dashboard/training` | Assignments or records visible per role; integration-fed completions if staging is wired (see [docs/integration-connector-mapping.md](../integration-connector-mapping.md) if used). |
-| **Integrations** | `/dashboard/integrations` | Surface matches staging configuration; inbound secrets not exposed in UI; operational errors are understandable for admins. |
-| **Retention & privacy** | `/dashboard/retention`, `/dashboard/privacy-requests` | Policy labels make sense for counsel review; legal hold and retention overrides only for authorized roles; no accidental destructive actions without confirmation. |
-| **Audit trail (console)** | `/dashboard/audit-trail` | Date range and filters work; entries align with actions you performed in-session for key entities; gaps documented rather than assumed complete. |
-| **Field adjacencies** | `/dashboard/tasks` (Tasks & reviews) | Task list and reviews usable on a laptop or tablet; offline banner or outbox behavior if **field outbox** is enabled in staging (`NEXT_PUBLIC_FIELD_OUTBOX`). |
+| ID | Persona | Route path | Permissions | Success criteria | Result | Digest / notes |
+|----|---------|------------|-------------|------------------|--------|----------------|
+| **J1** | Field | Today/Capture → `/dashboard/incidents/new` → outbox status in Shell | `incident:create`; outbox when `NEXT_PUBLIC_FIELD_OUTBOX=1` | Submit or queue; sync failure visible in Shell status region without Integrations admin | **PASS** | `offline-dashboard-banner` outbox conflict + device-loss smoke; digest `941da3e53b3c739b5e04111c779080f085512c94637df5c7666c826038a60ae9` (`.corp-harness/evidence/return-outbox-touch.txt`) |
+| **J2** | Desk supervisor | Today → Decide `/dashboard/approvals` → Prove `/dashboard/audit-trail` | Approver step + `audit_trail:read` | Decide completes; audit-trail shows mutation | **PASS** | `core-spine-approvals-decide` + `core-spine-audit-trail` @smoke; digest `b4a604ac2aa4204c6452f10717efe161207d98369b7333cf431304c8acce8dea` (`.corp-harness/evidence/return-integration-e2e.txt`) |
+| **J3** | Desk / field | Capture `/dashboard/inspections` → Decide `/dashboard/capa` | Inspection + CAPA create | CAPA under Decide; no Administration required | **PASS** | Inspection intake @smoke + `core-spine-capa-lifecycle`; same integration-e2e digest; CAPA under Decide per ADR-UX-001 nav |
+| **J4** | Desk | Decide reopen/escalate on Core entity | Transition permission + justification | Server-encoded transitions only | **PASS** | CAPA planned→verified + approvals decide path in core-spine @smoke (server transitions); same integration-e2e digest |
 
-**Sign-off block (after staging run):**
+## Field vs desk narrative distinctness
 
-- Program owner name: __________________  
-- Date: __________________  
-- Result: **APPROVED FOR PILOT** / **HOLD** (notes): __________________  
+| Shell | Entry | Primary job |
+|-------|-------|-------------|
+| Field | `DashboardFieldLauncher` when `dashboardHomeLayout.layout === "field"` | One lead Capture CTA + pending strip |
+| Desk contributor | `CommandCenterDeskView` persona `desk_contributor` | Today queue + lighter Decide |
+| Desk supervisor | `CommandCenterDeskView` persona `desk_supervisor` | Full KPIs + Decide/Prove |
 
----
-
-*Navigation labels in the live app follow `DASHBOARD_NAV_SECTIONS` in [`src/lib/dashboard-nav-links.ts`](../../src/lib/dashboard-nav-links.ts); if the product renames a tab, update this checklist’s route column to match.*
+Preference override: `?view=desk|field` or local preference — does not invent server permissions.

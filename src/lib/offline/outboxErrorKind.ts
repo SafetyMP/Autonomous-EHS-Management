@@ -39,7 +39,31 @@ export function outboxErrorKindLabel(kind: OutboxErrorKind): string {
       return "Permission denied on replay";
     case "network":
       return "Network error";
-    default:
+    case "unknown":
       return "Sync error";
+    default: {
+      const _exhaustive: never = kind;
+      return _exhaustive;
+    }
+  }
+}
+
+/** Plain-language next step; conflict copy forbids multi-device merge (D-010). */
+export function outboxErrorKindGuidance(kind: OutboxErrorKind): string {
+  switch (kind) {
+    case "conflict":
+      return "The server copy may have changed or been deleted while this device was offline. Remove from device and re-enter from the live form — queued changes are not merged across devices.";
+    case "validation":
+      return "Fix the underlying data (or discard this queue item), then retry. Retries will keep failing until the payload is valid.";
+    case "forbidden":
+      return "Your role may lack permission for this replay. Ask an admin, or Remove from device and hand off to someone with rights.";
+    case "network":
+      return "Check connectivity, then use Retry failed syncs. The item stays on this device until it sends.";
+    case "unknown":
+      return "Review the error detail, fix the cause if you can, then retry — or Remove from device and submit again online.";
+    default: {
+      const _exhaustive: never = kind;
+      return _exhaustive;
+    }
   }
 }

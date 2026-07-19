@@ -56,6 +56,10 @@ export function DashboardFieldLauncher({
     },
   ];
 
+  const visibleActions = actions.filter((a) => a.show);
+  /** AC-004: ≤1 filled primary in the Start-here action region. */
+  const [leadAction, ...secondaryActions] = visibleActions;
+
   return (
     <div className="space-y-8">
       <DashboardPageHeader
@@ -64,30 +68,37 @@ export function DashboardFieldLauncher({
         actions={<OrgSwitcher />}
       />
 
-      <section aria-labelledby="field-primary-heading">
-        <h2 id="field-primary-heading" className="mb-3 text-lg font-semibold text-zinc-900">
+      <section aria-labelledby="field-primary-heading" data-stress-action-region="field-today">
+        <h2 id="field-primary-heading" className="mb-3 text-lg font-semibold text-foreground">
           Start here
         </h2>
-        <ul className="grid gap-3 sm:grid-cols-2" role="list">
-          {actions
-            .filter((a) => a.show)
-            .map((a) => (
-              <li key={a.href}>
-                <Link
-                  href={a.href}
-                  className="flex min-h-[3.5rem] touch-target items-center justify-center rounded-xl border-2 border-emerald-800 bg-emerald-50 px-4 py-4 text-center text-lg font-semibold text-emerald-950 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
-                >
-                  {a.label}
-                </Link>
+        {leadAction ? (
+          <ul className="grid gap-3" role="list">
+            <li>
+              <Link href={leadAction.href} className="btn-primary-soft touch-target">
+                {leadAction.label}
+              </Link>
+            </li>
+            {secondaryActions.length > 0 ? (
+              <li>
+                <ul className="grid gap-2 sm:grid-cols-2" role="list">
+                  {secondaryActions.map((a) => (
+                    <li key={a.href}>
+                      <Link href={a.href} className="btn-secondary w-full touch-target">
+                        {a.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </li>
-            ))}
-        </ul>
-        {actions.every((a) => !a.show) ? (
-          <p className="mt-2 text-base text-zinc-700">
+            ) : null}
+          </ul>
+        ) : (
+          <p className="mt-2 text-base text-text-muted">
             You do not have intake permissions in this org. Ask an administrator to adjust your role,
             or use the full dashboard if you have broader access.
           </p>
-        ) : null}
+        )}
       </section>
 
       <DashboardActionQueueFieldStrip
@@ -96,7 +107,7 @@ export function DashboardFieldLauncher({
       />
 
       <section aria-labelledby="field-lists-heading">
-        <h2 id="field-lists-heading" className="mb-3 text-lg font-semibold text-zinc-900">
+        <h2 id="field-lists-heading" className="mb-3 text-lg font-semibold text-foreground">
           Recent lists
         </h2>
         <ul className="grid gap-2 sm:grid-cols-2" role="list">
@@ -106,7 +117,7 @@ export function DashboardFieldLauncher({
               <li key={a.href}>
                 <Link
                   href={a.href}
-                  className="flex min-h-11 touch-target items-center rounded-lg border border-zinc-300 bg-white px-4 py-3 text-base font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                  className="flex min-h-11 touch-target items-center rounded-lg border border-border-strong bg-surface px-4 py-3 text-base font-medium text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                 >
                   {a.label}
                 </Link>
@@ -115,9 +126,9 @@ export function DashboardFieldLauncher({
         </ul>
       </section>
 
-      <p className="text-center text-xs text-zinc-500">
+      <p className="text-center text-xs text-text-subtle">
         Pending work is ranked on the command center and in{" "}
-        <Link href="/dashboard/tasks" className="font-medium text-emerald-900 underline underline-offset-2">
+        <Link href="/dashboard/tasks" className="font-medium text-primary underline underline-offset-2">
           Tasks &amp; reviews
         </Link>
         .
@@ -126,7 +137,7 @@ export function DashboardFieldLauncher({
       <p className="text-center">
         <Link
           href="/dashboard?view=desk"
-          className="inline-flex min-h-11 touch-target items-center justify-center rounded-lg border border-zinc-400 bg-white px-4 py-2 text-base font-semibold text-emerald-900 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+          className="btn-secondary touch-target inline-flex"
         >
           Full operations dashboard
         </Link>

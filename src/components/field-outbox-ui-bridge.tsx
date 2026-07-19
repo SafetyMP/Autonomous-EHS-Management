@@ -18,7 +18,10 @@ import {
   resetAllFailedFieldOutboxForOrg,
   type FieldOutboxRecord,
 } from "@/lib/offline/fieldOutbox";
-import { outboxErrorKindLabel } from "@/lib/offline/outboxErrorKind";
+import {
+  outboxErrorKindGuidance,
+  outboxErrorKindLabel,
+} from "@/lib/offline/outboxErrorKind";
 
 export type FieldOutboxLastFlush = { sent: number; failed: number };
 
@@ -60,7 +63,51 @@ export function useFieldOutboxUi(): FieldOutboxUiContextValue {
 }
 
 /**
- * Compact offline outbox messaging: last flush outcome and retry for failed rows.
+ * Additive success-only toast (ADR-UX-003 / UD-PL-UX-002).
+ * Failed sync / conflict / device-loss MUST remain in FieldOutboxStatusBar — never toast-only.
+ */
+export function FieldOutboxSuccessToast() {
+  const { lastFlushResult } = useFieldOutboxUi();
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isFieldOutboxEnabled()) return;
+    if (!lastFlushResult || lastFlushResult.sent <= 0 || lastFlushResult.failed > 0) {
+      return;
+    }
+    const msg =
+      lastFlushResult.sent === 1
+        ? "Offline queue: 1 update sent from this device."
+        : `Offline queue: ${lastFlushResult.sent} updates sent from this device.`;
+    const show = window.setTimeout(() => setMessage(msg), 0);
+    const hide = window.setTimeout(() => setMessage(null), 8_000);
+    return () => {
+      window.clearTimeout(show);
+      window.clearTimeout(hide);
+    };
+  }, [lastFlushResult]);
+
+  if (!isFieldOutboxEnabled() || !message) return null;
+
+  return (
+    <div
+      data-field-outbox-success-toast="1"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-[max(1rem,env(safe-area-inset-left))] pb-[max(1rem,env(safe-area-inset-bottom))] pr-[max(1rem,env(safe-area-inset-right))]"
+      aria-hidden={false}
+    >
+      <p
+        role="status"
+        aria-live="polite"
+        className="pointer-events-auto max-w-lg rounded-md border border-success bg-success-surface px-4 py-3 text-base font-medium text-success shadow-sm"
+      >
+        {message}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Durable offline outbox status region (ADR-UX-003 status-region-first).
  * Mount under `FieldOutboxUiProvider` with `NEXT_PUBLIC_FIELD_OUTBOX=1`.
  */
 export function FieldOutboxStatusBar() {
@@ -126,7 +173,7 @@ export function FieldOutboxStatusBar() {
 
   const failedLine =
     failedRows.length > 0
-      ? `${failedRows.length} offline item(s) could not sync. You can retry after fixing connection or validation issues.`
+      ? `${failedRows.length} offline item(s) could not sync. Retry after fixing connection or validation issues, or remove stale items.`
       : null;
 
   if (!flushLine && !failedLine && !pendingLine) return null;
@@ -151,47 +198,65 @@ export function FieldOutboxStatusBar() {
     }
   }
 
+  const hasConflict = failedRows.some((r) => r.errorKind === "conflict");
+
   return (
     <div
+      id="field-outbox-status"
+      data-field-outbox-status="1"
       role="region"
       aria-label="Offline sync queue"
-      className="shrink-0 rounded-lg border border-zinc-300 bg-zinc-50 px-4 py-3 text-base text-zinc-900"
+      className="field-status-region shrink-0 rounded-lg border border-border-strong bg-surface-muted text-base text-foreground"
     >
       {syncAnnounce ? (
-        <p role="status" aria-live="polite" className="mb-2 font-medium text-emerald-900">
+        <p role="status" aria-live="polite" className="mb-2 font-medium text-success">
           {syncAnnounce}
         </p>
       ) : null}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div aria-live="polite" className="min-w-0 space-y-1">
-          {pendingLine ? <p className="text-zinc-800">{pendingLine}</p> : null}
+          {pendingLine ? <p className="text-text-muted">{pendingLine}</p> : null}
           {flushLine ? <p>{flushLine}</p> : null}
-          {failedLine ? <p className="text-zinc-800">{failedLine}</p> : null}
+          {failedLine ? (
+            <p className="text-text-muted">
+              {failedLine}
+              {hasConflict ? (
+                <span
+                  data-outbox-error-kind="conflict"
+                  className="ml-2 inline-block rounded bg-warning-surface px-1.5 py-0.5 text-xs font-semibold text-warning ring-1 ring-warning"
+                >
+                  {outboxErrorKindLabel("conflict")}
+                </span>
+              ) : null}
+            </p>
+          ) : null}
         </div>
         {failedRows.length > 0 ? (
           <button
             type="button"
+            data-outbox-retry="1"
             disabled={retryBusy}
+            aria-busy={retryBusy}
             onClick={() => void onRetryFailed()}
-            className="touch-target shrink-0 rounded-md border border-emerald-700 bg-emerald-600 px-4 py-2 text-base font-medium text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:opacity-60"
+            className="btn-primary touch-target shrink-0"
           >
             {retryBusy ? "Retrying…" : "Retry failed syncs"}
           </button>
         ) : null}
       </div>
       {failedRows.length > 0 ? (
-        <details className="mt-3 rounded-md border border-amber-200 bg-amber-50/80 px-3 py-2 text-sm text-amber-950">
-          <summary className="cursor-pointer touch-target py-1 font-semibold outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2">
+        <details className="mt-3 rounded-md border border-warning bg-warning-surface px-3 py-2 text-sm text-foreground">
+          <summary className="cursor-pointer touch-target py-1 font-semibold outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2">
             View last error per failed item
           </summary>
-          <ul className="mt-2 space-y-3 border-t border-amber-200/80 pt-2 text-amber-950" role="list">
+          <ul className="mt-2 space-y-3 border-t border-warning/40 pt-2" role="list">
             {failedRows.map((r) => (
-              <li key={r.localId} className="break-words">
+              <li key={r.localId} className="break-words" data-outbox-failed-row={r.localId}>
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <span className="font-medium">{r.procedure}</span>
                     {r.errorKind ? (
-                      <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-950">
+                      <span className="ml-2 rounded bg-warning-surface px-1.5 py-0.5 text-xs font-semibold text-warning ring-1 ring-warning">
                         {outboxErrorKindLabel(r.errorKind)}
                       </span>
                     ) : null}
@@ -203,10 +268,16 @@ export function FieldOutboxStatusBar() {
                     ) : (
                       " — no error detail stored."
                     )}
+                    {r.errorKind ? (
+                      <p className="mt-1 text-sm leading-relaxed text-text-muted">
+                        {outboxErrorKindGuidance(r.errorKind)}
+                      </p>
+                    ) : null}
                   </div>
                   <button
                     type="button"
-                    className="touch-target shrink-0 self-start rounded border border-zinc-400 px-3 py-1.5 text-sm font-semibold text-zinc-900 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 disabled:opacity-60"
+                    data-outbox-remove="1"
+                    className="btn-secondary touch-target shrink-0 self-start"
                     disabled={removeBusyId === r.localId}
                     aria-label={`Remove failed offline queue item ${r.procedure}`}
                     onClick={() => void onRemoveFailed(r.localId)}
@@ -217,13 +288,32 @@ export function FieldOutboxStatusBar() {
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-sm leading-relaxed text-amber-950">
-            If the server record changed while you were offline (for example someone else edited the same inspection,
-            or the entity was deleted), retries may keep failing until you discard the queued item from this device and
-            submit again from the live form—that avoids silently overwriting fresher server data.
-          </p>
+          {hasConflict ? (
+            <p className="mt-3 text-sm leading-relaxed text-foreground">
+              Conflict items are not merged automatically across devices. Last successful replay from a
+              device wins on the server until a multi-device policy exists — discard the stale queue item
+              here instead of forcing overwrite.
+            </p>
+          ) : (
+            <p className="mt-3 text-sm leading-relaxed text-text-muted">
+              If the server record changed while you were offline, retries may keep failing until you
+              discard the queued item from this device and submit again from the live form.
+            </p>
+          )}
         </details>
       ) : null}
+      <div className="mt-3 space-y-1 border-t border-border pt-3 text-sm leading-relaxed text-text-muted">
+        <p>
+          Queued items live in <strong className="font-semibold text-foreground">this browser’s IndexedDB</strong>{" "}
+          on this device only. There is no server-side draft for pending queue items. Lost, wiped, or
+          replaced devices lose unreplayed rows — re-enter critical field data; do not expect recovery
+          on another phone or browser.
+        </p>
+        <p>
+          Field photos are <strong className="font-semibold text-foreground">not</strong> queued offline.
+          Remove photos or reconnect before save.
+        </p>
+      </div>
     </div>
   );
 }

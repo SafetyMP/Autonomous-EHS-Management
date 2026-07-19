@@ -1,7 +1,9 @@
 import { env } from "@/lib/env";
 import { classifyOutboxError, type OutboxErrorKind } from "@/lib/offline/outboxErrorKind";
 
-const DB_NAME = "ehs_field_outbox_v1";
+/** IndexedDB database name — exported for e2e seed / support digests. */
+export const FIELD_OUTBOX_DB_NAME = "ehs_field_outbox_v1";
+const DB_NAME = FIELD_OUTBOX_DB_NAME;
 const STORE = "queue";
 
 export type FieldOutboxProcedure =

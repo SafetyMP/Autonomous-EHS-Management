@@ -1,0 +1,455 @@
+==> npm ci (expect packageManager npm@10.9.2)
+
+added 772 packages, and audited 916 packages in 19s
+
+266 packages are looking for funding
+  run `npm fund` for details
+
+7 vulnerabilities (4 moderate, 3 high)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+==> verify (lint + typecheck + unit tests)
+
+> ehs@0.1.0 verify
+> npm run lint && npx tsc --noEmit && npm test
+
+
+> ehs@0.1.0 lint
+> eslint
+
+
+> ehs@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.10 /Users/sagehart/Downloads/Autonomous EHS Management System 
+
+
+ Test Files  86 passed (86)
+      Tests  405 passed (405)
+   Start at  09:20:39
+   Duration  14.82s (transform 7.29s, setup 9.79s, import 64.31s, tests 2.14s, environment 13ms)
+
+==> audit matrix greps (ADR-S-003 R-008)
+
+> ehs@0.1.0 audit:matrix-greps
+> bash scripts/audit-matrix-greps.sh
+
+=== tRPC router modules ===
+src/server/trpc/routers/aiAssistant.ts
+src/server/trpc/routers/aiDrafts.ts
+src/server/trpc/routers/analytics.ts
+src/server/trpc/routers/approval.ts
+src/server/trpc/routers/aspect.ts
+src/server/trpc/routers/auditTrailRouter.ts
+src/server/trpc/routers/capa.ts
+src/server/trpc/routers/chemicalInventoryRouter.ts
+src/server/trpc/routers/complianceMetricsRouter.ts
+src/server/trpc/routers/complianceRouter.ts
+src/server/trpc/routers/consultation.ts
+src/server/trpc/routers/context.ts
+src/server/trpc/routers/contextSyncProtocol.ts
+src/server/trpc/routers/dataRetentionRouter.ts
+src/server/trpc/routers/document.ts
+src/server/trpc/routers/dsarRouter.ts
+src/server/trpc/routers/ehsEvidence.ts
+src/server/trpc/routers/emergency.ts
+src/server/trpc/routers/environmentalMonitoring.ts
+src/server/trpc/routers/environmentalRegulatoryPermit.ts
+src/server/trpc/routers/establishmentRouter.ts
+src/server/trpc/routers/externalParty.ts
+src/server/trpc/routers/heatProgramRouter.ts
+src/server/trpc/routers/importData.ts
+src/server/trpc/routers/incident.ts
+src/server/trpc/routers/inspection.ts
+src/server/trpc/routers/integration.ts
+src/server/trpc/routers/internalAudit.ts
+src/server/trpc/routers/managementReview.ts
+src/server/trpc/routers/obligation.ts
+src/server/trpc/routers/observation.ts
+src/server/trpc/routers/organization.ts
+src/server/trpc/routers/permit.ts
+src/server/trpc/routers/planning/controlRouter.ts
+src/server/trpc/routers/planning/hazardRouter.ts
+src/server/trpc/routers/planning/index.ts
+src/server/trpc/routers/planning/kpiRouter.ts
+src/server/trpc/routers/planning/objectiveRouter.ts
+src/server/trpc/routers/planning/planningEnums.ts
+src/server/trpc/routers/planning/riskRouter.ts
+src/server/trpc/routers/portcoIdentity.ts
+src/server/trpc/routers/program.ts
+src/server/trpc/routers/rag.ts
+src/server/trpc/routers/regulatoryOshaRouter.ts
+src/server/trpc/routers/tasks.ts
+src/server/trpc/routers/training.ts
+src/server/trpc/routers/workflowCatalogRouter.ts
+
+=== writeAuditLog under src/server/trpc/routers ===
+src/server/trpc/routers/obligation.ts:15:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/obligation.ts:70:        await writeAuditLog(tx, {
+src/server/trpc/routers/obligation.ts:135:        await writeAuditLog(tx, {
+src/server/trpc/routers/obligation.ts:193:        await writeAuditLog(tx, {
+src/server/trpc/routers/obligation.ts:245:        await writeAuditLog(tx, {
+src/server/trpc/routers/obligation.ts:309:        await writeAuditLog(tx, {
+src/server/trpc/routers/obligation.ts:364:        await writeAuditLog(tx, {
+src/server/trpc/routers/obligation.ts:498:        await writeAuditLog(tx, {
+src/server/trpc/routers/obligation.ts:561:        await writeAuditLog(tx, {
+src/server/trpc/routers/obligation.ts:601:        await writeAuditLog(tx, {
+src/server/trpc/routers/auditTrailRouter.ts:7:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/auditTrailRouter.ts:199:    await writeAuditLog(ctx.db, {
+src/server/trpc/routers/observation.ts:13:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/observation.ts:157:            await writeAuditLog(tx, {
+src/server/trpc/routers/observation.ts:251:        await writeAuditLog(tx, {
+src/server/trpc/routers/observation.ts:310:        await writeAuditLog(tx, {
+src/server/trpc/routers/portcoIdentity.ts:10:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/portcoIdentity.ts:68:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/portcoIdentity.ts:106:    await writeAuditLog(ctx.db, {
+src/server/trpc/routers/portcoIdentity.ts:148:        await writeAuditLog(ctx.db, {
+src/server/trpc/routers/portcoIdentity.ts:171:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/portcoIdentity.ts:204:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/portcoIdentity.ts:258:        await writeAuditLog(ctx.db, {
+src/server/trpc/routers/portcoIdentity.ts:285:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/portcoIdentity.ts:320:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/heatProgramRouter.ts:20:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/heatProgramRouter.ts:147:          await writeAuditLog(tx, {
+src/server/trpc/routers/heatProgramRouter.ts:177:          await writeAuditLog(tx, {
+src/server/trpc/routers/heatProgramRouter.ts:296:        await writeAuditLog(tx, {
+src/server/trpc/routers/heatProgramRouter.ts:400:        await writeAuditLog(tx, {
+src/server/trpc/routers/aspect.ts:11:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/aspect.ts:108:        await writeAuditLog(tx, {
+src/server/trpc/routers/aspect.ts:217:        await writeAuditLog(tx, {
+src/server/trpc/routers/dataRetentionRouter.ts:11:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/dataRetentionRouter.ts:88:          await writeAuditLog(tx, {
+src/server/trpc/routers/dataRetentionRouter.ts:127:        await writeAuditLog(tx, {
+src/server/trpc/routers/consultation.ts:6:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/consultation.ts:95:        await writeAuditLog(tx, {
+src/server/trpc/routers/organization.ts:15:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/organization.ts:266:        await writeAuditLog(tx, {
+src/server/trpc/routers/organization.ts:303:        await writeAuditLog(tx, {
+src/server/trpc/routers/organization.ts:425:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/organization.ts:503:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/organization.ts:542:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/organization.ts:601:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/aiAssistant.ts:24:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/aiAssistant.ts:119:          await writeAuditLog(ctx.db, {
+src/server/trpc/routers/document.ts:6:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/document.ts:99:        await writeAuditLog(tx, {
+src/server/trpc/routers/document.ts:169:        await writeAuditLog(tx, {
+src/server/trpc/routers/document.ts:238:        await writeAuditLog(tx, {
+src/server/trpc/routers/internalAudit.ts:12:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/internalAudit.ts:141:        await writeAuditLog(tx, {
+src/server/trpc/routers/internalAudit.ts:156:          await writeAuditLog(tx, {
+src/server/trpc/routers/internalAudit.ts:238:        await writeAuditLog(tx, {
+src/server/trpc/routers/internalAudit.ts:312:        await writeAuditLog(tx, {
+src/server/trpc/routers/chemicalInventoryRouter.ts:17:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/chemicalInventoryRouter.ts:74:        await writeAuditLog(tx, {
+src/server/trpc/routers/chemicalInventoryRouter.ts:142:        await writeAuditLog(tx, {
+src/server/trpc/routers/chemicalInventoryRouter.ts:271:          await writeAuditLog(tx, {
+src/server/trpc/routers/chemicalInventoryRouter.ts:297:        await writeAuditLog(tx, {
+src/server/trpc/routers/chemicalInventoryRouter.ts:468:        await writeAuditLog(tx, {
+src/server/trpc/routers/chemicalInventoryRouter.ts:513:        await writeAuditLog(tx, {
+src/server/trpc/routers/incident.ts:15:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/incident.ts:377:            await writeAuditLog(tx, {
+src/server/trpc/routers/incident.ts:491:        await writeAuditLog(tx, {
+src/server/trpc/routers/incident.ts:653:        await writeAuditLog(tx, {
+src/server/trpc/routers/contextSyncProtocol.ts:11:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/contextSyncProtocol.ts:69:        await writeAuditLog(ctx.db, {
+src/server/trpc/routers/contextSyncProtocol.ts:102:        await writeAuditLog(ctx.db, {
+src/server/trpc/routers/integration.ts:11:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/integration.ts:118:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/integration.ts:153:          await writeAuditLog(tx, {
+src/server/trpc/routers/integration.ts:251:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/integration.ts:283:        await writeAuditLog(ctx.db, {
+src/server/trpc/routers/integration.ts:354:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/integration.ts:385:    await writeAuditLog(ctx.db, {
+src/server/trpc/routers/inspection.ts:6:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/inspection.ts:114:            await writeAuditLog(tx, {
+src/server/trpc/routers/inspection.ts:198:          await writeAuditLog(tx, {
+src/server/trpc/routers/inspection.ts:273:              await writeAuditLog(tx, {
+src/server/trpc/routers/permit.ts:12:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/permit.ts:112:            await writeAuditLog(tx, {
+src/server/trpc/routers/permit.ts:181:        await writeAuditLog(tx, {
+src/server/trpc/routers/permit.ts:228:        await writeAuditLog(tx, {
+src/server/trpc/routers/permit.ts:340:            await writeAuditLog(tx, {
+src/server/trpc/routers/permit.ts:426:        await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:19:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/program.ts:66:          await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:100:          await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:158:          await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:214:          await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:296:        await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:342:        await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:382:          await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:424:          await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:462:          await writeAuditLog(tx, {
+src/server/trpc/routers/program.ts:507:          await writeAuditLog(tx, {
+src/server/trpc/routers/environmentalMonitoring.ts:12:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/environmentalMonitoring.ts:187:        await writeAuditLog(tx, {
+src/server/trpc/routers/dsarRouter.ts:6:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/dsarRouter.ts:63:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/dsarRouter.ts:111:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/establishmentRouter.ts:6:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/establishmentRouter.ts:141:        await writeAuditLog(tx, {
+src/server/trpc/routers/establishmentRouter.ts:197:          await writeAuditLog(tx, {
+src/server/trpc/routers/establishmentRouter.ts:223:        await writeAuditLog(tx, {
+src/server/trpc/routers/establishmentRouter.ts:280:          await writeAuditLog(tx, {
+src/server/trpc/routers/establishmentRouter.ts:302:        await writeAuditLog(tx, {
+src/server/trpc/routers/capa.ts:19:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/capa.ts:519:        await writeAuditLog(tx, {
+src/server/trpc/routers/capa.ts:647:        await writeAuditLog(tx, {
+src/server/trpc/routers/capa.ts:711:        await writeAuditLog(tx, {
+src/server/trpc/routers/approval.ts:14:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/approval.ts:485:          await writeAuditLog(tx, {
+src/server/trpc/routers/approval.ts:537:        await writeAuditLog(tx, {
+src/server/trpc/routers/ehsEvidence.ts:11:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/ehsEvidence.ts:135:        await writeAuditLog(tx, {
+src/server/trpc/routers/aiDrafts.ts:5:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/aiDrafts.ts:102:        await writeAuditLog(tx, {
+src/server/trpc/routers/importData.ts:4:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/importData.ts:42:        await writeAuditLog(tx, {
+src/server/trpc/routers/importData.ts:78:        await writeAuditLog(tx, {
+src/server/trpc/routers/complianceMetricsRouter.ts:10:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/complianceMetricsRouter.ts:79:      await writeAuditLog(ctx.db, {
+src/server/trpc/routers/training.ts:6:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/training.ts:71:        await writeAuditLog(tx, {
+src/server/trpc/routers/training.ts:139:        await writeAuditLog(tx, {
+src/server/trpc/routers/regulatoryOshaRouter.ts:16:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/regulatoryOshaRouter.ts:109:        await writeAuditLog(tx, {
+src/server/trpc/routers/regulatoryOshaRouter.ts:345:          await writeAuditLog(tx, {
+src/server/trpc/routers/regulatoryOshaRouter.ts:392:        await writeAuditLog(tx, {
+src/server/trpc/routers/regulatoryOshaRouter.ts:439:    await writeAuditLog(ctx.db, {
+src/server/trpc/routers/planning/controlRouter.ts:6:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/planning/controlRouter.ts:77:        await writeAuditLog(tx, {
+src/server/trpc/routers/planning/controlRouter.ts:147:        await writeAuditLog(tx, {
+src/server/trpc/routers/planning/kpiRouter.ts:10:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/planning/kpiRouter.ts:100:        await writeAuditLog(tx, {
+src/server/trpc/routers/planning/riskRouter.ts:12:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/planning/riskRouter.ts:226:            await writeAuditLog(tx, {
+src/server/trpc/routers/planning/riskRouter.ts:377:        await writeAuditLog(tx, {
+src/server/trpc/routers/planning/riskRouter.ts:435:        await writeAuditLog(tx, {
+src/server/trpc/routers/planning/hazardRouter.ts:6:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/planning/hazardRouter.ts:90:        await writeAuditLog(tx, {
+src/server/trpc/routers/planning/hazardRouter.ts:149:        await writeAuditLog(tx, {
+src/server/trpc/routers/emergency.ts:16:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/emergency.ts:86:        await writeAuditLog(tx, {
+src/server/trpc/routers/emergency.ts:208:        await writeAuditLog(tx, {
+src/server/trpc/routers/managementReview.ts:6:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/managementReview.ts:62:        await writeAuditLog(tx, {
+src/server/trpc/routers/managementReview.ts:127:        await writeAuditLog(tx, {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:13:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:243:            await writeAuditLog(tx, {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:363:            await writeAuditLog(tx, {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:436:        await writeAuditLog(tx, {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:578:        await writeAuditLog(tx, {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:641:        await writeAuditLog(tx, {
+src/server/trpc/routers/planning/objectiveRouter.ts:10:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/planning/objectiveRouter.ts:69:        await writeAuditLog(tx, {
+src/server/trpc/routers/planning/objectiveRouter.ts:136:        await writeAuditLog(tx, {
+src/server/trpc/routers/externalParty.ts:11:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/externalParty.ts:186:          await writeAuditLog(tx, {
+src/server/trpc/routers/externalParty.ts:261:          await writeAuditLog(tx, {
+src/server/trpc/routers/externalParty.ts:346:            await writeAuditLog(tx, {
+src/server/trpc/routers/rag.ts:14:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/rag.ts:174:        await writeAuditLog(tx, {
+src/server/trpc/routers/rag.ts:282:        await writeAuditLog(tx, {
+src/server/trpc/routers/rag.ts:379:        await writeAuditLog(tx, {
+src/server/trpc/routers/context.ts:16:import { writeAuditLog } from "@/server/services/audit";
+src/server/trpc/routers/context.ts:58:  await writeAuditLog(tx, {
+src/server/trpc/routers/context.ts:154:          await writeAuditLog(tx, {
+src/server/trpc/routers/context.ts:234:        await writeAuditLog(tx, {
+src/server/trpc/routers/context.ts:296:        await writeAuditLog(tx, {
+src/server/trpc/routers/context.ts:360:        await writeAuditLog(tx, {
+src/server/trpc/routers/context.ts:425:        await writeAuditLog(tx, {
+
+=== .mutation( under src/server/trpc/routers ===
+src/server/trpc/routers/obligation.ts:43:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/obligation.ts:93:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/obligation.ts:155:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/obligation.ts:213:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/obligation.ts:265:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/obligation.ts:329:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/obligation.ts:456:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/obligation.ts:519:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/obligation.ts:581:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/observation.ts:107:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/observation.ts:189:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/observation.ts:266:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/portcoIdentity.ts:49:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/portcoIdentity.ts:80:  rotateScimBearerToken: protectedMutation.input(orgScope).mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/portcoIdentity.ts:127:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/portcoIdentity.ts:187:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/portcoIdentity.ts:235:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/portcoIdentity.ts:303:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/heatProgramRouter.ts:97:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/heatProgramRouter.ts:229:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/heatProgramRouter.ts:353:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aspect.ts:55:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aspect.ts:137:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/dataRetentionRouter.ts:46:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/consultation.ts:36:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/organization.ts:242:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/organization.ts:286:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/organization.ts:389:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/organization.ts:449:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/organization.ts:525:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/organization.ts:561:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aiAssistant.ts:46:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aiAssistant.ts:174:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aiAssistant.ts:212:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aiAssistant.ts:254:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aiAssistant.ts:293:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aiAssistant.ts:334:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/internalAudit.ts:79:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/internalAudit.ts:200:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/internalAudit.ts:263:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/incident.ts:300:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/incident.ts:401:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/incident.ts:541:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/dsarRouter.ts:37:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/dsarRouter.ts:85:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/environmentalMonitoring.ts:90:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/ehsEvidence.ts:72:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/permit.ts:62:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/permit.ts:139:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/permit.ts:205:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/permit.ts:263:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/permit.ts:369:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/rag.ts:106:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/rag.ts:199:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/rag.ts:309:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/importData.ts:15:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/importData.ts:56:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/document.ts:70:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/document.ts:122:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/document.ts:189:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/managementReview.ts:35:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/managementReview.ts:85:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/integration.ts:139:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/integration.ts:176:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/integration.ts:217:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/integration.ts:270:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/integration.ts:309:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/integration.ts:382:  enqueueRosterReconcile: protectedMutation.input(orgScope).mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/training.ts:38:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/training.ts:96:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/regulatoryOshaRouter.ts:84:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/regulatoryOshaRouter.ts:184:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/regulatoryOshaRouter.ts:409:  exportInjuryIllnessSnapshot: protectedRateLimitedProcedure.input(orgScope).mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/controlRouter.ts:39:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/controlRouter.ts:100:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/inspection.ts:68:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/inspection.ts:141:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/inspection.ts:218:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/externalParty.ts:159:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/externalParty.ts:211:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/externalParty.ts:320:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/complianceMetricsRouter.ts:53:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/hazardRouter.ts:60:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/hazardRouter.ts:112:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/establishmentRouter.ts:105:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/establishmentRouter.ts:164:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/establishmentRouter.ts:248:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/capa.ts:285:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/capa.ts:549:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/capa.ts:671:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/approval.ts:165:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/approval.ts:273:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/approval.ts:368:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/contextSyncProtocol.ts:54:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/contextSyncProtocol.ts:88:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/context.ts:93:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/context.ts:119:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/context.ts:206:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/context.ts:257:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/context.ts:333:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/context.ts:383:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/riskRouter.ts:128:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/riskRouter.ts:260:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/riskRouter.ts:402:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/objectiveRouter.ts:41:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/objectiveRouter.ts:93:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:48:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:88:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:131:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:194:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:242:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:315:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:370:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:411:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:450:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/program.ts:493:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:152:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:275:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:386:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:472:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/environmentalRegulatoryPermit.ts:603:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/emergency.ts:44:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/emergency.ts:134:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/planning/kpiRouter.ts:55:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/chemicalInventoryRouter.ts:47:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/chemicalInventoryRouter.ts:96:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/chemicalInventoryRouter.ts:198:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/chemicalInventoryRouter.ts:388:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/chemicalInventoryRouter.ts:486:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aiDrafts.ts:25:    .mutation(async ({ ctx, input }) => {
+src/server/trpc/routers/aiDrafts.ts:74:    .mutation(async ({ ctx, input }) => {
+
+=== writeAuditLog under src/app/api (delegates to services) ===
+
+=== writeAuditLog in contextSync + integration train services (sample) ===
+src/server/services/contextSync/artifacts.ts:12:import { writeAuditLog } from "@/server/services/audit";
+src/server/services/contextSync/artifacts.ts:184:      await writeAuditLog(tx, {
+src/server/services/contextSync/artifacts.ts:393:    await writeAuditLog(tx, {
+src/server/services/contextSync/artifacts.ts:446:    await writeAuditLog(tx, {
+src/server/services/contextSync/artifacts.ts:705:  await writeAuditLog(db, {
+src/server/services/contextSync/artifacts.ts:758:    await writeAuditLog(db, {
+9:import { writeAuditLog } from "@/server/services/audit";
+121:    await writeAuditLog(tx, {
+177:  await writeAuditLog(db, {
+12:import { writeAuditLog } from "@/server/services/audit";
+200:  await writeAuditLog(db, {
+
+=== Gate: .mutation( requires writeAuditLog in-router or documented one-hop ===
+
+=== Gate: Core-spine must-audit routers present ===
+OK: src/server/trpc/routers/incident.ts
+OK: src/server/trpc/routers/capa.ts
+OK: src/server/trpc/routers/approval.ts
+OK: src/server/trpc/routers/contextSyncProtocol.ts
+OK: src/server/trpc/routers/organization.ts
+OK: src/server/trpc/routers/dataRetentionRouter.ts
+
+audit-matrix-greps: OK — mutation routers audited (in-router or one-hop). Update docs/qa/mutation-auditability-matrix.md if inventory changes materially.
+verify: ok (ci/web parity; add DATABASE_URL + test:e2e:smoke for full QA)
+==> threat model gate
+== threat-model: integration=./scripts/integration-e2e.sh profile=corp-site ==
+== threat-model: yaml schema ==
+yaml ok: 4 cells, 9 deny_cases
+check-threat-model: ok
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'ehs@0.1.0',
+npm warn EBADENGINE   required: { node: '>=22 <23', npm: '>=10.9.2 <11' },
+npm warn EBADENGINE   current: { node: 'v26.4.0', npm: '11.18.0' }
+npm warn EBADENGINE }
+npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+npm warn allow-scripts 8 packages have install scripts not yet covered by allowScripts:
+npm warn allow-scripts   esbuild@0.18.20 (postinstall: node install.js)
+npm warn allow-scripts   esbuild@0.25.12 (postinstall: node install.js)
+npm warn allow-scripts   esbuild@0.28.1 (postinstall: node install.js)
+npm warn allow-scripts   fsevents@2.3.2 (install: (install scripts present))
+npm warn allow-scripts   sharp@0.34.5 (install: node install/check.js || npm run build)
+npm warn allow-scripts   fsevents@2.3.3 (install: (install scripts present))
+npm warn allow-scripts   unrs-resolver@1.11.1 (postinstall: napi-postinstall unrs-resolver 1.11.1 check)
+npm warn allow-scripts   fsevents@2.3.3 (install: (install scripts present))
+npm warn allow-scripts
+npm warn allow-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.

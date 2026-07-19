@@ -12,7 +12,6 @@ import {
   dfHelperXs,
   dfInlineNavLink,
   dfMuted,
-  dfPrimarySubmit,
   dfSectionHeading,
 } from "@/lib/dashboard-field-styles";
 import { trpc } from "@/trpc/react";
@@ -188,7 +187,7 @@ export default function CapaDetailPage() {
                 onChange={(e) => setVerifyNotes(e.target.value)}
               />
               <div className="flex flex-wrap gap-2">
-                <button type="submit" disabled={updateStatus.isPending} className={dfPrimarySubmit}>
+                <button type="submit" disabled={updateStatus.isPending} className="btn-primary">
                   {updateStatus.isPending ? "Saving…" : "Confirm verification"}
                 </button>
                 <button
@@ -203,7 +202,7 @@ export default function CapaDetailPage() {
           ) : (
             <button
               type="button"
-              className={`mt-3 ${dfPrimarySubmit}`}
+              className="btn-primary mt-3"
               disabled={updateStatus.isPending || (capa.status === "pending_approval" && hasOpenApproval)}
               onClick={() => {
                 if (capa.status === "completed") {

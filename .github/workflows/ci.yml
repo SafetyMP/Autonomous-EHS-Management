@@ -102,6 +102,9 @@ jobs:
       - name: Integration E2E
         run: ./scripts/integration-e2e.sh
 
+      - name: Accessibility E2E (axe WCAG 2.2 AA)
+        run: npx playwright test --project=a11y
+
       - name: Threat model PR gate
         if: github.event_name == 'pull_request'
         env:

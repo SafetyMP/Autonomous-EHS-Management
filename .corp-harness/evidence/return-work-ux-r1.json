@@ -1,0 +1,26 @@
+{
+  "schema": "ehs-ux-return-work/v1",
+  "program_id": "ehs-ux",
+  "produced_at": "2026-07-19T14:24:31.494517+00:00",
+  "db": "pgvector/pgvector:pg16 container ehs-ux-return-pg host:5434",
+  "results": {
+    "db_migrate": 0,
+    "db_seed_ci": 0,
+    "integration_e2e_smoke": "30 passed / 1 skipped (flag=0 outbox absence)",
+    "outbox_touch": "2 passed / 1 skipped",
+    "a11y_project": "9 passed",
+    "verify_sh": 0,
+    "a11y_empty_submit_ac020": "1 passed",
+    "outbox_flag0_ac015": "1 passed"
+  },
+  "content_sha256": {
+    "return-integration-e2e.txt": "b4a604ac2aa4204c6452f10717efe161207d98369b7333cf431304c8acce8dea",
+    "return-outbox-touch.txt": "941da3e53b3c739b5e04111c779080f085512c94637df5c7666c826038a60ae9",
+    "return-a11y.txt": "c6b8592feb9c0b3ebbe8f5c4690aceb18936f48f12075c26d0a010f731da00c4",
+    "return-db-migrate.txt": "91689480cc02fb332481800153c1dafcf1f5f9e9b6b6a60c4b0d08dbd3611bdf",
+    "return-db-seed-ci.txt": "368ab844807b1a0376f325e36014a850c298a73d04d85bc1cb0ea527d6951259",
+    "return-verify.txt": "adb023862c7fab1d66311ca972dd7daf0a2c35ba7c4ddab3d6186903892d93ef",
+    "return-a11y-empty-submit.txt": "c8cb42a872fba6c034a12a4e10254d283c8418d5d605096aefd09c39d7ddcb1a",
+    "return-outbox-flag0.txt": "2d8d1d7dc8857668ba4bc59f9704aec318c3de117ca50ac24cebc5b7d1c20e18"
+  }
+}
