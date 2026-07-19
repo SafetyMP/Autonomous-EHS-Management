@@ -10,8 +10,15 @@ if command -v corepack >/dev/null 2>&1; then
   corepack prepare npm@10.9.2 --activate >/dev/null 2>&1 || true
 fi
 
-echo "==> npm ci (expect packageManager npm@10.9.2)"
-npm ci
+# corp-harness evidence children set RLIMIT_FSIZE≈1MB (see corp_harness.evidence);
+# npm ci cannot unpack packages under that limit. Skip when node_modules already
+# present and CORP_HARNESS_ALLOWED_HOST is set by the harness evidence runner.
+if [[ -n "${CORP_HARNESS_ALLOWED_HOST:-}" && -d node_modules ]]; then
+  echo "==> npm ci skipped (corp-harness evidence + existing node_modules)"
+else
+  echo "==> npm ci (expect packageManager npm@10.9.2)"
+  npm ci
+fi
 
 echo "==> verify (lint + typecheck + unit tests)"
 npm run verify
