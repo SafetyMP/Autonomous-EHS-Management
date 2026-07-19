@@ -11,7 +11,9 @@ npm run verify
 npm run audit:matrix-greps
 ```
 
-Last engineering grep pass: documented at commit time via `npm run audit:matrix-greps` (see [mutation-auditability-matrix.md](./mutation-auditability-matrix.md)).
+Last engineering grep pass: documented at commit time via `npm run audit:matrix-greps` (see [mutation-auditability-matrix.md](./mutation-auditability-matrix.md) Core-spine must-audit + residual RG-* gaps). CI `verify` fails closed on new unaudited tRPC `.mutation(` routers (ADR-S-003 / R-008).
+
+**CI Core-spine smoke IDs (do not replace staging Pass/N/A):** `core-spine-capa-lifecycle`, `core-spine-approvals-decide`, `core-spine-audit-trail` under `tests/e2e/smoke/`.
 
 ---
 
@@ -61,12 +63,16 @@ These routers instrument **`writeAuditLog`** on regulated mutations. Confirm ent
 
 ### Known gaps — acknowledge in sign-off
 
+Aligned with residual gaps **RG-1…RG-6** in [mutation-auditability-matrix.md](./mutation-auditability-matrix.md):
+
 | Gap | Impact | Mitigation for pilot |
 |-----|--------|----------------------|
-| **SCIM REST `/api/scim/v2/*`** | Provisioning audits may flow via membership/integration paths—not every SCIM PATCH field | Review `integration_event` backlog + membership state after bulk SCIM tests |
-| **Cron / SLA escalations** | `escalation_event` records exist; not all appear as user-initiated `audit_log` rows | Accept escalation_event + operational webhooks as ops evidence |
+| **SCIM REST `/api/scim/v2/*` (RG-2)** | Provisioning audits may flow via membership/integration paths—not every SCIM PATCH field | Review `integration_event` backlog + membership state after bulk SCIM tests |
+| **Queued inbound / worker timing (RG-1, RG-5)** | Audits may land on worker completion, not HTTP enqueue | Confirm apply path + DLQ/ops alerts |
+| **Cron / SLA escalations (RG-3)** | `escalation_event` records exist; not all appear as user-initiated `audit_log` rows | Accept escalation_event + operational webhooks as ops evidence |
 | **Tier 3 registers** (internal audit, MOC, emergency) | Out of Tier 1 pilot scope; thinner staging coverage | Defer UAT until Phase 2 |
 | **Query-only surfaces** | `analytics`, `tasks.actionQueue` — no mutation audit expected | N/A |
+| **PTW** | Connected — not Core; no Core promotion in ADR-S-003 | Optional pilot row only |
 
 ### Staging spot-check procedure
 

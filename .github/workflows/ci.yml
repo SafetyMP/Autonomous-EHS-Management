@@ -49,6 +49,8 @@ jobs:
       - run: npm run lint
       - run: npx tsc --noEmit
       - run: npm test
+      - name: Audit matrix greps (ADR-S-003 R-008)
+        run: npm run audit:matrix-greps
       - name: Claim lint (ADR-S-001 R-005)
         run: node scripts/claim-lint.mjs
       - name: Module maturity check (ADR-S-001 R-001/R-004)

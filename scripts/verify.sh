@@ -16,6 +16,9 @@ npm ci
 echo "==> verify (lint + typecheck + unit tests)"
 npm run verify
 
+echo "==> audit matrix greps (ADR-S-003 R-008)"
+npm run audit:matrix-greps
+
 echo "verify: ok (ci/web parity; add DATABASE_URL + test:e2e:smoke for full QA)"
 
 if [[ -f ./scripts/check-threat-model.sh ]]; then
