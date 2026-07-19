@@ -27,6 +27,7 @@ This file tracks **direction**, not detailed delivery dates. Priorities shift wi
 
 ## In progress / next
 
+- **July 2026 regulatory alignment:** Heat NEP Appendix I program aid, EPCRA/HCS 2024 hazard categories (Plumbing chemicals UI), ISO 14001:2026 context/aspect/MOC fields — programme-of-record only (see [COMPLIANCE.md](COMPLIANCE.md)).
 - **Production dashboards:** wire `GET /api/cron/metrics` alerts per runbook + example `PrometheusRule`; tune SLO windows in your environment.
 - **E2E depth:** expand authenticated `@smoke` data setup and optional flake retries for additional flows as features ship.
 - **Field UX:** deeper offline drafts, conflict surfacing, and substantive degraded-mode behavior using the accessibility skill playbook (outbox retry + visibility is a first slice).
