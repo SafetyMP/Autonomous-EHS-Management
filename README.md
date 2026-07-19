@@ -11,7 +11,7 @@
 **Console UX (Calm Focus):** task-first modes **Today / Capture / Decide / Prove**, a quieter teal/forest shell (Fraunces display + Source Sans 3 UI), and progressive disclosure on desk Today — **Your work** first, KPIs collapsed until expanded, secondary clusters under **More on Today**. Field home stays large-button intake. Accessibility bar is **WCAG 2.2 AA** (axe); WCAG 3 conformance is not claimed. Details: [docs/qa/calm-focus-final-dossier.md](docs/qa/calm-focus-final-dossier.md), ADRs [005](docs/adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md) / [006](docs/adr/ADR-UX-006-progressive-disclosure-today-home.md) / [007](docs/adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md).
 
 <p align="center">
-  <img src="docs/assets/demo.gif" alt="Autonomous EHS demo — command center, incidents, and CAPA register (synthetic demo data)" width="900" />
+  <img src="docs/assets/demo.gif" alt="Autonomous EHS Calm Focus demo — Today command center, incidents, CAPA, approvals, tasks, and metrics (synthetic demo data)" width="900" />
 </p>
 
 ## Screenshots
