@@ -61,6 +61,8 @@ test.describe("core spine CAPA lifecycle (@smoke)", () => {
       .fill("Playwright verification notes confirming corrective action effectiveness.");
     await page.getByRole("button", { name: /^Confirm verification$/ }).click();
     await expect(page.getByText(/^verified$/i).first()).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByText(/Verification notes/i)).toBeVisible();
+    await expect(
+      page.getByText("Playwright verification notes confirming corrective action effectiveness."),
+    ).toBeVisible();
   });
 });
