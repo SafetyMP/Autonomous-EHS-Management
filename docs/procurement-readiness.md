@@ -114,7 +114,7 @@ Honest **strong answers** aligned to this repo:
 | **Embedded operational data** | Incident/CAPA/training/audit graph in one Postgres schema—switching cost once workflows run here. |
 | **Defensible evidence chain** | `audit_log` + retention + RBAC—hard to replicate with ad hoc spreadsheets + chatbots. |
 | **Workflow + AI boundary** | Deterministic transitions + validated LLM outputs reduce “thin wrapper” risk. |
-| **Compliance depth** | OSHA injury/illness sidecar + retention services **shipped**; **Tier II–oriented chemical schema** (UI gated—schema/register only, not EPA submission)—see [module-maturity.md](./module-maturity.md), [regulatory-posture-boundary.md](./regulatory-posture-boundary.md), [COMPLIANCE.md](../COMPLIANCE.md). |
+| **Compliance depth** | OSHA injury/illness sidecar + retention services **shipped**; **Plumbing chemical inventory UI** with HCS 2024 / EPCRA 2027 hazard classes (programme-of-record, not EPA submission); **Heat NEP Appendix I** and **ISO 14001:2026 transition** programme aids **shipped**—see [module-maturity.md](./module-maturity.md), [regulatory/](./regulatory/), [COMPLIANCE.md](../COMPLIANCE.md). |
 
 Avoid claiming **contractor network effects** until network features exist.
 
@@ -163,5 +163,8 @@ Use this in **enterprise questionnaires** so buyers do not assume filing-ready a
 | **Occupational health clinic depth** | Not targeted at Cority-class medical surveillance in v1. | Occupational health programs may need a **specialist module** or partner system. |
 | **Environmental regulatory permits vs PTW** | **Permits to work** (`/dashboard/permits`) are **field authorization** (PTW). **Environmental permits** (`/dashboard/environmental-permits`) are a **regulatory register** (metadata, renewals, conditions)—**not** agency filing-ready by default (see [COMPLIANCE.md](../COMPLIANCE.md)). | Buyers should map **Cority/Enablon-style** permit tracking to the environmental permit module + obligations/monitoring; **do not** conflate with PTW. |
 | **Risk assessment / JSA roster** | Task- and site-based assessments with optional step rows; **not** a complete replacement for bowtie/LOPA tooling. | Position as **governed IMS register** with audit trail; depth vs Velocity/Intelex is **customer validation** in pilot. |
+| **Heat NEP / federal heat standard** | **Appendix I program aid shipped** ([`docs/regulatory/heat-nep-cpl-03-00-024.md`](./regulatory/heat-nep-cpl-03-00-024.md)); Cal/OSHA heat rule engine and final federal heat standard **not** claimed. | Programme self-audit for inspection readiness; **not** a compliance determination. |
+| **EPCRA Tier II / Tier2 Submit** | **Plumbing chemicals UI + 2027 hazard catalog shipped**; Tier2 Submit / EPA e-filing **not** claimed ([`docs/regulatory/epcra-hazard-categories-2027.md`](./regulatory/epcra-hazard-categories-2027.md)). | Internal programme inventory toward RY2027; customers submit to agencies. |
+| **ISO 14001:2026 certification / CB transition** | **Context / aspect / MOC Clause 6.3 fields shipped** as transition aids ([`docs/regulatory/iso-14001-2026-transition.md`](./regulatory/iso-14001-2026-transition.md)); **not** a certification body. | Supports transition programme evidence; CB audits remain external (~2029 window). |
 
 Track resolution in [`docs/barrier-resolution-playbook.md`](./barrier-resolution-playbook.md) when owners are assigned.

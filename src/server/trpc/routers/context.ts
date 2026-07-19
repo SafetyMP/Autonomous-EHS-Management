@@ -190,7 +190,7 @@ export const contextRouter = router({
   environmentalConditionCatalog: protectedProcedure.query(() => ({
     conditions: ISO14001_ENVIRONMENTAL_CONDITIONS,
     helper:
-      "ISO 14001:2026 expects documented consideration of climate, biodiversity, ecosystem health, pollution, and natural resources.",
+      "Transition programme aid — organizations consider climate, biodiversity, ecosystem health, pollution, and natural resources when documenting context (ISO 14001:2026-style).",
   })),
 
   createIssue: protectedMutation

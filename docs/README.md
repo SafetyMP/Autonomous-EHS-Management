@@ -15,7 +15,7 @@ Canonical map of repository documentation. **Start at the root [README](../READM
 | **Platform / SRE (self-host)** | [self-host-quickstart.md](./self-host-quickstart.md), [runbooks/](./runbooks/), [JOB_QUEUE.md](./JOB_QUEUE.md) |
 | **Integration engineer** | [integration-inbound-contract.md](./integration-inbound-contract.md), [integration-connector-mapping.md](./integration-connector-mapping.md), [roadmap/hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md) |
 | **QA / UAT** | [qa/](./qa/) |
-| **Compliance / DPO** | [COMPLIANCE.md](../COMPLIANCE.md), [DSAR_PROCESS.md](./DSAR_PROCESS.md), [regulatory-posture-boundary.md](./regulatory-posture-boundary.md) |
+| **Compliance / DPO** | [COMPLIANCE.md](../COMPLIANCE.md), [DSAR_PROCESS.md](./DSAR_PROCESS.md), [regulatory-posture-boundary.md](./regulatory-posture-boundary.md), [regulatory/](./regulatory/) (Heat NEP, EPCRA 2027, ISO 14001:2026) |
 | **Open source adopter / fork** | [GOVERNANCE.md](../GOVERNANCE.md), [open-source-tco.md](./open-source-tco.md), [module-maturity.md](./module-maturity.md) |
 
 ## Open source & project health
@@ -64,6 +64,15 @@ Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a d
 | [JOB_QUEUE.md](./JOB_QUEUE.md) | pg-boss worker |
 | [terraform-remote-state.md](./terraform-remote-state.md) | IaC remote state notes |
 | [runbooks/](./runbooks/) | Day-2 operator runbooks |
+
+## Regulatory programme aids (July 2026 pack)
+
+| Document | Topic |
+|----------|--------|
+| [regulatory/heat-nep-cpl-03-00-024.md](./regulatory/heat-nep-cpl-03-00-024.md) | Heat NEP Appendix I program aid (eff. 2026-04-10) |
+| [regulatory/epcra-hazard-categories-2027.md](./regulatory/epcra-hazard-categories-2027.md) | HCS 2024 / EPCRA RY2027 hazard categories |
+| [regulatory/iso-14001-2026-transition.md](./regulatory/iso-14001-2026-transition.md) | ISO 14001:2026 transition field map |
+| [regulatory-posture-boundary.md](./regulatory-posture-boundary.md) | Program-of-record vs agency/certification claims |
 
 ## Procurement & GTM
 

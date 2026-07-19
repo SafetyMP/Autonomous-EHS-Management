@@ -6,7 +6,7 @@ import { EnvironmentalMonitoringPanel } from "@/components/dashboard/environment
 import { ObligationEvidencePanel } from "@/components/dashboard/obligation-evidence-panel";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
-import { ASPECT_SIGNIFICANCES } from "@/lib/ehs-enums";
+import { ASPECT_LIFECYCLE_STAGES, ASPECT_SIGNIFICANCES } from "@/lib/ehs-enums";
 import { RAG_EMBEDDING_DIM } from "@/lib/rag/embeddingDim";
 import { safeExternalHttpHref } from "@/lib/safe-http-url";
 import { trpc } from "@/trpc/react";
@@ -57,6 +57,7 @@ export default function EnvironmentPage() {
   const [aSig, setASig] = useState<string>(significances[1] ?? "medium");
   const [aClimate, setAClimate] = useState(false);
   const [aBiodiversity, setABiodiversity] = useState(false);
+  const [aLifecycleStage, setALifecycleStage] = useState("");
   const [aLifecycleNote, setALifecycleNote] = useState("");
   const [editAspectId, setEditAspectId] = useState("");
   const [editName, setEditName] = useState("");
@@ -67,6 +68,7 @@ export default function EnvironmentPage() {
   const [editSiteId, setEditSiteId] = useState("");
   const [editClimate, setEditClimate] = useState(false);
   const [editBiodiversity, setEditBiodiversity] = useState(false);
+  const [editLifecycleStage, setEditLifecycleStage] = useState("");
   const [editLifecycleNote, setEditLifecycleNote] = useState("");
   const [oTitle, setOTitle] = useState("");
   const [oType, setOType] = useState("legal");
@@ -104,6 +106,7 @@ export default function EnvironmentPage() {
       setASiteId("");
       setAClimate(false);
       setABiodiversity(false);
+      setALifecycleStage("");
       setALifecycleNote("");
     },
   });
@@ -190,7 +193,7 @@ export default function EnvironmentPage() {
   if (!organizationId) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-semibold">Environment (ISO 14001:2026)</h1>
+        <h1 className="text-xl font-semibold">Environment (ISO 14001:2026-style)</h1>
         <OrgSwitcher />
       </div>
     );
@@ -204,8 +207,14 @@ export default function EnvironmentPage() {
   return (
     <div className="space-y-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">Environment (ISO 14001:2026)</h1>
+        <h1 className="text-xl font-semibold">Environment (ISO 14001:2026-style)</h1>
         <OrgSwitcher />
+      </div>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
+        Transition programme aid only — aspects, obligations, and monitoring support ISO 14001:2026
+        programme evidence (published 2026-04-15). Not a certification body or IAF transition
+        completion. CB transition window runs through approximately 2029.
       </div>
 
       <section className="grid gap-8 lg:grid-cols-2">
@@ -227,6 +236,8 @@ export default function EnvironmentPage() {
                 siteId: aSiteId || undefined,
                 climateRelevant: aClimate,
                 biodiversityRelevant: aBiodiversity,
+                lifecycleStage: (aLifecycleStage ||
+                  null) as (typeof ASPECT_LIFECYCLE_STAGES)[number] | null,
                 lifecyclePerspectiveNote: aLifecycleNote || null,
               });
             }}
@@ -278,6 +289,19 @@ export default function EnvironmentPage() {
               {significances.map((s) => (
                 <option key={s} value={s}>
                   {s}
+                </option>
+              ))}
+            </select>
+            <select
+              className={dfControl}
+              value={aLifecycleStage}
+              aria-label="Lifecycle stage"
+              onChange={(e) => setALifecycleStage(e.target.value)}
+            >
+              <option value="">— Lifecycle stage (optional) —</option>
+              {ASPECT_LIFECYCLE_STAGES.map((s) => (
+                <option key={s} value={s}>
+                  {s.replaceAll("_", " ")}
                 </option>
               ))}
             </select>
@@ -389,6 +413,8 @@ export default function EnvironmentPage() {
                   significance: editSig as (typeof significances)[number],
                   climateRelevant: editClimate,
                   biodiversityRelevant: editBiodiversity,
+                  lifecycleStage: (editLifecycleStage ||
+                    null) as (typeof ASPECT_LIFECYCLE_STAGES)[number] | null,
                   lifecyclePerspectiveNote: editLifecycleNote || null,
                 });
               }}
@@ -409,6 +435,7 @@ export default function EnvironmentPage() {
                     setEditSig(a.significance);
                     setEditClimate(a.climateRelevant);
                     setEditBiodiversity(a.biodiversityRelevant);
+                    setEditLifecycleStage(a.lifecycleStage ?? "");
                     setEditLifecycleNote(a.lifecyclePerspectiveNote ?? "");
                   } else {
                     setEditName("");
@@ -419,6 +446,7 @@ export default function EnvironmentPage() {
                     setEditSig(significances[1] ?? "medium");
                     setEditClimate(false);
                     setEditBiodiversity(false);
+                    setEditLifecycleStage("");
                     setEditLifecycleNote("");
                   }
                 }}
@@ -478,6 +506,19 @@ export default function EnvironmentPage() {
                     {significances.map((s) => (
                       <option key={s} value={s}>
                         {s}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className={dfControl}
+                    value={editLifecycleStage}
+                    aria-label="Lifecycle stage"
+                    onChange={(e) => setEditLifecycleStage(e.target.value)}
+                  >
+                    <option value="">— No lifecycle stage —</option>
+                    {ASPECT_LIFECYCLE_STAGES.map((s) => (
+                      <option key={s} value={s}>
+                        {s.replaceAll("_", " ")}
                       </option>
                     ))}
                   </select>

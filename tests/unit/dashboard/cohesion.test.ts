@@ -47,6 +47,7 @@ describe("filterDashboardNavSections", () => {
       canAuditTrailRead: false,
     });
     expect(filtered.some((s) => s.title === "Administration")).toBe(false);
+    expect(filtered.some((s) => s.title === "Plan & programme")).toBe(true);
     const flat = filtered.flatMap((s) => s.items);
     expect(flat.some((i) => i.href === "/dashboard/heat-program")).toBe(true);
     expect(flat.some((i) => i.href === "/dashboard/chemicals")).toBe(true);

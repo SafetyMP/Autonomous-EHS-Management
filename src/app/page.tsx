@@ -14,7 +14,7 @@ export default function HomePage() {
             Autonomous EHS
           </p>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Autonomous compliance operations for ISO 45001 &amp; ISO 14001
+            Programme operations for ISO 45001- &amp; ISO 14001-style management systems
           </h1>
           <p className="text-lg leading-relaxed text-zinc-800 sm:text-base">
             Incident tracking, CAPA, environmental obligations, audits, and role-based access—with

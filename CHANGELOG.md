@@ -1,3 +1,13 @@
+## Unreleased
+
+### Features
+
+* **regulatory:** July 2026 programme-of-record pack — Heat NEP Appendix I aid (CPL 03-00-024 eff. 2026-04-10), EPCRA/HCS 2027 hazard catalog Plumbing UI, ISO 14001:2026 context/aspect/MOC transition aids; claim hygiene and docs under `docs/regulatory/`
+
+### Bug Fixes
+
+* **regulatory:** disambiguate EPCRA HNOC health/physical hazard class labels; wire aspect `lifecycle_stage`; MOC Clause 6.3 edit/display
+
 ## [1.4.7](https://github.com/SafetyMP/Autonomous-EHS-Management/compare/v1.4.6...v1.4.7) (2026-07-12)
 
 

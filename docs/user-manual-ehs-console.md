@@ -188,7 +188,7 @@ Navigation is grouped by lifecycle (sidebar on wide screens; **Menu** drawer on 
 | **Report & respond** | **Incidents**, **Observations**, **Inspections** |
 | **Permits** | **Work permits (PTW)**, **Regulatory env permits** |
 | **Corrective action** | **CAPA register** |
-| **Plan & comply** | **Planning hub**, **Risk assessments**, **Environment** |
+| **Plan & programme** | **Planning hub**, **Heat NEP program aid**, **Risk assessments**, **Environment**, **Chemical inventory** |
 | **Assure & improve** | **Internal audits**, **Assurance hub**, **Mgmt review** |
 | **Records & metrics** | **Documents**, **Knowledge corpus**, **Audit trail**, **Retention**, **Metrics**, **Incidence rates** |
 | **People** | **Training**, **Contractors** |
@@ -475,7 +475,7 @@ Safety engineers and coordinators who publish JSAs/site profiles beside day-to-d
 
 ### SOP — Browse the roster
 
-1. Under **Plan & comply**, open **Risk assessments**.
+1. Under **Plan & programme**, open **Risk assessments**.
 2. Header **Risk assessments**; description *Task-based (JSA-style) and site-based registers—separate from permits to work. Full ISO planning tools remain under Planning.*
 3. Use filters **Kind** / **Status** under **Filter roster**. Hint copy: *Open a record to edit steps and status. You can still add quick assessments from Planning.*
 4. Table columns: **Title / context**, **Kind**, **Status**, **Assessed**, **Actions** (**Open**).
@@ -622,11 +622,23 @@ Empty registry: **No corrective actions yet.**
 
 ---
 
+## Heat NEP program aid
+
+Page: **`/dashboard/heat-program`** under **Plan & programme**.
+
+Appendix I–aligned self-audit checklist and optional heat-condition logs for OSHA Heat NEP inspection readiness (CPL 03-00-024 effective **2026-04-10**). **Programme aid only** — not a federal heat standard or Cal/OSHA compliance engine. See [regulatory/heat-nep-cpl-03-00-024.md](./regulatory/heat-nep-cpl-03-00-024.md).
+
+## Chemical inventory
+
+Page: **`/dashboard/chemicals`** under **Plan & programme**.
+
+Plumbing-maturity programme register for chemicals, SDS references, HCS 2024 / EPCRA 2027 hazard class+category rows, and inventory snapshots. **Not** Tier2 Submit or EPA e-filing. See [regulatory/epcra-hazard-categories-2027.md](./regulatory/epcra-hazard-categories-2027.md).
+
 ## Environment
 
-Page heading: Environment (ISO 14001).
+Page heading: Environment (ISO 14001:2026-style).
 
-This page mixes four ideas: registers (aspects, obligations), searchable ingested excerpts, AI draft assist, edits. Regulatory **air / water / waste permit** registers with renewal windows stay under **[Environmental permits](#environmental-permits)**—not here.
+This page mixes four ideas: registers (aspects, obligations), searchable ingested excerpts, AI draft assist, edits. Surfaces include climate/biodiversity relevance and lifecycle perspective fields as **ISO 14001:2026 transition programme aids** (not CB certification). Regulatory **air / water / waste permit** registers with renewal windows stay under **[Environmental permits](#environmental-permits)**—not here. See [regulatory/iso-14001-2026-transition.md](./regulatory/iso-14001-2026-transition.md).
 
 ### SOP — Add an environmental aspect
 
