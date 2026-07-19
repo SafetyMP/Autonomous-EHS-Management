@@ -15,15 +15,15 @@ IDs match corporate master-spec R-014. **D-004, D-008, D-009, D-010, D-011, D-01
 | **D-001** | Tenant funding + validated layouts for OSHA agency export beyond placeholder | Compliance / Counsel + Program | blocked | Filing / “agency SoR” claims | See [Agency-formatted OSHA filing export](#agency-formatted-osha-filing-export) |
 | **D-002** | DSAR export/erasure ownership and jurisdictions | Compliance / Counsel | blocked | Full DSAR automation claims | See [Full DSAR automation](#full-dsar-automation-beyond-intake) |
 | **D-003** | OIDC JIT default org/role policy for production | Security / IAM + HR | blocked | Identity go-live claims beyond scaffold | See [OIDC JIT org provisioning](#oidc-jit-org-provisioning) |
-| **D-004** | pg-boss vs HTTP cron as default production job model | Platform lead / SRE | blocked | Autonomous-ops completeness claims | See [Durable job queue](#durable-job-queue-eg-pg-boss); ranked **P5** |
+| **D-004** | pg-boss vs HTTP cron as default production job model | Platform lead / SRE | unblocked | Autonomous-ops completeness claims | **ADR-S-005 / [`JOB_QUEUE.md`](JOB_QUEUE.md):** HTTP cron is the recorded default; pg-boss remains optional opt-in with worker evidence. Completeness claims still need scrape/worker digests where applicable. |
 | **D-005** | Chemicals path to Core vs permanent Plumbing + partner Tier2 Submit | Compliance / Counsel + Product | blocked | Chemicals Core / Tier2 Submit claims | Partner Tier2 Submit remains out of Core until counsel exception |
 | **D-006** | Native mobile vs progressive web field UX | Product + staff-eng-product | blocked | Native mobile inspection / field-app claims | Pilot stays responsive web ([portco-tier1-pilot-scope.md](./qa/portco-tier1-pilot-scope.md)) |
 | **D-007** | Commercial support SLA separate from Apache 2.0 license | Commercial / Maintainers | blocked | Paid support-SLA sales claims | Open-source license ≠ enterprise support contract |
-| **D-008** | Production monitoring owner (Prometheus-operator vs vendor APM) + cron scrape parity | SRE / Platform | blocked | S4 ops / monitoring completeness claims | Cron metrics runbook exists; production owner + scrape parity undecided |
-| **D-009** | Object-storage vendor + evidence DLP/encryption org controls | Platform + Security | blocked | In-app binary evidence upload claims | Ranked **P4**; stub remains non-claim until live |
-| **D-010** | Field-outbox multi-device / photo policy for regulated evidence | Product + Compliance | blocked | Offline evidence / multi-device sync claims | Ranked **P3** depth; photos not queued offline today |
-| **D-011** | Context Sync provenance retention/purge under legal hold | Compliance + Platform | blocked | Scale-pilot sync-on claims under hold | Provenance runbook exists; retention/purge under hold undecided |
-| **D-012** | DEMO_MODE hard-fail outside development (all deploy classes) | Platform / Security | blocked | Staging/prod safety claims for demo isolation | Historically Vercel-production-centric; env-invariant fail-closed still open |
+| **D-008** | Production monitoring owner (Prometheus-operator vs vendor APM) + cron scrape parity | SRE / Platform | blocked | S4 ops / monitoring completeness claims | Runbook documents SLO parity templates for all `CRON_JOB_KEYS` ([cron-metrics-observability.md](./runbooks/cron-metrics-observability.md)); **no production scrape digests** — do not claim production-monitored |
+| **D-009** | Object-storage vendor + evidence DLP/encryption org controls | Platform + Security | blocked | In-app binary evidence upload claims | Ranked **P4**; `POST /api/evidence-upload-stub` returns **501** — **no production binary upload claim** until object-store path live ([evidence-binary-upload.md](./runbooks/evidence-binary-upload.md)) |
+| **D-010** | Field-outbox multi-device / photo policy for regulated evidence | Product + Compliance | blocked | Offline evidence / multi-device sync claims | Ops checklist shipped ([offline-field-outbox.md](./offline-field-outbox.md)); photos offline + multi-device reconciliation remain non-goals |
+| **D-011** | Context Sync provenance retention/purge under legal hold | Compliance + Platform | blocked | Scale-pilot sync-on claims under hold | Provenance runbook exists; retention/purge under hold undecided (counsel + platform) |
+| **D-012** | DEMO_MODE hard-fail outside development (all deploy classes) | Platform / Security | unblocked | Staging/prod safety claims for demo isolation | **ADR-S-004:** env-invariant `demoModePolicyViolation` / `rateLimitBackendPolicyViolation` + unit tests; pilot/prod Context Sync still needs enablement confirmation artifact |
 
 **Operational barrier outside this register:** Terraform remote state (landing-zone / IaC) — see [Terraform remote state](#terraform-remote-state). It does not receive a D-ID because it is not a marketing-claim gate under R-014.
 
@@ -66,6 +66,8 @@ IDs match corporate master-spec R-014. **D-004, D-008, D-009, D-010, D-011, D-01
 1. Identify one **low-risk async** workload (already behind feature flag env per [`docs/JOB_QUEUE.md`](JOB_QUEUE.md)).
 2. Provision queue schema + worker in non-prod.
 3. Enable in production behind flag with alerts on failure rate — **or** document HTTP cron as the lasting default and mark D-004 `unblocked` with that decision artifact.
+
+**Status (ADR-S-005):** Step 3 completed via documentation — HTTP cron is the recorded default in [`docs/JOB_QUEUE.md`](JOB_QUEUE.md); D-004 is `unblocked`. Optional pg-boss still requires worker + alert digests before durable-queue completeness claims.
 
 **Repo pointers**
 

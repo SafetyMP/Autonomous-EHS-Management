@@ -37,12 +37,39 @@ If a replay throws (validation, network, etc.), the row is marked **`failed`** w
 | `environmentalRegulatoryPermit.submitForApproval` | `environmentalRegulatoryPermit.submitForApproval` | Environmental permit detail |
 | `planning.risk.create` | `planning.risk.create` | New risk assessment (roster) or Planning |
 
+## Ops checklist (R-011)
+
+Use this when enabling or supporting field outbox in staging/pilot. Photos offline and multi-device reconciliation remain **non-goals** until barrier **D-010** is resolved ([`docs/barrier-resolution-playbook.md`](barrier-resolution-playbook.md)).
+
+### 1. Enablement
+
+- [ ] Confirm tenant/org policy allows offline queueing for the pilot cohort.
+- [ ] Set `NEXT_PUBLIC_FIELD_OUTBOX=1` only on environments that share that policy (staging first).
+- [ ] Smoke: create one supported procedure online, one offline → reconnect → confirm server row + RBAC still enforced.
+- [ ] Document which procedures are in scope for the cohort (table above); do not claim photo or multi-device sync.
+
+### 2. Failed-sync triage
+
+- [ ] Open the dashboard **Field outbox** status bar; note **sent** / **failed** counts after flush.
+- [ ] Read `lastError` on failed rows (validation vs network vs permission).
+- [ ] Fix root cause (payload, connectivity, role grants), then **Retry failed syncs** (reset failed → pending + flush).
+- [ ] If the server copy already changed and the queued payload is stale, **Remove from device** for that row (do not force-overwrite regulated records blindly).
+- [ ] Escalate persistent failures with org id, procedure name, and truncated error — never paste full bearer/session secrets.
+
+### 3. Device-loss acknowledgment
+
+- [ ] Acknowledge with the user: queued items live in **that browser’s IndexedDB** until successful replay.
+- [ ] Lost/wiped/replaced devices **lose unreplayed outbox rows** — there is no server-side draft authority for pending queue items.
+- [ ] Instruct re-entry of critical field data after device loss; do not promise cross-device recovery.
+- [ ] Record the acknowledgment in the support ticket / pilot log when regulated evidence was at risk.
+
 ## Limitations
 
 - **Per-browser queue:** data is not synced across devices until replay succeeds on the device that queued it.
 - **No server-side draft authority:** queued payloads are client JSON until a successful mutation; retention and legal hold apply to **persisted** rows only.
 - **Conflicts:** last replay wins per entity; concurrent edits elsewhere are not merged automatically.
+- **Photos:** field photos are **not** queued offline today — remove photos or reconnect before save (see user manual).
 
 ## Roadmap alignment
 
-Deeper “substantive offline” UX (draft recovery, conflict surfacing) remains in [`ROADMAP.md`](../ROADMAP.md); this document describes the **durable outbox + RBAC-preserving replay** contract.
+Deeper “substantive offline” UX (draft recovery, conflict surfacing, photo/multi-device policy) remains in [`ROADMAP.md`](../ROADMAP.md) / D-010; this document describes the **durable outbox + RBAC-preserving replay** contract plus the ops checklist above.

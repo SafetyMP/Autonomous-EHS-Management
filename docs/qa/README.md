@@ -6,6 +6,8 @@ Test strategy, staging checklists, and regulated-mutation auditability. Merge ga
 |----------|---------|
 | [risk-based-coverage-matrix.md](./risk-based-coverage-matrix.md) | Area × automation coverage |
 | [mutation-auditability-matrix.md](./mutation-auditability-matrix.md) | Which mutations write `audit_log` |
+| [rag-redaction-runbook.md](./rag-redaction-runbook.md) | RAG redaction defaults + `RAG_READ` / `AI_DRAFT_USE` / `rag:ingest` gates |
+| [retention-class-inventory.md](./retention-class-inventory.md) | Cron-covered vs policy-only retention classes |
 | [staging-uat-desk-to-field.md](./staging-uat-desk-to-field.md) | Business UAT desk-to-field checklist |
 | [portco-staging-pilot.md](./portco-staging-pilot.md) | PortCo integration staging verification |
 | [portco-tier1-pilot-scope.md](./portco-tier1-pilot-scope.md) | Tier 1 pilot module scope |
