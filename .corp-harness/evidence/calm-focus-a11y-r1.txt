@@ -1,0 +1,49 @@
+PKT-CF-RET-007-A11Y-VISUAL-TOUCH / AC-CF-A001
+Date: 2026-07-19T16:37:23Z
+Command: npm run test:e2e:a11y (PLAYWRIGHT_E2E_FORCE=1, DATABASE_URL→127.0.0.1:5433/ehs_ci)
+Result: 11 passed / 0 failed — EXIT 0
+Coverage: desk Today (new), field home, incident create (+empty submit), keyboard field→incident, approvals, CAPA, audit-trail, sign-in, chrome landmarks
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> ehs@0.1.0 test:e2e:a11y
+> playwright test --project=a11y
+
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[WebServer] ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+[WebServer]  We detected multiple lockfiles and selected the directory of /Users/sagehart/Downloads/Autonomous EHS Management System /package-lock.json as the root directory.
+[WebServer]  To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+[WebServer]    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+[WebServer]  Detected additional lockfiles: 
+[WebServer]    * /Users/sagehart/Downloads/Autonomous EHS Management System /.worktrees/calm-focus-007-impl/package-lock.json
+[WebServer] 
+
+Running 11 tests using 4 workers
+
+(node:9245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9246) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9247) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+  ✓   1 [a11y] › tests/e2e/a11y/chrome-landmarks.a11y.spec.ts:9:7 › a11y chrome landmarks › @a11y marketing home skip-link and main landmark (1.4s)
+  ✓   5 [a11y] › tests/e2e/a11y/chrome-landmarks.a11y.spec.ts:25:7 › a11y chrome landmarks › @a11y sign-in skip-link targets main landmark (1.8s)
+  ✓   3 [a11y] › tests/e2e/a11y/approvals-decide.a11y.spec.ts:15:7 › a11y approvals decide › @a11y approvals page has no serious/critical axe violations (19.1s)
+  ✓   2 [a11y] › tests/e2e/a11y/capa-happy-path.a11y.spec.ts:15:7 › a11y CAPA happy path › @a11y CAPA page has no serious/critical axe violations (19.1s)
+  ✓   4 [a11y] › tests/e2e/a11y/audit-trail-list.a11y.spec.ts:15:7 › a11y audit-trail list › @a11y audit-trail list has no serious/critical axe violations (19.9s)
+  ✓   6 [a11y] › tests/e2e/a11y/desk-today.a11y.spec.ts:18:7 › a11y desk Today › @a11y desk Today has no serious/critical axe violations (16.8s)
+  ✓   7 [a11y] › tests/e2e/a11y/field-home.a11y.spec.ts:18:7 › a11y field home › @a11y field home has no serious/critical axe violations (5.0s)
+  ✓   8 [a11y] › tests/e2e/a11y/incident-create-empty-submit.a11y.spec.ts:14:7 › a11y incident create empty submit › @a11y incident create empty submit shows alert and aria-invalid (5.0s)
+  ✓   9 [a11y] › tests/e2e/a11y/incident-create.a11y.spec.ts:15:7 › a11y incident create › @a11y incident create has no serious/critical axe violations (4.8s)
+  ✓  11 [a11y] › tests/e2e/a11y/sign-in.a11y.spec.ts:9:7 › a11y sign-in › @a11y sign-in page has no serious/critical axe violations (840ms)
+  ✓  10 [a11y] › tests/e2e/a11y/keyboard-field-to-incident.a11y.spec.ts:17:7 › a11y keyboard field to incident › @a11y @keyboard field home to incident create via keyboard (5.9s)
+
+  11 passed (32.0s)
+EXIT:0

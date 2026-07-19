@@ -1,0 +1,15 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 1 test using 1 worker
+
+
+(node:17981) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+
+[1/1] [density] › tests/e2e/density/calm-focus-today-density.spec.ts:42:7 › Calm Focus Today density @density › @density first-visit Today: KPI tiles hidden, ≤12 controls, ceilings
+  1 passed (7.6s)

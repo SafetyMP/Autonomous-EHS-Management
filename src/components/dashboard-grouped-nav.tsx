@@ -13,10 +13,15 @@ import {
 } from "@/lib/dashboard-nav-filter";
 import { trpc } from "@/trpc/react";
 
-const navItemClass =
+/** Light drawer items (mobile) — keep readable on white drawer. */
+const drawerNavItemClass =
   "inline-flex min-h-11 w-full touch-target items-center rounded-md px-3 py-2 text-base text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 md:text-sm";
 
-const navItemActiveClass = " bg-primary-soft font-semibold text-primary";
+const drawerNavItemActiveClass = " bg-primary-soft font-semibold text-primary";
+
+/** Dark rail items — slate-400 subordinate; active teal-400 stripe (ADR-UX-005). */
+const railNavItemClass =
+  "nav-rail-item inline-flex min-h-11 w-full touch-target items-center rounded-md text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-on-dark focus-visible:ring-offset-2 focus-visible:ring-offset-nav-rail-bg md:text-sm";
 
 function navItemIsActive(pathname: string, href: string): boolean {
   if (href === "/dashboard") return pathname === "/dashboard";
@@ -56,25 +61,32 @@ function SecondaryNavCluster({
   variant: "sidebar" | "drawer";
 }) {
   const open = sectionShouldExpandByDefault(section, pathname);
+  const isRail = variant === "sidebar";
   return (
     <details
       key={section.title}
       open={open}
       className={
-        variant === "drawer"
-          ? "group rounded-md border border-zinc-200 bg-zinc-50"
-          : "group rounded-md border border-zinc-200/80 bg-zinc-50/60"
+        isRail
+          ? "group rounded-md border border-slate-700/80 bg-nav-rail-bg-deep/40"
+          : "group rounded-md border border-border bg-surface-muted"
       }
     >
-      <summary className="min-h-11 cursor-pointer touch-target select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-zinc-700 marker:text-emerald-800">
+      <summary
+        className={
+          isRail
+            ? "nav-rail-label min-h-11 cursor-pointer touch-target select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide marker:text-primary-on-dark"
+            : "min-h-11 cursor-pointer touch-target select-none px-3 py-2 text-xs font-semibold uppercase tracking-wide text-text-muted marker:text-primary"
+        }
+      >
         {section.title}
       </summary>
       <nav
         aria-label={section.ariaLabel ?? section.title}
         className={
-          variant === "drawer"
-            ? "flex flex-col gap-0 border-t border-zinc-200 bg-white py-2"
-            : "flex flex-col gap-1 border-t border-zinc-200/80 bg-white py-2"
+          isRail
+            ? "flex flex-col gap-1 border-t border-slate-700/80 py-2"
+            : "flex flex-col gap-0 border-t border-border bg-surface py-2"
         }
       >
         {section.items.map((item) => (
@@ -112,14 +124,31 @@ export function DashboardGroupedNav({
       })
     : [];
 
+  const isRail = variant === "sidebar";
+
   const renderLink = (item: { href: string; label: string }) => {
     const count = badgeCountForHref(item.href, badges);
+    const active = navItemIsActive(pathname, item.href);
+    if (isRail) {
+      return (
+        <Link
+          key={item.href}
+          href={item.href}
+          aria-current={active ? "page" : undefined}
+          className={`${railNavItemClass}${count > 0 ? " justify-between gap-2" : ""}`}
+          onClick={onNavigate}
+        >
+          <span>{item.label}</span>
+          <NavBadge count={count} />
+        </Link>
+      );
+    }
     return (
       <Link
         key={item.href}
         href={item.href}
-        aria-current={navItemIsActive(pathname, item.href) ? "page" : undefined}
-        className={`${navItemClass}${navItemIsActive(pathname, item.href) ? navItemActiveClass : ""}${count > 0 ? " justify-between gap-2" : ""}`}
+        aria-current={active ? "page" : undefined}
+        className={`${drawerNavItemClass}${active ? drawerNavItemActiveClass : ""}${count > 0 ? " justify-between gap-2" : ""}`}
         onClick={onNavigate}
       >
         <span>{item.label}</span>
@@ -154,14 +183,14 @@ export function DashboardGroupedNav({
             <details
               key={section.title}
               open={sectionContainsPath(section, pathname) || section.cluster === "primary"}
-              className="group rounded-md border border-zinc-200 bg-zinc-50"
+              className="group rounded-md border border-border bg-surface-muted"
             >
-              <summary className="min-h-11 cursor-pointer touch-target select-none px-3 py-2 font-semibold text-zinc-900 marker:text-emerald-800">
+              <summary className="min-h-11 cursor-pointer touch-target select-none px-3 py-2 font-semibold text-foreground marker:text-primary">
                 {section.title}
               </summary>
               <nav
                 aria-label={section.ariaLabel ?? section.title}
-                className="flex flex-col gap-0 border-t border-zinc-200 bg-white py-2"
+                className="flex flex-col gap-0 border-t border-border bg-surface py-2"
               >
                 {section.items.map((item) => (
                   <div key={item.href} className="pl-3">
@@ -175,7 +204,7 @@ export function DashboardGroupedNav({
 
         return (
           <nav key={section.title} aria-label={section.ariaLabel ?? section.title} className="flex flex-col gap-1">
-            <p className="px-3 text-xs font-semibold uppercase tracking-wide text-zinc-700">{section.title}</p>
+            <p className="nav-rail-label px-3 text-xs font-semibold uppercase tracking-wide">{section.title}</p>
             {section.items.map((item) => renderLink(item))}
           </nav>
         );

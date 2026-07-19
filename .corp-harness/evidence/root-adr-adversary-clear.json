@@ -1,0 +1,42 @@
+{
+  "schema": "ehs-ux-root-adr-adversary-clear/v1",
+  "program_id": "ehs-ux",
+  "packet_id": "PKT-CF-ADR-ADVERSARY-REVIEW",
+  "cleared_at": "2026-07-19T15:58:46Z",
+  "reviewer_agent": "78edec96-d6c8-42d8-bdf0-9ebc93380df2",
+  "verdicts": {
+    "ADR-UX-005": "PASS_WITH_NOTES",
+    "ADR-UX-006": "PASS_WITH_NOTES",
+    "ADR-UX-007": "PASS_WITH_NOTES"
+  },
+  "adr_digests_live": {
+    "ADR-UX-005": "385b541e76d532ace2a592604dd72bff742d01e8e25a14e312622411d939ad80",
+    "ADR-UX-006": "b99851ae083bbca6f6839bcec6079c94089fee10b49bcff367876a78fc77257b",
+    "ADR-UX-007": "91772a37fd42d19b5f1caad3860b4df876e083265a127940722e690e9cd9033a"
+  },
+  "adr_digests_match_reviewer": {
+    "ADR-UX-005": true,
+    "ADR-UX-006": true,
+    "ADR-UX-007": true
+  },
+  "evidence_present": {
+    "005": true,
+    "006": true,
+    "007": true
+  },
+  "gates_cleared": {
+    "G-CF-ADR-001": true,
+    "G-CF-ADR-002": true,
+    "G-CF-ADR-003": true
+  },
+  "pre_implementation_hold": false,
+  "next": "DISPATCH_IMPL_WAVE",
+  "first_pr_must_close": [
+    "RR-CF-001",
+    "RR-CF-006"
+  ],
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ]
+}

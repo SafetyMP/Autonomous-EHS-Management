@@ -1,0 +1,30 @@
+{
+  "schema": "ehs-ux-root-integrate-packet/v1",
+  "program_id": "ehs-ux",
+  "packet_id": "PKT-CF-005-IMPL",
+  "adr_id": "ADR-UX-005",
+  "integrated_at": "2026-07-19T16:05:52Z",
+  "source_worktree": "/Users/sagehart/Downloads/Autonomous EHS Management System /.worktrees/calm-focus-005-impl",
+  "specialist_agent": "0e0b30b2-c42a-42ba-94b1-bb1ecccb15d8",
+  "verify_exit_codes": {
+    "npm_run_verify": 0,
+    "scripts_verify_sh": 0
+  },
+  "content_sha256": {
+    "src/app/layout.tsx": "c8d280701fa38690f07227c8b7e19f9c8329c110de05fcebb6dce8a4658c4d00",
+    "src/app/globals.css": "d3ef77455a6bd480604c9c89d6339f3dc2296e3dac44d511690c0dd01ee1d3c6",
+    "src/components/dashboard-authenticated-layout.tsx": "9fa35cc8c50633a89cf2885a236890fc47c169a5e033c5a77ea10815615042f8",
+    "src/components/dashboard-chrome.tsx": "e05eb65e0909f25d5bf604dca2969411dbda9554524693b1c21530df0772737d",
+    "src/components/dashboard-grouped-nav.tsx": "b83621d9fefffdf6707002f8d873671e6d43f9d8b0a9e66434868e64e0da2590",
+    "src/components/dashboard-shell.tsx": "b1db3043d7b0c7364fab1bd2d153b7ce93f3985a2732a741c15d645185319c96",
+    "src/components/dashboard-site-header.tsx": "247c888b3d6b62becac0e11a1b699daad8c097fe1df5c3e3059b7a1199c8a32c",
+    "docs/qa/glare-contrast-checklist.md": "c89f40eed71834fda6475eebf74f57daa40b394faf2183d892c8c03a6bcac859",
+    ".corp-harness/evidence/calm-focus-005-impl-verify.txt": "980be3586762457fc56d07c5942dd9cadebff5dabf2134641584d12ce7631353"
+  },
+  "status": "integrated",
+  "next": "DISPATCH PKT-CF-006-IMPL and PKT-CF-007-IMPL",
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ]
+}

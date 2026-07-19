@@ -1,11 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist_Mono, Source_Sans_3 } from "next/font/google";
 import { OfflineBanner } from "@/components/offline-banner";
 import { TRPCProvider } from "@/trpc/react";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fraunces = Fraunces({
+  variable: "--font-display",
+  subsets: ["latin"],
+});
+
+const sourceSans3 = Source_Sans_3({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
@@ -35,9 +40,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-theme="calm"
+      className={`${fraunces.variable} ${sourceSans3.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>

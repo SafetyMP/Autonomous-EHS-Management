@@ -1,0 +1,1 @@
+check-wcag3-claims: ok — 0 WCAG 3 conformance verbs in 392 files (RR-CF-001 / AC-CF-A003).

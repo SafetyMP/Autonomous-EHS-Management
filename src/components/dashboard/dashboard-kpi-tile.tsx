@@ -19,6 +19,7 @@ export function DashboardKpiTile({
   return (
     <Link
       href={href}
+      data-kpi-tile
       className={`block min-h-[5.75rem] rounded-xl border bg-white p-4 shadow-sm transition-colors hover:border-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 ${
         emphasize ? "border-amber-400 ring-1 ring-amber-200/80" : "border-zinc-200"
       }`}

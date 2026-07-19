@@ -1,0 +1,1459 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> ehs@0.1.0 test:e2e:smoke
+> playwright test tests/e2e --grep @smoke
+
+◇ injected env (13) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 31 tests using 4 workers
+
+(node:99658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:99659) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+(node:99657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+(node:99660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+[WebServer] 2026-07-19T16:19:25.931Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: role "ci" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 94,
+[WebServer]     severity: 'FATAL',
+[WebServer]     code: '28000',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: undefined,
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'miscinit.c',
+[WebServer]     line: '770',
+[WebServer]     routine: 'InitializeSessionUserId'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: role "ci" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 94,
+[WebServer]     severity: 'FATAL',
+[WebServer]     code: '28000',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: undefined,
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'miscinit.c',
+[WebServer]     line: '770',
+[WebServer]     routine: 'InitializeSessionUserId'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:19:26.394Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: role "ci" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 94,
+[WebServer]     severity: 'FATAL',
+[WebServer]     code: '28000',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: undefined,
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'miscinit.c',
+[WebServer]     line: '770',
+[WebServer]     routine: 'InitializeSessionUserId'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: role "ci" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 94,
+[WebServer]     severity: 'FATAL',
+[WebServer]     code: '28000',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: undefined,
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'miscinit.c',
+[WebServer]     line: '770',
+[WebServer]     routine: 'InitializeSessionUserId'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:19:26.622Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: role "ci" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 94,
+[WebServer]     severity: 'FATAL',
+[WebServer]     code: '28000',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: undefined,
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'miscinit.c',
+[WebServer]     line: '770',
+[WebServer]     routine: 'InitializeSessionUserId'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: role "ci" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 94,
+[WebServer]     severity: 'FATAL',
+[WebServer]     code: '28000',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: undefined,
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'miscinit.c',
+[WebServer]     line: '770',
+[WebServer]     routine: 'InitializeSessionUserId'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:19:26.847Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: role "ci" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 94,
+[WebServer]     severity: 'FATAL',
+[WebServer]     code: '28000',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: undefined,
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'miscinit.c',
+[WebServer]     line: '770',
+[WebServer]     routine: 'InitializeSessionUserId'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: role "ci" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 94,
+[WebServer]     severity: 'FATAL',
+[WebServer]     code: '28000',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: undefined,
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'miscinit.c',
+[WebServer]     line: '770',
+[WebServer]     routine: 'InitializeSessionUserId'
+[WebServer]   }
+[WebServer] }
+  ✘   1 [chromium] › tests/e2e/auth/incident-intake.spec.ts:18:7 › authenticated incident intake › @smoke submits minimal incident from new form (30.1s)
+  ✘   4 [chromium] › tests/e2e/auth/contractor-credential-intake.spec.ts:14:7 › authenticated contractor credential intake › @smoke creates external party and adds COI credential (30.1s)
+  ✘   2 [chromium] › tests/e2e/auth/environmental-permit-intake.spec.ts:14:7 › authenticated environmental regulatory permit intake › @smoke submits minimal environmental permit from new form (30.1s)
+  ✘   3 [chromium] › tests/e2e/auth/inspection-intake.spec.ts:14:7 › authenticated inspection intake › @smoke creates minimal inspection from new form (30.1s)
+(node:661) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:658) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:659) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env.ci // tip: ⌘ override existing { override: true }
+[WebServer] 2026-07-19T16:19:55.990Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:19:56.585Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:19:56.955Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:19:57.225Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:20:22.871Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+  ✘   7 [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:30:7 › authenticated risk assessment intake (roster) › @smoke records minimal risk assessment from roster new form (30.1s)
+  ✘   5 [chromium] › tests/e2e/auth/observation-intake.spec.ts:15:7 › authenticated observation intake › @smoke submits minimal observation from new form (30.1s)
+  ✘   8 [chromium] › tests/e2e/auth/observation-intake.spec.ts:28:7 › authenticated observation intake › @smoke observation detail shows follow-up SLA controls (30.1s)
+  ✘   6 [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:14:7 › authenticated risk assessment intake (planning) › @smoke planning hub links to risk assessment roster (30.1s)
+(node:2562) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2563) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2561) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (0) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env.ci // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+  ✓  10 [chromium] › tests/e2e/smoke/contextsync-rest-auth.spec.ts:19:7 › Context Sync REST gate (@smoke) › @smoke rejects anonymous spoofed X-Agent-Class / X-Actor-Id (261ms)
+  ✓  11 [chromium] › tests/e2e/smoke/contextsync-rest-auth.spec.ts:8:7 › Context Sync REST gate (@smoke) › @smoke rejects anonymous artifacts list (396ms)
+  ✓  13 [chromium] › tests/e2e/smoke/cron-data-retention.spec.ts:4:7 › cron data-retention auth › @smoke rejects unauthenticated requests (219ms)
+  ✓  14 [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:4:7 › cron metrics (Prometheus exposition) › @smoke rejects unauthenticated metrics scrape (315ms)
+  ✘  15 [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:11:7 › cron metrics (Prometheus exposition) › @smoke returns Prometheus text when CRON_SECRET is set (556ms)
+  ✓   9 [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:18:5 › @smoke sign-in exposes main landmark (3.2s)
+  ✓  16 [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:3:5 › @smoke dashboard requires auth (2.4s)
+  ✓  12 [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:7:5 › @smoke skip link targets main landmark on marketing home (3.2s)
+(node:2608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+  ✓  19 [chromium] › tests/e2e/smoke/integration-inbound-auth.spec.ts:8:7 › Integration inbound gate (@smoke) › @smoke rejects anonymous POST to integration inbound (561ms)
+  ✓  18 [chromium] › tests/e2e/smoke/home.spec.ts:3:5 › @smoke home page loads (2.1s)
+  ✓  17 [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:20:5 › @smoke analytics route preserves callbackUrl for return after login (2.4s)
+  -  23 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:95:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox persistent status region with conflict row + device-loss copy
+  ✓  20 [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:12:5 › @smoke deep dashboard path preserves callbackUrl for return after login (2.0s)
+[WebServer] 2026-07-19T16:20:31.836Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:20:34.194Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:20:36.494Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:20:38.431Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+  ✘  21 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:71:7 › offline dashboard banner (@smoke when creds set) › @smoke shows offline notice when navigator is offline (30.0s)
+(node:3158) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+  ✓  26 [chromium] › tests/e2e/smoke/scim-auth.spec.ts:7:7 › SCIM auth gate (@smoke) › @smoke rejects anonymous SCIM Users list (147ms)
+  ✓  27 [chromium] › tests/e2e/smoke/sign-in.spec.ts:3:5 › @smoke sign-in page shows form (437ms)
+  ✘  22 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:87:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox flag=0 does not show outbox status chrome (30.0s)
+  ✘  24 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:140:7 › field outbox status region (@smoke|outbox|touch) › @smoke @touch field launcher primary and incident submit ≥44px (30.2s)
+[WebServer] 2026-07-19T16:21:01.523Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+(node:3217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+  ✘  25 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:163:7 › field outbox status region (@smoke|outbox|touch) › @smoke header uses safe-area inset padding (30.1s)
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+(node:3226) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+(node:3228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+[WebServer] 2026-07-19T16:21:03.265Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:21:03.802Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] 2026-07-19T16:21:04.517Z ERROR [Better Auth]: Error Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+[WebServer] # SERVER_ERROR:  Error: Failed query: select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1
+[WebServer] params: e2e.admin@ci.local
+[WebServer]     at ignore-listed frames {
+[WebServer]   query: 'select "id", "name", "email", "email_verified", "image", "created_at", "updated_at" from "user" where "user"."email" = $1',
+[WebServer]   params: [ 'e2e.admin@ci.local' ],
+[WebServer]   [cause]: error: relation "user" does not exist
+[WebServer]       at ignore-listed frames {
+[WebServer]     length: 103,
+[WebServer]     severity: 'ERROR',
+[WebServer]     code: '42P01',
+[WebServer]     detail: undefined,
+[WebServer]     hint: undefined,
+[WebServer]     position: '90',
+[WebServer]     internalPosition: undefined,
+[WebServer]     internalQuery: undefined,
+[WebServer]     where: undefined,
+[WebServer]     schema: undefined,
+[WebServer]     table: undefined,
+[WebServer]     column: undefined,
+[WebServer]     dataType: undefined,
+[WebServer]     constraint: undefined,
+[WebServer]     file: 'parse_relation.c',
+[WebServer]     line: '1395',
+[WebServer]     routine: 'parserOpenTable'
+[WebServer]   }
+[WebServer] }
+  ✘  28 [chromium] › tests/e2e/smoke/signed-in-dashboard.spec.ts:17:7 › authenticated dashboard (@smoke when creds set) › @smoke reaches dashboard after sign-in (5.8s)
+  ✘  29 [core-spine] › tests/e2e/smoke/core-spine-approvals-decide.spec.ts:18:7 › core spine approvals decide (@smoke) › @smoke CAPA plan approval decide path (30.1s)
+  ✘  30 [core-spine] › tests/e2e/smoke/core-spine-audit-trail.spec.ts:18:7 › core spine audit trail (@smoke) › @smoke audit-trail list shows mutation row and CSV export (30.1s)
+  ✘  31 [core-spine] › tests/e2e/smoke/core-spine-capa-lifecycle.spec.ts:18:7 › core spine CAPA lifecycle (@smoke) › @smoke CAPA planned → verified with incident source link (30.0s)
+
+
+  1) [chromium] › tests/e2e/auth/contractor-credential-intake.spec.ts:14:7 › authenticated contractor credential intake › @smoke creates external party and adds COI credential 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/program/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fprogram"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        61 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fprogram"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/auth/contractor-credential-intake.spec.ts:16:5
+
+    Error Context: test-results/auth-contractor-credential-d049e-rty-and-adds-COI-credential-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/auth/environmental-permit-intake.spec.ts:14:7 › authenticated environmental regulatory permit intake › @smoke submits minimal environmental permit from new form 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/environmental-permits\/new/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fenvironmental-permits%2Fnew"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        61 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fenvironmental-permits%2Fnew"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/auth/environmental-permit-intake.spec.ts:16:5
+
+    Error Context: test-results/auth-environmental-permit--c5728-mental-permit-from-new-form-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/auth/incident-intake.spec.ts:18:7 › authenticated incident intake › @smoke submits minimal incident from new form 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/incidents\/new/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fincidents%2Fnew"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        60 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fincidents%2Fnew"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/auth/incident-intake.spec.ts:20:5
+
+    Error Context: test-results/auth-incident-intake-authe-d0f1d-imal-incident-from-new-form-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/auth/inspection-intake.spec.ts:14:7 › authenticated inspection intake › @smoke creates minimal inspection from new form 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/inspections\/new/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Finspections%2Fnew"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        61 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Finspections%2Fnew"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/auth/inspection-intake.spec.ts:16:5
+
+    Error Context: test-results/auth-inspection-intake-aut-16cdf-al-inspection-from-new-form-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/auth/observation-intake.spec.ts:15:7 › authenticated observation intake › @smoke submits minimal observation from new form 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/observations\/new/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fobservations%2Fnew"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        60 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fobservations%2Fnew"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/auth/observation-intake.spec.ts:17:5
+
+    Error Context: test-results/auth-observation-intake-au-593ac-l-observation-from-new-form-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/auth/observation-intake.spec.ts:28:7 › authenticated observation intake › @smoke observation detail shows follow-up SLA controls 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/observations\/new/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fobservations%2Fnew"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        60 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fobservations%2Fnew"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/auth/observation-intake.spec.ts:29:5
+
+    Error Context: test-results/auth-observation-intake-au-cf1d8-hows-follow-up-SLA-controls-chromium/error-context.md
+
+  7) [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:14:7 › authenticated risk assessment intake (planning) › @smoke planning hub links to risk assessment roster 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/planning/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fplanning"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        60 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fplanning"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/auth/risk-assessment-intake.spec.ts:15:5
+
+    Error Context: test-results/auth-risk-assessment-intak-4076c-s-to-risk-assessment-roster-chromium/error-context.md
+
+  8) [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:30:7 › authenticated risk assessment intake (roster) › @smoke records minimal risk assessment from roster new form 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/risk-assessments\/new/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Frisk-assessments%2Fnew"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        60 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Frisk-assessments%2Fnew"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/auth/risk-assessment-intake.spec.ts:32:5
+
+    Error Context: test-results/auth-risk-assessment-intak-6857f-ssment-from-roster-new-form-chromium/error-context.md
+
+  9) [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:11:7 › cron metrics (Prometheus exposition) › @smoke returns Prometheus text when CRON_SECRET is set 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 503
+
+      22 |       headers: { Authorization: `Bearer ${secret}` },
+      23 |     });
+    > 24 |     expect(res.status()).toBe(200);
+         |                          ^
+      25 |     const text = await res.text();
+      26 |     expect(text).toContain("ehs_cron_job_last_run_timestamp_seconds");
+      27 |     expect(text).toContain('job="reminders"');
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/cron-metrics.spec.ts:24:26
+
+    Error Context: test-results/smoke-cron-metrics-cron-me-06b88-ext-when-CRON-SECRET-is-set-chromium/error-context.md
+
+  10) [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:71:7 › offline dashboard banner (@smoke when creds set) › @smoke shows offline notice when navigator is offline 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-dashboard-shell=\'workspace\']')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 30000ms
+      - waiting for locator('[data-dashboard-shell=\'workspace\']')
+
+
+      18 |   await page.getByRole("button", { name: /sign in/i }).click();
+      19 |   await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    > 20 |   await expect(page.locator("[data-dashboard-shell='workspace']")).toBeVisible({
+         |                                                                    ^
+      21 |     timeout: 30_000,
+      22 |   });
+      23 | }
+        at signInToDashboard (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/offline-dashboard-banner.spec.ts:20:68)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/offline-dashboard-banner.spec.ts:72:5
+
+    Error Context: test-results/smoke-offline-dashboard-ba-80eac-e-when-navigator-is-offline-chromium/error-context.md
+
+  11) [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:87:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox flag=0 does not show outbox status chrome 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-dashboard-shell=\'workspace\']')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 30000ms
+      - waiting for locator('[data-dashboard-shell=\'workspace\']')
+
+
+      18 |   await page.getByRole("button", { name: /sign in/i }).click();
+      19 |   await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    > 20 |   await expect(page.locator("[data-dashboard-shell='workspace']")).toBeVisible({
+         |                                                                    ^
+      21 |     timeout: 30_000,
+      22 |   });
+      23 | }
+        at signInToDashboard (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/offline-dashboard-banner.spec.ts:20:68)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/offline-dashboard-banner.spec.ts:89:5
+
+    Error Context: test-results/smoke-offline-dashboard-ba-9b594-t-show-outbox-status-chrome-chromium/error-context.md
+
+  12) [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:140:7 › field outbox status region (@smoke|outbox|touch) › @smoke @touch field launcher primary and incident submit ≥44px 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-dashboard-shell=\'workspace\']')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 30000ms
+      - waiting for locator('[data-dashboard-shell=\'workspace\']')
+
+
+      18 |   await page.getByRole("button", { name: /sign in/i }).click();
+      19 |   await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    > 20 |   await expect(page.locator("[data-dashboard-shell='workspace']")).toBeVisible({
+         |                                                                    ^
+      21 |     timeout: 30_000,
+      22 |   });
+      23 | }
+        at signInToDashboard (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/offline-dashboard-banner.spec.ts:20:68)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/offline-dashboard-banner.spec.ts:141:5
+
+    Error Context: test-results/smoke-offline-dashboard-ba-5288e-y-and-incident-submit-≥44px-chromium/error-context.md
+
+  13) [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:163:7 › field outbox status region (@smoke|outbox|touch) › @smoke header uses safe-area inset padding 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-dashboard-shell=\'workspace\']')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 30000ms
+      - waiting for locator('[data-dashboard-shell=\'workspace\']')
+
+
+      18 |   await page.getByRole("button", { name: /sign in/i }).click();
+      19 |   await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    > 20 |   await expect(page.locator("[data-dashboard-shell='workspace']")).toBeVisible({
+         |                                                                    ^
+      21 |     timeout: 30_000,
+      22 |   });
+      23 | }
+        at signInToDashboard (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/offline-dashboard-banner.spec.ts:20:68)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/offline-dashboard-banner.spec.ts:164:5
+
+    Error Context: test-results/smoke-offline-dashboard-ba-73248-ses-safe-area-inset-padding-chromium/error-context.md
+
+  14) [chromium] › tests/e2e/smoke/signed-in-dashboard.spec.ts:17:7 › authenticated dashboard (@smoke when creds set) › @smoke reaches dashboard after sign-in 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected pattern: /Operations/
+    Received string:  "Sign in to EHS Console"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('heading', { level: 1 })
+        14 × locator resolved to <h1 class="text-2xl font-semibold">Sign in to EHS Console</h1>
+           - unexpected value "Sign in to EHS Console"
+
+
+      21 |     await page.getByRole("button", { name: /sign in/i }).click();
+      22 |     await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
+    > 23 |     await expect(page.getByRole("heading", { level: 1 })).toContainText(/Operations/);
+         |                                                           ^
+      24 |   });
+      25 | });
+      26 |
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/signed-in-dashboard.spec.ts:23:59
+
+    Error Context: test-results/smoke-signed-in-dashboard--9e412-hes-dashboard-after-sign-in-chromium/error-context.md
+
+  15) [core-spine] › tests/e2e/smoke/core-spine-approvals-decide.spec.ts:18:7 › core spine approvals decide (@smoke) › @smoke CAPA plan approval decide path 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/capa/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fcapa"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        62 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fcapa"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/core-spine-approvals-decide.spec.ts:22:5
+
+    Error Context: test-results/smoke-core-spine-approvals-e19eb-A-plan-approval-decide-path-core-spine/error-context.md
+
+  16) [core-spine] › tests/e2e/smoke/core-spine-audit-trail.spec.ts:18:7 › core spine audit trail (@smoke) › @smoke audit-trail list shows mutation row and CSV export 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/incidents\/new/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fincidents%2Fnew"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        62 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fincidents%2Fnew"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/core-spine-audit-trail.spec.ts:22:5
+
+    Error Context: test-results/smoke-core-spine-audit-tra-f6262-mutation-row-and-CSV-export-core-spine/error-context.md
+
+  17) [core-spine] › tests/e2e/smoke/core-spine-capa-lifecycle.spec.ts:18:7 › core spine CAPA lifecycle (@smoke) › @smoke CAPA planned → verified with incident source link 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/dashboard\/incidents\/new/
+    Received string:  "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fincidents%2Fnew"
+
+    Call log:
+      - Expect "toHaveURL" with timeout 30000ms
+        61 × unexpected value "http://127.0.0.1:3000/sign-in?callbackUrl=%2Fdashboard%2Fincidents%2Fnew"
+
+
+       at ../helpers/e2e-signed-in.ts:17
+
+      15 |   await page.getByLabel("Password", { exact: true }).fill(credentials.password);
+      16 |   await page.getByRole("button", { name: /sign in/i }).click();
+    > 17 |   await expect(page).toHaveURL(
+         |                      ^
+      18 |     new RegExp(callbackPathname.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+      19 |     { timeout: 30_000 },
+      20 |   );
+        at signInViaEmailPassword (/Users/sagehart/Downloads/Autonomous EHS Management System /tests/helpers/e2e-signed-in.ts:17:22)
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/core-spine-capa-lifecycle.spec.ts:23:5
+
+    Error Context: test-results/smoke-core-spine-capa-life-05395-d-with-incident-source-link-core-spine/error-context.md
+
+  17 failed
+    [chromium] › tests/e2e/auth/contractor-credential-intake.spec.ts:14:7 › authenticated contractor credential intake › @smoke creates external party and adds COI credential 
+    [chromium] › tests/e2e/auth/environmental-permit-intake.spec.ts:14:7 › authenticated environmental regulatory permit intake › @smoke submits minimal environmental permit from new form 
+    [chromium] › tests/e2e/auth/incident-intake.spec.ts:18:7 › authenticated incident intake › @smoke submits minimal incident from new form 
+    [chromium] › tests/e2e/auth/inspection-intake.spec.ts:14:7 › authenticated inspection intake › @smoke creates minimal inspection from new form 
+    [chromium] › tests/e2e/auth/observation-intake.spec.ts:15:7 › authenticated observation intake › @smoke submits minimal observation from new form 
+    [chromium] › tests/e2e/auth/observation-intake.spec.ts:28:7 › authenticated observation intake › @smoke observation detail shows follow-up SLA controls 
+    [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:14:7 › authenticated risk assessment intake (planning) › @smoke planning hub links to risk assessment roster 
+    [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:30:7 › authenticated risk assessment intake (roster) › @smoke records minimal risk assessment from roster new form 
+    [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:11:7 › cron metrics (Prometheus exposition) › @smoke returns Prometheus text when CRON_SECRET is set 
+    [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:71:7 › offline dashboard banner (@smoke when creds set) › @smoke shows offline notice when navigator is offline 
+    [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:87:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox flag=0 does not show outbox status chrome 
+    [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:140:7 › field outbox status region (@smoke|outbox|touch) › @smoke @touch field launcher primary and incident submit ≥44px 
+    [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:163:7 › field outbox status region (@smoke|outbox|touch) › @smoke header uses safe-area inset padding 
+    [chromium] › tests/e2e/smoke/signed-in-dashboard.spec.ts:17:7 › authenticated dashboard (@smoke when creds set) › @smoke reaches dashboard after sign-in 
+    [core-spine] › tests/e2e/smoke/core-spine-approvals-decide.spec.ts:18:7 › core spine approvals decide (@smoke) › @smoke CAPA plan approval decide path 
+    [core-spine] › tests/e2e/smoke/core-spine-audit-trail.spec.ts:18:7 › core spine audit trail (@smoke) › @smoke audit-trail list shows mutation row and CSV export 
+    [core-spine] › tests/e2e/smoke/core-spine-capa-lifecycle.spec.ts:18:7 › core spine CAPA lifecycle (@smoke) › @smoke CAPA planned → verified with incident source link 
+  1 skipped
+  13 passed (2.2m)

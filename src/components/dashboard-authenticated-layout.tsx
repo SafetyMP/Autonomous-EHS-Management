@@ -8,6 +8,7 @@ import { DashboardSiteHeader } from "@/components/dashboard-site-header";
 /**
  * Header + nav chrome for the sole shell (ADR-UX-002 / AC-012).
  * Nav authority: dashboard-nav-links + server-backed filterDashboardNavSections.
+ * Calm Focus quietness: slate rail subordinate; content region lightest (ADR-UX-005).
  */
 export function DashboardAuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -34,7 +35,7 @@ export function DashboardAuthenticatedLayout({ children }: { children: React.Rea
 
   return (
     <DashboardNavBadgeProvider>
-      <div data-dashboard-shell="authenticated" className="flex min-h-0 flex-1 flex-col">
+      <div data-dashboard-shell="authenticated" className="flex min-h-0 flex-1 flex-col bg-background">
         <DashboardSiteHeader onMenuClick={openDrawer} />
 
         {mobileDrawerOpen ? (
@@ -47,11 +48,11 @@ export function DashboardAuthenticatedLayout({ children }: { children: React.Rea
             <button
               type="button"
               aria-label="Close workspace navigation"
-              className="absolute inset-0 bg-zinc-900/40"
+              className="absolute inset-0 bg-slate-900/40"
               onClick={closeDrawer}
             />
-            <div className="absolute bottom-0 left-0 top-0 flex w-[min(22rem,calc(100vw-3rem))] flex-col bg-surface shadow-lg">
-              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <div className="absolute bottom-0 left-0 top-0 flex w-[min(22rem,calc(100vw-3rem))] flex-col bg-surface shadow-[var(--shadow-card)]">
+              <div className="flex h-12 items-center justify-between border-b border-border px-4 sm:h-14">
                 <span className="text-base font-semibold text-foreground">Menu</span>
                 <button
                   type="button"
@@ -69,16 +70,16 @@ export function DashboardAuthenticatedLayout({ children }: { children: React.Rea
         <div className="flex min-h-0 flex-1">
           <aside
             aria-label="Workspace"
-            className="hidden w-56 shrink-0 overflow-y-auto border-r border-border bg-surface-muted md:block xl:w-60"
+            data-dashboard-chrome="nav-rail"
+            className="nav-rail hidden w-56 shrink-0 overflow-y-auto border-r md:block xl:w-60"
           >
             <DashboardGroupedNav variant="sidebar" />
           </aside>
 
-          <div
-            id="main-content"
-            tabIndex={-1}
-            className="flex min-h-0 min-w-0 flex-1 flex-col outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
-          >
+          {/* Content column only — #main-content lives on the page surface inside
+              DashboardWorkspace so shell chrome (session strip, What's new) is
+              excluded from Today density measurement (ADR-UX-006 / AC-CF-D005). */}
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-background">
             {children}
           </div>
         </div>

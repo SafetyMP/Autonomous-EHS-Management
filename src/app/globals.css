@@ -1,30 +1,42 @@
 @import "tailwindcss";
 
 /**
- * ADR-UX-002 token layer — semantic CSS variables + Tailwind 4 @theme.
+ * ADR-UX-005 Calm Focus token layer — semantic CSS variables + Tailwind 4 @theme.
+ * Retires emerald brand accents; slate/stone atmosphere + safety teal / forest.
  * No mandatory UI kit; shell/chrome consume these tokens via thin helpers.
  */
 :root {
-  --background: #fafafa;
-  --foreground: #18181b;
+  --background: #f8fafc;
+  --foreground: #0f172a;
   --surface: #ffffff;
-  --surface-muted: #f4f4f5;
-  --border: #e4e4e7;
-  --border-strong: #a1a1aa;
-  --text-muted: #3f3f46;
-  --text-subtle: #52525b;
+  --surface-muted: #f1f5f9;
+  --surface-elevated: #ffffff;
+  --border: #e2e8f0;
+  --border-strong: #94a3b8;
+  --text-muted: #475569;
+  --text-subtle: #64748b;
   --danger: #b91c1c;
   --danger-surface: #fef2f2;
-  --success: #065f46;
-  --success-surface: #ecfdf5;
+  --success: #0f766e;
+  --success-surface: #f0fdfa;
   --warning: #b45309;
   --warning-surface: #fffbeb;
-  --focus: #059669;
-  --primary: #065f46;
-  --primary-hover: #064e3b;
+  --focus: #0f766e;
+  /* Body/link primary must meet ≥4.5:1 on white (#0d9488 was 3.74:1 — a11y return). */
+  --primary: #0f766e;
+  --primary-hover: #115e59;
   --primary-fg: #ffffff;
-  --primary-soft: #ecfdf5;
-  --primary-soft-border: #065f46;
+  --primary-soft: #f0fdfa;
+  --primary-soft-border: #0f766e;
+  --radius-card: 0.75rem;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --spacing-section: 2rem;
+  --density-nav-item: 0.5rem 0.75rem;
+  /* Dark chrome rail accent (nav only) — teal-400 for ≥3:1 on slate-800/900 */
+  --primary-on-dark: #2dd4bf;
+  --nav-rail-bg: #1e293b;
+  --nav-rail-bg-deep: #0f172a;
+  --nav-rail-text: #94a3b8;
   color-scheme: light;
 }
 
@@ -33,6 +45,7 @@
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
+  --color-surface-elevated: var(--surface-elevated);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-text-muted: var(--text-muted);
@@ -49,18 +62,46 @@
   --color-primary-fg: var(--primary-fg);
   --color-primary-soft: var(--primary-soft);
   --color-primary-soft-border: var(--primary-soft-border);
-  --font-sans: var(--font-geist-sans);
+  --color-primary-on-dark: var(--primary-on-dark);
+  --color-nav-rail-bg: var(--nav-rail-bg);
+  --color-nav-rail-bg-deep: var(--nav-rail-bg-deep);
+  --color-nav-rail-text: var(--nav-rail-text);
+  /* Bridge five Calm Focus props (AC-CF-V004) — literals match :root (avoid circular var) */
+  --radius-card: 0.75rem;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --spacing-section: 2rem;
+  --density-nav-item: 0.5rem 0.75rem;
+  /* --font-sans / --font-display come from next/font on <html> (ADR-UX-005) */
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem; /* 16px body */
+}
+
+/**
+ * Mode-entry display face (Fraunces) — opt-in only (AC-CF-V002 / AC-CF-H005).
+ * Do not apply to tier labels, ModuleMaturityBanner, or Plumbing headings.
+ */
+.font-display,
+.mode-h1 {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+}
+
+.mode-h1 {
+  font-size: 1.75rem; /* 28px */
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
 }
 
 /**
  * Field / glove-friendly minimum touch target (WCAG 2.5.8; field target ~44px).
+ * AC-CF-A004 — preserve ≥44×44.
  */
 @utility touch-target {
   min-height: 2.75rem;
@@ -80,6 +121,7 @@ body {
 
 /**
  * Thin token helpers (AC-004 / AC-013) — filled primary ≤1 per stress action region.
+ * White-on-primary ≥4.5:1 with --primary #0f766e (~5.47:1). No 13px captions on fills.
  */
 .btn-primary {
   display: inline-flex;
@@ -137,7 +179,7 @@ body {
   min-height: 3.5rem;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
   border: 2px solid var(--primary-soft-border);
   background-color: var(--primary-soft);
   padding: 1rem;
@@ -147,7 +189,7 @@ body {
   color: var(--primary);
 }
 .btn-primary-soft:hover {
-  background-color: #d1fae5;
+  background-color: #ccfbf1; /* teal-100 soft hover — not emerald */
 }
 .btn-primary-soft:focus-visible {
   outline: none;
@@ -181,9 +223,134 @@ body {
   box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--focus);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
+}
+
 /**
  * Glare-tolerant muted copy helper (prefer over zinc-500 on light surfaces).
  */
 .text-glare-muted {
   color: var(--text-muted);
+}
+
+/**
+ * Content card — lightest layer above the fold (AC-CF-V006 chrome quietness).
+ */
+.content-card {
+  border-radius: var(--radius-card);
+  background-color: var(--surface-elevated);
+  box-shadow: var(--shadow-card);
+}
+
+.section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-section);
+}
+
+/**
+ * Dark nav rail helpers (sidebar only). Drawer stays light for readability.
+ */
+[data-theme="calm"] .nav-rail {
+  background-color: var(--nav-rail-bg);
+  color: var(--nav-rail-text);
+  border-color: var(--nav-rail-bg-deep);
+}
+
+[data-theme="calm"] .nav-rail-item {
+  color: var(--nav-rail-text);
+  padding: var(--density-nav-item);
+}
+
+[data-theme="calm"] .nav-rail-item:hover {
+  background-color: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+
+[data-theme="calm"] .nav-rail-item[aria-current="page"] {
+  background-color: rgba(45, 212, 191, 0.12);
+  color: var(--primary-on-dark);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--primary-on-dark);
+}
+
+[data-theme="calm"] .nav-rail-label {
+  /* Must stay ≥4.5:1 on --nav-rail-bg / deep (slate-500 #64748b failed axe at 3.07:1). */
+  color: var(--nav-rail-text);
+}
+
+/**
+ * Shared motion budget MO-1..MO-3 keyframe definitions only (ADR-UX-005).
+ * prefers-reduced-motion executable guards / audit evidence: ADR-UX-007.
+ */
+@keyframes mo-1-queue-row-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(0.5rem);
+  }
+}
+
+@keyframes mo-2-outbox-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes mo-3-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mo-1-queue-row-exit {
+  animation: mo-1-queue-row-exit 150ms ease-out forwards;
+}
+
+.mo-2-outbox-pulse {
+  animation: mo-2-outbox-pulse 2s ease-in-out infinite;
+}
+
+.mo-3-panel-enter {
+  animation: mo-3-panel-enter 120ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-1-queue-row-exit,
+  .mo-2-outbox-pulse,
+  .mo-3-panel-enter {
+    animation: none;
+  }
+}
+
+/**
+ * ModuleMaturityBanner disclosure (ADR-UX-007) — no MO-4+ motion.
+ * Native <details> open/close; any future transition must stay guarded.
+ */
+.maturity-banner-disclosure summary {
+  list-style-position: outside;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maturity-banner,
+  .maturity-banner-disclosure,
+  .maturity-banner-disclosure summary {
+    transition: none !important;
+    animation: none !important;
+  }
 }

@@ -1,0 +1,50 @@
+{
+  "schema": "ehs-ux-root-integration/v1",
+  "program_id": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "produced_by": "root_orchestrator",
+  "produced_at": "2026-07-19T16:16:07Z",
+  "adrs": [
+    "ADR-UX-005",
+    "ADR-UX-006",
+    "ADR-UX-007"
+  ],
+  "residuals_closed": [
+    "RR-CF-001",
+    "RR-CF-006"
+  ],
+  "verify_command": "./scripts/verify.sh",
+  "verify_exit_code": 0,
+  "density_exit_code": 0,
+  "wcag3_exit_code": 0,
+  "claim_lint_exit_code": 0,
+  "evidence": {
+    "root-verify-calm-focus-r1.txt": {
+      "exit": 0,
+      "sha256": "332f545fe291e3a24f0dc390f8621534c94ed8a6b8d2ee9a04ce0355107b30e4"
+    },
+    "root-density-calm-focus-r1.txt": {
+      "exit": 0,
+      "sha256": "5ee312e32eeecfa4f5e7604c0aa0c7c1385a2803932c4badc80ab7d9de71e408"
+    },
+    "root-wcag3-calm-focus-r1.txt": {
+      "exit": 0,
+      "sha256": "3089672b8b6c526d07536fa0a92e2b9abc3ae41628971a8a2f9d7ed4ca4835dd"
+    },
+    "root-claim-lint-calm-focus-r1.txt": {
+      "exit": 0,
+      "sha256": "9eade5ca020febc90e4ddb113bbf5ed0bf8065202b2531c569c26199fd3cfa27"
+    }
+  },
+  "honest_gaps": [
+    "axe @a11y signed-in suite not re-run at root in this integration",
+    "visual manifest digests are placeholders (not PNG captures)",
+    "Playwright/CDP \u226412-control density e2e at 1440\u00d7900 not yet produced at root",
+    "G-CF-BRAND-TEST / UR-CF-007 needs named human reviewer",
+    "integration-e2e / signed-in smoke not asserted unless covered by verify.sh"
+  ],
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ]
+}

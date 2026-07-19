@@ -1,0 +1,8 @@
+{
+  "gate": "AC-CF-D004/D005",
+  "project": "density",
+  "exit_code": 0,
+  "result": "PASS",
+  "log_path": ".corp-harness/evidence/calm-focus-density-e2e-r1.txt",
+  "notes": "#main-content scoped to page surface; secondary clusters under More on Today; chrome (Whats new, Sign out) excluded from density count"
+}

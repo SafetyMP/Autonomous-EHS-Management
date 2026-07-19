@@ -1,0 +1,245 @@
+{
+  "schema": "corporate-site-gate/v1",
+  "gate": "operations",
+  "program_id": "ehs-ux",
+  "revision": 1,
+  "cycle": "calm-focus-gen-1",
+  "handoff_digest": "cc77cb694a0d0214b5adbfe18c1e04b72eef9a613b7283c5a5065ff45de646b4",
+  "reviewer_role": "operations-excellence",
+  "reviewed_at": "2026-07-19T17:05:00Z",
+  "prior_verdict": ".corp-harness/evidence/operations-calm-focus-r2.json",
+  "return_pack_index": ".corp-harness/evidence/root-return-evidence-calm-focus-r3.json",
+  "status": "FAIL",
+  "summary": "r3 closed executable r2 blockers: both-persona density DENSITY_METRIC lines (supervisor controls=7, contributor=5; kpi_tiles=0; 2 passed) and visual manifest status=captured with 4/4 png digests matching on-disk PNGs including desk_contributor_today_collapsed. Prior smoke/a11y/touch/verify-r2 PASS evidence retained. Overall FAIL — not PASS_WITH_NOTES — because G-CF-BRAND-TEST / UR-CF-007 / AC-CF-V006 still require a designated named human reviewer before the brand gate can close; checklist Reviewer remains TBD. quality_dod not all-green. Gates not marked.",
+  "owning_adrs_for_return_work": [
+    "ADR-UX-005"
+  ],
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ],
+  "evidence_refs": [
+    ".corp-harness/evidence/root-return-evidence-calm-focus-r3.json",
+    ".corp-harness/evidence/operations-calm-focus-r2.json",
+    ".corp-harness/evidence/calm-focus-density-e2e-r2.txt",
+    ".corp-harness/evidence/calm-focus-density-visual-r2.json",
+    ".corp-harness/evidence/calm-focus-visual-r2.txt",
+    ".corp-harness/evidence/root-verify-ux-r2.txt",
+    ".corp-harness/evidence/root-verify-ux-r3.txt",
+    ".corp-harness/evidence/calm-focus-smoke-r1.json",
+    ".corp-harness/evidence/calm-focus-smoke-r1b.txt",
+    ".corp-harness/evidence/calm-focus-a11y-r1.json",
+    ".corp-harness/evidence/calm-focus-a11y-r1.txt",
+    ".corp-harness/evidence/calm-focus-touch-r1.json",
+    ".corp-harness/evidence/calm-focus-touch-r1.txt",
+    "evidence/calm-focus-visual-manifest.json",
+    "evidence/visual/desk_contributor_today_collapsed.png",
+    "evidence/visual/desk_supervisor_today_collapsed.png",
+    "evidence/visual/desk_supervisor_today_kpi_expanded.png",
+    "evidence/visual/field_today.png",
+    "docs/qa/calm-focus-brand-test-checklist.md",
+    "docs/adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md",
+    "docs/adr/ADR-UX-006-progressive-disclosure-today-home.md",
+    "docs/adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md",
+    "/Users/sagehart/Downloads/ehs-corporate-program/acceptance.json",
+    "/Users/sagehart/Downloads/ehs-corporate-program/corporate-handoff.json",
+    "/Users/sagehart/Downloads/ehs-corporate-program/gates.json"
+  ],
+  "integrity_checks": {
+    "handoff_digest_matches_site_json": true,
+    "return_pack_handoff_digest_matches": true,
+    "density_log_sha256_matches_return_pack": true,
+    "density_log_sha256": "4286a8553be1cdbf5d3a97f5cf003a33e1b3673d1b52452d568d31e390da9fba",
+    "density_2_passed_observed": true,
+    "density_metric_desk_supervisor_kpi0_controls7": true,
+    "density_metric_desk_contributor_kpi0_controls5": true,
+    "density_both_personas_interactive_controls_le_12": true,
+    "visual_log_sha256_matches_return_pack": true,
+    "visual_log_sha256": "f82616d3deda8d79529700a8592890a33e003b88f00fb14ea871fbd07ea58836",
+    "visual_log_2_passed_observed": true,
+    "visual_manifest_sha256_matches_return_pack": true,
+    "visual_manifest_sha256": "584a2c6e7c338cf2a77981952bd02b101ec154470258866aee5ab2290eb2c4ae",
+    "visual_manifest_status_captured": true,
+    "visual_four_surfaces_digest_kind_png": true,
+    "visual_contributor_png_present": true,
+    "visual_contributor_png_sha256_matches_manifest": true,
+    "visual_all_four_png_sha256_match_manifest": true,
+    "root_verify_ux_r2_exit_0_retained": true,
+    "root_verify_ux_r2_sha256": "291403cc72a411d04587ae3964c02c0f67076b87447b869cec9305f7753edc9d",
+    "root_verify_ux_r3_complete_exit_0": false,
+    "root_verify_ux_r3_note": "file present (~2KB) but truncated mid-lint; not credited — producer correctly cites root-verify-ux-r2.txt",
+    "smoke_prior_pass_retained": true,
+    "a11y_prior_pass_retained": true,
+    "touch_prior_pass_retained": true,
+    "brand_checklist_human_signoff_present": false,
+    "brand_reviewer_still_tbd": true
+  },
+  "quality_dod_disposition": {
+    "AC-CF-S001": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-SMOKE",
+      "r2": "PASS_EVIDENCED",
+      "r3": "PASS_EVIDENCED",
+      "note": "Prior calm-focus-smoke-r1 retained (30 passed / 1 skipped / exit 0)",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-smoke-r1.json",
+        ".corp-harness/evidence/calm-focus-smoke-r1b.txt"
+      ]
+    },
+    "AC-CF-A001": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-A11Y-AXE",
+      "r2": "PASS_EVIDENCED",
+      "r3": "PASS_EVIDENCED",
+      "note": "Prior calm-focus-a11y-r1.txt retained (11 passed, EXIT 0)",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-a11y-r1.txt",
+        ".corp-harness/evidence/calm-focus-a11y-r1.json"
+      ]
+    },
+    "AC-CF-D004": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-DENSITY-KPI-HIDDEN",
+      "r2": "FAIL_PARTIAL_EVIDENCE",
+      "r3": "PASS_EVIDENCED",
+      "owning_adr": "ADR-UX-006",
+      "note": "Immutable density-e2e-r2.txt: DENSITY_METRIC visible_kpi_tiles=0 for desk_supervisor and desk_contributor; 2 passed",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-density-e2e-r2.txt",
+        ".corp-harness/evidence/calm-focus-density-visual-r2.json"
+      ]
+    },
+    "AC-CF-D005": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-DENSITY-TODAY",
+      "r2": "FAIL_PARTIAL_EVIDENCE",
+      "r3": "PASS_EVIDENCED",
+      "owning_adr": "ADR-UX-006",
+      "note": "Immutable log prints interactive_controls=7 (supervisor) and =5 (contributor) at viewport=1440x900; both ≤12; metrics not producer-only",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-density-e2e-r2.txt"
+      ]
+    },
+    "AC-CF-V010": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-VISUAL-SCREENSHOTS",
+      "r2": "FAIL_MISSING_EVIDENCE",
+      "r3": "PASS_EVIDENCED",
+      "owning_adr": "ADR-UX-007",
+      "note": "manifest status=captured; four digest_kind=png surfaces including desk_contributor_today_collapsed; all on-disk PNG sha256 match manifest. Capture residual from r2 closed. gates.json also expects human content confirmation at promotion (S1–S4 heuristics) — tracked as promotion residual, not re-opened as missing PNG set",
+      "promotion_residual": "human reviewer confirms S1/S2 no metric grid, S3 grid after expand, S4 field CTAs — recorded in manifest or promotion artifact",
+      "evidence": [
+        "evidence/calm-focus-visual-manifest.json",
+        ".corp-harness/evidence/calm-focus-visual-r2.txt",
+        "evidence/visual/desk_contributor_today_collapsed.png",
+        "evidence/visual/desk_supervisor_today_collapsed.png",
+        "evidence/visual/desk_supervisor_today_kpi_expanded.png",
+        "evidence/visual/field_today.png"
+      ]
+    },
+    "AC-CF-A003": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-CLAIM-LINT",
+      "r2": "PASS_EVIDENCED",
+      "r3": "PASS_EVIDENCED",
+      "note": "Prior WCAG3 + claim-lint + verify-r2 (425 vitest + threat-model ok) retained; root-verify-ux-r3.txt incomplete and not credited",
+      "evidence": [
+        ".corp-harness/evidence/root-wcag3-calm-focus-r1.txt",
+        ".corp-harness/evidence/root-claim-lint-calm-focus-r1.txt",
+        ".corp-harness/evidence/root-verify-ux-r2.txt"
+      ]
+    },
+    "AC-CF-A004": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-TOUCH",
+      "r2": "PASS_EVIDENCED",
+      "r3": "PASS_EVIDENCED",
+      "note": "Prior calm-focus-touch-r1 retained (3 passed, EXIT 0)",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-touch-r1.txt",
+        ".corp-harness/evidence/calm-focus-touch-r1.json"
+      ]
+    },
+    "AC-CF-V006": {
+      "status": "FAIL_HUMAN_BLOCKED",
+      "gate": "G-CF-BRAND-TEST",
+      "r2": "FAIL_HUMAN_BLOCKED",
+      "r3": "FAIL_HUMAN_BLOCKED",
+      "owning_adr": "ADR-UX-005",
+      "note": "docs/qa/calm-focus-brand-test-checklist.md present; Reviewer name TBD; Status awaiting named human. gates.json: UR-CF-007 must be resolved before G-CF-BRAND-TEST can close; reject_if human sign-off absent or reviewer is an agent. Honest FAIL for operations — not PASS_WITH_NOTES",
+      "evidence": [
+        "docs/qa/calm-focus-brand-test-checklist.md",
+        "/Users/sagehart/Downloads/ehs-corporate-program/gates.json"
+      ]
+    }
+  },
+  "r2_gap_closure": {
+    "closed": [
+      "AC-CF-D004",
+      "AC-CF-D005",
+      "AC-CF-V010"
+    ],
+    "unchanged_blocker": [
+      "AC-CF-V006"
+    ],
+    "still_pass": [
+      "AC-CF-S001",
+      "AC-CF-A001",
+      "AC-CF-A003",
+      "AC-CF-A004"
+    ]
+  },
+  "honest_gaps_disposition": [
+    {
+      "gap": "desk_contributor + desk_supervisor density with DENSITY_METRIC in immutable log",
+      "disposition": "closed_pass_evidenced",
+      "maps_to": ["AC-CF-D004", "AC-CF-D005", "G-CF-DENSITY-KPI-HIDDEN", "ADR-UX-006"]
+    },
+    {
+      "gap": "visual four-surface capture including contributor PNG",
+      "disposition": "closed_pass_evidenced",
+      "maps_to": ["AC-CF-V010", "G-CF-VISUAL-SCREENSHOTS", "ADR-UX-007"]
+    },
+    {
+      "gap": "G-CF-BRAND-TEST / UR-CF-007 needs named human reviewer",
+      "disposition": "blocks_pass_human",
+      "maps_to": ["AC-CF-V006", "G-CF-BRAND-TEST", "ADR-UX-005"]
+    },
+    {
+      "gap": "visual human content confirmation at promotion (S1–S4 heuristics)",
+      "disposition": "promotion_residual_not_blocking_capture_close",
+      "maps_to": ["AC-CF-V010", "G-CF-VISUAL-SCREENSHOTS"]
+    },
+    {
+      "gap": "root-verify-ux-r3.txt truncated incomplete run",
+      "disposition": "integrity_note_not_credited_r2_retained",
+      "maps_to": ["AC-CF-A003"]
+    }
+  ],
+  "remaining_blockers": [
+    {
+      "id": "BLOCK-CF-BRAND-HUMAN",
+      "severity": "high",
+      "owning_adr": "ADR-UX-005",
+      "requirement": "G-CF-BRAND-TEST / AC-CF-V006 / UR-CF-007",
+      "action": "Product owner designates named human reviewer; complete brand-test checklist sign-off (agent cannot close). Until then operations PASS is blocked — prefer FAIL over PASS_WITH_NOTES per gates.json blocking_residual"
+    }
+  ],
+  "recommended_transition": "escalate_USER_UR-CF-007_brand_signoff",
+  "site_slos": {
+    "verify_sh_green": "met_via_root_verify_ux_r2",
+    "quality_dod_all_green": "not_met",
+    "smoke_signed_in": "met",
+    "a11y_axe": "met",
+    "touch_targets": "met",
+    "density_both_personas": "met",
+    "visual_four_surfaces_captured": "met",
+    "brand_human_signoff": "not_met",
+    "no_infer_pass_from_producer_prose": "enforced",
+    "no_self_approve_operations_gate": "enforced"
+  },
+  "pass_with_notes_rejected": {
+    "considered": true,
+    "rejected_reason": "gates.json G-CF-BRAND-TEST explicitly requires designated human reviewer before gate can close (UR-CF-007 blocking_residual); quality_dod not all-green; operations PASS would self-approve a human-only gate"
+  }
+}

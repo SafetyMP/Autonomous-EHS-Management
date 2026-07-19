@@ -1,0 +1,53 @@
+# ADR-UX-006 site ADR adversary review (design falsification)
+# NOT corporate adversary gate; NOT scripts/adversarial.sh
+
+actor_role: site-adr-adversary
+date: 2026-07-19
+adr_path: docs/adr/ADR-UX-006-progressive-disclosure-today-home.md
+adr_sha256: b99851ae083bbca6f6839bcec6079c94089fee10b49bcff367876a78fc77257b
+corporate_handoff_cycle: calm-focus-gen-1
+verdict: PASS_WITH_NOTES
+gate: G-CF-ADR-002
+implementation_may_proceed_for_this_gate: YES
+  (only with G-CF-ADR-001 and G-CF-ADR-003 also clear — all three clear as of this review)
+
+## Acceptance IDs checked
+- AC-CF-R002 (critical ADR gate) — slot order, KPI <details> closed default, dash-kpis anchors, field forbidden list, density-ceiling.test.ts contract, ≤12 control measurement rules, adversary sign-off
+- AC-CF-D001 — Today ceilings ≤1 H1 / ≤1 CTA / ≤3 rows / ≤1 status region
+- AC-CF-D002 / D006 — Capture single-column + ≤1 primary; Decide ≤1 contextual; AI Suggest secondary
+- AC-CF-D003 — executable density-ceiling.test.ts (describe-only; impl later)
+- AC-CF-D004 / D005 — KPI closed; [data-kpi-tile]=0; ≤12 focusables @ 1440×900 after hydration
+- AC-CF-D007 / D008 — slot order + id/data-section anchors
+- AC-CF-D009 — DashboardFieldLauncher forbidden content
+- UR-CF-010 — decided: localStorage preference + breakpoint default
+- UR-CF-011 — deferred; Prove default must not show analytics widgets
+- RR-CF-006 — ownership: first Calm Focus impl PR (not this ADR)
+- CR-4 / CR-1 / IA freeze / D-006 / D-010 / no Plumbing→Core — consistent with ADR-UX-001/002
+
+## Findings (severity-ranked)
+
+### medium — UR-CF-010 hydration vs density gate measurement (documented remediation)
+ADR binds localStorage restore after user open/close, while density gates measure after hydration / networkidle with KPIs closed (AC-CF-D004 “first load”, AC-CF-D005 initial render).
+REQUIRED for impl: density Playwright / CDP evidence MUST use storage-cleared or first-visit context so restore cannot inflate control/tile counts. Returning-user open preference is post-gate UX, not the gate baseline.
+
+### low — RR-CF-006 still blocking for density evidence executability
+data-kpi-tile may be absent today; first-PR residual G-CF-RR-006. Correctly not claimed closed by this ADR. Does not block G-CF-ADR-002.
+
+### low — Program metadata honesty
+Header previously said “handoff (revision 4)”; clarified to cycle calm-focus-gen-1 / master-spec revision 4. Non-blocking.
+
+### info — Cross-ADR consistency
+- Banner re-style / maturity disclosure owned by 007; 006 correctly forbids ModuleMaturityBanner in field launcher and keeps Prove banners visible (not collapsed/hidden).
+- Tokens/chrome owned by 005; density does not invent parallel layout.
+
+## Falsification attempts that did NOT hold
+- Missing slot order invariant — present (§3)
+- Missing KPI closed-for-all-personas — present (§2)
+- Missing control-cap selector / exclusions — present (§7); matches acceptance.json
+- Missing UR-CF-010 decision — decided (§4)
+- Missing RR-CF-006 ownership — §9 first-PR
+- IA / core-spine mutation — non-goals forbid
+- Premature self-Accepted by author — was Draft; Accepted only after this adversary disposition
+
+## Disposition
+PASS_WITH_NOTES. G-CF-ADR-002 cleared for Calm Focus pre-implementation sequence step 1.

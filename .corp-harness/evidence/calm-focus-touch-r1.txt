@@ -1,0 +1,28 @@
+PKT-CF-RET-007-A11Y-VISUAL-TOUCH / AC-CF-A004 (+ A005/A006 checks)
+Date: 2026-07-19T16:37:23Z
+Command: npx playwright test tests/e2e/smoke/calm-focus-touch.spec.ts (NEXT_PUBLIC_FIELD_OUTBOX=1)
+Result: 3 passed / 0 failed — EXIT 0
+Checks: field primary CTA ≥44×44; incident submit ≥44×44; #field-outbox-status visible (not display:none/visibility:hidden); outbox Retry/Remove ≥44×44; header safe-area padding + viewport-fit=cover
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[WebServer] ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+[WebServer]  We detected multiple lockfiles and selected the directory of /Users/sagehart/Downloads/Autonomous EHS Management System /package-lock.json as the root directory.
+[WebServer]  To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+[WebServer]    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+[WebServer]  Detected additional lockfiles: 
+[WebServer]    * /Users/sagehart/Downloads/Autonomous EHS Management System /.worktrees/calm-focus-007-impl/package-lock.json
+[WebServer] 
+
+Running 3 tests using 1 worker
+
+(node:10623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+  ✓  1 [chromium] › tests/e2e/smoke/calm-focus-touch.spec.ts:77:7 › Calm Focus touch / outbox / safe-area (@smoke|touch) › @smoke @touch field primary actions ≥44×44 after Calm Focus CSS (4.9s)
+  ✓  2 [chromium] › tests/e2e/smoke/calm-focus-touch.spec.ts:93:7 › Calm Focus touch / outbox / safe-area (@smoke|touch) › @smoke @touch @outbox status region not suppressed; controls ≥44×44 (1.8s)
+  ✓  3 [chromium] › tests/e2e/smoke/calm-focus-touch.spec.ts:123:7 › Calm Focus touch / outbox / safe-area (@smoke|touch) › @smoke @touch header safe-area inset padding unchanged (1.2s)
+
+  3 passed (11.4s)
+EXIT:0

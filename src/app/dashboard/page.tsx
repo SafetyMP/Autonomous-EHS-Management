@@ -138,30 +138,20 @@ function DashboardHomeContent() {
     homeLayout?.persona === "desk_supervisor" ? "desk_supervisor" : "desk_contributor";
 
   return (
-    <>
-      <CommandCenterDeskView
-        organizationId={organizationId}
-        orgName={orgName}
-        persona={deskPersona}
-        isAdmin={homeLayout?.isAdmin ?? false}
-        canIntegrationRead={homeLayout?.permissions.canIntegrationRead ?? false}
-        cc={cc}
-        ccLoading={ccLoading}
-        actionQueue={actionQueue}
-        actionQueueLoading={actionQueueLoading}
-        doneKeys={doneKeys}
-        onCompleteSetupStep={(stepKey) => completeStep.mutate({ organizationId, stepKey })}
-        completeSetupStepPending={completeStep.isPending}
-      />
-      <p className="mt-6 text-center text-xs text-zinc-500">
-        <Link
-          href="/dashboard?view=field"
-          className="font-medium text-emerald-900 underline underline-offset-2"
-          onClick={() => persistPreference("field")}
-        >
-          Switch to compact field menu
-        </Link>
-      </p>
-    </>
+    <CommandCenterDeskView
+      organizationId={organizationId}
+      orgName={orgName}
+      persona={deskPersona}
+      isAdmin={homeLayout?.isAdmin ?? false}
+      canIntegrationRead={homeLayout?.permissions.canIntegrationRead ?? false}
+      cc={cc}
+      ccLoading={ccLoading}
+      actionQueue={actionQueue}
+      actionQueueLoading={actionQueueLoading}
+      doneKeys={doneKeys}
+      onCompleteSetupStep={(stepKey) => completeStep.mutate({ organizationId, stepKey })}
+      completeSetupStepPending={completeStep.isPending}
+      onPreferFieldLayout={() => persistPreference("field")}
+    />
   );
 }

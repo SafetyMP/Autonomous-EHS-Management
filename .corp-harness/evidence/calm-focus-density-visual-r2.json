@@ -1,0 +1,20 @@
+{
+  "gate": "AC-CF-D004/D005 + AC-CF-V010",
+  "density": {
+    "exit_code": 0,
+    "result": "PASS",
+    "metrics": [
+      "DENSITY_METRIC persona=desk_supervisor visible_kpi_tiles=0",
+      "DENSITY_METRIC persona=desk_supervisor interactive_controls=7 viewport=1440x900",
+      "DENSITY_METRIC persona=desk_contributor visible_kpi_tiles=0",
+      "DENSITY_METRIC persona=desk_contributor interactive_controls=5 viewport=1440x900"
+    ],
+    "log": ".corp-harness/evidence/calm-focus-density-e2e-r2.txt"
+  },
+  "visual": {
+    "exit_code": 0,
+    "result": "PASS",
+    "manifest_status": "captured",
+    "log": ".corp-harness/evidence/calm-focus-visual-r2.txt"
+  }
+}

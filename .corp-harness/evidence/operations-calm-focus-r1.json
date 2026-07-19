@@ -1,0 +1,134 @@
+{
+  "schema": "corporate-site-gate/v1",
+  "gate": "operations",
+  "program_id": "ehs-ux",
+  "revision": 1,
+  "cycle": "calm-focus-gen-1",
+  "handoff_digest": "cc77cb694a0d0214b5adbfe18c1e04b72eef9a613b7283c5a5065ff45de646b4",
+  "reviewer_role": "operations-excellence",
+  "status": "FAIL",
+  "summary": "verify.sh exit 0 insufficient for quality DoD / G-AC: missing axe signed-in a11y, real visual digests, Playwright/CDP ≤12 density e2e, signed-in smoke, touch evidence, and human brand-test sign-off",
+  "owning_adrs_for_return_work": [
+    "ADR-UX-005",
+    "ADR-UX-006",
+    "ADR-UX-007"
+  ],
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ],
+  "evidence_refs": [
+    ".corp-harness/evidence/root-integration-calm-focus-r1.json",
+    ".corp-harness/evidence/root-verify-calm-focus-r1.txt",
+    ".corp-harness/evidence/root-density-calm-focus-r1.txt",
+    ".corp-harness/evidence/root-wcag3-calm-focus-r1.txt",
+    ".corp-harness/evidence/root-claim-lint-calm-focus-r1.txt",
+    ".corp-harness/evidence/root-integrate-adr-ux-005-impl.json",
+    ".corp-harness/evidence/root-integrate-adr-ux-006-impl.json",
+    ".corp-harness/evidence/root-integrate-adr-ux-007-impl.json",
+    ".corp-harness/evidence/root-adr-adversary-clear.json",
+    ".corp-harness/evidence/adr-ux-005-adversary-review.txt",
+    ".corp-harness/evidence/adr-ux-006-adversary-review.txt",
+    ".corp-harness/evidence/adr-ux-007-adversary-review.txt",
+    ".corp-harness/evidence/calm-focus-005-impl-verify.txt",
+    ".corp-harness/evidence/calm-focus-006-impl-verify.txt",
+    ".corp-harness/evidence/calm-focus-007-impl-verify.txt",
+    "evidence/calm-focus-visual-manifest.json",
+    "docs/adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md",
+    "docs/adr/ADR-UX-006-progressive-disclosure-today-home.md",
+    "docs/adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md",
+    "/Users/sagehart/Downloads/ehs-corporate-program/acceptance.json",
+    "/Users/sagehart/Downloads/ehs-corporate-program/corporate-handoff.json"
+  ],
+  "integrity_checks": {
+    "handoff_digest_matches_site_json": true,
+    "root_verify_sha256_matches_integration_claim": true,
+    "root_density_sha256_matches_integration_claim": true,
+    "root_wcag3_sha256_matches_integration_claim": true,
+    "root_claim_lint_sha256_matches_integration_claim": true,
+    "root_verify_exit_0_observed_in_log": true,
+    "verify_sh_includes_signed_in_smoke": false
+  },
+  "quality_dod_disposition": {
+    "AC-CF-S001": {
+      "status": "FAIL_MISSING_EVIDENCE",
+      "gate": "G-CF-SMOKE",
+      "note": "verify.sh explicitly defers e2e smoke; no calm-focus-smoke-* digest at root"
+    },
+    "AC-CF-A001": {
+      "status": "FAIL_MISSING_EVIDENCE",
+      "gate": "G-CF-A11Y-AXE",
+      "note": "axe @a11y signed-in suite not re-run at root; specialist 007 packet also declared NOT run"
+    },
+    "AC-CF-D004": {
+      "status": "FAIL_MISSING_EVIDENCE",
+      "gate": "G-CF-DENSITY-KPI-HIDDEN",
+      "note": "unit density-ceiling/cohesion 31 pass and data-kpi-tile present; Playwright persona assertions for [data-kpi-tile]=0 not produced"
+    },
+    "AC-CF-D005": {
+      "status": "FAIL_MISSING_EVIDENCE",
+      "gate": "G-CF-DENSITY-TODAY",
+      "note": "Playwright/CDP ≤12 interactive controls at 1440×900 not produced (honest gap + ADR-UX-006 packet gap)"
+    },
+    "AC-CF-V010": {
+      "status": "FAIL_MISSING_EVIDENCE",
+      "gate": "G-CF-VISUAL-SCREENSHOTS",
+      "note": "manifest status=scaffold; digests are placeholders; evidence/visual/*.png absent"
+    },
+    "AC-CF-A003": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-CLAIM-LINT",
+      "note": "root-wcag3-calm-focus-r1.txt and root-claim-lint-calm-focus-r1.txt exit 0"
+    },
+    "AC-CF-A004": {
+      "status": "FAIL_MISSING_EVIDENCE",
+      "gate": "G-CF-TOUCH",
+      "note": "no calm-focus-touch-* Playwright boundingBox digest at root"
+    },
+    "AC-CF-V006": {
+      "status": "FAIL_MISSING_EVIDENCE",
+      "gate": "G-CF-BRAND-TEST",
+      "note": "UR-CF-007 — named human reviewer sign-off required; not closable by agent evidence alone"
+    }
+  },
+  "honest_gaps_disposition": [
+    {
+      "gap": "axe @a11y signed-in suite not re-run at root",
+      "disposition": "blocks_pass",
+      "maps_to": ["AC-CF-A001", "G-CF-A11Y-AXE", "ADR-UX-007"]
+    },
+    {
+      "gap": "visual manifest digests are placeholders (not PNG captures)",
+      "disposition": "blocks_pass",
+      "maps_to": ["AC-CF-V010", "G-CF-VISUAL-SCREENSHOTS", "ADR-UX-007"]
+    },
+    {
+      "gap": "Playwright/CDP ≤12-control density e2e at 1440×900 not produced",
+      "disposition": "blocks_pass",
+      "maps_to": ["AC-CF-D004", "AC-CF-D005", "G-CF-DENSITY-KPI-HIDDEN", "G-CF-DENSITY-TODAY", "ADR-UX-006"]
+    },
+    {
+      "gap": "G-CF-BRAND-TEST / UR-CF-007 needs named human reviewer",
+      "disposition": "blocks_pass",
+      "maps_to": ["AC-CF-V006", "G-CF-BRAND-TEST", "ADR-UX-005"]
+    },
+    {
+      "gap": "integration-e2e / signed-in smoke not asserted by verify.sh",
+      "disposition": "blocks_pass",
+      "maps_to": ["AC-CF-S001", "G-CF-SMOKE", "ADR-UX-005", "ADR-UX-006", "ADR-UX-007"]
+    }
+  ],
+  "partial_credit_not_sufficient_for_pass": [
+    "ADR adversary clear G-CF-ADR-001..003 (pre-impl only)",
+    "RR-CF-001 and RR-CF-006 claimed closed in root integration",
+    "./scripts/verify.sh exit 0 (lint/tsc/vitest/audit-matrix/threat-model only)",
+    "density unit tests 31/31",
+    "WCAG3 claim lint + buyer claim-lint exit 0"
+  ],
+  "recommended_transition": "remain_SITE_DELIVERY_return_owning_adrs",
+  "site_slos": {
+    "verify_sh_green": "met_for_static_unit_path_only",
+    "quality_dod_all_green": "not_met",
+    "no_infer_pass_from_producer_prose": "enforced"
+  }
+}

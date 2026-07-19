@@ -11,6 +11,10 @@ type HomeLayoutOut = inferRouterOutputs<AppRouter>["organization"]["dashboardHom
 type ActionQueueOut = inferRouterOutputs<AppRouter>["tasks"]["actionQueue"];
 type Perms = HomeLayoutOut["permissions"];
 
+/**
+ * Field Today — Capture intake CTAs + pending strip only (AC-CF-D009).
+ * Forbidden: KPI tiles, activity feed, programme updates, management panels.
+ */
 export function DashboardFieldLauncher({
   orgName,
   permissions,
@@ -37,27 +41,8 @@ export function DashboardFieldLauncher({
     { href: "/dashboard/permits/new", label: "New permit", show: permissions.canPermitCreate },
   ];
 
-  const lists: { href: string; label: string; show: boolean }[] = [
-    { href: "/dashboard/incidents", label: "Incidents", show: permissions.canIncidentRead },
-    {
-      href: "/dashboard/observations",
-      label: "Observations",
-      show: permissions.canObservationRead,
-    },
-    {
-      href: "/dashboard/inspections",
-      label: "Inspections",
-      show: permissions.canInspectionRead,
-    },
-    {
-      href: "/dashboard/permits",
-      label: "Work permits (PTW)",
-      show: permissions.canPermitRead,
-    },
-  ];
-
   const visibleActions = actions.filter((a) => a.show);
-  /** AC-004: ≤1 filled primary in the Start-here action region. */
+  /** AC-004 / AC-CF-D009: ≤1 filled primary-soft in the Start-here action region. */
   const [leadAction, ...secondaryActions] = visibleActions;
 
   return (
@@ -106,39 +91,8 @@ export function DashboardFieldLauncher({
         loading={actionQueueLoading ?? false}
       />
 
-      <section aria-labelledby="field-lists-heading">
-        <h2 id="field-lists-heading" className="mb-3 text-lg font-semibold text-foreground">
-          Recent lists
-        </h2>
-        <ul className="grid gap-2 sm:grid-cols-2" role="list">
-          {lists
-            .filter((a) => a.show)
-            .map((a) => (
-              <li key={a.href}>
-                <Link
-                  href={a.href}
-                  className="flex min-h-11 touch-target items-center rounded-lg border border-border-strong bg-surface px-4 py-3 text-base font-medium text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                >
-                  {a.label}
-                </Link>
-              </li>
-            ))}
-        </ul>
-      </section>
-
-      <p className="text-center text-xs text-text-subtle">
-        Pending work is ranked on the command center and in{" "}
-        <Link href="/dashboard/tasks" className="font-medium text-primary underline underline-offset-2">
-          Tasks &amp; reviews
-        </Link>
-        .
-      </p>
-
       <p className="text-center">
-        <Link
-          href="/dashboard?view=desk"
-          className="btn-secondary touch-target inline-flex"
-        >
+        <Link href="/dashboard?view=desk" className="btn-secondary touch-target inline-flex">
           Full operations dashboard
         </Link>
       </p>

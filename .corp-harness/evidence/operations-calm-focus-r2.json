@@ -1,0 +1,261 @@
+{
+  "schema": "corporate-site-gate/v1",
+  "gate": "operations",
+  "program_id": "ehs-ux",
+  "revision": 1,
+  "cycle": "calm-focus-gen-1",
+  "handoff_digest": "cc77cb694a0d0214b5adbfe18c1e04b72eef9a613b7283c5a5065ff45de646b4",
+  "reviewer_role": "operations-excellence",
+  "reviewed_at": "2026-07-19T17:01:00Z",
+  "prior_verdict": ".corp-harness/evidence/operations-calm-focus-r1.json",
+  "return_pack_index": ".corp-harness/evidence/root-return-evidence-calm-focus-r2.json",
+  "status": "FAIL",
+  "summary": "Return pack closed several r1 gaps (verify r2 exit 0, signed-in smoke 30/0/1, axe a11y EXIT 0, touch EXIT 0, density Playwright EXIT 0 for seeded desk_supervisor). Quality DoD still not all-green: G-CF-DENSITY-KPI-HIDDEN requires both desk personas (contributor not evidenced); G-CF-VISUAL-SCREENSHOTS rejects partial set (contributor PNG absent/placeholder); G-CF-BRAND-TEST / UR-CF-007 still human-blocked. Producer-claimed control_count=7 not present in immutable density log.",
+  "owning_adrs_for_return_work": [
+    "ADR-UX-006",
+    "ADR-UX-007",
+    "ADR-UX-005"
+  ],
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ],
+  "evidence_refs": [
+    ".corp-harness/evidence/root-return-evidence-calm-focus-r2.json",
+    ".corp-harness/evidence/root-verify-ux-r2.txt",
+    ".corp-harness/evidence/calm-focus-density-e2e-r1.json",
+    ".corp-harness/evidence/calm-focus-density-e2e-r1.txt",
+    ".corp-harness/evidence/calm-focus-smoke-r1.json",
+    ".corp-harness/evidence/calm-focus-smoke-r1b.txt",
+    ".corp-harness/evidence/calm-focus-a11y-r1.json",
+    ".corp-harness/evidence/calm-focus-a11y-r1.txt",
+    ".corp-harness/evidence/calm-focus-touch-r1.json",
+    ".corp-harness/evidence/calm-focus-touch-r1.txt",
+    ".corp-harness/evidence/operations-calm-focus-r1.json",
+    "evidence/calm-focus-visual-manifest.json",
+    "evidence/visual/desk_supervisor_today_collapsed.png",
+    "evidence/visual/desk_supervisor_today_kpi_expanded.png",
+    "evidence/visual/field_today.png",
+    "docs/qa/calm-focus-brand-test-checklist.md",
+    "docs/adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md",
+    "docs/adr/ADR-UX-006-progressive-disclosure-today-home.md",
+    "docs/adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md",
+    "/Users/sagehart/Downloads/ehs-corporate-program/acceptance.json",
+    "/Users/sagehart/Downloads/ehs-corporate-program/corporate-handoff.json",
+    "/Users/sagehart/Downloads/ehs-corporate-program/gates.json"
+  ],
+  "integrity_checks": {
+    "handoff_digest_matches_site_json": true,
+    "root_verify_ux_r2_exit_0_observed_in_log": true,
+    "root_verify_ux_r2_sha256": "291403cc72a411d04587ae3964c02c0f67076b87447b869cec9305f7753edc9d",
+    "smoke_log_sha256_matches_json_claim": true,
+    "smoke_log_sha256": "aaacba7ded2dbe49c82b729a058f256ec677b0a2c92732ca2b9731c03e54d3fe",
+    "smoke_parsed_30_passed_1_skipped_observed": true,
+    "a11y_log_exit_0_observed": true,
+    "a11y_log_11_passed_observed": true,
+    "a11y_json_log_sha256_matches_file": false,
+    "a11y_json_claimed_sha256": "9d08139640aee06e148ad6ec9d81602479cc0469bcf5c5645e2f8da00d51cea6",
+    "a11y_log_actual_sha256": "3575c56399c2ad02e04fd872bb09a2bccbb21c96af2622a14fb10f0c83d63348",
+    "a11y_json_parsed_passed_matches_log": false,
+    "touch_dedicated_log_exit_0_observed": true,
+    "touch_json_source_sha256_matches_smoke_log": true,
+    "density_e2e_log_1_passed_observed": true,
+    "density_control_count_7_present_in_immutable_log": false,
+    "density_control_count_7_only_in_producer_index": true,
+    "visual_manifest_status_partial_capture": true,
+    "visual_supervisor_collapsed_png_sha256_matches_manifest": true,
+    "visual_supervisor_kpi_expanded_png_sha256_matches_manifest": true,
+    "visual_field_today_png_sha256_matches_manifest": true,
+    "visual_contributor_png_file_present": false,
+    "visual_contributor_digest_kind_placeholder": true,
+    "brand_checklist_human_signoff_present": false,
+    "verify_sh_includes_signed_in_smoke": false
+  },
+  "quality_dod_disposition": {
+    "AC-CF-S001": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-SMOKE",
+      "r1": "FAIL_MISSING_EVIDENCE",
+      "r2": "PASS_EVIDENCED",
+      "note": "calm-focus-smoke-r1.json + smoke-r1b.txt: integration-e2e / test:e2e:smoke — 30 passed, 1 skipped, exit 0; core-spine specs present",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-smoke-r1.json",
+        ".corp-harness/evidence/calm-focus-smoke-r1b.txt"
+      ]
+    },
+    "AC-CF-A001": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-A11Y-AXE",
+      "r1": "FAIL_MISSING_EVIDENCE",
+      "r2": "PASS_EVIDENCED",
+      "note": "calm-focus-a11y-r1.txt authoritative: playwright --project=a11y — 11 passed, EXIT 0 including desk Today. JSON metadata drift (claimed sha/pass-count) does not override log",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-a11y-r1.txt",
+        ".corp-harness/evidence/calm-focus-a11y-r1.json"
+      ]
+    },
+    "AC-CF-D004": {
+      "status": "FAIL_PARTIAL_EVIDENCE",
+      "gate": "G-CF-DENSITY-KPI-HIDDEN",
+      "r1": "FAIL_MISSING_EVIDENCE",
+      "r2": "FAIL_PARTIAL_EVIDENCE",
+      "owning_adr": "ADR-UX-006",
+      "note": "density Playwright EXIT 0 asserts visible [data-kpi-tile]=0 and closed #dash-kpis for CI-seeded desk_supervisor only. gates.json / acceptance require separate desk_contributor assertion; contributor persona not in r2 evidence",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-density-e2e-r1.txt",
+        ".corp-harness/evidence/calm-focus-density-e2e-r1.json"
+      ]
+    },
+    "AC-CF-D005": {
+      "status": "FAIL_PARTIAL_EVIDENCE",
+      "gate": "G-CF-DENSITY-TODAY",
+      "r1": "FAIL_MISSING_EVIDENCE",
+      "r2": "FAIL_PARTIAL_EVIDENCE",
+      "owning_adr": "ADR-UX-006",
+      "note": "density log shows 1 passed for ≤12 controls @ 1440×900 (assertion executed). Immutable log does not print numeric count — producer index control_count_observed=7 not credited. Both-persona requirement unmet (supervisor only)",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-density-e2e-r1.txt",
+        ".corp-harness/evidence/root-return-evidence-calm-focus-r2.json"
+      ]
+    },
+    "AC-CF-V010": {
+      "status": "FAIL_MISSING_EVIDENCE",
+      "gate": "G-CF-VISUAL-SCREENSHOTS",
+      "r1": "FAIL_MISSING_EVIDENCE",
+      "r2": "FAIL_MISSING_EVIDENCE",
+      "owning_adr": "ADR-UX-007",
+      "note": "manifest status=partial_capture; 3 real PNGs (supervisor collapsed/expanded, field) digests match; desk_contributor_today_collapsed still digest_kind=placeholder and file absent. gates.json reject_if: partial screenshot set not accepted",
+      "evidence": [
+        "evidence/calm-focus-visual-manifest.json",
+        "evidence/visual/desk_supervisor_today_collapsed.png",
+        "evidence/visual/desk_supervisor_today_kpi_expanded.png",
+        "evidence/visual/field_today.png"
+      ]
+    },
+    "AC-CF-A003": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-CLAIM-LINT",
+      "r1": "PASS_EVIDENCED",
+      "r2": "PASS_EVIDENCED",
+      "note": "Prior root WCAG3 + claim-lint exit 0 retained; verify r2 vitest suite green (425 tests)",
+      "evidence": [
+        ".corp-harness/evidence/root-wcag3-calm-focus-r1.txt",
+        ".corp-harness/evidence/root-claim-lint-calm-focus-r1.txt",
+        ".corp-harness/evidence/root-verify-ux-r2.txt"
+      ]
+    },
+    "AC-CF-A004": {
+      "status": "PASS_EVIDENCED",
+      "gate": "G-CF-TOUCH",
+      "r1": "FAIL_MISSING_EVIDENCE",
+      "r2": "PASS_EVIDENCED",
+      "note": "Dedicated calm-focus-touch-r1.txt: 3 passed EXIT 0 (≥44px field/incident/outbox + safe-area). Also observed in smoke-r1b @touch cases",
+      "evidence": [
+        ".corp-harness/evidence/calm-focus-touch-r1.txt",
+        ".corp-harness/evidence/calm-focus-touch-r1.json",
+        ".corp-harness/evidence/calm-focus-smoke-r1b.txt"
+      ]
+    },
+    "AC-CF-V006": {
+      "status": "FAIL_HUMAN_BLOCKED",
+      "gate": "G-CF-BRAND-TEST",
+      "r1": "FAIL_MISSING_EVIDENCE",
+      "r2": "FAIL_HUMAN_BLOCKED",
+      "owning_adr": "ADR-UX-005",
+      "note": "docs/qa/calm-focus-brand-test-checklist.md present but Reviewer name TBD; UR-CF-007 — not closable by agent evidence",
+      "evidence": [
+        "docs/qa/calm-focus-brand-test-checklist.md"
+      ]
+    }
+  },
+  "honest_gaps_disposition": [
+    {
+      "gap": "desk_contributor density persona not separately evidenced (G-CF-DENSITY-KPI-HIDDEN both-persona)",
+      "disposition": "blocks_pass",
+      "maps_to": ["AC-CF-D004", "AC-CF-D005", "G-CF-DENSITY-KPI-HIDDEN", "ADR-UX-006"]
+    },
+    {
+      "gap": "visual manifest partial — contributor surface placeholder / PNG absent",
+      "disposition": "blocks_pass",
+      "maps_to": ["AC-CF-V010", "G-CF-VISUAL-SCREENSHOTS", "ADR-UX-007"]
+    },
+    {
+      "gap": "G-CF-BRAND-TEST / UR-CF-007 needs named human reviewer",
+      "disposition": "blocks_pass_human",
+      "maps_to": ["AC-CF-V006", "G-CF-BRAND-TEST", "ADR-UX-005"]
+    },
+    {
+      "gap": "density producer control_count=7 not in immutable log",
+      "disposition": "integrity_note_not_credited",
+      "maps_to": ["AC-CF-D005"]
+    },
+    {
+      "gap": "a11y JSON sha256 / parsed_passed drift vs calm-focus-a11y-r1.txt",
+      "disposition": "integrity_note_log_authoritative",
+      "maps_to": ["AC-CF-A001"]
+    },
+    {
+      "gap": "axe @a11y signed-in suite",
+      "disposition": "closed_pass_evidenced",
+      "maps_to": ["AC-CF-A001", "G-CF-A11Y-AXE", "ADR-UX-007"]
+    },
+    {
+      "gap": "signed-in smoke / integration-e2e",
+      "disposition": "closed_pass_evidenced",
+      "maps_to": ["AC-CF-S001", "G-CF-SMOKE"]
+    },
+    {
+      "gap": "touch / safe-area boundingBox suite",
+      "disposition": "closed_pass_evidenced",
+      "maps_to": ["AC-CF-A004", "G-CF-TOUCH"]
+    }
+  ],
+  "r1_gap_closure": {
+    "closed": ["AC-CF-S001", "AC-CF-A001", "AC-CF-A004"],
+    "improved_but_not_closed": ["AC-CF-D004", "AC-CF-D005", "AC-CF-V010"],
+    "unchanged_blocker": ["AC-CF-V006"],
+    "still_pass": ["AC-CF-A003"]
+  },
+  "partial_credit_not_sufficient_for_pass": [
+    "./scripts/verify.sh exit 0 (root-verify-ux-r2.txt) — static/unit/threat-model path only; smoke still separate",
+    "density Playwright 1 passed for desk_supervisor — both-persona gate unmet",
+    "3/4 visual PNGs with matching sha256 — partial set rejected by G-CF-VISUAL-SCREENSHOTS",
+    "brand checklist scaffold without human sign-off",
+    "producer return index control_count_observed=7 without log numeric digest"
+  ],
+  "remaining_blockers": [
+    {
+      "id": "BLOCK-CF-DENSITY-BOTH-PERSONA",
+      "severity": "critical",
+      "owning_adr": "ADR-UX-006",
+      "requirement": "G-CF-DENSITY-KPI-HIDDEN / AC-CF-D004 + AC-CF-D005",
+      "action": "Produce immutable density log with desk_contributor AND desk_supervisor assertions at 1440×900; print observed interactive control count in the log (do not rely on producer JSON alone)"
+    },
+    {
+      "id": "BLOCK-CF-VISUAL-CONTRIBUTOR",
+      "severity": "should_but_gate_rejects_partial",
+      "owning_adr": "ADR-UX-007",
+      "requirement": "G-CF-VISUAL-SCREENSHOTS / AC-CF-V010",
+      "action": "Capture real desk_contributor_today_collapsed.png and update manifest digest_kind=png (4/4 surfaces)"
+    },
+    {
+      "id": "BLOCK-CF-BRAND-HUMAN",
+      "severity": "high",
+      "owning_adr": "ADR-UX-005",
+      "requirement": "G-CF-BRAND-TEST / AC-CF-V006 / UR-CF-007",
+      "action": "Product owner designates named human reviewer; complete brand-test checklist sign-off (agent cannot close)"
+    }
+  ],
+  "recommended_transition": "remain_SITE_DELIVERY_return_owning_adrs",
+  "site_slos": {
+    "verify_sh_green": "met_for_static_unit_threat_path",
+    "quality_dod_all_green": "not_met",
+    "smoke_signed_in": "met",
+    "a11y_axe": "met",
+    "touch_targets": "met",
+    "density_both_personas": "not_met",
+    "visual_four_surfaces": "not_met",
+    "brand_human_signoff": "not_met",
+    "no_infer_pass_from_producer_prose": "enforced"
+  }
+}

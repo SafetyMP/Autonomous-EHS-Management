@@ -1,8 +1,8 @@
 {
   "schema": "corporate-site-site/v1",
   "site_id": "ehs",
-  "corporate_program": null,
-  "corporate_handoff_sha256": null,
+  "corporate_program": "/Users/sagehart/Downloads/ehs-corporate-program",
+  "corporate_handoff_sha256": "cc77cb694a0d0214b5adbfe18c1e04b72eef9a613b7283c5a5065ff45de646b4",
   "verify_argv": [
     "./scripts/verify.sh"
   ],

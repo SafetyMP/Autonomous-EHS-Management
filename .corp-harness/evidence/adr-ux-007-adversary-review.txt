@@ -1,0 +1,53 @@
+# ADR-UX-007 site ADR adversary review (design falsification)
+# NOT corporate adversary gate; NOT scripts/adversarial.sh
+
+actor_role: site-adr-adversary
+date: 2026-07-19
+adr_path: docs/adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md
+adr_sha256: 91772a37fd42d19b5f1caad3860b4df876e083265a127940722e690e9cd9033a
+corporate_handoff_cycle: calm-focus-gen-1
+verdict: PASS_WITH_NOTES
+gate: G-CF-ADR-003
+implementation_may_proceed_for_this_gate: YES
+  (only with G-CF-ADR-001 and G-CF-ADR-002 also clear — all three clear as of this review)
+
+## Acceptance IDs checked
+- AC-CF-R003 (critical ADR gate) — banner rules, role=note, plumbing≥connected, visual Playwright scaffold, screenshot digest, a11y re-run, prefers-reduced-motion, adversary sign-off
+- AC-CF-V007 / V008 / V010 — chrome quietness via visual lane; banner matrix; 4-surface sha256 manifest
+- AC-CF-S003 — tests/e2e/visual/**/*.spec.ts separate from @smoke and a11y (inherits ADR-UX-004 topology)
+- AC-CF-A001 / A003 / A005 (+ policy for A004/A006/A007) — axe ≥9/9; WCAG3 lint residual; safe-area; touch/outbox/motion
+- AC-CF-H001 / H002 — R1 honesty gates remain green; empty-state claim honesty
+- UR-CF-003 — CLOSED: component change (not CSS-only) in module-maturity-banner.tsx
+- RR-CF-001 — ownership: first Calm Focus impl PR (scripts/check-wcag3-claims.sh + CI); describe-only here
+- UR-CF-007 — explicitly NOT closed (named human brand reviewer)
+- D-006 / D-010 / no Plumbing→Core / no dismiss button / no WCAG3 conformance claims — bound in §9
+- Predecessor ADR-UX-002 honesty banners + ADR-UX-003 outbox landmark + ADR-UX-004 a11y project — preserved
+
+## Findings (severity-ranked)
+
+### medium — Banner body disclosure vs CR-4 “not collapsed by default”
+§3 closes long body in <details> while keeping role=note on outer root and tier summary visible. Aligns with master-spec §5.2 MAY clause; must not be implemented as collapsing/hiding the whole banner (F6). Impl + G-CF-VISUAL-BANNERS must prove summary retains Connected/Plumbing honesty when body is closed.
+
+### low — Motion dual-ownership with ADR-UX-005
+007 owns MO-1..MO-3 budget, reduced-motion guards, and evidence; 005 may only expose duration tokens / shared keyframes for those IDs. Consistent enough; note for impl reviewers.
+
+### low — RR-CF-001 and UR-CF-007 remain open post-ADR
+Correct: RR-CF-001 → G-CF-RR-001 first PR; UR-CF-007 → human brand reviewer before G-CF-BRAND-TEST. Neither blocks G-CF-ADR-003.
+
+### info — Screenshot contract
+ADR binds 4 canonical surfaces (handoff / gates / DoD), superseding stale master-spec §9 “3 spot-check” wording. Correct alignment with corporate-handoff.json.
+
+### info — Banner contrast (slate-700 on slate-100)
+≈9.45:1 body text — passes ≥4.5:1. Plumbing warning border on slate-100 ≈4.58:1 for #b45309 — acceptable for accent/border, not body text.
+
+## Falsification attempts that did NOT hold
+- Missing UR-CF-003 decision — component change decided (§1)
+- Missing role=note / plumbing≥connected / no dismiss — §2 matrix
+- Missing visual project separation — §4; does not fold into smoke
+- Missing reduced-motion requirement — §7
+- Claiming WCAG 3 conformance — forbidden; RR-CF-001 is claim-*lint*, not certification
+- Plumbing→Core via polish — F8 / §9
+- Premature self-Accepted — Accepted only after this adversary disposition
+
+## Disposition
+PASS_WITH_NOTES. G-CF-ADR-003 cleared for Calm Focus pre-implementation sequence step 1.

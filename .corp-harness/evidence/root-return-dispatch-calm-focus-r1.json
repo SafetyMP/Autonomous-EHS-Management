@@ -1,0 +1,20 @@
+{
+  "schema": "ehs-ux-root-return-dispatch/v1",
+  "program_id": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "dispatched_at": "2026-07-19T16:17:35Z",
+  "ops_status": "FAIL",
+  "ops_evidence_sha256": "85b5ed4bfd0cf82f75db7e6a6f1e9e5cd415e9714ccb1146eeeb6de7d601c0ac",
+  "phase": "SITE_DELIVERY",
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ],
+  "dispatch": [
+    "PKT-CF-RET-006-DENSITY-E2E",
+    "PKT-CF-RET-007-A11Y-VISUAL-TOUCH",
+    "PKT-CF-RET-SMOKE (root/shared; needs seeded DB + PLAYWRIGHT_E2E_*)",
+    "PKT-CF-RET-005-BRAND (human-only residual; prepare checklist only)"
+  ],
+  "note": "Return work from operations-calm-focus-r1 FAIL; do not advance SITE_VERIFICATION"
+}

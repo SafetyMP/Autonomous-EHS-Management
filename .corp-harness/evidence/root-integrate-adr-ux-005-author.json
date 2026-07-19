@@ -1,0 +1,26 @@
+{
+  "schema": "ehs-ux-root-integrate-packet/v1",
+  "program_id": "ehs-ux",
+  "packet_id": "PKT-CF-ADR-005-AUTHOR",
+  "adr_id": "ADR-UX-005",
+  "integrated_at": "2026-07-19T15:56:11Z",
+  "source_worktree": "/Users/sagehart/Downloads/Autonomous EHS Management System /.worktrees/adr-ux-005",
+  "artifact_path": "docs/adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md",
+  "content_sha256": "97e458ee64e801e9f58f00adf35bb3ed297458ee18f248d603163312cd514725",
+  "packet_verify_notes": "rg patterns with leading -- require rg -n -- '...'; all required content matches",
+  "packet_verify_exit_codes": {
+    "test": 0,
+    "Draft-for-review": 0,
+    "tokens_with_separator": 0,
+    "AC_ids": 0,
+    "Adversary_review": 0
+  },
+  "status": "integrated_draft_for_review",
+  "pre_implementation_hold": true,
+  "next": "await ADR-UX-007 authoring then PKT-CF-ADR-ADVERSARY-REVIEW",
+  "gates_not_marked": [
+    "site_verify",
+    "operations",
+    "G-CF-ADR-001"
+  ]
+}
