@@ -117,13 +117,15 @@ export default function ChemicalsPage() {
       </ModuleMaturityBanner>
 
       <div className="rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
-        Not an EPA Tier II / Tier2 Submit system. Hazard categories support programme management for
-        RY2027 reporting prep; customers remain responsible for agency submissions.
+        Not an EPA Tier II / Tier2 Submit system. Hazard categories are a programme-of-record
+        allowlist for internal inventory management toward RY2027; customers remain responsible for
+        agency submissions and e-filing.
         <details className="mt-2">
           <summary className="cursor-pointer font-medium">Effective dates</summary>
           <p className={`mt-1 ${dfHelperXs}`}>
-            EPA final rule effective 2026-08-21; new categories required for 2027 inventory reports
-            due 2028-03-01. See docs/regulatory/epcra-hazard-categories-2027.md.
+            EPA EPCRA conformity final rule 2026-06-22 (91 FR 37022); effective 2026-08-21; new
+            categories required for 2027 inventory reports due 2028-03-01. See
+            docs/regulatory/epcra-hazard-categories-2027.md.
           </p>
         </details>
       </div>

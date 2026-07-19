@@ -19,6 +19,96 @@ function vercelDeploymentOrigin(): string | undefined {
 const isNextProductionBuild =
   process.env.NEXT_PHASE === "phase-production-build";
 
+const skipValidation =
+  !!process.env.SKIP_ENV_VALIDATION || isNextProductionBuild;
+
+/** Process-env slice used by deploy-class / demo / rate-limit invariants (R-009). */
+export type EnvInvariantVars = {
+  NODE_ENV?: string;
+  VERCEL_ENV?: string;
+  APP_ENV?: string;
+  DEPLOY_ENV?: string;
+  DEMO_MODE?: string;
+  NEXT_PUBLIC_DEMO_MODE?: string;
+  DEMO_ALLOW_PRODUCTION?: string;
+  UPSTASH_REDIS_REST_URL?: string;
+  UPSTASH_REDIS_REST_TOKEN?: string;
+  RATE_LIMIT_DISABLED?: string;
+};
+
+export type DeployClass = "development" | "non_dev";
+
+/**
+ * Deploy class for fail-closed demo / rate-limit policy.
+ * Non-dev is **not** Vercel-production-only: staging/pilot/self-host production count.
+ */
+export function resolveDeployClass(vars: EnvInvariantVars): DeployClass {
+  const appEnv = (vars.APP_ENV ?? vars.DEPLOY_ENV ?? "").trim().toLowerCase();
+  if (
+    appEnv === "staging" ||
+    appEnv === "production" ||
+    appEnv === "prod" ||
+    appEnv === "pilot"
+  ) {
+    return "non_dev";
+  }
+  const vercelEnv = (vars.VERCEL_ENV ?? "").trim().toLowerCase();
+  if (vercelEnv === "production" || vercelEnv === "preview") {
+    return "non_dev";
+  }
+  if ((vars.NODE_ENV ?? "").trim() === "production") {
+    return "non_dev";
+  }
+  return "development";
+}
+
+function isTruthyDemoFlag(value: string | undefined): boolean {
+  const v = (value ?? "").trim().toLowerCase();
+  return v === "true" || v === "1";
+}
+
+/**
+ * Returns an error message when DEMO_MODE / NEXT_PUBLIC_DEMO_MODE must fail closed.
+ * Development deploy class always allows demo flags; non-dev requires DEMO_ALLOW_PRODUCTION=true.
+ */
+export function demoModePolicyViolation(vars: EnvInvariantVars): string | null {
+  if (resolveDeployClass(vars) === "development") return null;
+  if (vars.DEMO_ALLOW_PRODUCTION === "true") return null;
+  const serverDemo = isTruthyDemoFlag(vars.DEMO_MODE);
+  const publicDemo = isTruthyDemoFlag(vars.NEXT_PUBLIC_DEMO_MODE);
+  if (!serverDemo && !publicDemo) return null;
+  return (
+    "DEMO_MODE / NEXT_PUBLIC_DEMO_MODE cannot be enabled outside development deploy class " +
+    "without DEMO_ALLOW_PRODUCTION=true. Unset demo flags for staging/production/self-host."
+  );
+}
+
+/**
+ * Returns an error message when a non-dev deploy class lacks a rate-limit backend.
+ * Escape hatch: RATE_LIMIT_DISABLED=true (short bridge while provisioning Upstash).
+ */
+export function rateLimitBackendPolicyViolation(
+  vars: EnvInvariantVars,
+): string | null {
+  if (resolveDeployClass(vars) === "development") return null;
+  if (vars.RATE_LIMIT_DISABLED === "true") return null;
+  const url = (vars.UPSTASH_REDIS_REST_URL ?? "").trim();
+  const token = (vars.UPSTASH_REDIS_REST_TOKEN ?? "").trim();
+  if (url && token) return null;
+  return (
+    "Rate limiting backend is required outside development. Set UPSTASH_REDIS_REST_URL and " +
+    "UPSTASH_REDIS_REST_TOKEN, or RATE_LIMIT_DISABLED=true only as an emergency bridge."
+  );
+}
+
+function assertEnvInvariants(vars: NodeJS.ProcessEnv): void {
+  if (skipValidation) return;
+  const demo = demoModePolicyViolation(vars);
+  if (demo) throw new Error(demo);
+  const rateLimit = rateLimitBackendPolicyViolation(vars);
+  if (rateLimit) throw new Error(rateLimit);
+}
+
 export const env = createEnv({
   /**
    * Treat `VAR=` / dashboard empty values as unset so optional URL and min-length
@@ -141,6 +231,7 @@ export const env = createEnv({
     NEXT_PUBLIC_FIELD_OUTBOX: process.env.NEXT_PUBLIC_FIELD_OUTBOX,
     NEXT_PUBLIC_LOCAL_INTAKE_SLM: process.env.NEXT_PUBLIC_LOCAL_INTAKE_SLM,
   },
-  skipValidation:
-    !!process.env.SKIP_ENV_VALIDATION || isNextProductionBuild,
+  skipValidation,
 });
+
+assertEnvInvariants(process.env);

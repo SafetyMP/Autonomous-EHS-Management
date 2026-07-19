@@ -16,7 +16,7 @@ export const PRODUCT_HIGHLIGHTS: readonly ProductHighlight[] = [
     id: "heat-nep",
     title: "Heat NEP program aid",
     description:
-      "Appendix I–aligned heat illness self-audit and condition logs for inspection readiness—not a federal heat standard.",
+      "Appendix I–aligned heat illness self-audit and condition logs for inspection readiness—not a federal heat standard or Cal/OSHA heat engine.",
     href: "/dashboard/heat-program",
     audience: "desk",
   },
@@ -54,7 +54,8 @@ export const PRODUCT_HIGHLIGHTS: readonly ProductHighlight[] = [
   {
     id: "moc",
     title: "Management of change",
-    description: "Track MOC requests, approvals, and linked hazards when processes or equipment change.",
+    description:
+      "MOC register with ISO 14001:2026 Clause 6.3–style planning fields—transition programme aid, not CB certification.",
     href: "/dashboard/moc",
     audience: "desk",
   },

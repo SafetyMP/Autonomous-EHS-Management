@@ -97,7 +97,7 @@ export const EPCRA_HAZARD_CATALOG: readonly EpcraHazardEntry[] = [
   },
   {
     domain: "health",
-    hazardClass: "Hazard not otherwise classified (HNOC)",
+    hazardClass: "Hazard not otherwise classified (HNOC) - Health",
     categories: ["HNOC"],
   },
   {
@@ -217,7 +217,7 @@ export const EPCRA_HAZARD_CATALOG: readonly EpcraHazardEntry[] = [
   },
   {
     domain: "physical",
-    hazardClass: "Hazard not otherwise classified (HNOC)",
+    hazardClass: "Hazard not otherwise classified (HNOC) - Physical",
     categories: ["HNOC"],
   },
 ] as const;
@@ -228,12 +228,29 @@ export function categoriesForHazardClass(hazardClass: string): readonly string[]
 }
 
 export function domainForHazardClass(hazardClass: string): EpcraHazardDomain | null {
-  const entry = EPCRA_HAZARD_CATALOG.find((e) => e.hazardClass === hazardClass);
-  return entry?.domain ?? null;
+  const matches = EPCRA_HAZARD_CATALOG.filter((e) => e.hazardClass === hazardClass);
+  if (matches.length === 0) return null;
+  if (matches.length > 1) {
+    throw new Error(
+      `Ambiguous hazard class "${hazardClass}" matches ${matches.length} catalog domains`,
+    );
+  }
+  return matches[0]!.domain;
 }
 
 export function isValidEpcraHazardPair(hazardClass: string, hazardCategory: string): boolean {
   return categoriesForHazardClass(hazardClass).includes(hazardCategory);
 }
 
+/** Unique hazard-class labels (HNOC is domain-qualified so health/physical do not collide). */
 export const EPCRA_HAZARD_CLASS_OPTIONS = EPCRA_HAZARD_CATALOG.map((e) => e.hazardClass);
+
+export function assertUniqueEpcraHazardClasses(): void {
+  const seen = new Set<string>();
+  for (const entry of EPCRA_HAZARD_CATALOG) {
+    if (seen.has(entry.hazardClass)) {
+      throw new Error(`Duplicate EPCRA hazard class label: ${entry.hazardClass}`);
+    }
+    seen.add(entry.hazardClass);
+  }
+}

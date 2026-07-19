@@ -71,7 +71,17 @@ Flat top-level routers of note:
 ### Nested routers
 
 - **`planning`** — Implemented under [`src/server/trpc/routers/planning/index.ts`](src/server/trpc/routers/planning/index.ts) with **`hazard`**, **`risk`**, **`objective`**, **`kpi`**, **`operationalControl`**. Prefer new planning procedures as separate files inside `planning/` and wire them through that index rather than enlarging unrelated routers.
-- **`compliance`** — [`src/server/trpc/routers/complianceRouter.ts`](src/server/trpc/routers/complianceRouter.ts) nests **`establishment`**, **`metrics`** (org TRI rate snapshots), **`regulatoryOsha`**, **`dataRetention`**, **`chemicalInventory`**, **`dsar`** (retention/OSHA/privacy intake aligns with [COMPLIANCE.md](COMPLIANCE.md) and [`corporate-compliance-data-governance` skill](.cursor/skills/corporate-compliance-data-governance/SKILL.md)).
+- **`compliance`** — [`src/server/trpc/routers/complianceRouter.ts`](src/server/trpc/routers/complianceRouter.ts) nests **`establishment`**, **`metrics`** (org TRI rate snapshots), **`regulatoryOsha`**, **`dataRetention`**, **`chemicalInventory`**, **`heatProgram`**, **`dsar`** (retention/OSHA/privacy intake aligns with [COMPLIANCE.md](COMPLIANCE.md) and [`corporate-compliance-data-governance` skill](.cursor/skills/corporate-compliance-data-governance/SKILL.md)).
+
+### July 2026 regulatory programme aids (PoR)
+
+Shipped programme-of-record surfaces (not agency SoR / not CB certification). Catalogs under [`src/lib/regulatory/`](src/lib/regulatory/); migration [`0033_military_mandarin.sql`](drizzle/migrations/0033_military_mandarin.sql); release id `2026-07-regulatory`. Docs: [`docs/regulatory/`](docs/regulatory/).
+
+| Track | UI | Routers / tables |
+|-------|----|------------------|
+| Heat NEP Appendix I | `/dashboard/heat-program` | `compliance.heatProgram.*` → `heat_illness_prevention_program`, `heat_program_control_check`, `heat_condition_log` |
+| EPCRA / HCS 2027 hazards | `/dashboard/chemicals` | `compliance.chemicalInventory.*` → `regulatory_chemical`, `chemical_hazard_classification` |
+| ISO 14001:2026 transition | `/dashboard/context`, `/dashboard/environment`, `/dashboard/moc` | `context.*`, `aspect.*`, `program.*` MOC Clause 6.3 fields |
 
 ### App Router API handlers
 

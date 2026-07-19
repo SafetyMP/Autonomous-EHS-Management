@@ -21,5 +21,20 @@ export default defineConfig({
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000",
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      testIgnore: "**/smoke/core-spine-*.spec.ts",
+      use: { ...devices["Desktop Chrome"] },
+    },
+    /**
+     * Named Core-spine suite (R-007). Included in `npm run test:e2e:smoke`
+     * (`--grep @smoke`). Target alone with `npx playwright test --project=core-spine`.
+     */
+    {
+      name: "core-spine",
+      testMatch: "**/smoke/core-spine-*.spec.ts",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
 });

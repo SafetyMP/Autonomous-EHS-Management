@@ -1,8 +1,21 @@
 # PortCo Tier 1 pilot scope (90 days)
 
-Scoped pilot definition for private-equity portfolio companies. Limits go-live surface to modules with **workflow depth**, **audit instrumentation**, and **automated smoke coverage**—the spine that proves value before expanding to Tier 2/3 registers.
+Scoped pilot definition for private-equity portfolio companies. Limits go-live surface to **Core + selected Connected** modules with **workflow depth**, **audit instrumentation**, and **automated smoke coverage**—the spine that proves value before expanding to Tier 2/3 registers or Plumbing surfaces.
 
-**Related:** [portco-module-value-assessment.md](../portco-module-value-assessment.md), [procurement-readiness.md](../procurement-readiness.md) §2, [portco-staging-pilot.md](./portco-staging-pilot.md) (integration JML), [staging-uat-desk-to-field.md](./staging-uat-desk-to-field.md) (business UAT).
+**Maturity terms:** [module-maturity.md](../module-maturity.md) / [ADR-S-001](../adr/ADR-S-001-honesty-promotion.md). **Wedge ranking:** [ranked-portfolio.md](../roadmap/ranked-portfolio.md) (R-013) + [ADR-S-002](../adr/ADR-S-002-ranked-portfolio-barriers.md).
+
+**Related:** [portco-module-value-assessment.md](../portco-module-value-assessment.md), [procurement-readiness.md](../procurement-readiness.md) §2 / §12, [portco-staging-pilot.md](./portco-staging-pilot.md) (integration JML), [staging-uat-desk-to-field.md](./staging-uat-desk-to-field.md) (business UAT).
+
+---
+
+## Wedge boundary (Core + selected Connected)
+
+| Include | Exclude from pilot success |
+|---------|----------------------------|
+| **Core** spine: Incidents, CAPA, Approvals, Observations, Contractors, Integrations/identity, command center / tasks | **Plumbing** regulatory filing / full DSAR automation sold as Core |
+| **Selected Connected** (optional if PortCo pain is field capture): Inspections, Work permits (PTW) — PTW stays Connected until dedicated smoke exists | **Tier-4 agency / suite gaps** (below) — always out of scope for Tier-1 pilot KPIs |
+
+Buyer-fit **NO** when success criteria require turnkey Workday OAuth, OSHA e-file, native mobile inspection leader, OH clinic, or no-code process design.
 
 ---
 
@@ -46,15 +59,25 @@ Parallel reporting against legacy tools continues through the **Verify** phase u
 
 ## Explicitly out of scope (pilot phase)
 
-Defer to **Phase 2** after Tier 1 sign-off unless RFP mandates otherwise:
+### Tier-4 / agency gaps (always OOS for Tier-1 KPIs)
+
+These remain **out of scope** for pilot success and buyer statements even if an RFP asks; point to procurement §12 honesty language and barrier register D-001 / D-002 / D-006:
+
+| Area | Reason |
+|------|--------|
+| OSHA agency e-filing | Placeholder only — D-001 blocked ([procurement-readiness.md](../procurement-readiness.md) §12) |
+| Full DSAR automation | Intake only — D-002 blocked ([DSAR_PROCESS.md](../DSAR_PROCESS.md)) |
+| Native Workday / ADP / BambooHR OAuth | iPaaS path ([procurement-portco-integration-budget.md](../procurement-portco-integration-budget.md)) |
+| Occupational health clinic depth | Tier-4 gap — not Core |
+| Native iOS/Android field app | Responsive web only — D-006 blocked |
+| No-code workflow designer | Code-defined workflows only |
+
+### Defer to Phase 2 (after Tier-1 sign-off)
 
 | Area | Reason |
 |------|--------|
 | Internal audits, MOC, emergency, mgmt review | Tier 3 registers—breadth, not pilot proof |
-| Environmental regulatory permits, Tier II chemical UI | Agency filing not claimed; counsel boundary required |
-| OSHA agency e-filing | Placeholder only ([procurement-readiness.md](../procurement-readiness.md) §12) |
-| Full DSAR automation | Intake only ([DSAR_PROCESS.md](../DSAR_PROCESS.md)) |
-| Native Workday/ADP OAuth | iPaaS path ([procurement-portco-integration-budget.md](../procurement-portco-integration-budget.md)) |
+| Environmental regulatory permits, Tier II chemical UI | Agency filing not claimed; counsel boundary (D-005) |
 | Portfolio-wide multi-org rollout | One org + one site first; expand after metrics |
 
 ---

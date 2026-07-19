@@ -95,10 +95,16 @@ export default function ContextPage() {
         <div>
           <h1 className="text-xl font-semibold">Organization context (Clause 4)</h1>
           <p className={dfMuted}>
-            Scope, issues, and interested parties — ISO 14001:2026 environmental conditions supported
+            Scope, issues, and interested parties — ISO 14001:2026-style environmental condition tags
           </p>
         </div>
         <OrgSwitcher />
+      </div>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
+        Transition programme aid only — supports ISO 14001:2026 context documentation (published
+        2026-04-15). Not a certification body determination; CB transition window runs through
+        approximately 2029. See docs/regulatory/iso-14001-2026-transition.md.
       </div>
 
       <section className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
@@ -116,8 +122,8 @@ export default function ContextPage() {
         <section className="space-y-4 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
           <h2 className={dfSectionHeading}>Internal / external issues</h2>
           <p className={dfHelperXs}>
-            ISO 14001:2026 expects documented consideration of climate, biodiversity, ecosystem
-            health, pollution, and natural resources.
+            Transition programme aid — organizations consider climate, biodiversity, ecosystem
+            health, pollution, and natural resources when documenting context.
           </p>
           <form
             className="space-y-3"
@@ -149,7 +155,7 @@ export default function ContextPage() {
               onChange={(e) => setIssueCat(e.target.value)}
             />
             <fieldset>
-              <legend className={dfLabel}>Environmental conditions (ISO 14001:2026)</legend>
+              <legend className={dfLabel}>Environmental conditions (ISO 14001:2026 transition aid)</legend>
               <div className="mt-2 flex flex-wrap gap-2">
                 {ISO14001_ENVIRONMENTAL_CONDITIONS.map((tag) => {
                   const selected = envTags.includes(tag);

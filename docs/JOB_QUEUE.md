@@ -2,6 +2,21 @@
 
 This repo can move work off the HTTP request thread using **[pg-boss](https://github.com/timgit/pg-boss)** on PostgreSQL. Typed job names live in [`src/server/jobs/types.ts`](../src/server/jobs/types.ts); producers call [`getJobQueue()`](../src/server/jobs/queue.ts).
 
+## Production job-model decision (D-004 / R-011)
+
+| Choice | Status |
+|--------|--------|
+| **Default production job model** | **HTTP cron** (`vercel.ts` schedules and/or Kubernetes `CronJob` manifests hitting `/api/cron/*` with `CRON_SECRET`) |
+| **Optional durable queue** | **pg-boss** when `PG_BOSS_ENABLED=true` **and** a long-lived `npm run job:worker` process runs against the same database |
+
+**Recorded decision (ADR-S-005):** HTTP cron is the lasting default for platform schedules (reminders, data-retention, integration-roster-reconcile). Enabling pg-boss is an **ops opt-in**, not assumed production-true. Before any “durable queue / autonomous-ops completeness” claim:
+
+1. Run worker Deployment ≥1 with health/restart policy.
+2. Alert on queue depth / failed jobs (org playbook).
+3. Keep Vercel-only hosts with `PG_BOSS_ENABLED` **unset** unless a worker runs elsewhere against the same DB.
+
+Absence of a worker Deployment digest means pg-boss must stay off (or treated as non-production). See barrier **D-004** in [`docs/barrier-resolution-playbook.md`](barrier-resolution-playbook.md).
+
 ## Environment
 
 | Variable | Purpose |
@@ -33,6 +48,7 @@ The worker script is [`scripts/job-worker.ts`](../scripts/job-worker.ts). It sta
 - **`integration.reprocessFailed`** → [`reprocessFailedIntegrationEvent`](../src/server/services/integrationInboundDispatch.ts)
 - **`integration.inboundHris`** → [`processHrisMembershipSyncInbound`](../src/server/services/integrationInboundDispatch.ts) (+ idempotency cache when `idempotencyKey` is set on the payload)
 - **`dataRetention.runChunk`** → bounded pass of [`runDataRetentionCron`](../src/server/services/dataRetention.ts) with configurable `batchSize` (default **75** in the worker) for draining large retention backlogs without a single long HTTP cron
+- **`integration.reconcileRoster`** → roster drift path used when the roster-reconcile cron enqueues under `PG_BOSS_ENABLED=true`
 
 On first start, pg-boss creates its tables in the target schema.
 

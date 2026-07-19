@@ -2,7 +2,9 @@
 
 Planning worksheet for **iPaaS and systems integrator (SI) cost** when rolling Autonomous EHS into a private-equity portfolio company. Native Workday, ADP, and BambooHR OAuth connectors are **roadmap/deferred**—pilots rely on middleware documented in runbooks.
 
-**Related:** [procurement-integrations-appendix.md](./procurement-integrations-appendix.md), [roadmap/portco-deferred-connectors.md](./roadmap/portco-deferred-connectors.md), [roadmap/hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md), runbooks under [`docs/runbooks/`](./runbooks/).
+**Pilot wedge:** Tier-1 scope is **Core + selected Connected** only ([qa/portco-tier1-pilot-scope.md](./qa/portco-tier1-pilot-scope.md)); Tier-4 agency / native-connector gaps stay out of pilot KPIs ([ADR-S-002](./adr/ADR-S-002-ranked-portfolio-barriers.md)).
+
+**Related:** [procurement-integrations-appendix.md](./procurement-integrations-appendix.md), [roadmap/portco-deferred-connectors.md](./roadmap/portco-deferred-connectors.md), [roadmap/hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md), [roadmap/ranked-portfolio.md](./roadmap/ranked-portfolio.md), runbooks under [`docs/runbooks/`](./runbooks/).
 
 ---
 

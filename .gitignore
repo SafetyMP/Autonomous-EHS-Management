@@ -21,6 +21,9 @@
 .cursor/**/__pycache__/
 *.pyc
 
+# Site-delivery isolated worktrees
+.worktrees/
+
 # next.js
 /.next/
 /out/

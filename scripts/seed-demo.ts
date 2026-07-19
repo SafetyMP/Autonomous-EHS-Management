@@ -2381,6 +2381,20 @@ async function seedJuly2026RegulatoryAids(
   db: Db,
   ctx: { orgId: string; siteId: string },
 ) {
+  const heatCheckKeys = [
+    "written_heat_program",
+    "heat_monitoring",
+    "cool_water_access",
+    "shade_or_cool_rest",
+    "scheduled_rest_breaks",
+    "acclimatization",
+    "administrative_controls",
+    "worker_training",
+    "supervisor_training",
+    "emergency_response",
+    "employee_understanding",
+  ] as const;
+
   const [existingHeat] = await db
     .select({ id: heatIllnessPreventionProgram.id })
     .from(heatIllnessPreventionProgram)
@@ -2394,7 +2408,8 @@ async function seedJuly2026RegulatoryAids(
         organizationId: ctx.orgId,
         siteId: ctx.siteId,
         title: `${DEMO_TITLE_PREFIX}Heat illness prevention — packaging`,
-        notes: "Demo Heat NEP Appendix I programme aid (not a federal heat standard).",
+        notes:
+          "Demo Heat NEP Appendix I programme aid (not a federal heat standard; not Cal/OSHA §§3395/3396).",
         coversOutdoor: false,
         coversIndoor: true,
         naicsNote: "Demo packaging NAICS note",
@@ -2402,24 +2417,27 @@ async function seedJuly2026RegulatoryAids(
       .returning({ id: heatIllnessPreventionProgram.id });
 
     if (program) {
-      await db.insert(heatProgramControlCheck).values([
-        {
+      await db.insert(heatProgramControlCheck).values(
+        heatCheckKeys.map((checkKey) => ({
           organizationId: ctx.orgId,
           programId: program.id,
-          checkKey: "cool_water_access",
-          status: "in_place",
-          evidenceNotes: "Hydration stations on Line 4 (demo).",
-        },
-        {
-          organizationId: ctx.orgId,
-          programId: program.id,
-          checkKey: "acclimatization",
-          status: "partial",
-          evidenceNotes: "New-hire ramp planned; supervisor checklist pending (demo).",
-        },
-      ]);
+          checkKey,
+          status:
+            checkKey === "cool_water_access"
+              ? ("in_place" as const)
+              : checkKey === "acclimatization"
+                ? ("partial" as const)
+                : ("not_started" as const),
+          evidenceNotes:
+            checkKey === "cool_water_access"
+              ? "Hydration stations on Line 4 (demo)."
+              : checkKey === "acclimatization"
+                ? "New-hire ramp planned; supervisor checklist pending (demo)."
+                : "Demo seed placeholder — complete via Heat NEP program aid UI.",
+        })),
+      );
     }
-    console.log("Seeded Heat NEP program aid demo rows.");
+    console.log("Seeded Heat NEP program aid demo rows (11 Appendix I checks).");
   }
 
   const chemName = `${DEMO_TITLE_PREFIX}Isopropyl alcohol (demo)`;
@@ -2441,7 +2459,8 @@ async function seedJuly2026RegulatoryAids(
         organizationId: ctx.orgId,
         name: chemName,
         casNumber: "67-63-0",
-        description: "Demo chemical for HCS 2024 / EPCRA 2027 hazard category programme fields.",
+        description:
+          "Demo chemical for HCS 2024 / EPCRA 2027 hazard category programme fields. Not Tier2 Submit or EPA e-filing.",
       })
       .returning({ id: regulatoryChemical.id });
 
@@ -2477,9 +2496,68 @@ async function seedJuly2026RegulatoryAids(
       category: climateIssueCat,
       environmentalConditionTags: ["climate_change", "natural_resource_availability"],
       description:
-        "ISO 14001:2026 context consideration for climate and resource availability (demo).",
+        "ISO 14001:2026 transition programme aid — context consideration for climate and resource availability (demo; not a CB determination).",
     });
     console.log("Seeded ISO 14001:2026 context environmental condition issue.");
+  }
+
+  const aspectName = `${DEMO_TITLE_PREFIX}Solvent vapor — Line 4 (demo)`;
+  const [existingAspect] = await db
+    .select({ id: environmentalAspect.id })
+    .from(environmentalAspect)
+    .where(
+      and(
+        eq(environmentalAspect.organizationId, ctx.orgId),
+        eq(environmentalAspect.name, aspectName),
+      ),
+    )
+    .limit(1);
+
+  if (!existingAspect) {
+    await db.insert(environmentalAspect).values({
+      organizationId: ctx.orgId,
+      siteId: ctx.siteId,
+      name: aspectName,
+      activity: "Parts cleaning",
+      environmentalImpact: "VOC emissions to indoor air (demo)",
+      significance: "medium",
+      climateRelevant: true,
+      biodiversityRelevant: false,
+      lifecycleStage: "operations",
+      lifecyclePerspectiveNote:
+        "ISO 14001:2026-style lifecycle note for operations stage (demo programme aid).",
+    });
+    console.log("Seeded ISO 14001:2026 aspect climate/lifecycle demo row.");
+  }
+
+  const mocTitle = `${DEMO_TITLE_PREFIX}Line 4 solvent substitution (demo)`;
+  const [existingMoc] = await db
+    .select({ id: managementOfChange.id })
+    .from(managementOfChange)
+    .where(
+      and(
+        eq(managementOfChange.organizationId, ctx.orgId),
+        eq(managementOfChange.title, mocTitle),
+      ),
+    )
+    .limit(1);
+
+  if (!existingMoc) {
+    await db.insert(managementOfChange).values({
+      organizationId: ctx.orgId,
+      title: mocTitle,
+      description:
+        "Demo MOC with ISO 14001:2026 Clause 6.3–style planning fields (transition programme aid; not CB certification).",
+      ohSafetyImpact: true,
+      environmentalImpactFlag: true,
+      changeTrigger: "process",
+      aspectsReviewed: true,
+      obligationsReviewed: false,
+      controlsUpdated: false,
+      postImplementationReviewDue: new Date("2026-09-01T00:00:00.000Z"),
+      status: "draft",
+    });
+    console.log("Seeded ISO 14001:2026 MOC Clause 6.3 demo row.");
   }
 }
 

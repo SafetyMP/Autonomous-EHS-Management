@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
 import {
+  aspectLifecycleEnum,
   aspectSignificanceEnum,
   environmentalAspect,
   site,
@@ -12,6 +13,11 @@ import { orgScope } from "../schemas/orgScope";
 import { protectedMutation, protectedProcedure, router } from "../init";
 
 const significances = aspectSignificanceEnum.enumValues as [
+  string,
+  ...string[],
+];
+
+const lifecycleStages = aspectLifecycleEnum.enumValues as [
   string,
   ...string[],
 ];
@@ -42,6 +48,7 @@ export const aspectRouter = router({
         significance: z.enum(significances),
         climateRelevant: z.boolean().optional(),
         biodiversityRelevant: z.boolean().optional(),
+        lifecycleStage: z.enum(lifecycleStages).optional().nullable(),
         lifecyclePerspectiveNote: z.string().max(20_000).optional().nullable(),
       }),
     )
@@ -85,6 +92,8 @@ export const aspectRouter = router({
             significance: input.significance as (typeof aspectSignificanceEnum.enumValues)[number],
             climateRelevant: input.climateRelevant ?? false,
             biodiversityRelevant: input.biodiversityRelevant ?? false,
+            lifecycleStage: (input.lifecycleStage ??
+              null) as (typeof aspectLifecycleEnum.enumValues)[number] | null,
             lifecyclePerspectiveNote: input.lifecyclePerspectiveNote ?? null,
           })
           .returning();
@@ -121,6 +130,7 @@ export const aspectRouter = router({
         siteId: z.string().uuid().optional().nullable(),
         climateRelevant: z.boolean().optional(),
         biodiversityRelevant: z.boolean().optional(),
+        lifecycleStage: z.enum(lifecycleStages).optional().nullable(),
         lifecyclePerspectiveNote: z.string().max(20_000).optional().nullable(),
       }),
     )
@@ -189,6 +199,12 @@ export const aspectRouter = router({
               input.biodiversityRelevant !== undefined
                 ? input.biodiversityRelevant
                 : existing.biodiversityRelevant,
+            lifecycleStage:
+              input.lifecycleStage !== undefined
+                ? (input.lifecycleStage as
+                    | (typeof aspectLifecycleEnum.enumValues)[number]
+                    | null)
+                : existing.lifecycleStage,
             lifecyclePerspectiveNote:
               input.lifecyclePerspectiveNote !== undefined
                 ? input.lifecyclePerspectiveNote
