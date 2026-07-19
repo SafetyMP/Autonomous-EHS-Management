@@ -1,0 +1,34 @@
+ADR-UX-001 / PKT-UX-001 verification digest
+Date: 2026-07-19
+Worktree: .worktrees/adr-ux-001
+Branch: site/adr-ux-001
+
+Command:
+  npx vitest run tests/unit/dashboard/cohesion.test.ts && node scripts/module-maturity-check.mjs && node scripts/claim-lint.mjs && ./scripts/integration-e2e.sh
+
+Exit codes:
+  vitest cohesion.test.ts     = 0  (9 passed)
+  module-maturity-check.mjs   = 0  (33 rows cover 33 nav hrefs)
+  claim-lint.mjs              = 0
+  integration-e2e.sh          = 1  (NOT PASS — see reason)
+
+integration-e2e.sh reason (honest FAIL):
+  Playwright Chromium installed successfully (npx playwright install chromium → 0).
+  Smoke run: 14 passed, 13 failed.
+  Failures are authenticated/core-spine specs stuck on sign-in
+  (expected /dashboard/... ; received /sign-in?callbackUrl=...).
+  Unauthenticated @smoke (home, dashboard-gate, a11y-shell, sign-in form) passed.
+  Failure mode is local seed/credentials/DB readiness for PLAYWRIGHT_E2E_* —
+  not a Core spine href rename (hrefs unchanged in this packet).
+  Do not treat AC-010 as site-verified until root re-runs e2e against a migrated+seeded DB.
+
+Acceptance mapping (this packet):
+  AC-001  IA map + nav dump          → docs/qa/ia-task-mode-map.md + DASHBOARD_NAV_SECTIONS
+  AC-003  Permit taxonomy copy       → docs/qa/permit-taxonomy-copy-audit.md
+  AC-010  Core spine + @smoke        → hrefs preserved; e2e FAIL env (above)
+  AC-011  Secondary coverage         → docs/qa/nav-coverage-matrix.md + maturity-check 0
+  AC-023  Unresolved decisions       → ADR closes UD-P-UX-001/002; D-006/D-010 remain blocked
+
+Closed by decision:
+  UD-P-UX-001 → Prove = audit-trail + documents (not analytics/incidence-rates)
+  UD-P-UX-002 → CAPA under Decide with Approvals

@@ -1,0 +1,29 @@
+ADR-UX-002 / PKT-UX-002 verification digest
+Date: 2026-07-19
+Worktree: .worktrees/adr-ux-002
+Branch: site/adr-ux-002
+
+Command:
+  npx vitest run tests/unit/dashboard/cohesion.test.ts && node scripts/module-maturity-check.mjs && node scripts/claim-lint.mjs && npm run verify
+
+Exit codes (honest):
+  vitest cohesion.test.ts     = 0  (14 passed)
+  module-maturity-check.mjs   = 0  (33 rows cover 33 nav hrefs)
+  claim-lint.mjs              = 0
+  npm run verify              = 0  (lint + tsc + vitest 86 files / 405 tests)
+
+Acceptance mapping (this packet):
+  AC-002  Desk vs field journeys     → docs/qa/staging-uat-desk-to-field.md (+ journey map seed); Admin hide unit green; live J1–J4 staging rows PENDING
+  AC-004  One primary CTA            → docs/qa/cognitive-load-primary-cta-checklist.md + cohesion source lint
+  AC-005  Maturity banners / R2      → ModuleMaturityBanner role=note retained; maturity-check + claim-lint 0
+  AC-006  AI proposal-only + failure → incidents/new + capa Suggest secondary + role=alert failure; no status auto-transition in this packet
+  AC-009  No native/filing claims    → claim-lint 0; D-006 remains blocked (not claimed)
+  AC-012  Shell composition          → docs/qa/shell-composition-review.md + cohesion composition imports
+  AC-013  Token layer / no UI kit    → src/app/globals.css @theme + helpers; package.json unchanged (no MUI/Chakra/shadcn)
+  AC-014  Server-backed Admin hide   → organization.dashboardHomeLayout + userHasPermission + filterDashboardNavSections tests
+
+Notes:
+  - package.json not modified (no new mandatory UI kit).
+  - Staging interactive UAT digests for J1–J4 are recorded as PENDING (not invented PASS).
+  - Left uncommitted for root integrate.
+  - Do not mark site_verify / operations gates from this digest alone.

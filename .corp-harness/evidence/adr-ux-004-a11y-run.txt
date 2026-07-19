@@ -1,0 +1,40 @@
+ADR-UX-004 / PKT-UX-004 a11y run digest
+Date: 2026-07-19
+Worktree: .worktrees/adr-ux-004
+Branch: site/adr-ux-004
+
+Commands:
+  npx playwright test --project=a11y
+  npx playwright test tests/e2e/smoke/a11y-shell.spec.ts
+  node scripts/claim-lint.mjs
+  ./scripts/integration-e2e.sh
+
+Exit codes (honest):
+  playwright --project=a11y                         = 0
+    Summary: 3 passed, 6 skipped (~5.6s)
+    Passed (no credentials / no CI force): sign-in axe, chrome landmarks (home + sign-in)
+    Skipped: field-home, incident-create, capa, approvals, audit-trail, keyboard field→incident
+      Gate: PLAYWRIGHT_E2E_* plus CI=true or PLAYWRIGHT_E2E_FORCE=1
+      Local .env.ci injects emails but Postgres role "ci" does not exist — skip preferred over inventing green
+  playwright tests/e2e/smoke/a11y-shell.spec.ts     = 0  (2 passed)
+  claim-lint.mjs                                    = 0
+  ./scripts/integration-e2e.sh                      = 1
+    Summary observed: 13 passed, 1 skipped, 17 failed (~2.2m)
+    Signed-in @smoke / core-spine failures: Better Auth user SELECT failed (role "ci" does not exist)
+    Unauthenticated @smoke (home, dashboard-gate, a11y-shell, cron-auth, contextsync, etc.): PASSED
+    a11y project not invoked by integration-e2e (@smoke only) — by design (UD-Q-UX-001)
+
+Acceptance mapping (this packet):
+  AC-007  Dedicated a11y project + axe WCAG 2.2 AA tags  → playwright.config project a11y; helpers/axe-wcag22.ts
+  AC-008  No WCAG 3 conformance verbs                     → ADR + docs; claim-lint 0; no WCAG 3 language
+  AC-019  Keyboard field→incident                         → keyboard-field-to-incident.a11y.spec.ts (SKIPPED local; CI path ready)
+  AC-020  Serious/critical axe = fail                     → expectNoSeriousCriticalAxeViolations; unauth routes green
+  AC-021  Glare contrast checklist                        → docs/qa/glare-contrast-checklist.md (manual rows PENDING staging)
+  AC-022  Evidence index AC-001..AC-021                   → docs/qa/ux-acceptance-evidence-index.md
+  AC-023  Unresolved decisions logged                     → D-006/D-010 blocked; UD-Q-UX-001 closed by dedicated project
+
+Notes:
+  - Left uncommitted for root integrate.
+  - Do not mark site_verify / operations gates from this digest alone.
+  - Do not invent PASS for signed-in axe/keyboard paths without migrate/seed + CI/FORCE.
+  - package-lock.json updated as companion to package.json (@axe-core/playwright).
