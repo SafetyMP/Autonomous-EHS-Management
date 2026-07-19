@@ -1,6 +1,6 @@
 schema: threat-model/v1.1
 product: Autonomous EHS Management System
-updated: "2026-07-13"
+updated: "2026-07-19"
 
 runtime:
   base_url_env: ADVERSARIAL_BASE_URL
@@ -25,6 +25,41 @@ cells:
     principals: [integration_service]
     auth_mechanism: integration_bearer
     trust_boundary: integration_authenticated
+    establishment_failure: "401 Unauthorized"
+
+  - id: cron_reminders
+    method: GET
+    path: /api/cron/reminders
+    pr_scope:
+      - src/app/api/cron/**
+    baseline: true
+    principals: [cron_scheduler]
+    auth_mechanism: cron_bearer
+    trust_boundary: cron_authenticated
+    establishment_failure: "401 Unauthorized"
+
+  - id: context_sync_artifacts
+    method: GET
+    path: /api/contextsync/artifacts/list
+    pr_scope:
+      - src/app/api/contextsync/**
+      - src/server/services/contextSync/**
+    baseline: true
+    principals: [authenticated_human]
+    auth_mechanism: session_actor
+    trust_boundary: context_sync_session_bound
+    establishment_failure: "401 Unauthorized"
+
+  - id: scim_users
+    method: GET
+    path: /api/scim/v2/Users
+    pr_scope:
+      - src/app/api/scim/**
+      - src/server/services/scim/**
+    baseline: true
+    principals: [scim_provisioner]
+    auth_mechanism: scim_bearer
+    trust_boundary: scim_authenticated
     establishment_failure: "401 Unauthorized"
 
 deny_cases:
@@ -71,3 +106,60 @@ deny_cases:
     expect:
       status: 400
       reason_substring: Validation failed
+
+  - id: poison_kind_inbound
+    cell: integration_inbound
+    principal: global_inbound_bearer
+    baseline: true
+    fixture:
+      method: POST
+      auth: global_inbound_bearer
+      body: '{"kind":"__proto__","organizationId":"00000000-0000-4000-8000-000000000001","workerEmail":"poison@example.com"}'
+    expect:
+      status: 400
+      reason_substring: Validation failed
+
+  - id: anonymous_cron_without_secret
+    cell: cron_reminders
+    principal: anonymous
+    baseline: true
+    fixture:
+      method: GET
+    expect:
+      status: 401
+      reason_substring: Unauthorized
+
+  - id: anonymous_context_sync_artifacts
+    cell: context_sync_artifacts
+    principal: anonymous
+    baseline: true
+    fixture:
+      method: GET
+      query: org=00000000-0000-4000-8000-000000000001
+    expect:
+      status: 401
+      reason_substring: sign_in_required
+
+  - id: anonymous_spoofed_agent_class_context_sync
+    cell: context_sync_artifacts
+    principal: anonymous
+    baseline: true
+    fixture:
+      method: GET
+      query: org=00000000-0000-4000-8000-000000000001
+      headers:
+        X-Agent-Class: spoofed-admin-agent
+        X-Actor-Id: human:00000000-0000-4000-8000-000000000099
+    expect:
+      status: 401
+      reason_substring: sign_in_required
+
+  - id: anonymous_scim_users
+    cell: scim_users
+    principal: anonymous
+    baseline: true
+    fixture:
+      method: GET
+    expect:
+      status: 401
+      reason_substring: Missing or invalid Bearer token
