@@ -10,9 +10,9 @@
 | Capture screenshots | `PLAYWRIGHT_VISUAL=1 npx playwright test --project=visual` (auth + seed required for persona surfaces) |
 | Playwright project | `visual` in `playwright.config.ts` (ignored by default chromium project) |
 
-Real PNG digests replace placeholders when capture succeeds (`digest_kind: "png"`). CI admin seed yields `desk_supervisor` + `field_today`; `desk_contributor_today_collapsed` stays an honest placeholder until a contributor seed exists. Human review of S1–S4 (metric grid / field CTAs) remains a promotion step — not self-attested here. Brand test **G-CF-BRAND-TEST** / UR-CF-007 stays open for a named human reviewer.
+Real PNG digests replace placeholders when capture succeeds (`digest_kind: "png"`). `npm run db:seed:ci` creates both `e2e.admin@ci.local` (desk_supervisor) and `e2e.contributor@ci.local` (desk_contributor) so all four canonical surfaces can capture. Human review of S1–S4 (metric grid / field CTAs) remains a promotion step — not self-attested by CI alone. Brand checklist: [calm-focus-brand-test-checklist.md](./calm-focus-brand-test-checklist.md).
 
-Evidence digests (return-work): `.corp-harness/evidence/calm-focus-visual-r1.txt`, `evidence/calm-focus-visual-manifest.json`, `evidence/visual/*.png`.
+Evidence: `evidence/calm-focus-visual-manifest.json`, `evidence/visual/*.png`; harness logs under `.corp-harness/evidence/calm-focus-visual-*.txt`.
 
 ## WCAG 3 claim lint (RR-CF-001 / AC-CF-A003)
 

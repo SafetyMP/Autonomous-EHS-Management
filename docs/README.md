@@ -8,8 +8,9 @@ Canonical map of repository documentation. **Start at the root [README](../READM
 
 | Role | Start here |
 |------|------------|
-| **Field user / safety manager** | [user-manual-ehs-console.md](./user-manual-ehs-console.md) |
+| **Field user / safety manager** | [user-manual-ehs-console.md](./user-manual-ehs-console.md) (Calm Focus Today: Your work first, KPIs collapsed) |
 | **Contributor / agent** | [AGENTS.md](../AGENTS.md) → [codebase-layout.md](./codebase-layout.md) |
+| **UX / a11y reviewer** | [qa/calm-focus-final-dossier.md](./qa/calm-focus-final-dossier.md), [qa/a11y-test-plan.md](./qa/a11y-test-plan.md), ADRs UX-005…007 |
 | **Architect / diligence** | [architecture-map.md](./architecture-map.md), [workflow-depth.md](./workflow-depth.md), [CONTEXT.md](../CONTEXT.md) |
 | **Procurement / RFP** | [procurement-readiness.md](./procurement-readiness.md), [procurement-integrations-appendix.md](./procurement-integrations-appendix.md), [portco-module-value-assessment.md](./portco-module-value-assessment.md) |
 | **Platform / SRE (self-host)** | [self-host-quickstart.md](./self-host-quickstart.md), [runbooks/](./runbooks/), [JOB_QUEUE.md](./JOB_QUEUE.md) |
@@ -43,6 +44,8 @@ Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a d
 | [ai-governed-intake.md](./ai-governed-intake.md) | Assistive AI boundaries |
 | [offline-field-outbox.md](./offline-field-outbox.md) | Field offline replay |
 | [codebase-layout.md](./codebase-layout.md) | `src/` directory guide |
+| [qa/calm-focus-final-dossier.md](./qa/calm-focus-final-dossier.md) | Calm Focus Gen-1 console UX package summary |
+| [qa/ia-task-mode-map.md](./qa/ia-task-mode-map.md) | Today / Capture / Decide / Prove IA map |
 
 ## Integrations & identity
 
@@ -92,6 +95,13 @@ Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a d
 | [roadmap/README.md](./roadmap/README.md) | Engineering specs index |
 | [roadmap/action-queue-dashboard-spec.md](./roadmap/action-queue-dashboard-spec.md) | Unified action queue (Phase A/B shipped) |
 | [adr/0001-mcp-context-sync-strategy.md](./adr/0001-mcp-context-sync-strategy.md) | Context Sync vs customer MCP |
+| [adr/ADR-UX-001-task-first-ia.md](./adr/ADR-UX-001-task-first-ia.md) | Task-first IA (Today / Capture / Decide / Prove) |
+| [adr/ADR-UX-002-shell-tokens-rbac-honesty.md](./adr/ADR-UX-002-shell-tokens-rbac-honesty.md) | Sole shell, tokens, RBAC-honest field hide |
+| [adr/ADR-UX-003-status-region-first-outbox.md](./adr/ADR-UX-003-status-region-first-outbox.md) | Status-region-first field outbox |
+| [adr/ADR-UX-004-a11y-ci-topology.md](./adr/ADR-UX-004-a11y-ci-topology.md) | Dedicated Playwright `a11y` project |
+| [adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md](./adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md) | Calm Focus tokens / typography / chrome |
+| [adr/ADR-UX-006-progressive-disclosure-today-home.md](./adr/ADR-UX-006-progressive-disclosure-today-home.md) | Today density + progressive disclosure |
+| [adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md](./adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md) | Maturity banner, visual digests, WCAG 3 claim lint |
 
 ## Subdirectories
 
