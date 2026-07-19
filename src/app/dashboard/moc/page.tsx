@@ -10,6 +10,7 @@ import {
   dfLabel,
   dfMuted,
   dfPrimarySubmit,
+  dfSecondaryOutline,
   dfSectionHeading,
 } from "@/lib/dashboard-field-styles";
 import { trpc } from "@/trpc/react";
@@ -26,6 +27,13 @@ const MOC_TRIGGERS = [
   "other",
 ] as const;
 
+function formatDue(value: Date | string | null | undefined): string {
+  if (!value) return "—";
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toISOString().slice(0, 10);
+}
+
 export default function MocPage() {
   const { organizationId } = useOrg();
   const org = organizationId!;
@@ -39,6 +47,12 @@ export default function MocPage() {
 
   const createMoc = trpc.program.createMOC.useMutation({
     onSuccess: () => void mocs.refetch(),
+  });
+  const updateMoc = trpc.program.updateMOC.useMutation({
+    onSuccess: () => {
+      void utils.program.listMOC.invalidate();
+      setEditMocId("");
+    },
   });
   const updateStatus = trpc.program.updateMOCStatus.useMutation({
     onSuccess: () => void utils.program.listMOC.invalidate(),
@@ -55,11 +69,46 @@ export default function MocPage() {
   const [postReviewDue, setPostReviewDue] = useState("");
   const [filterMocId, setFilterMocId] = useState("");
 
+  const [editMocId, setEditMocId] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editOhSafety, setEditOhSafety] = useState(false);
+  const [editEnvImpact, setEditEnvImpact] = useState(false);
+  const [editTrigger, setEditTrigger] = useState<(typeof MOC_TRIGGERS)[number] | "">("");
+  const [editAspectsReviewed, setEditAspectsReviewed] = useState(false);
+  const [editObligationsReviewed, setEditObligationsReviewed] = useState(false);
+  const [editControlsUpdated, setEditControlsUpdated] = useState(false);
+  const [editPostReviewDue, setEditPostReviewDue] = useState("");
+
   const filteredLinks = useMemo(() => {
     const rows = links.data ?? [];
     if (!filterMocId) return rows;
     return rows.filter((l) => l.mocId === filterMocId);
   }, [links.data, filterMocId]);
+
+  function beginEdit(m: {
+    id: string;
+    title: string;
+    description: string;
+    ohSafetyImpact: boolean;
+    environmentalImpactFlag: boolean;
+    changeTrigger: string | null;
+    aspectsReviewed: boolean;
+    obligationsReviewed: boolean;
+    controlsUpdated: boolean;
+    postImplementationReviewDue: Date | string | null;
+  }) {
+    setEditMocId(m.id);
+    setEditTitle(m.title);
+    setEditDesc(m.description);
+    setEditOhSafety(m.ohSafetyImpact);
+    setEditEnvImpact(m.environmentalImpactFlag);
+    setEditTrigger((m.changeTrigger as (typeof MOC_TRIGGERS)[number] | null) ?? "");
+    setEditAspectsReviewed(m.aspectsReviewed);
+    setEditObligationsReviewed(m.obligationsReviewed);
+    setEditControlsUpdated(m.controlsUpdated);
+    setEditPostReviewDue(formatDue(m.postImplementationReviewDue).replace("—", ""));
+  }
 
   if (!organizationId) {
     return (
@@ -76,13 +125,19 @@ export default function MocPage() {
         <div>
           <h1 className="text-xl font-semibold">Management of change</h1>
           <p className={dfMuted}>
-            MOC register with ISO 14001:2026 Clause 6.3 planning fields.{" "}
+            MOC register with ISO 14001:2026 Clause 6.3–style planning fields.{" "}
             <Link href="/dashboard/program" className="font-medium text-emerald-900 underline">
               Program overview
             </Link>
           </p>
         </div>
         <OrgSwitcher />
+      </div>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-950">
+        Transition programme aid only — Clause 6.3 planning fields support planned EMS changes. Not
+        a certification body determination (ISO 14001:2026 published 2026-04-15; CB transition
+        ~2029). See docs/regulatory/iso-14001-2026-transition.md.
       </div>
 
       <section className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
@@ -130,7 +185,7 @@ export default function MocPage() {
             onChange={(e) => setMocDesc(e.target.value)}
           />
           <label className={`${dfLabel} block`}>
-            Change trigger (ISO 14001:2026 §6.3)
+            Change trigger (ISO 14001:2026 §6.3 programme aid)
             <select
               className={`${dfControl} mt-1`}
               value={trigger}
@@ -201,6 +256,127 @@ export default function MocPage() {
         </form>
       </section>
 
+      {editMocId ? (
+        <section className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50/80 p-6">
+          <h2 className={dfSectionHeading}>Edit Clause 6.3 planning fields</h2>
+          <form
+            className="mt-3 space-y-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              updateMoc.mutate({
+                organizationId,
+                mocId: editMocId,
+                title: editTitle,
+                description: editDesc,
+                ohSafetyImpact: editOhSafety,
+                environmentalImpactFlag: editEnvImpact,
+                changeTrigger: editTrigger || null,
+                aspectsReviewed: editAspectsReviewed,
+                obligationsReviewed: editObligationsReviewed,
+                controlsUpdated: editControlsUpdated,
+                postImplementationReviewDue: editPostReviewDue
+                  ? new Date(editPostReviewDue)
+                  : null,
+              });
+            }}
+          >
+            <input
+              required
+              className={dfControl}
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+            />
+            <textarea
+              required
+              rows={3}
+              className={dfControl}
+              value={editDesc}
+              onChange={(e) => setEditDesc(e.target.value)}
+            />
+            <label className={`${dfLabel} block`}>
+              Change trigger
+              <select
+                className={`${dfControl} mt-1`}
+                value={editTrigger}
+                onChange={(e) =>
+                  setEditTrigger(e.target.value as (typeof MOC_TRIGGERS)[number] | "")
+                }
+              >
+                <option value="">Select…</option>
+                {MOC_TRIGGERS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="flex flex-wrap gap-4 text-sm">
+              <label className="inline-flex min-h-11 items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editOhSafety}
+                  onChange={(e) => setEditOhSafety(e.target.checked)}
+                />
+                OH&amp;S impact
+              </label>
+              <label className="inline-flex min-h-11 items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editEnvImpact}
+                  onChange={(e) => setEditEnvImpact(e.target.checked)}
+                />
+                Environmental impact
+              </label>
+              <label className="inline-flex min-h-11 items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editAspectsReviewed}
+                  onChange={(e) => setEditAspectsReviewed(e.target.checked)}
+                />
+                Aspects reviewed
+              </label>
+              <label className="inline-flex min-h-11 items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editObligationsReviewed}
+                  onChange={(e) => setEditObligationsReviewed(e.target.checked)}
+                />
+                Obligations reviewed
+              </label>
+              <label className="inline-flex min-h-11 items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editControlsUpdated}
+                  onChange={(e) => setEditControlsUpdated(e.target.checked)}
+                />
+                Controls updated
+              </label>
+            </div>
+            <label className={`${dfLabel} block`}>
+              Post-implementation review due
+              <input
+                type="date"
+                className={`${dfControl} mt-1`}
+                value={editPostReviewDue}
+                onChange={(e) => setEditPostReviewDue(e.target.value)}
+              />
+            </label>
+            <div className="flex flex-wrap gap-3">
+              <button type="submit" disabled={updateMoc.isPending} className={dfPrimarySubmit}>
+                Save MOC
+              </button>
+              <button
+                type="button"
+                className={dfSecondaryOutline}
+                onClick={() => setEditMocId("")}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </section>
+      ) : null}
+
       <section className="grid gap-6 lg:grid-cols-2">
         <div>
           <h2 className={dfSectionHeading}>MOC register</h2>
@@ -222,6 +398,24 @@ export default function MocPage() {
                     {m.environmentalImpactFlag ? " · EMS impact" : ""}
                     {m.ohSafetyImpact ? " · OH&S impact" : ""}
                   </p>
+                  <p className={dfHelperXs}>
+                    Aspects {m.aspectsReviewed ? "reviewed" : "pending"}
+                    {" · "}
+                    Obligations {m.obligationsReviewed ? "reviewed" : "pending"}
+                    {" · "}
+                    Controls {m.controlsUpdated ? "updated" : "pending"}
+                    {" · "}
+                    Post-impl review due {formatDue(m.postImplementationReviewDue)}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className={dfSecondaryOutline}
+                      onClick={() => beginEdit(m)}
+                    >
+                      Edit planning fields
+                    </button>
+                  </div>
                   <label className={`${dfLabel} block`}>
                     Status
                     <select

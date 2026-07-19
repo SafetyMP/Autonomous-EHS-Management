@@ -43,8 +43,8 @@ export const DASHBOARD_NAV_SECTIONS: readonly DashboardNavSection[] = [
     items: [{ href: "/dashboard/capa", label: "CAPA register" }],
   },
   {
-    title: "Plan & comply",
-    ariaLabel: "Planning and environmental compliance",
+    title: "Plan & programme",
+    ariaLabel: "Planning and environmental programme registers",
     items: [
       { href: "/dashboard/planning", label: "Planning hub" },
       { href: "/dashboard/heat-program", label: "Heat NEP program aid" },

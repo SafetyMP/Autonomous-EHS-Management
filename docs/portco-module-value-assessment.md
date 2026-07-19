@@ -6,12 +6,13 @@ Module-by-module evaluation of whether Autonomous EHS implementations deliver en
 
 | Deliverable | Document |
 |-------------|----------|
-| Tier 1 pilot scope (90 days, one site) | [qa/portco-tier1-pilot-scope.md](./qa/portco-tier1-pilot-scope.md) |
+| Tier 1 pilot scope (90 days, one site) | [qa/portco-tier1-pilot-scope.md](./qa/portco-tier1-pilot-scope.md) — **Core + selected Connected**; Tier-4 agency gaps OOS |
+| Ranked maturation + partnership contracts | [roadmap/ranked-portfolio.md](./roadmap/ranked-portfolio.md) ([ADR-S-002](./adr/ADR-S-002-ranked-portfolio-barriers.md)) |
 | UAT sign-off + audit trail gaps | [qa/portco-uat-signoff-record.md](./qa/portco-uat-signoff-record.md) |
 | iPaaS / SI budget worksheet | [procurement-portco-integration-budget.md](./procurement-portco-integration-budget.md) |
 | Program vs agency boundary (counsel) | [regulatory-posture-boundary.md](./regulatory-posture-boundary.md) |
 
-**Related:** [module-maturity.md](./module-maturity.md), [procurement-readiness.md](./procurement-readiness.md), [workflow-depth.md](./workflow-depth.md), [architecture-map.md](./architecture-map.md).
+**Related:** [module-maturity.md](./module-maturity.md), [procurement-readiness.md](./procurement-readiness.md), [workflow-depth.md](./workflow-depth.md), [architecture-map.md](./architecture-map.md), [barrier-resolution-playbook.md](./barrier-resolution-playbook.md) (D-001..D-012).
 
 ---
 

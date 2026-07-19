@@ -49,6 +49,14 @@ jobs:
       - run: npm run lint
       - run: npx tsc --noEmit
       - run: npm test
+      - name: Audit matrix greps (ADR-S-003 R-008)
+        run: npm run audit:matrix-greps
+      - name: Claim lint (ADR-S-001 R-005)
+        run: node scripts/claim-lint.mjs
+      - name: Module maturity check (ADR-S-001 R-001/R-004)
+        env:
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/module-maturity-check.mjs
 
   e2e-smoke:
     runs-on: ubuntu-latest
@@ -117,6 +125,8 @@ jobs:
           GITHUB_HEAD_SHA: ${{ github.sha }}
           # CI fixture for threat-model auth (min 16 chars); not a production secret.
           INTEGRATION_INBOUND_SECRET: ci-integration-inbound-secret-ok
+          # CI has no Upstash; env.ts non-dev rate-limit invariant requires the documented kill switch.
+          RATE_LIMIT_DISABLED: "true"
 
   # Trunk-only: semantic-release after green CI (Scorecard-safe; no workflow_run checkout).
   release:

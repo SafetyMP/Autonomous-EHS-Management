@@ -105,6 +105,28 @@ for cid in deny_cells:
     if cid not in cell_set:
         print(f"BAD deny_case cell: {cid!r}", file=sys.stderr)
         raise SystemExit(1)
+# R-010 maturation: cron, Context Sync, and SCIM (or equivalent) beyond inbound-only.
+required_cells = {
+    "integration_inbound",
+    "cron_reminders",
+    "context_sync_artifacts",
+    "scim_users",
+}
+missing_cells = sorted(required_cells - cell_set)
+if missing_cells:
+    print(f"MISSING required cells (R-010): {missing_cells}", file=sys.stderr)
+    raise SystemExit(1)
+required_denies = {
+    "anonymous_cron_without_secret",
+    "anonymous_context_sync_artifacts",
+    "anonymous_spoofed_agent_class_context_sync",
+    "anonymous_scim_users",
+}
+deny_set = set(deny_ids)
+missing_denies = sorted(required_denies - deny_set)
+if missing_denies:
+    print(f"MISSING required deny_cases (R-010): {missing_denies}", file=sys.stderr)
+    raise SystemExit(1)
 if not (root / "scripts/run-adversarial.py").is_file():
     print("MISSING: scripts/run-adversarial.py (YAML runner)", file=sys.stderr)
     raise SystemExit(1)

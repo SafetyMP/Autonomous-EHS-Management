@@ -1,6 +1,9 @@
 /**
  * Versioned Heat NEP Appendix I–aligned checklist keys (CPL 03-00-024).
  * Program aid only — not a federal heat standard determination.
+ *
+ * Version stamp `2026-04-cpl-03-00-024` = in-repo checklist revision aligned to the
+ * April 2026 Heat NEP (effective 2026-04-10). The CPL number itself is unchanged.
  */
 export const HEAT_NEP_CHECKLIST_VERSION = "2026-04-cpl-03-00-024" as const;
 

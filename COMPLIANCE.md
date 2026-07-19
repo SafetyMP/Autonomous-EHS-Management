@@ -4,16 +4,18 @@ This document aligns product capability with compliance claims. **It is not lega
 
 ## Product positioning
 
+<!-- claim-lint:ignore-start reason="Product-positioning table enumerates R-005 negations (Not claimed / not X); tier reference in docs/module-maturity.md." -->
 | Capability | Status |
 |------------|--------|
-| **ISO 45001 / 14001-style** incident and management workflows | Intended product scope. EMS surfaces support **ISO 14001:2026 transition programme aids** (context environmental conditions, aspect climate/biodiversity relevance, MOC Clause 6.3 planning fields). **Not claimed** as a certification body or IAF transition completion. |
+| **ISO 45001 / 14001-style** incident and management workflows | Intended product scope. EMS surfaces support **ISO 14001:2026 transition programme aids** (context environmental conditions, aspect climate/biodiversity relevance, MOC Clause 6.3 planning fields). Standard published **2026-04-15**; CB transition ~**2029**. **Not claimed** as a certification body or IAF transition completion. Details: [docs/regulatory/iso-14001-2026-transition.md](docs/regulatory/iso-14001-2026-transition.md). |
 | **OSHA Forms 300 / 301 / 300A as authoritative record of injury/illness** | **Not claimed.** The app adds optional **OSHA-oriented sidecar fields** (`work_related_injury_illness_record`, `establishment`) to support structured exports and internal workflows. Customers remain responsible for official OSHA recordkeeping accuracy and submissions. |
-| **OSHA Heat NEP / heat illness prevention as regulatory determination** | **Not claimed.** Optional **Heat NEP program aid** (Appendix I–aligned self-audit checklist, optional heat-condition logs) supports inspection readiness. **Not** a substitute for a final federal heat standard or Cal/OSHA §§3395/3396 compliance determination. |
-| **EPA EPCRA Tier II / chemical inventory reporting as system of record** | **Not claimed.** Schema supports **Tier II–oriented** chemical and inventory snapshots plus **HCS 2024 / EPCRA 2027 hazard class+category** fields for programme management. Submissions to agencies (including Tier2 Submit) are the customer’s responsibility. |
+| **OSHA Heat NEP / heat illness prevention as regulatory determination** | **Not claimed.** Optional **Heat NEP program aid** (Appendix I–aligned self-audit checklist, optional heat-condition logs) supports inspection readiness. CPL 03-00-024 effective **2026-04-10**. **Not** a substitute for a final federal heat standard or Cal/OSHA §§3395/3396 compliance determination. Details: [docs/regulatory/heat-nep-cpl-03-00-024.md](docs/regulatory/heat-nep-cpl-03-00-024.md). |
+| **EPA EPCRA Tier II / chemical inventory reporting as system of record** | **Not claimed.** Schema supports **Tier II–oriented** chemical and inventory snapshots plus **HCS 2024 / EPCRA 2027 hazard class+category** fields for programme management (EPA conformity rule **2026-06-22**; RY2027 due **2028-03-01**). Submissions to agencies (including Tier2 Submit) are the customer’s responsibility. Details: [docs/regulatory/epcra-hazard-categories-2027.md](docs/regulatory/epcra-hazard-categories-2027.md). |
 | **Safety observations & permits to work (PTW)** | **Operational / program records** (leading indicators and hazardous-work authorization for hot work, confined space, etc.). **Not claimed** as OSHA injury/illness logs. **Not** the same as **environmental regulatory permits** (air/water/waste); PTW is a distinct `work_permit` module. |
 | **Environmental regulatory permit register** | **Internal program register** in-app (`environmental_regulatory_permit`): metadata, conditions, linkage to monitoring and obligations. **Not claimed** as an agency system of record or filing-ready submission unless counsel and customer define that outside the app. |
 | **Risk assessments / JSAs** | **Program records** (`risk_assessment`, optional `risk_assessment_step` for task-based JSAs). **Not claimed** as a substitute for legally mandated risk studies where jurisdiction requires specific formats or approvals. |
 | **GDPR / global privacy** | Technical measures include retention dates, legal hold flags, anonymization jobs, RBAC-separated incident narrative access, and RAG ingest redaction. **Lawful basis, DPIA, and cross-border transfers are organizational decisions**, not enforced by this software alone. |
+<!-- claim-lint:ignore-end -->
 
 ## Encryption at rest
 
@@ -42,5 +44,7 @@ This document aligns product capability with compliance claims. **It is not lega
 1. Confirm target jurisdictions (U.S. federal/state, EU/UK, etc.).
 2. Map each personal data category to lawful basis and retention.
 3. Align subcontractor list and encryption attestations with the actual database provider.
+<!-- claim-lint:ignore-start reason="Counsel-checklist bullet 4 enumerates R-005 phrases as prohibited review targets." -->
 4. Review whether “OSHA-ready” or “Tier II-ready” language is acceptable or misleading for your buyer contracts.
+<!-- claim-lint:ignore-end -->
 5. Complete [regulatory-posture-boundary.md](docs/regulatory-posture-boundary.md) for PortCo pilots (program-of-record vs agency-of-record).

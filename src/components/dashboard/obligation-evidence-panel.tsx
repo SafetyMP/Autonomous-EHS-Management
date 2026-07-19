@@ -58,7 +58,8 @@ export function ObligationEvidencePanel({
     <div className="mt-3 rounded-md border border-zinc-200 bg-zinc-50 p-3">
       <h4 className="text-sm font-semibold text-zinc-900">Evidence links — {obligationTitle}</h4>
       <p className={`mt-1 ${dfHelperXs}`}>
-        Controlled documents and knowledge corpus sources that demonstrate compliance.
+        Controlled documents and knowledge corpus sources linked as programme evidence for this
+        obligation.
       </p>
       {isLoading ? (
         <p className={`mt-2 ${dfMuted}`} role="status">

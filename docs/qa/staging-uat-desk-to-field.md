@@ -8,7 +8,7 @@
 
 **How to use:** Sign in with **staging** roles that mirror production (e.g. field contributor vs manager vs admin). Complete rows with **Pass / Fail / N/A** and note failures in your defect tracker with route and role.
 
-**Engineering recurrence (cannot replace staging sign-off):** After merges that touch routers, delegated services under `src/server/services/**`, or Context Sync / integration payloads, run **`npm run verify`** locally and (optionally) **`npm run verify:all`** before release; **`npm run audit:matrix-greps`** repeats the mutation-matrix search pass from [`mutation-auditability-matrix.md`](./mutation-auditability-matrix.md) (ripgrep preferred; `find`+`grep` fallback).
+**Engineering recurrence (cannot replace staging sign-off):** After merges that touch routers, delegated services under `src/server/services/**`, or Context Sync / integration payloads, run **`npm run verify`** locally and (optionally) **`npm run verify:all`** before release; **`npm run audit:matrix-greps`** is the failing R-008 gate from [`mutation-auditability-matrix.md`](./mutation-auditability-matrix.md) (also wired into CI `verify` and `./scripts/verify.sh`). Core-spine Playwright `@smoke` (CAPA → verified, Approvals decide, audit-trail list/export) lives under `tests/e2e/smoke/core-spine-*.spec.ts` — see [`ADR-S-003`](../adr/ADR-S-003-core-spine-audit-smoke.md).
 
 | Area | Route(s) | Verify on staging |
 |------|----------|-------------------|

@@ -424,8 +424,9 @@ export default function HeatProgramPage() {
           <summary className="cursor-pointer font-medium">Regulatory reference</summary>
           <p className={`mt-1 ${dfHelperXs}`}>
             Checklist version {catalog.data?.version ?? "…"}. Aligns to evaluation factors in OSHA
-            CPL 03-00-024 Appendix I. Federal heat standard remains pending; state-plan rules may
-            apply separately.
+            CPL 03-00-024 Appendix I (Heat NEP effective 2026-04-10). Federal heat standard remains
+            pending; state-plan rules may apply separately. See
+            docs/regulatory/heat-nep-cpl-03-00-024.md.
           </p>
         </details>
       </div>

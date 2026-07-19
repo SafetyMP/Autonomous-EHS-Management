@@ -8,10 +8,12 @@ Counsel and procurement worksheet: what Autonomous EHS **is** and **is not** as 
 
 ## Two postures (define with counsel before pilot)
 
+<!-- claim-lint:ignore-start reason="Two-posture table names Agency-of-record disclaimers (R-005 negation)" -->
 | Posture | Definition | Autonomous EHS default |
 |---------|------------|------------------------|
 | **Program-of-record** | Single auditable IMS for ISO-style workflows, internal investigations, CAPA, training proof, contractor credentials, and **management** of compliance obligations | **Intended scope** for Tier 1 pilot |
 | **Agency-of-record** | Legally authoritative submission to OSHA, EPA, state environmental agencies, or filing-ready exports accepted by regulators without rework | **Not claimed** unless customer + counsel define external process |
+<!-- claim-lint:ignore-end -->
 
 Pilot success criteria should use **program-of-record** language. Do not contract for **agency-of-record** without separate legal and product work.
 
@@ -19,6 +21,7 @@ Pilot success criteria should use **program-of-record** language. Do not contrac
 
 ## Module boundary matrix
 
+<!-- claim-lint:ignore-start reason="Module boundary matrix documents Agency-of-record negations (R-005)" -->
 | Module / data | Program-of-record | Agency-of-record | Buyer statement |
 |---------------|-------------------|------------------|-----------------|
 | **Incidents & investigations** | Yes — workflow, RBAC, audit trail | No — not OSHA 300/301/301A official log | Internal incident programme; parallel OSHA logs may remain in legacy |
@@ -35,6 +38,7 @@ Pilot success criteria should use **program-of-record** language. Do not contrac
 | **DSAR / privacy** | Intake + policy surfaces | **No** — not automated erasure/export | [DSAR_PROCESS.md](./DSAR_PROCESS.md) |
 | **Audit trail (`audit_log`)** | High-signal transactional log | N/A — not ISO internal audit programme | Spot-check; partial coverage ([mutation-auditability-matrix.md](./qa/mutation-auditability-matrix.md)) |
 | **Internal audit programme** | ISO audit entities in-app | N/A | Separate from transactional audit trail |
+<!-- claim-lint:ignore-end -->
 
 ---
 
@@ -46,12 +50,15 @@ Pilot success criteria should use **program-of-record** language. Do not contrac
 4. **Tier II / EPCRA** — Program inventory vs filing; who signs submissions.
 5. **Contractor vs employee** — HRIS classification, termination, cross-border worker data ([hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md) counsel notes).
 6. **Retention & legal hold** — Align `data_retention_policy` with counsel timelines; export before tenant delete.
+<!-- claim-lint:ignore-start reason="Counsel workshop bullet enumerates banned marketing phrases (R-005 source list)" -->
 7. **Marketing & contract language** — Ban “filing-ready,” “OSHA-compliant out of the box,” “Tier II submission system” unless counsel approves.
+<!-- claim-lint:ignore-end -->
 
 ---
 
 ## Acceptable vs prohibited contract phrases
 
+<!-- claim-lint:ignore-start reason="Prohibited column is the R-005 source list mirrored into scripts/claim-lint.mjs; ADR-S-001." -->
 | Acceptable (with pilot scope) | Prohibited without additional work |
 |------------------------------|-----------------------------------|
 | “ISO 45001/14001-style incident and CAPA workflows” | “Replaces OSHA 300 log” |
@@ -62,6 +69,14 @@ Pilot success criteria should use **program-of-record** language. Do not contrac
 | “Heat NEP self-audit checklist (program aid)” | “Meets OSHA heat standard” / “Cal/OSHA heat compliant out of the box” |
 | “ISO 14001:2026-style EMS transition programme aids” | “ISO 14001:2026 certified by this software” |
 | “Governance-aligned DSAR intake” | “GDPR-compliant automated erasure” |
+| “Autonomous compliance operations (workflows + Postgres SoR + evidence)” | “Autonomous AI EHS” (implying LLM-owned regulatory transitions) |
+| “Filing scaffold / sample CSV only” | “Filing-ready OSHA export” / “Agency SoR” |
+<!-- claim-lint:ignore-end -->
+
+**Executable enforcement.** [`scripts/claim-lint.mjs`](../scripts/claim-lint.mjs)
+(ADR-S-001) fails CI if a banned phrase appears in `README.md`,
+`docs/procurement-readiness.md`, `docs/regulatory-posture-boundary.md`, or
+`COMPLIANCE.md` outside a documented `<!-- claim-lint:ignore-start -->` fence.
 
 ---
 

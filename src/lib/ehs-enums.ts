@@ -17,6 +17,14 @@ export const INCIDENT_TYPES = [
 
 export const ASPECT_SIGNIFICANCES = ["low", "medium", "high"] as const;
 
+export const ASPECT_LIFECYCLE_STAGES = [
+  "raw_material",
+  "operations",
+  "transport",
+  "disposal",
+  "other",
+] as const;
+
 /** Mirrors `data_retention_*` enums in schema (client-safe). */
 export const DATA_RETENTION_RECORD_CLASSES = [
   "incident_general",

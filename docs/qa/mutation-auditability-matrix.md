@@ -4,7 +4,7 @@ Repo-grounded inventory mapping selected **high-impact** tRPC routers under [`sr
 
 This is **transactional** audit (`audit_log`), not the ISO **internal audit programme** (`internal_audit`)—see [architecture-map.md — Audit trail vs ISO internal audit](../architecture-map.md#5-audit-trail-vs-iso-internal-audit).
 
-**Related:** automated risk × coverage traceability lives in [`risk-based-coverage-matrix.md`](./risk-based-coverage-matrix.md). **Read path:** `compliance.auditTrail.*` / `/dashboard/audit-trail` via [`auditTrailRouter.ts`](../../src/server/trpc/routers/auditTrailRouter.ts). Staging UAT: [`staging-uat-desk-to-field.md`](./staging-uat-desk-to-field.md).
+**Related:** automated risk × coverage traceability lives in [`risk-based-coverage-matrix.md`](./risk-based-coverage-matrix.md). **Read path:** `compliance.auditTrail.*` / `/dashboard/audit-trail` via [`auditTrailRouter.ts`](../../src/server/trpc/routers/auditTrailRouter.ts). Staging UAT: [`staging-uat-desk-to-field.md`](./staging-uat-desk-to-field.md). Site ADR: [`ADR-S-003-core-spine-audit-smoke.md`](../adr/ADR-S-003-core-spine-audit-smoke.md).
 
 ---
 
@@ -13,6 +13,25 @@ This is **transactional** audit (`audit_log`), not the ISO **internal audit prog
 Incomplete or uneven `audit_log` coverage is **residual risk** for governance and operational forensics. This inventory is a **static grep-derived snapshot**; it does **not** assert completeness for every branch, nested service, cron job, REST route (`src/app/api`), background worker, or integration path.
 
 Remediation requires a **product-backed** list of which mutations and exports must be auditable. **Do not treat this document as a promise of legal or regulatory compliance.**
+
+---
+
+## Core-spine must-audit list (product-backed)
+
+These mutations are the **P0** forensic contract for Core-spine maturation (corporate **R-007** / **R-008**). Each row must remain **Y** (in-router `writeAuditLog` or documented one-hop callee). Closing a row as “N/A” requires a recorded product exception — not silence.
+
+| # | Surface | Router / entry | Must-audit mutations / actions | Audit site | CI / smoke hook |
+|---|---------|----------------|--------------------------------|------------|-----------------|
+| CS-1 | Incident | [`incident.ts`](../../src/server/trpc/routers/incident.ts) | `create`, `update`, `updateStatus` | In-router | Intake `@smoke`; matrix greps |
+| CS-2 | CAPA | [`capa.ts`](../../src/server/trpc/routers/capa.ts) | `create`, `updateStatus`, `assignOwner` | In-router | [`core-spine-capa-lifecycle.spec.ts`](../../tests/e2e/smoke/core-spine-capa-lifecycle.spec.ts) |
+| CS-3 | Approval | [`approval.ts`](../../src/server/trpc/routers/approval.ts) | `submitCapaPlanApproval`, `submitWorkPermitApproval`, `decideRequest` | Decide in-router; submit via one-hop [`insertSerialApprovalSteps`](../../src/server/services/capaApprovalSteps.ts) / work-permit helpers | [`core-spine-approvals-decide.spec.ts`](../../tests/e2e/smoke/core-spine-approvals-decide.spec.ts) |
+| CS-4 | Audit trail (read + export) | [`auditTrailRouter.ts`](../../src/server/trpc/routers/auditTrailRouter.ts) | `exportCsv` (query that writes `compliance.audit_trail.export_csv`) | In-router | [`core-spine-audit-trail.spec.ts`](../../tests/e2e/smoke/core-spine-audit-trail.spec.ts) |
+| CS-5 | Context Sync admin | [`contextSyncProtocol.ts`](../../src/server/trpc/routers/contextSyncProtocol.ts), [`organization.ts`](../../src/server/trpc/routers/organization.ts) | `agentClassClaimCreate`, `agentClassClaimDelete`, `updateContextSyncEnabled` | In-router | Matrix greps + Context Sync REST `@smoke` |
+| CS-6 | Retention overrides | [`dataRetentionRouter.ts`](../../src/server/trpc/routers/dataRetentionRouter.ts) | `upsertPolicy` | In-router | Matrix greps; cron retention `@smoke` |
+
+**Out of Core must-audit (Connected / Plumbing — do not treat as Core):** PTW (`permit.ts` / `/dashboard/permits`) remains Connected until a separate promotion packet; OSHA agency e-file, DSAR automation, and Tier II Submit stay Plumbing.
+
+**Executable gate:** `npm run audit:matrix-greps` fails when any tRPC router file under `src/server/trpc/routers` introduces `.mutation(` without in-file `writeAuditLog` **or** a documented one-hop allowlist entry in [`scripts/audit-matrix-greps.sh`](../../scripts/audit-matrix-greps.sh).
 
 ---
 
@@ -71,7 +90,20 @@ Next.js **`src/app/api/**`** typically does **not** call `writeAuditLog` directl
 | **Context Sync REST** (artifacts, actors, grants, permissions where applicable) | [`contextSync/artifacts.ts`](../../src/server/services/contextSync/artifacts.ts) and related helpers call **`writeAuditLog`** for creates/updates/deletes surfaced over HTTP. |
 | **`GET /api/cron/data-retention`** | Cron handler invokes **`runDataRetentionCron`** ([`dataRetention.ts`](../../src/server/services/dataRetention.ts)), which emits lifecycle audit rows (`data_lifecycle.*`) as implemented. |
 
-**Repeatable grep sweep:** From repo root run **`npm run audit:matrix-greps`**, which executes [`scripts/audit-matrix-greps.sh`](../../scripts/audit-matrix-greps.sh). The script **prefers ripgrep** (`rg`) and **falls back** to `find` + `grep -E` when `rg` is not installed (same intent, slower). Extend the script when new high-risk API surfaces warrant routine checks.
+**Repeatable grep sweep:** From repo root run **`npm run audit:matrix-greps`**, which executes [`scripts/audit-matrix-greps.sh`](../../scripts/audit-matrix-greps.sh). The script **prefers ripgrep** (`rg`) and **falls back** to `find` + `grep -E` when `rg` is not installed (same intent, slower). It **fails closed** on unaudited tRPC router mutations (see Core-spine must-audit). Extend the script when new high-risk API surfaces warrant routine checks.
+
+### Explicit residual gaps (REST / cron / worker) — never implied complete
+
+These paths are **outside** the tRPC router file-level CI gate. Acknowledge them in PortCo / staging sign-off; do not claim universal coverage.
+
+| Gap ID | Surface | Residual risk | Compensating evidence |
+|--------|---------|---------------|----------------------|
+| RG-1 | **Queued integration inbound** (`202` + `PG_BOSS_ENABLED`) | Audit rows appear when the **worker** finishes — not at HTTP enqueue | `integration_event` backlog + worker logs; training/HRIS ingest service audits on apply |
+| RG-2 | **SCIM REST `/api/scim/v2/*`** | Not every SCIM PATCH field emits a dedicated `audit_log` row | Membership state + `integration_event` after bulk SCIM; `portcoIdentity` admin mutations are audited on tRPC |
+| RG-3 | **SLA / approval escalations cron** | `escalation_event` rows may exist without a matching user-facing `audit_log` action | Escalation table + Approvals UI overdue panel |
+| RG-4 | **Cron metrics / auth probes** | Observability endpoints are not mutation auditors | Prometheus scrape + cron bearer smoke |
+| RG-5 | **Job worker DLQ / failed jobs** | Failed jobs may lack a domain `audit_log` until replay succeeds | Ops runbook + queue depth alerts (D-004 / D-008 when resolved) |
+| RG-6 | **AI propose paths** | Draft/propose mutations audit assistant actions; they must **not** write regulated status transitions | [`ai-non-transition.test.ts`](../../tests/unit/lib/ai/ai-non-transition.test.ts) |
 
 ---
 
@@ -190,9 +222,11 @@ Next.js **`src/app/api/**`** typically does **not** call `writeAuditLog` directl
 
 ## Probable gaps (product backlog)
 
-*None flagged in this pass — `portcoIdentity` SCIM/OIDC rule mutations now audit via `writeAuditLog` (see [portco-uat-signoff-record.md](./portco-uat-signoff-record.md)).*
+**tRPC Core-spine routers:** no unaudited mutation clusters flagged in this pass (`portcoIdentity` SCIM/OIDC rule mutations audit via `writeAuditLog`).
 
-Re-run methodology greps after refactors; extend this table when new gaps are confirmed.
+**Residual (non-tRPC):** see **Explicit residual gaps (REST / cron / worker)** above (RG-1…RG-6). Those remain open for product backlog and PortCo diligence — they are **not** closed by the router file-level CI gate.
+
+Re-run methodology greps after refactors; extend tables when new gaps are confirmed.
 
 ---
 

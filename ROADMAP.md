@@ -23,6 +23,7 @@ This file tracks **direction**, not detailed delivery dates. Priorities shift wi
 - **Workflow catalog:** read-only encoded transitions via `compliance.workflowCatalog.get` and [`/dashboard/workflow-catalog`](src/app/dashboard/workflow-catalog/page.tsx) (`retention:policy_read`).
 - Structured production logs ([`src/lib/logger.ts`](src/lib/logger.ts)) and optional cron failure webhook (`CRON_FAILURE_WEBHOOK_URL`).
 - **Scaffolding:** OIDC JIT ([`docs/OIDC_JIT_PROVISIONING.md`](docs/OIDC_JIT_PROVISIONING.md)), job queue ([`src/server/jobs/`](src/server/jobs/), [`docs/JOB_QUEUE.md`](docs/JOB_QUEUE.md)), Terraform state docs ([`docs/terraform-remote-state.md`](docs/terraform-remote-state.md)), DSAR intake ([`/dashboard/privacy-requests`](src/app/dashboard/privacy-requests/page.tsx)), OSHA agency placeholder ([`oshaAgencyExportScaffold.ts`](src/lib/regulatory/oshaAgencyExportScaffold.ts)).
+- **July 2026 regulatory pack (programme-of-record):** Heat NEP Appendix I program aid ([`docs/regulatory/heat-nep-cpl-03-00-024.md`](docs/regulatory/heat-nep-cpl-03-00-024.md)), EPCRA/HCS 2024 hazard categories Plumbing UI ([`docs/regulatory/epcra-hazard-categories-2027.md`](docs/regulatory/epcra-hazard-categories-2027.md)), ISO 14001:2026 context/aspect/MOC transition aids ([`docs/regulatory/iso-14001-2026-transition.md`](docs/regulatory/iso-14001-2026-transition.md)) — see [COMPLIANCE.md](COMPLIANCE.md) and [docs/module-maturity.md](docs/module-maturity.md).
 
 ## In progress / next
 

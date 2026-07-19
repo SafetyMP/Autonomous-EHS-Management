@@ -2,6 +2,8 @@
 
 Product rule (see [`CONTEXT.md`](../CONTEXT.md), [`COMPLIANCE.md`](../COMPLIANCE.md)): **LLM and client output are not authoritative** until validated and persisted through normal **permission-gated** mutations. AI must not auto-close investigations, auto-approve CAPAs, or silently set regulatory classifications.
 
+**R-012 gates:** ingest/prompt redaction is on by default; procedures require `RAG_READ`, `AI_DRAFT_USE`, and/or `rag:ingest` as documented in [`docs/qa/rag-redaction-runbook.md`](qa/rag-redaction-runbook.md). Do not claim DPIA-complete RAG/AI without counsel.
+
 ## Priority surfaces (in-repo)
 
 1. **`aiAssistant` router** — [`src/server/trpc/routers/aiAssistant.ts`](../src/server/trpc/routers/aiAssistant.ts)

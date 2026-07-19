@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/codeql-analysis.yml)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/SafetyMP/Autonomous-EHS-Management/badge)](https://scorecard.dev/viewer/?uri=github.com/SafetyMP/Autonomous-EHS-Management)
-[![License: Apache-2.0](https://img.shields.io/github/license/SafetyMP/Autonomous-EHS-Management)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/SafetyMP/Autonomous-EHS-Management)](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)
+[![OpenSSF Scorecard](docs/assets/badges/openssf-scorecard.svg)](https://scorecard.dev/viewer/?uri=github.com/SafetyMP/Autonomous-EHS-Management)
+[![License: Apache-2.0](docs/assets/badges/license-apache-2.0.svg)](LICENSE)
+[![Release](docs/assets/badges/release.svg)](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)
 
 **Autonomous compliance operations platform** — give your team one place to log what happened, assign fixes, and prove the follow-up.
 
