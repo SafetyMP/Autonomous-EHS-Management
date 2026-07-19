@@ -125,6 +125,8 @@ jobs:
           GITHUB_HEAD_SHA: ${{ github.sha }}
           # CI fixture for threat-model auth (min 16 chars); not a production secret.
           INTEGRATION_INBOUND_SECRET: ci-integration-inbound-secret-ok
+          # CI has no Upstash; env.ts non-dev rate-limit invariant requires the documented kill switch.
+          RATE_LIMIT_DISABLED: "true"
 
   # Trunk-only: semantic-release after green CI (Scorecard-safe; no workflow_run checkout).
   release:
