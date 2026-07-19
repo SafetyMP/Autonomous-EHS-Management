@@ -1,0 +1,16 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+◇ injected env (13) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 2 tests using 2 workers
+
+(node:99194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:99195) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+  ✓  2 [chromium] › tests/e2e/smoke/sign-in.spec.ts:3:5 › @smoke sign-in page shows form (3.3s)
+  ✓  1 [chromium] › tests/e2e/smoke/home.spec.ts:3:5 › @smoke home page loads (3.2s)
+
+  2 passed (16.2s)

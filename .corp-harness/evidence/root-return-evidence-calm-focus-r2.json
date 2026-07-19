@@ -1,0 +1,38 @@
+{
+  "schema": "corporate-site-root-evidence/v1",
+  "program_id": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "handoff_digest": "cc77cb694a0d0214b5adbfe18c1e04b72eef9a613b7283c5a5065ff45de646b4",
+  "purpose": "return-work closure pack after density AC-CF-D005 fix",
+  "root_verify": {
+    "path": ".corp-harness/evidence/root-verify-ux-r2.txt",
+    "exit_code": 0
+  },
+  "density_e2e": {
+    "path": ".corp-harness/evidence/calm-focus-density-e2e-r1.json",
+    "result": "PASS",
+    "control_count_observed": 7
+  },
+  "smoke": {
+    "path": ".corp-harness/evidence/calm-focus-smoke-r1.json"
+  },
+  "a11y": {
+    "path": ".corp-harness/evidence/calm-focus-a11y-r1.json"
+  },
+  "touch": {
+    "path": ".corp-harness/evidence/calm-focus-touch-r1.json"
+  },
+  "visual": {
+    "path": "evidence/calm-focus-visual-manifest.json",
+    "note": "partial_capture — contributor_today_collapsed may still be placeholder"
+  },
+  "brand": {
+    "path": "docs/qa/calm-focus-brand-test-checklist.md",
+    "note": "human sign-off still required"
+  },
+  "product_changes": [
+    "dashboard-shell: #main-content wraps page children only (Whats new + Sign out outside density scope)",
+    "command-center-desk-view: secondary clusters under closed More on Today",
+    "dashboard page: removed duplicate field-menu link; preference via onPreferFieldLayout"
+  ]
+}

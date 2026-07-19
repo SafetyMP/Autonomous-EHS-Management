@@ -1,0 +1,26 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 2 tests using 1 worker
+
+
+(node:21460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+◇ injected env (0) from .env.ci // tip: ⌘ override existing { override: true }
+
+[1/2] [density] › tests/e2e/density/calm-focus-today-density.spec.ts:66:7 › Calm Focus Today density @density › @density desk_supervisor first-visit: KPI hidden, ≤12 controls
+[density] › tests/e2e/density/calm-focus-today-density.spec.ts:66:7 › Calm Focus Today density @density › @density desk_supervisor first-visit: KPI hidden, ≤12 controls
+DENSITY_METRIC persona=desk_supervisor visible_kpi_tiles=0
+
+DENSITY_METRIC persona=desk_supervisor interactive_controls=7 viewport=1440x900
+
+[2/2] [density] › tests/e2e/density/calm-focus-today-density.spec.ts:79:7 › Calm Focus Today density @density › @density desk_contributor first-visit: KPI hidden, ≤12 controls
+[density] › tests/e2e/density/calm-focus-today-density.spec.ts:79:7 › Calm Focus Today density @density › @density desk_contributor first-visit: KPI hidden, ≤12 controls
+DENSITY_METRIC persona=desk_contributor visible_kpi_tiles=0
+
+DENSITY_METRIC persona=desk_contributor interactive_controls=5 viewport=1440x900
+
+  2 passed (14.1s)

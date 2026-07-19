@@ -37,7 +37,7 @@ export function DashboardShell({
       <div
         role="status"
         aria-live="polite"
-        className="flex flex-1 items-center justify-center p-8 text-base text-zinc-600"
+        className="flex flex-1 items-center justify-center p-8 text-base text-text-muted"
       >
         Loading session…
       </div>
@@ -82,7 +82,7 @@ function OrgGate({
 
   if (isLoading) {
     return (
-      <div role="status" aria-live="polite" className="flex flex-1 items-center justify-center p-8 text-base text-zinc-600">
+      <div role="status" aria-live="polite" className="flex flex-1 items-center justify-center p-8 text-base text-text-muted">
         Loading organizations…
       </div>
     );
@@ -142,16 +142,16 @@ function DashboardWorkspace({
   const outboxOn = isFieldOutboxEnabled();
 
   return (
-    <main
-      aria-label="Dashboard content"
+    <div
       data-dashboard-shell="workspace"
       data-organization-id={organizationId ?? ""}
       data-field-outbox-enabled={outboxOn ? "1" : "0"}
-      className={`mx-auto flex w-full ${shellMax} flex-1 flex-col gap-4 p-4 sm:p-6`}
+      className={`mx-auto flex w-full ${shellMax} flex-1 flex-col gap-[var(--spacing-section)] p-4 sm:p-6`}
     >
+      {/* Chrome above skip target — not counted in AC-CF-D005 Today density. */}
       <DashboardWhatsNewBanner />
       <div
-        className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 text-base ${
+        className={`content-card flex flex-wrap items-center justify-between gap-2 border border-border px-4 text-base ${
           sessionDense ? "py-2.5 sm:py-2" : "py-3"
         }`}
       >
@@ -164,9 +164,16 @@ function DashboardWorkspace({
           Sign out
         </button>
       </div>
-      {/* Status-region-first authority for pending/failed outbox (ADR-UX-003 / AC-015). */}
-      <FieldOutboxStatusBar />
-      {children}
-    </main>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        aria-label="Dashboard content"
+        className="flex min-h-0 flex-1 flex-col outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
+      >
+        {/* Status-region-first authority for pending/failed outbox (ADR-UX-003 / AC-015). */}
+        <FieldOutboxStatusBar />
+        {children}
+      </main>
+    </div>
   );
 }

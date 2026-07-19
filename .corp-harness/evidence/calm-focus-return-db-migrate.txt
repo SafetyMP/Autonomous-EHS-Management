@@ -1,0 +1,8 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> ehs@0.1.0 db:migrate
+> tsx scripts/migrate.ts
+
+◇ injected env (1) from .env.local // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+Migrations applied successfully.

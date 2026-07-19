@@ -1,0 +1,36 @@
+{
+  "program": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "status": "captured",
+  "note": "PNG digests from PLAYWRIGHT_VISUAL=1 capture (both desk personas + field). Human review of S1–S4 still required at promotion (AC-CF-V010 / UR-CF-007).",
+  "surfaces": [
+    {
+      "id": "desk_contributor_today_collapsed",
+      "viewport": "1440x900",
+      "path": "evidence/visual/desk_contributor_today_collapsed.png",
+      "sha256": "d44e1b05b29730d498af81b4834742a64651bd2b8145ee8df539ced662c25643",
+      "digest_kind": "png"
+    },
+    {
+      "id": "desk_supervisor_today_collapsed",
+      "viewport": "1440x900",
+      "path": "evidence/visual/desk_supervisor_today_collapsed.png",
+      "sha256": "2d7926722104963bace98e74b630017501d4c7b914b5532dcb09ce798e41158f",
+      "digest_kind": "png"
+    },
+    {
+      "id": "desk_supervisor_today_kpi_expanded",
+      "viewport": "1440x900",
+      "path": "evidence/visual/desk_supervisor_today_kpi_expanded.png",
+      "sha256": "aa3d3e7be45cf43a2890641b19a9b7bdf3e428448488c5e6d2ab3ff8b842ab15",
+      "digest_kind": "png"
+    },
+    {
+      "id": "field_today",
+      "viewport": "390x844",
+      "path": "evidence/visual/field_today.png",
+      "sha256": "6ec22723aca6baa14b6f88df21842a0f3988051dfad1f1a06c5b545c47e75f10",
+      "digest_kind": "png"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "ehs-ux-smoke-attempt/v1",
+  "program_id": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "produced_at": "2026-07-19T16:22:47Z",
+  "db": "pgvector/pgvector:pg16 container ehs-cf-return-pg host:5435",
+  "command": "./scripts/integration-e2e.sh",
+  "exit_code": 0,
+  "parsed_passed": 30,
+  "parsed_failed": null,
+  "log": ".corp-harness/evidence/calm-focus-smoke-r1b.txt",
+  "log_sha256": "aaacba7ded2dbe49c82b729a058f256ec677b0a2c92732ca2b9731c03e54d3fe",
+  "migrate_log": ".corp-harness/evidence/calm-focus-return-db-migrate.txt",
+  "seed_log": ".corp-harness/evidence/calm-focus-return-db-seed-ci.txt",
+  "status": "PASS",
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ]
+}

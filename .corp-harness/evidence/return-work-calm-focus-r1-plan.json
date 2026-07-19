@@ -1,0 +1,63 @@
+{
+  "schema": "ehs-ux-return-work-plan/v1",
+  "program_id": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "trigger": "operations-calm-focus-r1.json FAIL",
+  "ops_agent": "48d6a02e-7d3f-4804-b0a2-a66386b583b3",
+  "planned_at": "2026-07-19T16:17:13Z",
+  "phase_remains": "SITE_DELIVERY",
+  "attempts_note": "program.attempts still 0; return-work within SITE_DELIVERY before site_verify record",
+  "packets": [
+    {
+      "id": "PKT-CF-RET-SMOKE",
+      "adrs": [
+        "ADR-UX-005",
+        "ADR-UX-006",
+        "ADR-UX-007"
+      ],
+      "closes": [
+        "AC-CF-S001",
+        "G-CF-SMOKE"
+      ],
+      "work": "Run ./scripts/integration-e2e.sh against seeded DB; capture calm-focus-smoke digest"
+    },
+    {
+      "id": "PKT-CF-RET-006-DENSITY-E2E",
+      "adrs": [
+        "ADR-UX-006"
+      ],
+      "closes": [
+        "AC-CF-D004",
+        "AC-CF-D005"
+      ],
+      "work": "Playwright density e2e storage-cleared; KPI hidden; CDP \u226412 @1440x900"
+    },
+    {
+      "id": "PKT-CF-RET-007-A11Y-VISUAL-TOUCH",
+      "adrs": [
+        "ADR-UX-007"
+      ],
+      "closes": [
+        "AC-CF-A001",
+        "AC-CF-V010",
+        "AC-CF-A004"
+      ],
+      "work": "axe a11y re-run; real visual PNGs+manifest; touch boundingBox digest"
+    },
+    {
+      "id": "PKT-CF-RET-005-BRAND",
+      "adrs": [
+        "ADR-UX-005"
+      ],
+      "closes": [
+        "AC-CF-V006",
+        "G-CF-BRAND-TEST"
+      ],
+      "work": "HUMAN ONLY \u2014 designate brand reviewer; agent prepares checklist evidence path only"
+    }
+  ],
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ]
+}

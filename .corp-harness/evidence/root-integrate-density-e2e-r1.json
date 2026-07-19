@@ -1,0 +1,11 @@
+{
+  "schema": "ehs-ux-root-integrate-packet/v1",
+  "packet_id": "PKT-CF-RET-006-DENSITY-E2E",
+  "integrated_at": "2026-07-19T16:27:33Z",
+  "status": "FAIL",
+  "evidence": ".corp-harness/evidence/calm-focus-density-e2e-r1.txt",
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ]
+}

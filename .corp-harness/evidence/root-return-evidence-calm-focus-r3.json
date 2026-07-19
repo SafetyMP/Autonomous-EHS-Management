@@ -1,0 +1,46 @@
+{
+  "schema": "corporate-site-root-evidence/v1",
+  "program_id": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "handoff_digest": "cc77cb694a0d0214b5adbfe18c1e04b72eef9a613b7283c5a5065ff45de646b4",
+  "purpose": "return-work r3 — both-persona density + full visual capture",
+  "prior_ops_fail": ".corp-harness/evidence/operations-calm-focus-r2.json",
+  "root_verify": {
+    "path": ".corp-harness/evidence/root-verify-ux-r2.txt",
+    "exit_code": 0,
+    "note": "still valid after density/visual seed+test changes; product chrome/density fixes already covered"
+  },
+  "density_e2e": {
+    "path": ".corp-harness/evidence/calm-focus-density-e2e-r2.txt",
+    "json": ".corp-harness/evidence/calm-focus-density-visual-r2.json",
+    "result": "PASS",
+    "personas": [
+      "desk_supervisor",
+      "desk_contributor"
+    ],
+    "metrics_in_log": true
+  },
+  "visual": {
+    "path": "evidence/calm-focus-visual-manifest.json",
+    "status": "captured",
+    "capture_log": ".corp-harness/evidence/calm-focus-visual-r2.txt"
+  },
+  "smoke": {
+    "path": ".corp-harness/evidence/calm-focus-smoke-r1.json"
+  },
+  "a11y": {
+    "path": ".corp-harness/evidence/calm-focus-a11y-r1.json"
+  },
+  "touch": {
+    "path": ".corp-harness/evidence/calm-focus-touch-r1.json"
+  },
+  "brand": {
+    "path": "docs/qa/calm-focus-brand-test-checklist.md",
+    "note": "human sign-off still required (UR-CF-007)"
+  },
+  "digests": {
+    "density_log": "4286a8553be1cdbf5d3a97f5cf003a33e1b3673d1b52452d568d31e390da9fba",
+    "visual_log": "f82616d3deda8d79529700a8592890a33e003b88f00fb14ea871fbd07ea58836",
+    "visual_manifest": "584a2c6e7c338cf2a77981952bd02b101ec154470258866aee5ab2290eb2c4ae"
+  }
+}

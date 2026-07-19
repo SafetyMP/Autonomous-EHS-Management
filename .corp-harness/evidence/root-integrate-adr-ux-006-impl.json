@@ -1,0 +1,37 @@
+{
+  "schema": "ehs-ux-root-integrate-packet/v1",
+  "program_id": "ehs-ux",
+  "packet_id": "PKT-CF-006-IMPL",
+  "adr_id": "ADR-UX-006",
+  "residual_closed": [
+    "RR-CF-006"
+  ],
+  "integrated_at": "2026-07-19T16:12:01Z",
+  "source_worktree": "/Users/sagehart/Downloads/Autonomous EHS Management System /.worktrees/calm-focus-006-impl",
+  "specialist_agent": "d6d1c758-2683-411b-aae7-7cbbad44332b",
+  "verify_exit_codes": {
+    "vitest_density_cohesion": 0,
+    "npm_run_verify": 0,
+    "scripts_verify_sh": 0
+  },
+  "content_sha256": {
+    "src/components/dashboard/dashboard-kpi-tile.tsx": "012f8cd145823a7fefd337b71a3b16fb5f494602f411c1310f6c96eeecfeb8f0",
+    "src/components/dashboard/command-center-desk-view.tsx": "8408960f5b1e9e107d397e912b0d8eee4463a3658373c2463b9435808f5f039d",
+    "src/components/dashboard/dashboard-action-queue-hero.tsx": "6d960f153a52d532fbc6939f2cf0aca679041afe318e0e7c17892a5298f8ee1c",
+    "src/components/dashboard/dashboard-field-launcher.tsx": "f4a2a83a855e69b2c1c21f65e25d51ada474ee6e4ebb30bdb58c067bda05d19d",
+    "src/components/dashboard/kpi-disclosure-preference.ts": "4a19062be8f2e066462957b8b50ee6a27be77869ade6d74d702c9cce427245fa",
+    "tests/unit/dashboard/density-ceiling.test.ts": "432eb466d7406cb3ae01aadc72a1d507e359a1adf483bab8b68dd32a4885310d",
+    "tests/unit/dashboard/cohesion.test.ts": "81a44a937c7ad627e1dbbb905c7e2ac8b53bc348daab9e99f5c14ce9d6c40c44",
+    ".corp-harness/evidence/calm-focus-006-impl-verify.txt": "d85e90a36909c1ef9fc28c9dd0ef0496cc93a84a3142decd35888dac75462318"
+  },
+  "status": "integrated",
+  "honest_gaps": [
+    "Playwright/CDP \u226412-control evidence at 1440\u00d7900 not in this packet",
+    "density e2e must use storage-cleared context (UR-CF-010)"
+  ],
+  "next": "await PKT-CF-007-IMPL integrate then root verify + operations",
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ]
+}

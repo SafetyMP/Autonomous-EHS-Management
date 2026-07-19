@@ -1,0 +1,65 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> ehs@0.1.0 test:e2e:smoke
+> playwright test tests/e2e --grep @smoke
+
+◇ injected env (0) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 31 tests using 4 workers
+
+(node:4461) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+(node:4460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4458) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+  ✓   2 [chromium] › tests/e2e/auth/incident-intake.spec.ts:18:7 › authenticated incident intake › @smoke submits minimal incident from new form (9.0s)
+  ✓   1 [chromium] › tests/e2e/auth/inspection-intake.spec.ts:14:7 › authenticated inspection intake › @smoke creates minimal inspection from new form (9.4s)
+  ✓   3 [chromium] › tests/e2e/auth/environmental-permit-intake.spec.ts:14:7 › authenticated environmental regulatory permit intake › @smoke submits minimal environmental permit from new form (9.9s)
+  ✓   4 [chromium] › tests/e2e/auth/contractor-credential-intake.spec.ts:14:7 › authenticated contractor credential intake › @smoke creates external party and adds COI credential (12.2s)
+  ✓   7 [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:14:7 › authenticated risk assessment intake (planning) › @smoke planning hub links to risk assessment roster (3.2s)
+  ✓   5 [chromium] › tests/e2e/auth/observation-intake.spec.ts:15:7 › authenticated observation intake › @smoke submits minimal observation from new form (4.7s)
+  ✓   6 [chromium] › tests/e2e/auth/observation-intake.spec.ts:28:7 › authenticated observation intake › @smoke observation detail shows follow-up SLA controls (4.6s)
+  ✓  11 [chromium] › tests/e2e/smoke/contextsync-rest-auth.spec.ts:8:7 › Context Sync REST gate (@smoke) › @smoke rejects anonymous artifacts list (132ms)
+  ✓  12 [chromium] › tests/e2e/smoke/contextsync-rest-auth.spec.ts:19:7 › Context Sync REST gate (@smoke) › @smoke rejects anonymous spoofed X-Agent-Class / X-Actor-Id (99ms)
+  ✓  13 [chromium] › tests/e2e/smoke/cron-data-retention.spec.ts:4:7 › cron data-retention auth › @smoke rejects unauthenticated requests (108ms)
+  ✓  14 [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:4:7 › cron metrics (Prometheus exposition) › @smoke rejects unauthenticated metrics scrape (375ms)
+  ✓   9 [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:7:5 › @smoke skip link targets main landmark on marketing home (1.6s)
+  ✓  15 [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:11:7 › cron metrics (Prometheus exposition) › @smoke returns Prometheus text when CRON_SECRET is set (116ms)
+  ✓  10 [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:18:5 › @smoke sign-in exposes main landmark (1.4s)
+  ✓  16 [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:3:5 › @smoke dashboard requires auth (6.2s)
+  ✓  17 [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:12:5 › @smoke deep dashboard path preserves callbackUrl for return after login (6.1s)
+  ✓  18 [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:20:5 › @smoke analytics route preserves callbackUrl for return after login (5.8s)
+  ✓  20 [chromium] › tests/e2e/smoke/integration-inbound-auth.spec.ts:8:7 › Integration inbound gate (@smoke) › @smoke rejects anonymous POST to integration inbound (206ms)
+  ✓   8 [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:30:7 › authenticated risk assessment intake (roster) › @smoke records minimal risk assessment from roster new form (10.1s)
+  ✓  19 [chromium] › tests/e2e/smoke/home.spec.ts:3:5 › @smoke home page loads (1.4s)
+  -  23 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:95:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox persistent status region with conflict row + device-loss copy
+  ✓  22 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:87:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox flag=0 does not show outbox status chrome (3.8s)
+  ✓  21 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:71:7 › offline dashboard banner (@smoke when creds set) › @smoke shows offline notice when navigator is offline (4.1s)
+  ✓  26 [chromium] › tests/e2e/smoke/scim-auth.spec.ts:7:7 › SCIM auth gate (@smoke) › @smoke rejects anonymous SCIM Users list (385ms)
+  ✓  27 [chromium] › tests/e2e/smoke/sign-in.spec.ts:3:5 › @smoke sign-in page shows form (1.4s)
+  ✓  25 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:163:7 › field outbox status region (@smoke|outbox|touch) › @smoke header uses safe-area inset padding (4.1s)
+  ✓  24 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:140:7 › field outbox status region (@smoke|outbox|touch) › @smoke @touch field launcher primary and incident submit ≥44px (4.4s)
+(node:4758) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+  ✓  28 [chromium] › tests/e2e/smoke/signed-in-dashboard.spec.ts:17:7 › authenticated dashboard (@smoke when creds set) › @smoke reaches dashboard after sign-in (1.9s)
+(node:4759) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+(node:4762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ override existing { override: true }
+  ✓  29 [core-spine] › tests/e2e/smoke/core-spine-approvals-decide.spec.ts:18:7 › core spine approvals decide (@smoke) › @smoke CAPA plan approval decide path (3.6s)
+  ✓  30 [core-spine] › tests/e2e/smoke/core-spine-audit-trail.spec.ts:18:7 › core spine audit trail (@smoke) › @smoke audit-trail list shows mutation row and CSV export (4.0s)
+  ✓  31 [core-spine] › tests/e2e/smoke/core-spine-capa-lifecycle.spec.ts:18:7 › core spine CAPA lifecycle (@smoke) › @smoke CAPA planned → verified with incident source link (5.1s)
+
+  1 skipped
+  30 passed (38.2s)

@@ -1,0 +1,39 @@
+{
+  "schema": "ehs-ux-root-integrate-packet/v1",
+  "packet_id": "PKT-CF-RET-007-A11Y-VISUAL-TOUCH",
+  "adr_id": "ADR-UX-007",
+  "integrated_at": "2026-07-19T16:41:34Z",
+  "specialist_agent": "65ca3130-cfa8-4a22-b9fa-11410d107248",
+  "source_worktree": "/Users/sagehart/Downloads/Autonomous EHS Management System /.worktrees/calm-focus-007-impl",
+  "status": "integrated",
+  "acceptance_disposition": {
+    "AC-CF-A001": "PASS_EVIDENCED",
+    "AC-CF-V010": "PARTIAL_EVIDENCED",
+    "AC-CF-A004": "PASS_EVIDENCED",
+    "AC-CF-A005": "PASS_EVIDENCED",
+    "AC-CF-A006": "PASS_EVIDENCED"
+  },
+  "honest_gaps": [
+    "desk_contributor_today_collapsed visual digest remains placeholder (no contributor CI seed)",
+    "UR-CF-007 brand test needs named human reviewer",
+    "density e2e AC-CF-D005 still open on sibling return packet"
+  ],
+  "manifest_status": "partial_capture",
+  "content_sha256": {
+    "tests/e2e/a11y/desk-today.a11y.spec.ts": "a75eedbcfe425d042c6dcc1319e8c64762349bac55b92deec0ab15396dc7ac86",
+    "tests/e2e/visual/calm-focus-surfaces.visual.spec.ts": "2c1659c620df68e2ba3ae198fc0d36bf020c8050ee2fb3bf7d0426ce458af875",
+    "tests/e2e/smoke/calm-focus-touch.spec.ts": "737138d671de7ee1ae53df025ff928e37f35910d265aa966d9dde1144236bbdf",
+    "docs/qa/calm-focus-visual-a11y-gates.md": "2868ab3e842dba89c86acc353a4116c78024785b4cc2febf62ead8370e95b95f",
+    "evidence/calm-focus-visual-manifest.json": "b6b8608cd5028cb84448522b21541975b28e8af038cae47508d7cf25695ac799",
+    ".corp-harness/evidence/calm-focus-a11y-r1.txt": "3575c56399c2ad02e04fd872bb09a2bccbb21c96af2622a14fb10f0c83d63348",
+    ".corp-harness/evidence/calm-focus-touch-r1.txt": "2846f3f9faa6072a2e57f16a127cb90a70c9fad5300db7111c97429a49dd5ed2",
+    ".corp-harness/evidence/calm-focus-visual-r1.txt": "76cd71dd4cd2d08528216df70ca1c7cbf5dd173780a5bf1f531bc9b0f6a03f97",
+    "evidence/visual/desk_supervisor_today_collapsed.png": "5db5ff7f96f228e2e7300b1077d4df9dfd04d5325c0f2856697e1601304010f8",
+    "evidence/visual/field_today.png": "6ec22723aca6baa14b6f88df21842a0f3988051dfad1f1a06c5b545c47e75f10",
+    "evidence/visual/desk_supervisor_today_kpi_expanded.png": "0dd4d5121fe14490a09cf117ced146b628fb365ba0ea77d62a54ad65d1ee4011"
+  },
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ]
+}

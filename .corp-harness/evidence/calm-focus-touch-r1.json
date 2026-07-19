@@ -1,0 +1,15 @@
+{
+  "schema": "ehs-ux-touch-attempt/v1",
+  "program_id": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "produced_at": "2026-07-19T16:24:29Z",
+  "source_log": ".corp-harness/evidence/calm-focus-smoke-r1b.txt",
+  "source_sha256": "aaacba7ded2dbe49c82b729a058f256ec677b0a2c92732ca2b9731c03e54d3fe",
+  "observed": "@smoke @touch field launcher primary and incident submit \u226544px PASSED; safe-area header PASSED",
+  "status": "PASS",
+  "maps_to": [
+    "AC-CF-A004",
+    "G-CF-TOUCH",
+    "AC-CF-A005"
+  ]
+}

@@ -1,0 +1,94 @@
+# PKT-CF-RET-006-DENSITY-E2E — calm-focus density e2e evidence (r1)
+# ADR: docs/adr/ADR-UX-006-progressive-disclosure-today-home.md
+# Gates: G-CF-DENSITY-KPI-HIDDEN (AC-CF-D004), G-CF-DENSITY-TODAY (AC-CF-D005)
+# Worktree: .worktrees/calm-focus-006-impl
+# Date: 2026-07-19
+
+## Spec / wiring
+
+- Added: tests/e2e/density/calm-focus-today-density.spec.ts (@density)
+- Helpers: tests/e2e/density/helpers/credentials.ts
+           tests/e2e/density/helpers/interactive-controls.ts
+- Playwright project `density` (testMatch **/density/**/*.spec.ts);
+  chromium testIgnore includes **/density/** so suite is not folded into @smoke.
+- Run: npx playwright test --project=density
+  Alt path: npx playwright test tests/e2e/density
+- Measurement method (AC-CF-D005): Playwright page.evaluate over #main-content
+  with ADR-UX-006 §7 selector; excludes closed <details> descendants,
+  display:none / visibility:hidden, aria-hidden. Documented in helper.
+- UR-CF-010: clearClientStorageForFirstVisit (localStorage/sessionStorage clear)
+  after auth, then reload /dashboard?view=desk before measuring.
+
+## Commands + exit codes
+
+### 1) Path check
+```
+test -f tests/e2e/density/calm-focus-today-density.spec.ts
+```
+exit=0
+
+### 2) Unit density ceiling (must not weaken)
+```
+npx vitest run tests/unit/dashboard/density-ceiling.test.ts
+```
+exit=0  (16 passed)
+
+### 3) DB migrate (prerequisite for signed-in e2e)
+```
+npm run db:migrate   # DATABASE_URL from .env.ci → postgresql://ci@127.0.0.1:5432/ehs_ci
+```
+exit=1
+blocker: extension "vector" is not available on local Homebrew postgresql@15
+  (missing /opt/homebrew/opt/postgresql@15/share/postgresql@15/extension/vector.control)
+note: worktree docker-compose blocked by guard-shell (ALLOW_WORKTREE_COMPOSE); parent merge path owns stack.
+
+### 4) DB seed CI
+```
+npm run db:seed:ci
+```
+exit=1
+blocker: relation "user" does not exist (migrate never applied)
+
+### 5) Playwright density — credentials present but no FORCE/CI (honest skip)
+```
+unset PLAYWRIGHT_E2E_FORCE
+npx playwright test --project=density --reporter=list
+```
+exit=0
+result: 1 skipped (hasE2eCredentials requires CI=true|1 or PLAYWRIGHT_E2E_FORCE=1)
+
+### 6) Playwright density — forced attempt (honest FAIL; not a density PASS)
+```
+export PLAYWRIGHT_E2E_FORCE=1
+# .env.ci supplies PLAYWRIGHT_E2E_EMAIL / PASSWORD
+npx playwright test --project=density --reporter=list
+```
+exit=1
+result: 1 failed — sign-in stayed on /sign-in (30s timeout); seeded e2e user unavailable
+  because migrate/seed failed. This is NOT evidence that density ceilings failed;
+  auth/DB prerequisite missing. Do not treat as AC-CF-D004/D005 PASS.
+
+### 7) npm run verify
+```
+npm run verify
+```
+exit=0  (lint + tsc + vitest 87 files / 422 tests)
+
+## Verdict for AC-CF-D004 / AC-CF-D005
+
+status: NOT_CLOSED
+e2e_ran: attempted_forced_FAIL_auth; skip_without_force_OK
+density_assertions_executed: false
+blocker: local Postgres lacks pgvector; cannot migrate/seed CI e2e user in this worktree;
+  signed-in density measurement not obtainable without parent-root Docker/pgvector stack
+  or CI job with PLAYWRIGHT_E2E_* after db:migrate + db:seed:ci.
+
+recommended_transition: remain_SITE_DELIVERY_return_owning_adrs
+  (re-run --project=density on migrated+seeded stack / CI to close G-CF-DENSITY-*)
+
+## Forbidden checks (honored)
+
+- Did not weaken density unit tests
+- Did not mark operations / site_verify PASS
+- Did not fabricate e2e PASS
+- Did not edit corporate artifacts

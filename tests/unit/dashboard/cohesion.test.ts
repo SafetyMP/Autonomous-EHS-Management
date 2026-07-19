@@ -254,5 +254,12 @@ describe("shell composition + tokens + honesty (ADR-UX-002)", () => {
       expect(readSrc(page)).toMatch(/ModuleMaturityBanner/);
     }
   });
+
+  it("preserves #dash-kpis smoke / cohesion anchors (AC-CF-D008)", () => {
+    const desk = readSrc("src/components/dashboard/command-center-desk-view.tsx");
+    expect(desk).toMatch(/id=["']dash-kpis["']/);
+    expect(desk).toMatch(/data-section=["']kpis["']/);
+    expect(desk).toMatch(/<details[\s\S]{0,240}id=["']dash-kpis["']/);
+  });
 });
 

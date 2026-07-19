@@ -1,0 +1,10 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+ RUN  v4.1.10 /Users/sagehart/Downloads/Autonomous EHS Management System 
+
+
+ Test Files  2 passed (2)
+      Tests  31 passed (31)
+   Start at  11:16:07
+   Duration  246ms (transform 97ms, setup 150ms, import 59ms, tests 20ms, environment 0ms)
+

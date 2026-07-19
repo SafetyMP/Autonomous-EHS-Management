@@ -1,0 +1,16 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+◇ injected env (0) from .env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 2 tests using 1 worker
+
+
+(node:21591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+◇ injected env (0) from .env.ci // tip: ⌘ override existing { override: true }
+
+[1/2] [visual] › tests/e2e/visual/calm-focus-surfaces.visual.spec.ts:71:7 › Calm Focus visual evidence scaffold @visual › @visual manifest lists four canonical surfaces with sha256
+[2/2] [visual] › tests/e2e/visual/calm-focus-surfaces.visual.spec.ts:103:3 › Calm Focus visual evidence scaffold @visual › @visual screenshot capture + manifest digests (PLAYWRIGHT_VISUAL=1)
+  2 passed (36.8s)

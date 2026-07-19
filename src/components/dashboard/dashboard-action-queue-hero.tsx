@@ -6,6 +6,9 @@ import type { AppRouter } from "@/server/trpc/root";
 
 type ActionQueueOut = inferRouterOutputs<AppRouter>["tasks"]["actionQueue"];
 
+/** AC-CF-D001: ≤3 emphasized queue rows before “View all”. */
+const MAX_EMPHASIZED_QUEUE_ROWS = 3;
+
 function formatDueLabel(dueAt: string | null, isOverdue: boolean): string {
   if (!dueAt) return "";
   const due = new Date(dueAt);
@@ -19,6 +22,7 @@ function PrimaryCard({ item }: { item: NonNullable<ActionQueueOut["primary"]> })
   return (
     <div
       data-stress-action-region="today-queue-row"
+      data-emphasized-queue-row
       className={`rounded-xl border-2 bg-surface p-4 shadow-sm ${
         item.isOverdue ? "border-warning bg-warning-surface/50" : "border-primary-soft-border/40"
       }`}
@@ -31,7 +35,7 @@ function PrimaryCard({ item }: { item: NonNullable<ActionQueueOut["primary"]> })
         </p>
       ) : null}
       <div className="mt-4">
-        {/* AC-004: exactly one filled primary CTA in this action region */}
+        {/* AC-004 / AC-CF-D001: exactly one filled primary CTA in this action region */}
         <Link href={item.href} className="btn-primary touch-target">
           {item.ctaLabel} →
         </Link>
@@ -64,12 +68,16 @@ export function DashboardActionQueueHero({
   }
 
   const primary = queue?.primary;
-  const secondary = queue?.items.slice(1) ?? [];
+  const secondaryAll = queue?.items.slice(1) ?? [];
+  const secondaryVisible = secondaryAll.slice(0, Math.max(0, MAX_EMPHASIZED_QUEUE_ROWS - 1));
+  const emphasizedCount = (primary ? 1 : 0) + secondaryVisible.length;
   const total = queue?.totalCount ?? 0;
+  const hasMoreBeyondCeiling = total > emphasizedCount;
 
   return (
     <section
       aria-labelledby="your-work-heading"
+      data-section="action-queue"
       className="rounded-xl border border-border bg-surface p-4 shadow-sm sm:p-6"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -101,14 +109,18 @@ export function DashboardActionQueueHero({
             <PrimaryCard item={primary} />
           </div>
 
-          {secondary.length > 0 ? (
+          {secondaryVisible.length > 0 ? (
             <div>
               <p className="mb-2 text-sm font-medium text-text-muted">
-                {total > 1 ? `${total - 1} more item${total - 1 === 1 ? "" : "s"}` : null}
+                {hasMoreBeyondCeiling
+                  ? `${total - 1} more item${total - 1 === 1 ? "" : "s"}`
+                  : secondaryVisible.length === 1
+                    ? "1 more item"
+                    : `${secondaryVisible.length} more items`}
               </p>
               <ul className="divide-y divide-border rounded-lg border border-border" role="list">
-                {secondary.map((item) => (
-                  <li key={item.id}>
+                {secondaryVisible.map((item) => (
+                  <li key={item.id} data-emphasized-queue-row>
                     <Link
                       href={item.href}
                       className="flex min-h-11 touch-target flex-col gap-0.5 px-3 py-3 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:flex-row sm:items-center sm:justify-between"
@@ -122,6 +134,18 @@ export function DashboardActionQueueHero({
                 ))}
               </ul>
             </div>
+          ) : null}
+
+          {hasMoreBeyondCeiling ? (
+            <p className="text-sm text-text-muted">
+              Showing {emphasizedCount} of {total}.{" "}
+              <Link
+                href="/dashboard/tasks"
+                className="font-medium text-primary underline underline-offset-2"
+              >
+                View all
+              </Link>
+            </p>
           ) : null}
         </div>
       )}

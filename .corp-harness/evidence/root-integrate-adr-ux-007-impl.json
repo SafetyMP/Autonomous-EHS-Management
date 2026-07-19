@@ -1,0 +1,41 @@
+{
+  "schema": "ehs-ux-root-integrate-packet/v1",
+  "program_id": "ehs-ux",
+  "packet_id": "PKT-CF-007-IMPL",
+  "adr_id": "ADR-UX-007",
+  "residual_closed": [
+    "RR-CF-001"
+  ],
+  "integrated_at": "2026-07-19T16:14:35Z",
+  "source_worktree": "/Users/sagehart/Downloads/Autonomous EHS Management System /.worktrees/calm-focus-007-impl",
+  "specialist_agent": "92c1691d-ad69-433c-b717-35917afef05e",
+  "verify_exit_codes_claimed_by_specialist": {
+    "npm_run_verify": 0,
+    "scripts_verify_sh": 0,
+    "check_wcag3": 0,
+    "claim_lint": 0
+  },
+  "content_sha256": {
+    "src/components/dashboard/module-maturity-banner.tsx": "e5e21a00c161af6170807a842b9a145fc14d2f7f1ca68036acb80d0d88b60958",
+    "src/app/globals.css": "68fb603fe078867bb8ba5ff0dab9549af3029414244d7d38ba6a7e78fed47c98",
+    "scripts/check-wcag3-claims.sh": "8e6972cf94ff763070cd0af2b1d41e83d69a728439fafa9adca7c2df27ef8ed5",
+    "scripts/claim-lint.mjs": "3989fef1b35dcde77941668fe33b19dcf178d8ae41ab84a4746a329e139db2bf",
+    "tests/unit/lifecycle/claim-lint.test.ts": "8ecfe655c2ad924e34a181b6dffae63b7298f1c24cb3e977c15b023fbd891525",
+    "tests/e2e/visual/calm-focus-surfaces.visual.spec.ts": "ea4c9ea1c2b8c198c1c4cd16ed09fcf60a60c57a09646826768ffb4dad9de9c4",
+    ".github/workflows/ci.yml": "ea3c9f71fe6157fdca3560665bb77127c251804b68d69d63397e15d272a4817b",
+    "docs/qa/calm-focus-visual-a11y-gates.md": "112af57d7ee1662cb73dfc16a31d51bedc1069601072881503ab5843e150a0f8",
+    "evidence/calm-focus-visual-manifest.json": "281a4f22d3094852b9943005f031eb9b91f5c015f5e27ba69c489c0158367a57",
+    ".corp-harness/evidence/calm-focus-007-impl-verify.txt": "fbbe34cfa962ce693aa104df5e2acf5007aec1e3c3277250892a0508e1265918"
+  },
+  "status": "integrated",
+  "honest_gaps": [
+    "axe @a11y not re-run at root yet",
+    "visual manifest digests are placeholders",
+    "G-CF-BRAND-TEST needs human reviewer (UR-CF-007)"
+  ],
+  "next": "root ./scripts/verify.sh then operations-excellence",
+  "gates_not_marked": [
+    "site_verify",
+    "operations"
+  ]
+}

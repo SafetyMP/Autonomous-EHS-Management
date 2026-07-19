@@ -1,0 +1,19 @@
+{
+  "schema": "ehs-ux-a11y-attempt/v1",
+  "program_id": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "produced_at": "2026-07-19T16:26:54Z",
+  "command": "PLAYWRIGHT_E2E_FORCE=1 CI=true npm run test:e2e:a11y",
+  "exit_code": 0,
+  "parsed_passed": 10,
+  "parsed_failed": null,
+  "log": ".corp-harness/evidence/calm-focus-a11y-r1.txt",
+  "log_sha256": "9d08139640aee06e148ad6ec9d81602479cc0469bcf5c5645e2f8da00d51cea6",
+  "db": "ehs-cf-return-pg:5435",
+  "status": "PASS",
+  "maps_to": [
+    "AC-CF-A001",
+    "G-CF-A11Y-AXE"
+  ],
+  "token_adjustment": "--primary #0f766e; nav-rail-label uses --nav-rail-text (return from axe FAIL)"
+}

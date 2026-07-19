@@ -1,0 +1,502 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> ehs@0.1.0 test:e2e:smoke
+> playwright test tests/e2e --grep @smoke
+
+◇ injected env (13) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 31 tests using 4 workers
+
+(node:98310) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98313) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+◇ injected env (0) from .env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+  ✘   3 [chromium] › tests/e2e/auth/incident-intake.spec.ts:18:7 › authenticated incident intake › @smoke submits minimal incident from new form (1ms)
+  ✘   1 [chromium] › tests/e2e/auth/environmental-permit-intake.spec.ts:14:7 › authenticated environmental regulatory permit intake › @smoke submits minimal environmental permit from new form (6ms)
+  ✘   2 [chromium] › tests/e2e/auth/inspection-intake.spec.ts:14:7 › authenticated inspection intake › @smoke creates minimal inspection from new form (5ms)
+  ✘   4 [chromium] › tests/e2e/auth/contractor-credential-intake.spec.ts:14:7 › authenticated contractor credential intake › @smoke creates external party and adds COI credential (1ms)
+(node:98346) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+◇ injected env (0) from .env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+(node:98349) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+  ✘   5 [chromium] › tests/e2e/auth/observation-intake.spec.ts:28:7 › authenticated observation intake › @smoke observation detail shows follow-up SLA controls (1ms)
+  ✘   6 [chromium] › tests/e2e/auth/observation-intake.spec.ts:15:7 › authenticated observation intake › @smoke submits minimal observation from new form (2ms)
+  ✘   7 [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:14:7 › authenticated risk assessment intake (planning) › @smoke planning hub links to risk assessment roster (1ms)
+  ✘   8 [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:30:7 › authenticated risk assessment intake (roster) › @smoke records minimal risk assessment from roster new form (1ms)
+(node:98373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98374) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+(node:98376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+  ✘   9 [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:7:5 › @smoke skip link targets main landmark on marketing home (2ms)
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+  ✘  10 [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:18:5 › @smoke sign-in exposes main landmark (1ms)
+  ✓  11 [chromium] › tests/e2e/smoke/contextsync-rest-auth.spec.ts:19:7 › Context Sync REST gate (@smoke) › @smoke rejects anonymous spoofed X-Agent-Class / X-Actor-Id (434ms)
+(node:98379) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [chromium] › tests/e2e/smoke/contextsync-rest-auth.spec.ts:8:7 › Context Sync REST gate (@smoke) › @smoke rejects anonymous artifacts list (427ms)
+(node:98381) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ override existing { override: true }
+  ✘  14 [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:3:5 › @smoke dashboard requires auth (0ms)
+◇ injected env (0) from .env.ci // tip: ⌘ override existing { override: true }
+  ✘  13 [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:11:7 › cron metrics (Prometheus exposition) › @smoke returns Prometheus text when CRON_SECRET is set (94ms)
+  ✓  15 [chromium] › tests/e2e/smoke/cron-data-retention.spec.ts:4:7 › cron data-retention auth › @smoke rejects unauthenticated requests (89ms)
+  ✓  16 [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:4:7 › cron metrics (Prometheus exposition) › @smoke rejects unauthenticated metrics scrape (87ms)
+  ✘  17 [chromium] › tests/e2e/smoke/home.spec.ts:3:5 › @smoke home page loads (1ms)
+  ✓  18 [chromium] › tests/e2e/smoke/integration-inbound-auth.spec.ts:8:7 › Integration inbound gate (@smoke) › @smoke rejects anonymous POST to integration inbound (97ms)
+  ✘  19 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:87:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox flag=0 does not show outbox status chrome (0ms)
+(node:98394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+(node:98396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+  ✘  20 [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:12:5 › @smoke deep dashboard path preserves callbackUrl for return after login (10ms)
+  ✘  21 [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:20:5 › @smoke analytics route preserves callbackUrl for return after login (7ms)
+(node:98397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+  ✘  22 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:71:7 › offline dashboard banner (@smoke when creds set) › @smoke shows offline notice when navigator is offline (2ms)
+(node:98398) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+  ✘  23 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:95:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox persistent status region with conflict row + device-loss copy (1ms)
+(node:98404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+(node:98406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  24 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:140:7 › field outbox status region (@smoke|outbox|touch) › @smoke @touch field launcher primary and incident submit ≥44px (2ms)
+◇ injected env (0) from .env.ci // tip: ⌘ override existing { override: true }
+(node:98408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  25 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:163:7 › field outbox status region (@smoke|outbox|touch) › @smoke header uses safe-area inset padding (1ms)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+  ✓  26 [chromium] › tests/e2e/smoke/scim-auth.spec.ts:7:7 › SCIM auth gate (@smoke) › @smoke rejects anonymous SCIM Users list (86ms)
+(node:98409) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+  ✘  27 [chromium] › tests/e2e/smoke/sign-in.spec.ts:3:5 › @smoke sign-in page shows form (1ms)
+(node:98416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+(node:98425) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ override existing { override: true }
+  ✘  28 [chromium] › tests/e2e/smoke/signed-in-dashboard.spec.ts:17:7 › authenticated dashboard (@smoke when creds set) › @smoke reaches dashboard after sign-in (1ms)
+  ✘  29 [core-spine] › tests/e2e/smoke/core-spine-approvals-decide.spec.ts:18:7 › core spine approvals decide (@smoke) › @smoke CAPA plan approval decide path (2ms)
+(node:98439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+  ✘  30 [core-spine] › tests/e2e/smoke/core-spine-audit-trail.spec.ts:18:7 › core spine audit trail (@smoke) › @smoke audit-trail list shows mutation row and CSV export (1ms)
+(node:98446) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+  ✘  31 [core-spine] › tests/e2e/smoke/core-spine-capa-lifecycle.spec.ts:18:7 › core spine CAPA lifecycle (@smoke) › @smoke CAPA planned → verified with incident source link (1ms)
+
+
+  1) [chromium] › tests/e2e/auth/contractor-credential-intake.spec.ts:14:7 › authenticated contractor credential intake › @smoke creates external party and adds COI credential 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-contractor-credential-d049e-rty-and-adds-COI-credential-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/auth/environmental-permit-intake.spec.ts:14:7 › authenticated environmental regulatory permit intake › @smoke submits minimal environmental permit from new form 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-environmental-permit--c5728-mental-permit-from-new-form-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/auth/incident-intake.spec.ts:18:7 › authenticated incident intake › @smoke submits minimal incident from new form 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-incident-intake-authe-d0f1d-imal-incident-from-new-form-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/auth/inspection-intake.spec.ts:14:7 › authenticated inspection intake › @smoke creates minimal inspection from new form 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-inspection-intake-aut-16cdf-al-inspection-from-new-form-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/auth/observation-intake.spec.ts:15:7 › authenticated observation intake › @smoke submits minimal observation from new form 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-observation-intake-au-593ac-l-observation-from-new-form-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/auth/observation-intake.spec.ts:28:7 › authenticated observation intake › @smoke observation detail shows follow-up SLA controls 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-observation-intake-au-cf1d8-hows-follow-up-SLA-controls-chromium/error-context.md
+
+  7) [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:14:7 › authenticated risk assessment intake (planning) › @smoke planning hub links to risk assessment roster 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-risk-assessment-intak-4076c-s-to-risk-assessment-roster-chromium/error-context.md
+
+  8) [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:30:7 › authenticated risk assessment intake (roster) › @smoke records minimal risk assessment from roster new form 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/auth-risk-assessment-intak-6857f-ssment-from-roster-new-form-chromium/error-context.md
+
+  9) [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:7:5 › @smoke skip link targets main landmark on marketing home 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-a11y-shell--smoke-sk-27d2f--landmark-on-marketing-home-chromium/error-context.md
+
+  10) [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:18:5 › @smoke sign-in exposes main landmark ──
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-a11y-shell--smoke-sign-in-exposes-main-landmark-chromium/error-context.md
+
+  11) [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:11:7 › cron metrics (Prometheus exposition) › @smoke returns Prometheus text when CRON_SECRET is set 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 503
+
+      22 |       headers: { Authorization: `Bearer ${secret}` },
+      23 |     });
+    > 24 |     expect(res.status()).toBe(200);
+         |                          ^
+      25 |     const text = await res.text();
+      26 |     expect(text).toContain("ehs_cron_job_last_run_timestamp_seconds");
+      27 |     expect(text).toContain('job="reminders"');
+        at /Users/sagehart/Downloads/Autonomous EHS Management System /tests/e2e/smoke/cron-metrics.spec.ts:24:26
+
+    Error Context: test-results/smoke-cron-metrics-cron-me-06b88-ext-when-CRON-SECRET-is-set-chromium/error-context.md
+
+  12) [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:3:5 › @smoke dashboard requires auth ─────
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-dashboard-gate--smoke-dashboard-requires-auth-chromium/error-context.md
+
+  13) [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:12:5 › @smoke deep dashboard path preserves callbackUrl for return after login 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-dashboard-gate--smok-ef144-kUrl-for-return-after-login-chromium/error-context.md
+
+  14) [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:20:5 › @smoke analytics route preserves callbackUrl for return after login 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-dashboard-gate--smok-211de-kUrl-for-return-after-login-chromium/error-context.md
+
+  15) [chromium] › tests/e2e/smoke/home.spec.ts:3:5 › @smoke home page loads ───────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-home--smoke-home-page-loads-chromium/error-context.md
+
+  16) [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:71:7 › offline dashboard banner (@smoke when creds set) › @smoke shows offline notice when navigator is offline 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-offline-dashboard-ba-80eac-e-when-navigator-is-offline-chromium/error-context.md
+
+  17) [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:87:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox flag=0 does not show outbox status chrome 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-offline-dashboard-ba-9b594-t-show-outbox-status-chrome-chromium/error-context.md
+
+  18) [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:95:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox persistent status region with conflict row + device-loss copy 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-offline-dashboard-ba-9d75c-nflict-row-device-loss-copy-chromium/error-context.md
+
+  19) [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:140:7 › field outbox status region (@smoke|outbox|touch) › @smoke @touch field launcher primary and incident submit ≥44px 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-offline-dashboard-ba-5288e-y-and-incident-submit-≥44px-chromium/error-context.md
+
+  20) [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:163:7 › field outbox status region (@smoke|outbox|touch) › @smoke header uses safe-area inset padding 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-offline-dashboard-ba-73248-ses-safe-area-inset-padding-chromium/error-context.md
+
+  21) [chromium] › tests/e2e/smoke/sign-in.spec.ts:3:5 › @smoke sign-in page shows form ────────────
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-sign-in--smoke-sign-in-page-shows-form-chromium/error-context.md
+
+  22) [chromium] › tests/e2e/smoke/signed-in-dashboard.spec.ts:17:7 › authenticated dashboard (@smoke when creds set) › @smoke reaches dashboard after sign-in 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-signed-in-dashboard--9e412-hes-dashboard-after-sign-in-chromium/error-context.md
+
+  23) [core-spine] › tests/e2e/smoke/core-spine-approvals-decide.spec.ts:18:7 › core spine approvals decide (@smoke) › @smoke CAPA plan approval decide path 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-core-spine-approvals-e19eb-A-plan-approval-decide-path-core-spine/error-context.md
+
+  24) [core-spine] › tests/e2e/smoke/core-spine-audit-trail.spec.ts:18:7 › core spine audit trail (@smoke) › @smoke audit-trail list shows mutation row and CSV export 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-core-spine-audit-tra-f6262-mutation-row-and-CSV-export-core-spine/error-context.md
+
+  25) [core-spine] › tests/e2e/smoke/core-spine-capa-lifecycle.spec.ts:18:7 › core spine CAPA lifecycle (@smoke) › @smoke CAPA planned → verified with incident source link 
+
+    Error: browserType.launch: Executable doesn't exist at /var/folders/d1/65jpkhc16bn91bjd1zmtsp9r0000gn/T/cursor-sandbox-cache/0071a4f756865b4c3b7ffc05538584a9/playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
+
+    Error Context: test-results/smoke-core-spine-capa-life-05395-d-with-incident-source-link-core-spine/error-context.md
+
+  25 failed
+    [chromium] › tests/e2e/auth/contractor-credential-intake.spec.ts:14:7 › authenticated contractor credential intake › @smoke creates external party and adds COI credential 
+    [chromium] › tests/e2e/auth/environmental-permit-intake.spec.ts:14:7 › authenticated environmental regulatory permit intake › @smoke submits minimal environmental permit from new form 
+    [chromium] › tests/e2e/auth/incident-intake.spec.ts:18:7 › authenticated incident intake › @smoke submits minimal incident from new form 
+    [chromium] › tests/e2e/auth/inspection-intake.spec.ts:14:7 › authenticated inspection intake › @smoke creates minimal inspection from new form 
+    [chromium] › tests/e2e/auth/observation-intake.spec.ts:15:7 › authenticated observation intake › @smoke submits minimal observation from new form 
+    [chromium] › tests/e2e/auth/observation-intake.spec.ts:28:7 › authenticated observation intake › @smoke observation detail shows follow-up SLA controls 
+    [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:14:7 › authenticated risk assessment intake (planning) › @smoke planning hub links to risk assessment roster 
+    [chromium] › tests/e2e/auth/risk-assessment-intake.spec.ts:30:7 › authenticated risk assessment intake (roster) › @smoke records minimal risk assessment from roster new form 
+    [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:7:5 › @smoke skip link targets main landmark on marketing home 
+    [chromium] › tests/e2e/smoke/a11y-shell.spec.ts:18:5 › @smoke sign-in exposes main landmark ────
+    [chromium] › tests/e2e/smoke/cron-metrics.spec.ts:11:7 › cron metrics (Prometheus exposition) › @smoke returns Prometheus text when CRON_SECRET is set 
+    [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:3:5 › @smoke dashboard requires auth ───────
+    [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:12:5 › @smoke deep dashboard path preserves callbackUrl for return after login 
+    [chromium] › tests/e2e/smoke/dashboard-gate.spec.ts:20:5 › @smoke analytics route preserves callbackUrl for return after login 
+    [chromium] › tests/e2e/smoke/home.spec.ts:3:5 › @smoke home page loads ─────────────────────────
+    [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:71:7 › offline dashboard banner (@smoke when creds set) › @smoke shows offline notice when navigator is offline 
+    [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:87:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox flag=0 does not show outbox status chrome 
+    [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:95:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox persistent status region with conflict row + device-loss copy 
+    [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:140:7 › field outbox status region (@smoke|outbox|touch) › @smoke @touch field launcher primary and incident submit ≥44px 
+    [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:163:7 › field outbox status region (@smoke|outbox|touch) › @smoke header uses safe-area inset padding 
+    [chromium] › tests/e2e/smoke/sign-in.spec.ts:3:5 › @smoke sign-in page shows form ──────────────
+    [chromium] › tests/e2e/smoke/signed-in-dashboard.spec.ts:17:7 › authenticated dashboard (@smoke when creds set) › @smoke reaches dashboard after sign-in 
+    [core-spine] › tests/e2e/smoke/core-spine-approvals-decide.spec.ts:18:7 › core spine approvals decide (@smoke) › @smoke CAPA plan approval decide path 
+    [core-spine] › tests/e2e/smoke/core-spine-audit-trail.spec.ts:18:7 › core spine audit trail (@smoke) › @smoke audit-trail list shows mutation row and CSV export 
+    [core-spine] › tests/e2e/smoke/core-spine-capa-lifecycle.spec.ts:18:7 › core spine CAPA lifecycle (@smoke) › @smoke CAPA planned → verified with incident source link 
+  6 passed (14.3s)

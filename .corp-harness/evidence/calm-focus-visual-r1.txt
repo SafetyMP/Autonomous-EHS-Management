@@ -1,0 +1,30 @@
+PKT-CF-RET-007-A11Y-VISUAL-TOUCH / AC-CF-V010
+Date: 2026-07-19T16:37:23Z
+Command: PLAYWRIGHT_VISUAL=1 npx playwright test --project=visual --workers=1
+Result: 2 passed / 0 failed — EXIT 0 (capture run)
+Manifest: evidence/calm-focus-visual-manifest.json status=partial_capture
+PNG digests: desk_supervisor_today_collapsed, desk_supervisor_today_kpi_expanded, field_today (sha256 of real PNGs under evidence/visual/)
+Honest gap: desk_contributor_today_collapsed remains placeholder (CI admin seed → desk_supervisor only; no contrib persona user)
+Human brand-test review still required (UR-CF-007 / AC-CF-V006) — not claimed here
+
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+◇ injected env (0) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[WebServer] ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+[WebServer]  We detected multiple lockfiles and selected the directory of /Users/sagehart/Downloads/Autonomous EHS Management System /package-lock.json as the root directory.
+[WebServer]  To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+[WebServer]    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+[WebServer]  Detected additional lockfiles: 
+[WebServer]    * /Users/sagehart/Downloads/Autonomous EHS Management System /.worktrees/calm-focus-007-impl/package-lock.json
+[WebServer] 
+
+Running 2 tests using 1 worker
+
+(node:10162) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+  ✓  1 [visual] › tests/e2e/visual/calm-focus-surfaces.visual.spec.ts:71:7 › Calm Focus visual evidence scaffold @visual › @visual manifest lists four canonical surfaces with sha256 (8ms)
+  ✓  2 [visual] › tests/e2e/visual/calm-focus-surfaces.visual.spec.ts:103:3 › Calm Focus visual evidence scaffold @visual › @visual screenshot capture + manifest digests (PLAYWRIGHT_VISUAL=1) (3.6s)
+
+  2 passed (6.8s)
+EXIT:0

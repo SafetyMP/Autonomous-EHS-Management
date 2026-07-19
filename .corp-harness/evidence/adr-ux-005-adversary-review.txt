@@ -1,0 +1,50 @@
+# ADR-UX-005 site ADR adversary review (design falsification)
+# NOT corporate adversary gate; NOT scripts/adversarial.sh
+
+actor_role: site-adr-adversary
+date: 2026-07-19
+adr_path: docs/adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md
+adr_sha256: 385b541e76d532ace2a592604dd72bff742d01e8e25a14e312622411d939ad80
+corporate_handoff_cycle: calm-focus-gen-1
+verdict: PASS_WITH_NOTES
+gate: G-CF-ADR-001
+implementation_may_proceed_for_this_gate: YES
+  (only with G-CF-ADR-002 and G-CF-ADR-003 also clear — all three clear as of this review)
+
+## Acceptance IDs checked
+- AC-CF-R001 (critical ADR gate) — file exists; fonts; teal/forest hex; five CSS props; forbidden palette; adversary sign-off
+- AC-CF-V001 / V002 — Fraunces + Source Sans 3 / IBM Plex Sans via next/font/google; H1 ≥28px; no CDN/<link>
+- AC-CF-V003 — --primary #0d9488 / --focus #0f766e; --danger/--warning unchanged (#b91c1c / #b45309 match R1 globals.css)
+- AC-CF-V004 — five new properties + @theme inline bridge
+- AC-CF-V005 / V006 — forbidden palette + brand-test heuristics + chrome quietness
+- AC-CF-A002 — contrast table + glare checklist update at impl
+- AC-CF-LEARN002 — LL-1..LL-3 visual rules recorded
+- CR-1 / CR-2 / CR-3 / CR-6 alignment; D-006/D-010 / no WCAG3 / no Plumbing→Core via polish preserved by non-goals and forbidden list
+- Predecessor ADR-UX-002: sole shell + token layer inherited; emerald “frozen” identity correctly overridden per CEO CR-3
+
+## Findings (severity-ranked)
+
+### medium — White-on-teal normal-text hazard (documented, not blocking)
+Computed contrast white (#ffffff) on --primary (#0d9488) ≈ 3.74:1. Meets UI component / large-text ≥3:1; fails normal-text ≥4.5:1.
+ADR already forbids 13px caption use of --primary-fg on teal. Impl must enforce in CTA label sizing (≥14px semibold) and axe color-contrast (AC-CF-A002).
+
+### low — Motion ownership boundary vs ADR-UX-007
+005 may add shared MO-1..MO-3 keyframes with tokens; reduced-motion guards + Playwright motion evidence owned by 007. No MO-4+ allowed. Coordination note only.
+
+### low — UR-CF-007 brand-test reviewer still open
+Not owned by this ADR; G-CF-BRAND-TEST remains blocked until product owner names a human reviewer. Does not block G-CF-ADR-001.
+
+### info — Contrast pairs verified (approx)
+- slate-900 on white ≥12:1; slate-600 muted on white / slate-100 ≥4.5:1
+- teal-600 on slate-50 ≥3:1; teal-700 focus on white ≥5:1
+- teal-600 on slate-800 ≈3.91:1 (passes ≥3:1); teal-400 dark-rail companion still recommended for icon/stripe clarity
+
+## Falsification attempts that did NOT hold
+- Missing CEO font resolution — present (§4)
+- Missing five CSS custom properties — present (§2)
+- Premature Accepted without adversary — was Draft; now Accepted (adversary-reviewed) after this review
+- Conflict with IA freeze / core-spine — explicitly out of scope; shell tree unchanged
+- WCAG 3 claims — explicitly disclaimed
+
+## Disposition
+PASS_WITH_NOTES. G-CF-ADR-001 cleared for Calm Focus pre-implementation sequence step 1.

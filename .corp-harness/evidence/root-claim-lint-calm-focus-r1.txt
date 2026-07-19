@@ -1,0 +1,1 @@
+claim-lint: ok — 0 banned phrases in 4 buyer-facing docs (ADR-S-001, R-005).

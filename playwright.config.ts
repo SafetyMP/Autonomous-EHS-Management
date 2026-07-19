@@ -24,7 +24,12 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testIgnore: ["**/smoke/core-spine-*.spec.ts", "**/a11y/**"],
+      testIgnore: [
+        "**/smoke/core-spine-*.spec.ts",
+        "**/a11y/**",
+        "**/density/**",
+        "**/visual/**",
+      ],
       use: { ...devices["Desktop Chrome"] },
     },
     /**
@@ -44,6 +49,26 @@ export default defineConfig({
     {
       name: "a11y",
       testMatch: "**/a11y/**/*.spec.ts",
+      use: { ...devices["Desktop Chrome"] },
+    },
+    /**
+     * Calm Focus density suite (ADR-UX-006 / AC-CF-D004 / AC-CF-D005).
+     * Invoked separately — not part of default `@smoke` grep.
+     * `npx playwright test --project=density` or path `tests/e2e/density`.
+     */
+    {
+      name: "density",
+      testMatch: "**/density/**/*.spec.ts",
+      use: { ...devices["Desktop Chrome"] },
+    },
+    /**
+     * Calm Focus visual digest suite (ADR-UX-007 / AC-CF-V010).
+     * Invoked separately — not part of default `@smoke` grep.
+     * `npx playwright test --project=visual` or `npx playwright test tests/e2e/visual`.
+     */
+    {
+      name: "visual",
+      testMatch: "**/visual/**/*.spec.ts",
       use: { ...devices["Desktop Chrome"] },
     },
   ],

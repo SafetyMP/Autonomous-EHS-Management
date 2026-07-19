@@ -1,0 +1,27 @@
+{
+  "schema": "corporate-site-root-evidence/v1",
+  "program_id": "ehs-ux",
+  "cycle": "calm-focus-gen-1",
+  "handoff_digest": "cc77cb694a0d0214b5adbfe18c1e04b72eef9a613b7283c5a5065ff45de646b4",
+  "purpose": "return-work r4 — human brand sign-off UR-CF-007",
+  "prior_ops_fail": ".corp-harness/evidence/operations-calm-focus-r3.json",
+  "brand": {
+    "path": "docs/qa/calm-focus-brand-test-checklist.md",
+    "sha256": "5d24f8eb2bcdcc84780bd03ed5cbf8c476c73b8c8264360f7efeb98d5b41b389",
+    "verdict": "PASS",
+    "reviewer": "User (product owner)",
+    "date": "2026-07-19",
+    "authorization": "Explicit user message in site-delivery session: User marks pass."
+  },
+  "retained_pass_evidence": [
+    ".corp-harness/evidence/root-return-evidence-calm-focus-r3.json",
+    ".corp-harness/evidence/calm-focus-density-e2e-r2.txt",
+    ".corp-harness/evidence/calm-focus-visual-r2.txt",
+    "evidence/calm-focus-visual-manifest.json",
+    ".corp-harness/evidence/calm-focus-smoke-r1.json",
+    ".corp-harness/evidence/calm-focus-a11y-r1.txt",
+    ".corp-harness/evidence/calm-focus-touch-r1.json",
+    ".corp-harness/evidence/root-verify-ux-r2.txt",
+    ".corp-harness/evidence/root-verify-ux-r3.txt"
+  ]
+}

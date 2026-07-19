@@ -9,8 +9,9 @@ import { DashboardShell } from "@/components/dashboard-shell";
  */
 export function DashboardChrome({ children }: { children: React.ReactNode }) {
   return (
-    <div data-dashboard-shell="chrome" className="flex min-h-full flex-col bg-background">
-      <div className="shrink-0 border-b border-border bg-surface-muted/90 px-3 py-2 md:px-4 md:py-2">
+    <div data-dashboard-shell="chrome" data-theme-scope="calm" className="flex min-h-full flex-col bg-background">
+      {/* Quiet chrome strip — no hero gradient (ADR-UX-005 / AC-CF-V006) */}
+      <div className="shrink-0 border-b border-border bg-surface-muted px-3 py-2 md:px-4 md:py-2">
         <div className="mx-auto max-w-[90rem]">
           <PwaInstallHint />
         </div>

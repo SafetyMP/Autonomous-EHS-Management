@@ -1,0 +1,24 @@
+{
+  "schema": "ehs-ux-root-integrate-packet/v1",
+  "program_id": "ehs-ux",
+  "packet_id": "PKT-CF-ADR-006-AUTHOR",
+  "adr_id": "ADR-UX-006",
+  "integrated_at": "2026-07-19T15:55:51Z",
+  "source_worktree": "/Users/sagehart/Downloads/Autonomous EHS Management System /.worktrees/adr-ux-006",
+  "artifact_path": "docs/adr/ADR-UX-006-progressive-disclosure-today-home.md",
+  "content_sha256": "faf56057da7403812799d0eb7a8e39c9046ef70356cecaf4362019ef7bd38dd1",
+  "packet_verify_exit_codes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "status": "integrated_draft_for_review",
+  "pre_implementation_hold": true,
+  "next": "await ADR-UX-005/007 authoring then PKT-CF-ADR-ADVERSARY-REVIEW",
+  "gates_not_marked": [
+    "site_verify",
+    "operations",
+    "G-CF-ADR-002"
+  ]
+}

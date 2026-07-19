@@ -1,0 +1,50 @@
+PKT-CF-007-IMPL / ADR-UX-007 — site-specialist verification evidence
+Date: 2026-07-19
+Branch: site/calm-focus-007-impl
+Worktree: .worktrees/calm-focus-007-impl
+
+## Commands (required packet gates)
+
+```
+test -f scripts/check-wcag3-claims.sh
+# exit 0
+
+./scripts/check-wcag3-claims.sh
+# check-wcag3-claims: ok — 0 WCAG 3 conformance verbs in 391 files (RR-CF-001 / AC-CF-A003).
+# exit 0
+
+node scripts/claim-lint.mjs
+# claim-lint: ok — 0 banned phrases in 4 buyer-facing docs (ADR-S-001, R-005).
+# exit 0
+
+rg -n "check-wcag3|wcag3" .github/workflows/ci.yml scripts/claim-lint.mjs scripts/check-wcag3-claims.sh
+# matches in all three (CI step + --wcag3 mode + shell wrapper)
+# exit 0
+
+rg -n 'role="note"|role=.note' src/components/dashboard/module-maturity-banner.tsx
+# role="note" present on banner root
+# exit 0
+
+npm run verify
+# lint + tsc + vitest: 86 files / 408 tests passed
+# exit 0
+
+./scripts/verify.sh
+# verify: ok + threat-model ok
+# exit 0
+```
+
+## Optional lanes (honest status)
+
+- `npx playwright test tests/e2e/visual` — exit 0 (1 passed manifest contract, 1 skipped capture without PLAYWRIGHT_VISUAL=1). Chromium browsers not fully installed for capture in this environment.
+- `npm run test:e2e:a11y` — NOT run in this packet (requires Playwright browsers + signed-in seed). Do not claim axe PASS.
+- Screenshot digests in `evidence/calm-focus-visual-manifest.json` are placeholder sha256 of `placeholder:<surface_id>` (`digest_kind: placeholder`). Not real PNG captures.
+- G-CF-BRAND-TEST / UR-CF-007 remains open (named human reviewer).
+- `playwright.config.ts` visual named project not in packet write set; CI invokes path `tests/e2e/visual` after a11y. Remaining: add `visual` project + chromium `testIgnore` in a follow-up write-set expansion.
+
+## Deliverables
+
+- ModuleMaturityBanner Calm Focus restyle + long-body `<details data-maturity-disclosure>` (chrome + tier summary always visible)
+- RR-CF-001: `scripts/check-wcag3-claims.sh` + `claim-lint.mjs --wcag3` + CI verify step
+- Visual scaffold: `tests/e2e/visual/**` + manifest contract
+- Motion: maturity-banner reduced-motion guard; no MO-4+

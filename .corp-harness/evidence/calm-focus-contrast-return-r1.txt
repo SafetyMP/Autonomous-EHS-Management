@@ -1,0 +1,14 @@
+PKT-CF-RET-005-CONTRAST (return from operations-calm-focus-r1 / a11y FAIL)
+Date: 2026-07-19
+Owning ADR: ADR-UX-005
+
+Findings (axe serious):
+1. text-primary / links: #0d9488 on #ffffff ≈3.74:1 (need 4.5:1)
+2. .nav-rail-label: #64748b on #1e293b ≈3.07:1
+3. soft CTA text: #0d9488 on #f0fdfa ≈3.59:1
+
+Fix in src/app/globals.css:
+- --primary/#0f766e, --primary-hover/#115e59, --primary-soft-border/#0f766e
+- .nav-rail-label color: var(--nav-rail-text) (#94a3b8, ≥5.7:1 on rail)
+
+Re-run evidence: calm-focus-a11y-r1.txt / .json
