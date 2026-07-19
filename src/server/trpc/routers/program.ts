@@ -12,7 +12,9 @@ import {
   managementCertificate,
   managementOfChange,
   measurementRecord,
+  mocChangeTriggerEnum,
   mocEntityLink,
+  mocStatusEnum,
 } from "@/server/db/schema";
 import { writeAuditLog } from "@/server/services/audit";
 import { assertSiteInOrg } from "../assertOrgScoped";
@@ -20,6 +22,8 @@ import { orgScope } from "../schemas/orgScope";
 import { protectedMutation, protectedProcedure, router } from "../init";
 
 const partyTypes = externalPartyTypeEnum.enumValues as [string, ...string[]];
+const mocStatuses = mocStatusEnum.enumValues as [string, ...string[]];
+const mocTriggers = mocChangeTriggerEnum.enumValues as [string, ...string[]];
 
 export const programRouter = router({
   listExternalParties: protectedProcedure.input(orgScope).query(async ({ ctx, input }) => {
@@ -180,6 +184,11 @@ export const programRouter = router({
         description: z.string().min(1).max(50_000),
         ohSafetyImpact: z.boolean().optional(),
         environmentalImpactFlag: z.boolean().optional(),
+        changeTrigger: z.enum(mocTriggers).optional().nullable(),
+        aspectsReviewed: z.boolean().optional(),
+        obligationsReviewed: z.boolean().optional(),
+        controlsUpdated: z.boolean().optional(),
+        postImplementationReviewDue: z.coerce.date().optional().nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -193,6 +202,12 @@ export const programRouter = router({
             description: input.description,
             ohSafetyImpact: input.ohSafetyImpact ?? false,
             environmentalImpactFlag: input.environmentalImpactFlag ?? false,
+            changeTrigger: (input.changeTrigger ??
+              null) as (typeof mocChangeTriggerEnum.enumValues)[number] | null,
+            aspectsReviewed: input.aspectsReviewed ?? false,
+            obligationsReviewed: input.obligationsReviewed ?? false,
+            controlsUpdated: input.controlsUpdated ?? false,
+            postImplementationReviewDue: input.postImplementationReviewDue ?? null,
           })
           .returning();
         if (row) {
@@ -205,6 +220,133 @@ export const programRouter = router({
             payload: { title: input.title },
           });
         }
+        return row;
+      });
+    }),
+
+  updateMOC: protectedMutation
+    .input(
+      orgScope.extend({
+        mocId: z.string().uuid(),
+        title: z.string().min(2).max(512).optional(),
+        description: z.string().min(1).max(50_000).optional(),
+        ohSafetyImpact: z.boolean().optional(),
+        environmentalImpactFlag: z.boolean().optional(),
+        changeTrigger: z.enum(mocTriggers).optional().nullable(),
+        aspectsReviewed: z.boolean().optional(),
+        obligationsReviewed: z.boolean().optional(),
+        controlsUpdated: z.boolean().optional(),
+        postImplementationReviewDue: z.coerce.date().optional().nullable(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.MOC_WRITE);
+
+      const [existing] = await ctx.db
+        .select()
+        .from(managementOfChange)
+        .where(
+          and(
+            eq(managementOfChange.id, input.mocId),
+            eq(managementOfChange.organizationId, input.organizationId),
+          ),
+        )
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "MOC not found." });
+      }
+
+      return ctx.db.transaction(async (tx) => {
+        const [row] = await tx
+          .update(managementOfChange)
+          .set({
+            title: input.title ?? existing.title,
+            description: input.description ?? existing.description,
+            ohSafetyImpact:
+              input.ohSafetyImpact !== undefined ? input.ohSafetyImpact : existing.ohSafetyImpact,
+            environmentalImpactFlag:
+              input.environmentalImpactFlag !== undefined
+                ? input.environmentalImpactFlag
+                : existing.environmentalImpactFlag,
+            changeTrigger:
+              input.changeTrigger !== undefined
+                ? (input.changeTrigger as (typeof mocChangeTriggerEnum.enumValues)[number] | null)
+                : existing.changeTrigger,
+            aspectsReviewed:
+              input.aspectsReviewed !== undefined
+                ? input.aspectsReviewed
+                : existing.aspectsReviewed,
+            obligationsReviewed:
+              input.obligationsReviewed !== undefined
+                ? input.obligationsReviewed
+                : existing.obligationsReviewed,
+            controlsUpdated:
+              input.controlsUpdated !== undefined
+                ? input.controlsUpdated
+                : existing.controlsUpdated,
+            postImplementationReviewDue:
+              input.postImplementationReviewDue !== undefined
+                ? input.postImplementationReviewDue
+                : existing.postImplementationReviewDue,
+            updatedAt: new Date(),
+          })
+          .where(eq(managementOfChange.id, input.mocId))
+          .returning();
+
+        await writeAuditLog(tx, {
+          organizationId: input.organizationId,
+          actorUserId: ctx.user.id,
+          action: "moc.update",
+          entityType: "management_of_change",
+          entityId: input.mocId,
+          payload: {},
+        });
+        return row;
+      });
+    }),
+
+  updateMOCStatus: protectedMutation
+    .input(
+      orgScope.extend({
+        mocId: z.string().uuid(),
+        status: z.enum(mocStatuses),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await assertPermission(ctx.db, ctx.user.id, input.organizationId, PERMISSIONS.MOC_WRITE);
+
+      const [existing] = await ctx.db
+        .select()
+        .from(managementOfChange)
+        .where(
+          and(
+            eq(managementOfChange.id, input.mocId),
+            eq(managementOfChange.organizationId, input.organizationId),
+          ),
+        )
+        .limit(1);
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "MOC not found." });
+      }
+
+      return ctx.db.transaction(async (tx) => {
+        const [row] = await tx
+          .update(managementOfChange)
+          .set({
+            status: input.status as (typeof mocStatusEnum.enumValues)[number],
+            updatedAt: new Date(),
+          })
+          .where(eq(managementOfChange.id, input.mocId))
+          .returning();
+
+        await writeAuditLog(tx, {
+          organizationId: input.organizationId,
+          actorUserId: ctx.user.id,
+          action: "moc.update_status",
+          entityType: "management_of_change",
+          entityId: input.mocId,
+          payload: { from: existing.status, to: input.status },
+        });
         return row;
       });
     }),

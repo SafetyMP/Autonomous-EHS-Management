@@ -5,12 +5,18 @@ import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
   dfControl,
+  dfHelperXs,
   dfLabel,
   dfMuted,
   dfPrimarySubmit,
   dfSecondaryOutline,
   dfSectionHeading,
 } from "@/lib/dashboard-field-styles";
+import {
+  ISO14001_ENVIRONMENTAL_CONDITIONS,
+  ISO14001_ENVIRONMENTAL_CONDITION_LABELS,
+  type Iso14001EnvironmentalCondition,
+} from "@/lib/regulatory/iso14001EnvironmentalConditions";
 import { trpc } from "@/trpc/react";
 
 const issueKinds = ["internal", "external"] as const;
@@ -48,13 +54,21 @@ export default function ContextPage() {
   const [issueKind, setIssueKind] = useState<(typeof issueKinds)[number]>("internal");
   const [issueCat, setIssueCat] = useState("");
   const [issueDesc, setIssueDesc] = useState("");
+  const [envTags, setEnvTags] = useState<Iso14001EnvironmentalCondition[]>([]);
   const createIssue = trpc.context.createIssue.useMutation({
     onSuccess: () => {
       void utils.context.listIssues.invalidate();
       setIssueCat("");
       setIssueDesc("");
+      setEnvTags([]);
     },
   });
+
+  function toggleEnvTag(tag: Iso14001EnvironmentalCondition) {
+    setEnvTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  }
 
   const [partyName, setPartyName] = useState("");
   const [partyReq, setPartyReq] = useState("");
@@ -80,7 +94,9 @@ export default function ContextPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold">Organization context (Clause 4)</h1>
-          <p className={dfMuted}>Scope, issues, and interested parties</p>
+          <p className={dfMuted}>
+            Scope, issues, and interested parties — ISO 14001:2026 environmental conditions supported
+          </p>
         </div>
         <OrgSwitcher />
       </div>
@@ -99,6 +115,10 @@ export default function ContextPage() {
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="space-y-4 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
           <h2 className={dfSectionHeading}>Internal / external issues</h2>
+          <p className={dfHelperXs}>
+            ISO 14001:2026 expects documented consideration of climate, biodiversity, ecosystem
+            health, pollution, and natural resources.
+          </p>
           <form
             className="space-y-3"
             onSubmit={(e) => {
@@ -108,6 +128,7 @@ export default function ContextPage() {
                 kind: issueKind,
                 category: issueCat,
                 description: issueDesc,
+                environmentalConditionTags: envTags,
               });
             }}
           >
@@ -122,11 +143,34 @@ export default function ContextPage() {
             </select>
             <input
               required
-              placeholder="Category (e.g. climate, workforce)"
+              placeholder="Category (e.g. workforce, supply chain)"
               className={dfControl}
               value={issueCat}
               onChange={(e) => setIssueCat(e.target.value)}
             />
+            <fieldset>
+              <legend className={dfLabel}>Environmental conditions (ISO 14001:2026)</legend>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {ISO14001_ENVIRONMENTAL_CONDITIONS.map((tag) => {
+                  const selected = envTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      className={`min-h-11 rounded-md border px-3 text-sm ${
+                        selected
+                          ? "border-emerald-700 bg-emerald-50 text-emerald-950"
+                          : "border-zinc-300 bg-white text-zinc-800"
+                      }`}
+                      aria-pressed={selected}
+                      onClick={() => toggleEnvTag(tag)}
+                    >
+                      {ISO14001_ENVIRONMENTAL_CONDITION_LABELS[tag]}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
             <textarea
               required
               rows={3}
@@ -152,6 +196,19 @@ export default function ContextPage() {
                 <li key={i.id} className="py-3">
                   <span className="font-semibold capitalize text-zinc-900">{i.kind}</span>
                   <span className="text-zinc-800"> · {i.category}</span>
+                  {(i.environmentalConditionTags?.length ?? 0) > 0 ? (
+                    <p className={`mt-1 ${dfHelperXs}`}>
+                      {i.environmentalConditionTags
+                        .map((t) =>
+                          t in ISO14001_ENVIRONMENTAL_CONDITION_LABELS
+                            ? ISO14001_ENVIRONMENTAL_CONDITION_LABELS[
+                                t as Iso14001EnvironmentalCondition
+                              ]
+                            : t,
+                        )
+                        .join(" · ")}
+                    </p>
+                  ) : null}
                   <p className="mt-1 text-sm text-zinc-800">{i.description}</p>
                 </li>
               ))

@@ -37,8 +37,14 @@ Relative to named enterprise suites ([Intelex](https://www.gartner.com/reviews/m
 **Still critical (table stakes vs enterprise suites)**
 
 - **Deep RCA and investigation methodology** — Fishbone, gated 5 Whys, TapRooT-class tooling and guided investigation UX are **market-expected** at enterprise tier; the repo centers on lifecycle + evidence, not specialized RCA product ([ROADMAP.md](../ROADMAP.md), [architecture-map.md](./architecture-map.md)).
-- **Agency-formatted regulatory filing** — OSHA agency export remains **placeholder**; blocks “replace legacy for submissions” narratives until counsel-defined scope ships ([ROADMAP.md](../ROADMAP.md) barriers table, [COMPLIANCE.md](../COMPLIANCE.md)).
+- **Agency-formatted regulatory filing** — OSHA agency export remains **placeholder**; Tier2 Submit / EPA e-filing still **not claimed** — HCS 2024 / EPCRA 2027 hazard categories and Heat NEP Appendix I aids are **programme-of-record only** ([COMPLIANCE.md](../COMPLIANCE.md), [ROADMAP.md](../ROADMAP.md) barriers).
 - **Workflow configurability** — Incumbents sell **no-code/low-code process design**; this repo encodes transitions in code ([`src/lib/workflow/`](../src/lib/workflow/))—good for auditability, weaker for “make it match our 40-year procedure” RFPs without engineering.
+
+**July 2026 regulatory signals (partially closed in-repo)**
+
+- **Heat NEP (CPL 03-00-024)** — Programme self-audit checklist + condition logs narrow the “no heat story” gap vs OH-heavy suites; still not Cal/OSHA rule automation or a final federal heat standard.
+- **EPCRA ↔ OSHA HCS 2024** — Hazard class+category fields + Plumbing chemicals UI prepare for RY2027 reporting; agency submission remains customer-owned.
+- **ISO 14001:2026** — Context environmental-condition tags, aspect climate/biodiversity flags, and MOC Clause 6.3 planning fields support transition evidence; not CB certification.
 
 **Partially addressed — gap narrows; buyer ask shifts**
 

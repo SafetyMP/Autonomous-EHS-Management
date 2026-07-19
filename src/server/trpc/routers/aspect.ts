@@ -40,6 +40,9 @@ export const aspectRouter = router({
         description: z.string().max(20_000).optional(),
         environmentalImpact: z.string().max(20_000).optional(),
         significance: z.enum(significances),
+        climateRelevant: z.boolean().optional(),
+        biodiversityRelevant: z.boolean().optional(),
+        lifecyclePerspectiveNote: z.string().max(20_000).optional().nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -80,6 +83,9 @@ export const aspectRouter = router({
             description: input.description ?? null,
             environmentalImpact: input.environmentalImpact ?? null,
             significance: input.significance as (typeof aspectSignificanceEnum.enumValues)[number],
+            climateRelevant: input.climateRelevant ?? false,
+            biodiversityRelevant: input.biodiversityRelevant ?? false,
+            lifecyclePerspectiveNote: input.lifecyclePerspectiveNote ?? null,
           })
           .returning();
 
@@ -113,6 +119,9 @@ export const aspectRouter = router({
         environmentalImpact: z.string().max(20_000).optional().nullable(),
         significance: z.enum(significances).optional(),
         siteId: z.string().uuid().optional().nullable(),
+        climateRelevant: z.boolean().optional(),
+        biodiversityRelevant: z.boolean().optional(),
+        lifecyclePerspectiveNote: z.string().max(20_000).optional().nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -172,6 +181,18 @@ export const aspectRouter = router({
                 : existing.environmentalImpact,
             significance: (input.significance ??
               existing.significance) as (typeof aspectSignificanceEnum.enumValues)[number],
+            climateRelevant:
+              input.climateRelevant !== undefined
+                ? input.climateRelevant
+                : existing.climateRelevant,
+            biodiversityRelevant:
+              input.biodiversityRelevant !== undefined
+                ? input.biodiversityRelevant
+                : existing.biodiversityRelevant,
+            lifecyclePerspectiveNote:
+              input.lifecyclePerspectiveNote !== undefined
+                ? input.lifecyclePerspectiveNote
+                : existing.lifecyclePerspectiveNote,
             updatedAt: new Date(),
           })
           .where(eq(environmentalAspect.id, input.aspectId))

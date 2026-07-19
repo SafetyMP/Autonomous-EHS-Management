@@ -27,7 +27,9 @@ Pilot success criteria should use **program-of-record** language. Do not contrac
 | **Observations / inspections / PTW** | Yes — operational programme | No — not OSHA injury logs | Leading indicators and hazardous-work authorization |
 | **Environmental regulatory permits** | Yes — register (metadata, conditions, renewals) | **No** — not agency filing | Distinct from PTW (`work_permit`) |
 | **Risk assessments / JSA** | Yes — governed register + steps | No — not bowtie/LOPA / mandated study format | Pilot validation vs Velocity/Intelex depth |
-| **Tier II / chemical inventory** | Schema + compliance router; UI gated | **No** — not EPA submission system | Customer submits to agencies |
+| **Tier II / chemical inventory** | Schema + compliance router; Plumbing UI with hazard categories | **No** — not EPA submission / Tier2 Submit | Customer submits to agencies; HCS 2024–aligned classes are programme fields only |
+| **Heat NEP program aid** | Yes — Appendix I checklist + optional condition logs | **No** — not a federal heat standard determination | Inspection-readiness programme aid; Cal/OSHA heat rules remain customer/counsel scope |
+| **ISO 14001:2026 EMS transition aids** | Yes — context tags, aspect flags, MOC 6.3 fields | N/A — not a certification body | Programme evidence for transition; CB audits stay external |
 | **Training records** | Yes — proof of completion (incl. LMS ingest) | N/A | Not a full LMS |
 | **Contractor credentials** | Yes — metadata, expiry, renewal queue | N/A | Not VMS / site access control |
 | **DSAR / privacy** | Intake + policy surfaces | **No** — not automated erasure/export | [DSAR_PROCESS.md](./DSAR_PROCESS.md) |
@@ -56,6 +58,9 @@ Pilot success criteria should use **program-of-record** language. Do not contrac
 | “Program register for environmental permit renewals” | “Agency-ready environmental permit filing” |
 | “OSHA-oriented sidecar for internal analytics” | “OSHA electronic submission” |
 | “Tier II–oriented chemical inventory for programme management” | “EPA Tier II system of record” |
+| “HCS 2024–aligned hazard classes for programme inventory” | “Tier2 Submit / EPA e-filing system” |
+| “Heat NEP self-audit checklist (program aid)” | “Meets OSHA heat standard” / “Cal/OSHA heat compliant out of the box” |
+| “ISO 14001:2026-style EMS transition programme aids” | “ISO 14001:2026 certified by this software” |
 | “Governance-aligned DSAR intake” | “GDPR-compliant automated erasure” |
 
 ---

@@ -103,7 +103,10 @@ export default function PlanningPage() {
         <div>
           <h1 className="text-xl font-semibold">Planning hub</h1>
           <p className={dfMuted}>
-            Hazards, objectives, and operational controls — linked to risk assessments and environment.
+            Hazards, objectives, and operational controls — linked to risk assessments and environment.{" "}
+            <Link href="/dashboard/heat-program" className="font-medium text-emerald-900 underline">
+              Heat NEP program aid
+            </Link>
           </p>
         </div>
         <OrgSwitcher />

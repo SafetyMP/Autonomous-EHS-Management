@@ -232,6 +232,13 @@
       "when": 1779634800000,
       "tag": "0032_integration_inbound_secret",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1784433873825,
+      "tag": "0033_military_mandarin",
+      "breakpoints": true
     }
   ]
 }

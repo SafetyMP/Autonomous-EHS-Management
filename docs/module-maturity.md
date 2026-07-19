@@ -5,12 +5,12 @@ Engineering and sales alignment for what is **Core** (fully operable), **Connect
 | Tier | Meaning | Examples |
 |------|---------|----------|
 | **Core** | Full workflow, audit trail, UAT coverage | Incidents, CAPA (register + detail + source traceability), inspections, approvals, audit trail |
-| **Connected** | Dashboard UI and links into core spine | Risk assessments roster, env monitoring, consultation records, RAG corpus, incident→CAPA, **assurance hub**, **emergency prep**, **MOC register**, grouped lifecycle navigation, **PortCo identity (SCIM/OIDC JIT)**, **HRIS/LMS inbound**, contractor renewal queue |
-| **Plumbing** | Backend/integration only — banner in UI where exposed | DSAR automation, OSHA agency filing, Tier II inventory UI, native Workday OAuth |
+| **Connected** | Dashboard UI and links into core spine | Risk assessments roster, env monitoring, consultation records, RAG corpus, incident→CAPA, **assurance hub**, **emergency prep**, **MOC register** (incl. ISO 14001:2026 Clause 6.3 fields), **Heat NEP program aid**, Context environmental-condition tags, grouped lifecycle navigation, **PortCo identity (SCIM/OIDC JIT)**, **HRIS/LMS inbound**, contractor renewal queue |
+| **Plumbing** | Backend/integration only — banner in UI where exposed | DSAR automation, OSHA agency filing, **Chemical inventory / EPCRA hazard categories** (`/dashboard/chemicals`), native Workday OAuth |
 
 **Gated (no nav / explicit banner):**
 
-- Chemical inventory (Tier II) — schema only until UI ships
+- Chemical inventory (Tier II) — Plumbing UI with maturity banner; not Core; not EPA filing
 - DSAR — intake on Privacy; see `docs/DSAR_PROCESS.md`
 - OSHA agency export — scaffold on Retention; not filing-ready
 
