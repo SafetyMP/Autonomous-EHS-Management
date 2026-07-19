@@ -9,9 +9,25 @@ export type ProductHighlight = {
 };
 
 /** Bump when the dismissible banner should reappear for a new release. */
-export const PRODUCT_RELEASE_ID = "2026-05-lifecycle";
+export const PRODUCT_RELEASE_ID = "2026-07-regulatory";
 
 export const PRODUCT_HIGHLIGHTS: readonly ProductHighlight[] = [
+  {
+    id: "heat-nep",
+    title: "Heat NEP program aid",
+    description:
+      "Appendix I–aligned heat illness self-audit and condition logs for inspection readiness—not a federal heat standard.",
+    href: "/dashboard/heat-program",
+    audience: "desk",
+  },
+  {
+    id: "chemical-hazcom",
+    title: "Chemical inventory & HCS hazards",
+    description:
+      "Programme chemical register with EPCRA/HCS 2024 hazard classes—Plumbing UI, not EPA Tier2 Submit.",
+    href: "/dashboard/chemicals",
+    audience: "desk",
+  },
   {
     id: "lifecycle-nav",
     title: "Lifecycle navigation",

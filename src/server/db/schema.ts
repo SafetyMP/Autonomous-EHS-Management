@@ -344,6 +344,11 @@ export const contextIssue = pgTable("context_issue", {
     .references(() => organization.id, { onDelete: "cascade" }),
   kind: contextIssueKindEnum("kind").notNull(),
   category: varchar("category", { length: 128 }).notNull(),
+  /** ISO 14001:2026 Clause 4.1 named environmental conditions (programme tags). */
+  environmentalConditionTags: jsonb("environmental_condition_tags")
+    .$type<string[]>()
+    .notNull()
+    .$defaultFn(() => []),
   description: text("description").notNull(),
   reviewDue: timestamp("review_due", { withTimezone: true, mode: "date" }),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
@@ -984,6 +989,40 @@ export const facilityChemicalInventory = pgTable(
   ],
 );
 
+/** SDS Section 2–style hazard class+category for EPCRA/HCS programme inventory (not filing). */
+export const chemicalHazardClassification = pgTable(
+  "chemical_hazard_classification",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    regulatoryChemicalId: uuid("regulatory_chemical_id").references(() => regulatoryChemical.id, {
+      onDelete: "cascade",
+    }),
+    safetyDataSheetId: uuid("safety_data_sheet_id").references(() => safetyDataSheetRef.id, {
+      onDelete: "set null",
+    }),
+    hazardDomain: varchar("hazard_domain", { length: 16 }).notNull(),
+    hazardClass: varchar("hazard_class", { length: 256 }).notNull(),
+    hazardCategory: varchar("hazard_category", { length: 128 }).notNull(),
+    source: varchar("source", { length: 32 }).notNull().default("manual"),
+    effectiveFrom: timestamp("effective_from", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("chemical_hazard_classification_org_chem_idx").on(
+      t.organizationId,
+      t.regulatoryChemicalId,
+    ),
+  ],
+);
+
 export const correctiveActionStatusEnum = pgEnum("corrective_action_status", [
   "pending_approval",
   "planned",
@@ -1126,9 +1165,10 @@ export const regulatoryChemicalRelations = relations(regulatoryChemical, ({ one,
   }),
   safetyDataSheets: many(safetyDataSheetRef),
   facilityInventories: many(facilityChemicalInventory),
+  hazardClassifications: many(chemicalHazardClassification),
 }));
 
-export const safetyDataSheetRefRelations = relations(safetyDataSheetRef, ({ one }) => ({
+export const safetyDataSheetRefRelations = relations(safetyDataSheetRef, ({ one, many }) => ({
   organization: one(organization, {
     fields: [safetyDataSheetRef.organizationId],
     references: [organization.id],
@@ -1137,6 +1177,7 @@ export const safetyDataSheetRefRelations = relations(safetyDataSheetRef, ({ one 
     fields: [safetyDataSheetRef.regulatoryChemicalId],
     references: [regulatoryChemical.id],
   }),
+  hazardClassifications: many(chemicalHazardClassification),
 }));
 
 export const facilityChemicalInventoryRelations = relations(
@@ -1160,6 +1201,154 @@ export const facilityChemicalInventoryRelations = relations(
     }),
   }),
 );
+
+export const chemicalHazardClassificationRelations = relations(
+  chemicalHazardClassification,
+  ({ one }) => ({
+    organization: one(organization, {
+      fields: [chemicalHazardClassification.organizationId],
+      references: [organization.id],
+    }),
+    chemical: one(regulatoryChemical, {
+      fields: [chemicalHazardClassification.regulatoryChemicalId],
+      references: [regulatoryChemical.id],
+    }),
+    safetyDataSheet: one(safetyDataSheetRef, {
+      fields: [chemicalHazardClassification.safetyDataSheetId],
+      references: [safetyDataSheetRef.id],
+    }),
+  }),
+);
+
+/* ——— Heat NEP program aid (CPL 03-00-024 Appendix I — not a federal heat standard) ——— */
+export const heatProgramCheckStatusEnum = pgEnum("heat_program_check_status", [
+  "not_started",
+  "in_place",
+  "partial",
+  "gap",
+  "not_applicable",
+]);
+
+export const heatIllnessPreventionProgram = pgTable(
+  "heat_illness_prevention_program",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    siteId: uuid("site_id").references(() => site.id, { onDelete: "set null" }),
+    title: varchar("title", { length: 512 }).notNull().default("Heat illness prevention program"),
+    writtenPlanUri: varchar("written_plan_uri", { length: 2048 }),
+    notes: text("notes"),
+    coversOutdoor: boolean("covers_outdoor").notNull().default(true),
+    coversIndoor: boolean("covers_indoor").notNull().default(false),
+    naicsNote: varchar("naics_note", { length: 128 }),
+    checklistVersion: varchar("checklist_version", { length: 64 })
+      .notNull()
+      .default("2026-04-cpl-03-00-024"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("heat_illness_prevention_program_org_site_uniq").on(t.organizationId, t.siteId),
+  ],
+);
+
+export const heatProgramControlCheck = pgTable(
+  "heat_program_control_check",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    programId: uuid("program_id")
+      .notNull()
+      .references(() => heatIllnessPreventionProgram.id, { onDelete: "cascade" }),
+    checkKey: varchar("check_key", { length: 64 }).notNull(),
+    status: heatProgramCheckStatusEnum("status").notNull().default("not_started"),
+    evidenceNotes: text("evidence_notes"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true, mode: "date" }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("heat_program_control_check_program_key_uniq").on(t.programId, t.checkKey),
+    index("heat_program_control_check_org_idx").on(t.organizationId),
+  ],
+);
+
+export const heatConditionLog = pgTable(
+  "heat_condition_log",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    programId: uuid("program_id").references(() => heatIllnessPreventionProgram.id, {
+      onDelete: "set null",
+    }),
+    siteId: uuid("site_id").references(() => site.id, { onDelete: "set null" }),
+    observedAt: timestamp("observed_at", { withTimezone: true, mode: "date" }).notNull(),
+    heatIndexF: doublePrecision("heat_index_f"),
+    wbgtF: doublePrecision("wbgt_f"),
+    source: varchar("source", { length: 128 }),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("heat_condition_log_org_observed_idx").on(t.organizationId, t.observedAt)],
+);
+
+export const heatIllnessPreventionProgramRelations = relations(
+  heatIllnessPreventionProgram,
+  ({ one, many }) => ({
+    organization: one(organization, {
+      fields: [heatIllnessPreventionProgram.organizationId],
+      references: [organization.id],
+    }),
+    site: one(site, {
+      fields: [heatIllnessPreventionProgram.siteId],
+      references: [site.id],
+    }),
+    checks: many(heatProgramControlCheck),
+    conditionLogs: many(heatConditionLog),
+  }),
+);
+
+export const heatProgramControlCheckRelations = relations(heatProgramControlCheck, ({ one }) => ({
+  organization: one(organization, {
+    fields: [heatProgramControlCheck.organizationId],
+    references: [organization.id],
+  }),
+  program: one(heatIllnessPreventionProgram, {
+    fields: [heatProgramControlCheck.programId],
+    references: [heatIllnessPreventionProgram.id],
+  }),
+}));
+
+export const heatConditionLogRelations = relations(heatConditionLog, ({ one }) => ({
+  organization: one(organization, {
+    fields: [heatConditionLog.organizationId],
+    references: [organization.id],
+  }),
+  program: one(heatIllnessPreventionProgram, {
+    fields: [heatConditionLog.programId],
+    references: [heatIllnessPreventionProgram.id],
+  }),
+  site: one(site, {
+    fields: [heatConditionLog.siteId],
+    references: [site.id],
+  }),
+}));
 
 /* ——— ISO emergency preparedness (14001/45001 §8.2) ——— */
 export const emergencyScenario = pgTable("emergency_scenario", {
@@ -1300,6 +1489,11 @@ export const environmentalAspect = pgTable("environmental_aspect", {
   /** Environmental impact(s) — links aspect to “impacts” */
   environmentalImpact: text("environmental_impact"),
   lifecycleStage: aspectLifecycleEnum("lifecycle_stage"),
+  /** Free-text life-cycle perspective note (ISO 14001:2026 programme aid). */
+  lifecyclePerspectiveNote: text("lifecycle_perspective_note"),
+  /** Explicit climate / biodiversity relevance flags (ISO 14001:2026 programme aid). */
+  climateRelevant: boolean("climate_relevant").notNull().default(false),
+  biodiversityRelevant: boolean("biodiversity_relevant").notNull().default(false),
   /** Multi-criteria scores e.g. legal, severity, likelihood, stakeholder — 1–5 */
   significanceCriteria: jsonb("significance_criteria").$type<Record<string, number>>(),
   significance: aspectSignificanceEnum("significance").notNull().default("medium"),
@@ -2558,6 +2752,18 @@ export const mocStatusEnum = pgEnum("moc_status", [
   "closed",
 ]);
 
+/** ISO 14001:2026 Clause 6.3 change trigger (programme aid). */
+export const mocChangeTriggerEnum = pgEnum("moc_change_trigger", [
+  "process",
+  "product",
+  "obligation",
+  "knowledge",
+  "supplier",
+  "organization",
+  "disruption",
+  "other",
+]);
+
 export const managementOfChange = pgTable("management_of_change", {
   id: uuid("id").defaultRandom().primaryKey(),
   organizationId: uuid("organization_id")
@@ -2570,6 +2776,14 @@ export const managementOfChange = pgTable("management_of_change", {
   status: mocStatusEnum("status").notNull().default("draft"),
   ohSafetyImpact: boolean("oh_safety_impact").notNull().default(false),
   environmentalImpactFlag: boolean("environmental_impact_flag").notNull().default(false),
+  changeTrigger: mocChangeTriggerEnum("change_trigger"),
+  aspectsReviewed: boolean("aspects_reviewed").notNull().default(false),
+  obligationsReviewed: boolean("obligations_reviewed").notNull().default(false),
+  controlsUpdated: boolean("controls_updated").notNull().default(false),
+  postImplementationReviewDue: timestamp("post_implementation_review_due", {
+    withTimezone: true,
+    mode: "date",
+  }),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
     .notNull()
     .defaultNow(),

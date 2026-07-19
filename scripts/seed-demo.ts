@@ -14,6 +14,7 @@ import {
   auditFinding,
   cbAuditFinding,
   certificationBodyAudit,
+  chemicalHazardClassification,
   complianceObligation,
   contextIssue,
   controlledDocument,
@@ -36,6 +37,8 @@ import {
   externalParty,
   externalPartyCredential,
   hazard,
+  heatIllnessPreventionProgram,
+  heatProgramControlCheck,
   incident,
   inspection,
   interestedParty,
@@ -55,6 +58,7 @@ import {
   organizationSetupStep,
   ragChunk,
   ragSource,
+  regulatoryChemical,
   riskAssessment,
   riskAssessmentStep,
   safetyObservation,
@@ -1786,7 +1790,7 @@ async function seedContractorsAndProgram(
         organizationId: ctx.orgId,
         certificationBodyName: cbBodyName,
         standardScope:
-          "ISO 45001:2018 + ISO 14001:2015 integrated audit covering main site & North plant (synthetic oversight visit).",
+          "ISO 45001:2018 + ISO 14001:2026 transition programme integrated audit covering main site & North plant (synthetic oversight visit).",
         auditStartDate: daysAgo(120),
         auditEndDate: daysAgo(118),
         outcomeSummary:
@@ -2366,9 +2370,117 @@ async function main() {
 
   await seedRagEvidenceIntegrationsOps(db, { orgId, siteId, userId }, incidentIds);
 
+  await seedJuly2026RegulatoryAids(db, { orgId, siteId });
+
   console.log(
     `Demo seed complete. Sign in as ${email} (use DEMO_MODE quick login or password from env).`,
   );
+}
+
+async function seedJuly2026RegulatoryAids(
+  db: Db,
+  ctx: { orgId: string; siteId: string },
+) {
+  const [existingHeat] = await db
+    .select({ id: heatIllnessPreventionProgram.id })
+    .from(heatIllnessPreventionProgram)
+    .where(eq(heatIllnessPreventionProgram.organizationId, ctx.orgId))
+    .limit(1);
+
+  if (!existingHeat) {
+    const [program] = await db
+      .insert(heatIllnessPreventionProgram)
+      .values({
+        organizationId: ctx.orgId,
+        siteId: ctx.siteId,
+        title: `${DEMO_TITLE_PREFIX}Heat illness prevention — packaging`,
+        notes: "Demo Heat NEP Appendix I programme aid (not a federal heat standard).",
+        coversOutdoor: false,
+        coversIndoor: true,
+        naicsNote: "Demo packaging NAICS note",
+      })
+      .returning({ id: heatIllnessPreventionProgram.id });
+
+    if (program) {
+      await db.insert(heatProgramControlCheck).values([
+        {
+          organizationId: ctx.orgId,
+          programId: program.id,
+          checkKey: "cool_water_access",
+          status: "in_place",
+          evidenceNotes: "Hydration stations on Line 4 (demo).",
+        },
+        {
+          organizationId: ctx.orgId,
+          programId: program.id,
+          checkKey: "acclimatization",
+          status: "partial",
+          evidenceNotes: "New-hire ramp planned; supervisor checklist pending (demo).",
+        },
+      ]);
+    }
+    console.log("Seeded Heat NEP program aid demo rows.");
+  }
+
+  const chemName = `${DEMO_TITLE_PREFIX}Isopropyl alcohol (demo)`;
+  const [existingChem] = await db
+    .select({ id: regulatoryChemical.id })
+    .from(regulatoryChemical)
+    .where(
+      and(
+        eq(regulatoryChemical.organizationId, ctx.orgId),
+        eq(regulatoryChemical.name, chemName),
+      ),
+    )
+    .limit(1);
+
+  if (!existingChem) {
+    const [chem] = await db
+      .insert(regulatoryChemical)
+      .values({
+        organizationId: ctx.orgId,
+        name: chemName,
+        casNumber: "67-63-0",
+        description: "Demo chemical for HCS 2024 / EPCRA 2027 hazard category programme fields.",
+      })
+      .returning({ id: regulatoryChemical.id });
+
+    if (chem) {
+      await db.insert(chemicalHazardClassification).values({
+        organizationId: ctx.orgId,
+        regulatoryChemicalId: chem.id,
+        hazardDomain: "physical",
+        hazardClass: "Flammable liquids",
+        hazardCategory: "Category 2",
+        source: "manual",
+      });
+    }
+    console.log("Seeded chemical + HCS hazard classification demo rows.");
+  }
+
+  const climateIssueCat = `${DEMO_TITLE_PREFIX}climate transition`;
+  const [existingIssue] = await db
+    .select({ id: contextIssue.id })
+    .from(contextIssue)
+    .where(
+      and(
+        eq(contextIssue.organizationId, ctx.orgId),
+        eq(contextIssue.category, climateIssueCat),
+      ),
+    )
+    .limit(1);
+
+  if (!existingIssue) {
+    await db.insert(contextIssue).values({
+      organizationId: ctx.orgId,
+      kind: "external",
+      category: climateIssueCat,
+      environmentalConditionTags: ["climate_change", "natural_resource_availability"],
+      description:
+        "ISO 14001:2026 context consideration for climate and resource availability (demo).",
+    });
+    console.log("Seeded ISO 14001:2026 context environmental condition issue.");
+  }
 }
 
 main().catch((e) => {

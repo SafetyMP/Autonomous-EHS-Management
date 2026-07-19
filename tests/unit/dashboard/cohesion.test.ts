@@ -48,7 +48,9 @@ describe("filterDashboardNavSections", () => {
     });
     expect(filtered.some((s) => s.title === "Administration")).toBe(false);
     const flat = filtered.flatMap((s) => s.items);
-    expect(flat.length).toBeLessThanOrEqual(23);
+    expect(flat.some((i) => i.href === "/dashboard/heat-program")).toBe(true);
+    expect(flat.some((i) => i.href === "/dashboard/chemicals")).toBe(true);
+    expect(flat.length).toBeLessThanOrEqual(28);
   });
 
   it("keeps management system for org admins", () => {

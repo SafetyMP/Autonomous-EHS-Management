@@ -47,8 +47,10 @@ export const DASHBOARD_NAV_SECTIONS: readonly DashboardNavSection[] = [
     ariaLabel: "Planning and environmental compliance",
     items: [
       { href: "/dashboard/planning", label: "Planning hub" },
+      { href: "/dashboard/heat-program", label: "Heat NEP program aid" },
       { href: "/dashboard/risk-assessments", label: "Risk assessments" },
       { href: "/dashboard/environment", label: "Environment" },
+      { href: "/dashboard/chemicals", label: "Chemical inventory" },
     ],
   },
   {

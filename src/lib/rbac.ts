@@ -102,6 +102,8 @@ export const PERMISSIONS = {
   AUDIT_TRAIL_READ: "audit_trail:read",
   CHEMICAL_INVENTORY_READ: "chemical_inventory:read",
   CHEMICAL_INVENTORY_WRITE: "chemical_inventory:write",
+  HEAT_PROGRAM_READ: "heat_program:read",
+  HEAT_PROGRAM_WRITE: "heat_program:write",
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

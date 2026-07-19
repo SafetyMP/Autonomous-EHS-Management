@@ -55,6 +55,9 @@ export default function EnvironmentPage() {
   const [aActivity, setAActivity] = useState("");
   const [aImpact, setAImpact] = useState("");
   const [aSig, setASig] = useState<string>(significances[1] ?? "medium");
+  const [aClimate, setAClimate] = useState(false);
+  const [aBiodiversity, setABiodiversity] = useState(false);
+  const [aLifecycleNote, setALifecycleNote] = useState("");
   const [editAspectId, setEditAspectId] = useState("");
   const [editName, setEditName] = useState("");
   const [editActivity, setEditActivity] = useState("");
@@ -62,6 +65,9 @@ export default function EnvironmentPage() {
   const [editSig, setEditSig] = useState<string>(significances[1] ?? "medium");
   const [editDesc, setEditDesc] = useState("");
   const [editSiteId, setEditSiteId] = useState("");
+  const [editClimate, setEditClimate] = useState(false);
+  const [editBiodiversity, setEditBiodiversity] = useState(false);
+  const [editLifecycleNote, setEditLifecycleNote] = useState("");
   const [oTitle, setOTitle] = useState("");
   const [oType, setOType] = useState("legal");
   const [oRef, setORef] = useState("");
@@ -96,6 +102,9 @@ export default function EnvironmentPage() {
       setAImpact("");
       setADesc("");
       setASiteId("");
+      setAClimate(false);
+      setABiodiversity(false);
+      setALifecycleNote("");
     },
   });
   const updateOb = trpc.obligation.update.useMutation({
@@ -181,7 +190,7 @@ export default function EnvironmentPage() {
   if (!organizationId) {
     return (
       <div className="space-y-4">
-        <h1 className="text-xl font-semibold">Environment (ISO 14001)</h1>
+        <h1 className="text-xl font-semibold">Environment (ISO 14001:2026)</h1>
         <OrgSwitcher />
       </div>
     );
@@ -195,7 +204,7 @@ export default function EnvironmentPage() {
   return (
     <div className="space-y-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">Environment (ISO 14001)</h1>
+        <h1 className="text-xl font-semibold">Environment (ISO 14001:2026)</h1>
         <OrgSwitcher />
       </div>
 
@@ -216,6 +225,9 @@ export default function EnvironmentPage() {
                 environmentalImpact: aImpact || undefined,
                 description: aDesc || undefined,
                 siteId: aSiteId || undefined,
+                climateRelevant: aClimate,
+                biodiversityRelevant: aBiodiversity,
+                lifecyclePerspectiveNote: aLifecycleNote || null,
               });
             }}
           >
@@ -269,6 +281,31 @@ export default function EnvironmentPage() {
                 </option>
               ))}
             </select>
+            <div className="flex flex-wrap gap-4 text-sm">
+              <label className="inline-flex min-h-11 items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={aClimate}
+                  onChange={(e) => setAClimate(e.target.checked)}
+                />
+                Climate-relevant
+              </label>
+              <label className="inline-flex min-h-11 items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={aBiodiversity}
+                  onChange={(e) => setABiodiversity(e.target.checked)}
+                />
+                Biodiversity-relevant
+              </label>
+            </div>
+            <textarea
+              placeholder="Life-cycle perspective note (optional)"
+              rows={2}
+              value={aLifecycleNote}
+              onChange={(e) => setALifecycleNote(e.target.value)}
+              className={dfControl}
+            />
             <button
               type="submit"
               disabled={createAspect.isPending}
@@ -319,6 +356,16 @@ export default function EnvironmentPage() {
                       {siteLabel(a.siteId)}
                     </p>
                   ) : null}
+                  {(a.climateRelevant || a.biodiversityRelevant) ? (
+                    <p className={`mt-1 ${dfHelperXs}`}>
+                      {[
+                        a.climateRelevant ? "climate" : null,
+                        a.biodiversityRelevant ? "biodiversity" : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  ) : null}
                 </li>
               ))
             )}
@@ -340,6 +387,9 @@ export default function EnvironmentPage() {
                   description: editDesc || null,
                   siteId: editSiteId || null,
                   significance: editSig as (typeof significances)[number],
+                  climateRelevant: editClimate,
+                  biodiversityRelevant: editBiodiversity,
+                  lifecyclePerspectiveNote: editLifecycleNote || null,
                 });
               }}
             >
@@ -357,6 +407,9 @@ export default function EnvironmentPage() {
                     setEditDesc(a.description ?? "");
                     setEditSiteId(a.siteId ?? "");
                     setEditSig(a.significance);
+                    setEditClimate(a.climateRelevant);
+                    setEditBiodiversity(a.biodiversityRelevant);
+                    setEditLifecycleNote(a.lifecyclePerspectiveNote ?? "");
                   } else {
                     setEditName("");
                     setEditActivity("");
@@ -364,6 +417,9 @@ export default function EnvironmentPage() {
                     setEditDesc("");
                     setEditSiteId("");
                     setEditSig(significances[1] ?? "medium");
+                    setEditClimate(false);
+                    setEditBiodiversity(false);
+                    setEditLifecycleNote("");
                   }
                 }}
               >
@@ -425,6 +481,31 @@ export default function EnvironmentPage() {
                       </option>
                     ))}
                   </select>
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <label className="inline-flex min-h-11 items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={editClimate}
+                        onChange={(e) => setEditClimate(e.target.checked)}
+                      />
+                      Climate-relevant
+                    </label>
+                    <label className="inline-flex min-h-11 items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={editBiodiversity}
+                        onChange={(e) => setEditBiodiversity(e.target.checked)}
+                      />
+                      Biodiversity-relevant
+                    </label>
+                  </div>
+                  <textarea
+                    placeholder="Life-cycle perspective note"
+                    rows={2}
+                    className={dfControl}
+                    value={editLifecycleNote}
+                    onChange={(e) => setEditLifecycleNote(e.target.value)}
+                  />
                   <button
                     type="submit"
                     disabled={updateAspect.isPending}

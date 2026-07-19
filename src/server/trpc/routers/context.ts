@@ -4,6 +4,10 @@ import { TRPCError } from "@trpc/server";
 import type { Db } from "@/server/db";
 import { PERMISSIONS, assertPermission } from "@/lib/rbac";
 import {
+  ISO14001_ENVIRONMENTAL_CONDITIONS,
+  isIso14001EnvironmentalCondition,
+} from "@/lib/regulatory/iso14001EnvironmentalConditions";
+import {
   contextIssue,
   contextIssueKindEnum,
   interestedParty,
@@ -14,6 +18,15 @@ import { orgScope } from "../schemas/orgScope";
 import { protectedMutation, protectedProcedure, router } from "../init";
 
 const issueKinds = contextIssueKindEnum.enumValues as [string, ...string[]];
+
+const environmentalConditionTagsSchema = z
+  .array(z.string().min(1).max(64))
+  .max(16)
+  .optional()
+  .refine(
+    (tags) => !tags || tags.every((t) => isIso14001EnvironmentalCondition(t)),
+    { message: "Invalid ISO 14001:2026 environmental condition tag." },
+  );
 
 type DbLikeInsert = Pick<Db, "insert">;
 
@@ -174,6 +187,12 @@ export const contextRouter = router({
       .orderBy(desc(contextIssue.updatedAt));
   }),
 
+  environmentalConditionCatalog: protectedProcedure.query(() => ({
+    conditions: ISO14001_ENVIRONMENTAL_CONDITIONS,
+    helper:
+      "ISO 14001:2026 expects documented consideration of climate, biodiversity, ecosystem health, pollution, and natural resources.",
+  })),
+
   createIssue: protectedMutation
     .input(
       orgScope.extend({
@@ -181,6 +200,7 @@ export const contextRouter = router({
         category: z.string().min(1).max(128),
         description: z.string().min(1).max(50_000),
         reviewDue: z.coerce.date().optional(),
+        environmentalConditionTags: environmentalConditionTagsSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -198,6 +218,7 @@ export const contextRouter = router({
             organizationId: input.organizationId,
             kind: input.kind as (typeof contextIssueKindEnum.enumValues)[number],
             category: input.category,
+            environmentalConditionTags: input.environmentalConditionTags ?? [],
             description: input.description,
             reviewDue: input.reviewDue ?? null,
           })
@@ -230,6 +251,7 @@ export const contextRouter = router({
         category: z.string().min(1).max(128).optional(),
         description: z.string().min(1).max(50_000).optional(),
         reviewDue: z.coerce.date().optional().nullable(),
+        environmentalConditionTags: environmentalConditionTagsSchema,
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -262,6 +284,10 @@ export const contextRouter = router({
             category: input.category ?? existing.category,
             description: input.description ?? existing.description,
             reviewDue: input.reviewDue !== undefined ? input.reviewDue : existing.reviewDue,
+            environmentalConditionTags:
+              input.environmentalConditionTags !== undefined
+                ? input.environmentalConditionTags
+                : existing.environmentalConditionTags,
             updatedAt: new Date(),
           })
           .where(eq(contextIssue.id, input.issueId))
