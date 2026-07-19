@@ -4,6 +4,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+# Ensure local bins resolve under corp-harness evidence (sanitized PATH/HOME).
+export PATH="${ROOT}/node_modules/.bin:${PATH}"
 
 if command -v corepack >/dev/null 2>&1; then
   corepack enable >/dev/null 2>&1 || true
