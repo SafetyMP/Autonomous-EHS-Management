@@ -118,7 +118,7 @@ Where licensed:
 | **Dependabot alerts** | PRs filed via [`.github/dependabot.yml`](.github/dependabot.yml). |
 | **Secret scanning + push protection** | Block leaked secrets. |
 | **CodeQL** ([`codeql-analysis.yml`](.github/workflows/codeql-analysis.yml)) | SAST complement to `eslint`/`tsc`; pin the **`Analyze`** job in branch rulesets if it should gate merges once Advanced Security is available. |
-| **OpenSSF Scorecard** ([`scorecard.yml`](.github/workflows/scorecard.yml)) | Weekly and push supply-chain posture; publishes to [scorecard.dev](https://scorecard.dev) for the README badge after the first successful run. |
+| **OpenSSF Scorecard** ([`scorecard.yml`](.github/workflows/scorecard.yml)) | Weekly and push supply-chain posture; publishes to [scorecard.dev](https://scorecard.dev). README uses a **repo-hosted** badge SVG under [`docs/assets/badges/`](docs/assets/badges/) because `api.scorecard.dev` / `img.shields.io` badge CDNs are intermittently unavailable (timeout/5xx). Refresh the Scorecard and Release SVGs after meaningful score or release changes (see §10). |
 
 **Artifact attestations** (build provenance pushed with the image):
 
@@ -171,6 +171,27 @@ Or manually with [`gh`](https://cli.github.com/) (same end state as the script):
 1. Source asset (committed): [`docs/assets/github-social-preview.png`](docs/assets/github-social-preview.png) (**1280×640**).
 2. Upload (manual — no GitHub API): **Settings → General → Social preview** (or drag the PNG onto the About card).
 3. Verify: paste the repo URL into Slack/LinkedIn and confirm the custom card renders.
+
+### README badge images (repo-hosted)
+
+Hero badges for **OpenSSF Scorecard**, **License**, and **Release** are committed under [`docs/assets/badges/`](docs/assets/badges/) so the README does not depend on flaky third-party badge CDNs. CI/CodeQL badges stay on GitHub Actions (reliable).
+
+Refresh when needed:
+
+```bash
+# License (static — only if SPDX changes)
+curl -fsSL -o docs/assets/badges/license-apache-2.0.svg \
+  "https://badgen.net/badge/license/Apache-2.0/blue"
+
+# Release tag (after cutting a release)
+curl -fsSL -o docs/assets/badges/release.svg \
+  "https://badgen.net/github/release/SafetyMP/Autonomous-EHS-Management"
+
+# Scorecard value: query API, then update docs/assets/badges/openssf-scorecard.svg value text
+curl -fsSL "https://api.scorecard.dev/projects/github.com/SafetyMP/Autonomous-EHS-Management" | jq '.score'
+```
+
+Live score remains on the [Scorecard viewer](https://scorecard.dev/viewer/?uri=github.com/SafetyMP/Autonomous-EHS-Management); the committed SVG is a snapshot for README render reliability.
 
 ### OpenSSF Best Practices Badge (Passing)
 
