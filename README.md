@@ -8,8 +8,10 @@
 
 **Autonomous compliance operations platform** — give your team one place to log what happened, assign fixes, and prove the follow-up.
 
+**Console UX (Calm Focus):** task-first modes **Today / Capture / Decide / Prove**, a quieter teal/forest shell (Fraunces display + Source Sans 3 UI), and progressive disclosure on desk Today — **Your work** first, KPIs collapsed until expanded, secondary clusters under **More on Today**. Field home stays large-button intake. Accessibility bar is **WCAG 2.2 AA** (axe); WCAG 3 conformance is not claimed. Details: [docs/qa/calm-focus-final-dossier.md](docs/qa/calm-focus-final-dossier.md), ADRs [005](docs/adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md) / [006](docs/adr/ADR-UX-006-progressive-disclosure-today-home.md) / [007](docs/adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md).
+
 <p align="center">
-  <img src="docs/assets/demo.gif" alt="Autonomous EHS demo — command center, incidents, and CAPA register (synthetic demo data)" width="900" />
+  <img src="docs/assets/demo.gif" alt="Autonomous EHS Calm Focus demo — Today command center, incidents, CAPA, approvals, tasks, and metrics (synthetic demo data)" width="900" />
 </p>
 
 ## Screenshots
@@ -70,9 +72,9 @@ Optional **proposal-only AI** (when enabled) suggests intake wording or retrieve
 
 **Architecture & diligence:** [docs/README.md](docs/README.md) (full documentation index), [docs/architecture-map.md](docs/architecture-map.md) (system map), [docs/workflow-depth.md](docs/workflow-depth.md) (state machines + audit patterns), [docs/procurement-readiness.md](docs/procurement-readiness.md) (ROI / pilot / positioning workbook), [docs/approval-workflow.md](docs/approval-workflow.md) (CAPA approval gate), [docs/case-studies/pilot-template.md](docs/case-studies/pilot-template.md), [docs/module-maturity.md](docs/module-maturity.md) (feature maturity), [docs/operational-webhooks.md](docs/operational-webhooks.md) (outbound event delivery), [docs/roadmap/hris-portco-integration-playbook.md](docs/roadmap/hris-portco-integration-playbook.md) (SCIM / HRIS identity), [docs/roadmap/action-queue-dashboard-spec.md](docs/roadmap/action-queue-dashboard-spec.md) (unified **Your work** queue), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` directory guide).
 
-**Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Records & metrics → Incidence rates** (TRIR-style analytics) and the **Your work** action queue on command center / task hub. The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`).
+**Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Records & metrics → Incidence rates** (TRIR-style analytics) and the **Your work** action queue on command center / task hub. The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`). UX contracts: [docs/qa/ia-task-mode-map.md](docs/qa/ia-task-mode-map.md), Calm Focus [final dossier](docs/qa/calm-focus-final-dossier.md).
 
-**Contributors & agents:** [AGENTS.md](AGENTS.md) (site + CI gates), [`.cursor/skills/README.md`](.cursor/skills/README.md) (skills index), [GOVERNANCE.md](GOVERNANCE.md) (evergreen OSS), [docs/README.md](docs/README.md) (documentation index), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` map), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (regulatory / data governance).
+**Contributors & agents:** [AGENTS.md](AGENTS.md) (site + CI gates, Playwright projects), [`.cursor/skills/README.md`](.cursor/skills/README.md) (skills index), [GOVERNANCE.md](GOVERNANCE.md) (evergreen OSS), [docs/README.md](docs/README.md) (documentation index), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` map), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (regulatory / data governance).
 
 ---
 
@@ -197,7 +199,14 @@ npm run verify:all      # + Playwright smoke
 npm run screenshots     # README demo GIF (2s per frame; demo stack + dev server)
 ```
 
-**Local Playwright smoke (signed-in flows):** CI always runs `@smoke` E2E against a service Postgres after **`npm run db:migrate`** and **`npm run db:seed:ci`**, then threat-model (PRs) and adversarial probes. On a developer machine, signed-in smoke **skips** unless you set **`PLAYWRIGHT_E2E_EMAIL`** and **`PLAYWRIGHT_E2E_PASSWORD`** (see [`.env.example`](.env.example)) **and** use a migrated, seeded database. Specs live under [`tests/e2e/smoke/`](tests/e2e/smoke/) — see [AGENTS.md](AGENTS.md).
+**Local Playwright (signed-in flows):** CI always runs `@smoke` E2E against a service Postgres after **`npm run db:migrate`** and **`npm run db:seed:ci`**, then axe **`a11y`**, visual scaffold, threat-model (PRs), and adversarial probes. On a developer machine, signed-in specs **skip** unless you set **`PLAYWRIGHT_E2E_EMAIL`** / **`PLAYWRIGHT_E2E_PASSWORD`** (see [`.env.example`](.env.example)) **and** use a migrated, seeded database (`db:seed:ci` also creates `e2e.contributor@ci.local` for desk_contributor density/visual). Prefer project commands over ad-hoc paths — see [AGENTS.md](AGENTS.md):
+
+| Project | Purpose | Typical command |
+|---------|---------|-----------------|
+| `@smoke` / chromium | Signed-in smoke | `./scripts/integration-e2e.sh` or `npm run test:e2e:smoke` |
+| `a11y` | axe WCAG 2.2 AA | `npx playwright test --project=a11y` |
+| `density` | Today KPI-hidden + ≤12 controls (both desk personas) | `PLAYWRIGHT_E2E_FORCE=1 npx playwright test --project=density` |
+| `visual` | Calm Focus screenshot digests | `PLAYWRIGHT_VISUAL=1 npx playwright test --project=visual` |
 
 **PortCo staging checklist:** after configuring integrations on a pilot org, run **`npm run portco:pilot-verify`** against your database — see [docs/qa/portco-staging-pilot.md](docs/qa/portco-staging-pilot.md).
 
@@ -233,7 +242,7 @@ Deeper maps: [docs/architecture-map.md](docs/architecture-map.md).
 | Auth | **Better Auth** (email + password + optional OIDC via Generic OAuth), Drizzle adapter |
 | Database | **PostgreSQL**, **Drizzle ORM**; local demo uses **`pg`** (`DATABASE_USE_PG=1`), hosted uses **Neon serverless** driver by default |
 | AI / RAG | Optional **OpenAI-compatible** gateway; **pgvector** for embeddings |
-| Quality | **ESLint**, **Vitest**, **Playwright** smoke E2E |
+| Quality | **ESLint**, **Vitest**, **Playwright** (`smoke` / `a11y` / `density` / `visual`), WCAG 3 claim lint |
 
 ---
 
