@@ -13,6 +13,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "tests/vitest-env-preload.cjs",
+    // Site-delivery isolated worktrees (nested full checkouts)
+    ".worktrees/**",
   ]),
 ]);
 
