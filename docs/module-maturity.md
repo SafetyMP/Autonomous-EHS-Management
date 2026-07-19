@@ -41,7 +41,7 @@ Core needs a counsel exception ID.
 
 | Route | Label | Tier | Stage | Banner in UI? | Notes / residual gaps |
 |-------|-------|------|-------|---------------|-----------------------|
-| `/dashboard` | Command center | Core | S4 | No | Personal work queue over Core spine (incident/CAPA/approvals). |
+| `/dashboard` | Command center | Core | S3 | No | Personal work queue over Core spine (incident/CAPA/approvals). Stage S4 (production-hardened ops) deferred while D-008 monitoring owner / scrape digests remain open (R-004 / R-011). |
 | `/dashboard/tasks` | Tasks & reviews | Core | S3 | No | `audit_log` on task lifecycle; smoke via command-center suite. |
 | `/dashboard/approvals` | Approvals | Core | S3 | No | Decide-path smoke required for Core positioning (R-007). |
 | `/dashboard/incidents` | Incidents | Core | S3 | No | Encoded transitions + `writeAuditLog`; sensitive-read gate via `incident:read_sensitive`. Not an OSHA 300/301/300A SoR ([COMPLIANCE.md](../COMPLIANCE.md)). |

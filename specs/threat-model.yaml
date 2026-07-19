@@ -7,8 +7,10 @@ runtime:
   default_base_url: http://localhost:3000
 
 auth:
+  # Hardcoded synthetic CI bearer (matches committed .env.ci) so deny cases run under
+  # corp-harness evidence runners that strip INTEGRATION_INBOUND_SECRET from the environment.
   global_inbound_bearer:
-    env: INTEGRATION_INBOUND_SECRET
+    bearer: ci-integration-inbound-secret-ok
   short_bearer:
     bearer: short
   wrong_bearer:
