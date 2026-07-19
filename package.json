@@ -36,6 +36,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e --grep @smoke",
+    "test:e2e:a11y": "playwright test --project=a11y",
     "screenshots": "node scripts/capture-screenshots.mjs",
     "screenshots:rebuild-gif": "node scripts/capture-screenshots.mjs --from-existing",
     "job:worker": "tsx scripts/job-worker.ts",
@@ -63,6 +64,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@eslint/eslintrc": "^3.3.5",
     "@playwright/test": "^1.61.1",
     "@semantic-release/commit-analyzer": "^13.0.1",

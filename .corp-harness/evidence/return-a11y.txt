@@ -1,0 +1,20 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 9 tests using 1 worker
+
+(node:83698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌁ auth for agents [www.vestauth.com]
+  ✓  1 [a11y] › tests/e2e/a11y/approvals-decide.a11y.spec.ts:15:7 › a11y approvals decide › @a11y approvals page has no serious/critical axe violations (8.6s)
+  ✓  2 [a11y] › tests/e2e/a11y/audit-trail-list.a11y.spec.ts:15:7 › a11y audit-trail list › @a11y audit-trail list has no serious/critical axe violations (2.1s)
+  ✓  3 [a11y] › tests/e2e/a11y/capa-happy-path.a11y.spec.ts:15:7 › a11y CAPA happy path › @a11y CAPA page has no serious/critical axe violations (3.7s)
+  ✓  4 [a11y] › tests/e2e/a11y/chrome-landmarks.a11y.spec.ts:9:7 › a11y chrome landmarks › @a11y marketing home skip-link and main landmark (1.2s)
+  ✓  5 [a11y] › tests/e2e/a11y/chrome-landmarks.a11y.spec.ts:25:7 › a11y chrome landmarks › @a11y sign-in skip-link targets main landmark (664ms)
+  ✓  6 [a11y] › tests/e2e/a11y/field-home.a11y.spec.ts:18:7 › a11y field home › @a11y field home has no serious/critical axe violations (1.4s)
+  ✓  7 [a11y] › tests/e2e/a11y/incident-create.a11y.spec.ts:15:7 › a11y incident create › @a11y incident create has no serious/critical axe violations (1.1s)
+  ✓  8 [a11y] › tests/e2e/a11y/keyboard-field-to-incident.a11y.spec.ts:17:7 › a11y keyboard field to incident › @a11y @keyboard field home to incident create via keyboard (1.9s)
+  ✓  9 [a11y] › tests/e2e/a11y/sign-in.a11y.spec.ts:9:7 › a11y sign-in › @a11y sign-in page has no serious/critical axe violations (544ms)
+
+  9 passed (24.9s)

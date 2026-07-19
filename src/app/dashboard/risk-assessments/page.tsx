@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DashboardEmptyState } from "@/components/dashboard/dashboard-empty-state";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { ModuleMaturityBanner } from "@/components/dashboard/module-maturity-banner";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import {
@@ -78,6 +79,11 @@ export default function RiskAssessmentsRosterPage() {
           </>
         }
       />
+
+      <ModuleMaturityBanner tier="connected">
+        Connected maturity — governed risk/JSA-style register with optional steps. Not a LOPA/bowtie
+        replacement and not Core switching cost. See docs/module-maturity.md.
+      </ModuleMaturityBanner>
 
       <section aria-label="Filters" className="rounded-lg border border-zinc-200 bg-white p-4">
         <h2 className={dfSectionHeading}>Filter roster</h2>

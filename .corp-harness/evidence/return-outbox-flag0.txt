@@ -1,0 +1,12 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+◇ injected env (0) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 1 test using 1 worker
+
+(node:87072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+  ✓  1 [chromium] › tests/e2e/smoke/offline-dashboard-banner.spec.ts:87:7 › field outbox status region (@smoke|outbox|touch) › @smoke @outbox flag=0 does not show outbox status chrome (3.2s)
+
+  1 passed (6.2s)

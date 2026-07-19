@@ -32,6 +32,7 @@ type RiskRating = (typeof RISK_RATINGS)[number];
 
 /**
  * Replays IndexedDB field outbox rows through real tRPC mutations when online.
+ * Flush outcomes feed FieldOutboxStatusBar (status-region-first; ADR-UX-003).
  * Mounted once under OrgProvider — see docs/offline-field-outbox.md.
  */
 export function FieldOutboxGlobalSync() {

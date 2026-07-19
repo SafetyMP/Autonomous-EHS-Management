@@ -8,7 +8,6 @@ import { useNavigatorOnline } from "@/hooks/useNavigatorOnline";
 import { usePersistedFormDraft } from "@/hooks/usePersistedFormDraft";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
-import { dfSecondaryOutline } from "@/lib/dashboard-field-styles";
 import {
   buildFieldPhotoAppendix,
   type CompressedIntakeImage,
@@ -122,6 +121,10 @@ export default function NewIncidentPage() {
     e.preventDefault();
     if (!organizationId) return;
     setError(null);
+    if (!draft.title.trim() || !draft.description.trim()) {
+      setError("Title and what happened are required.");
+      return;
+    }
     if (!online && intakePhotos.length > 0) {
       setError(
         "Photos cannot be saved with an offline queued report. Remove photos or connect to the network.",
@@ -191,6 +194,7 @@ export default function NewIncidentPage() {
       </div>
       <form
         id={formId}
+        noValidate
         suppressHydrationWarning
         onSubmit={onSubmit}
         className="space-y-4 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm"
@@ -211,10 +215,10 @@ export default function NewIncidentPage() {
           Use short phrases if you are in a hurry — you can refine details from the incident record
           after submitting.
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-stress-action-region="capture-ai">
           <button
             type="button"
-            className={dfSecondaryOutline}
+            className="btn-secondary"
             disabled={suggestDraft.isPending || contextHint.length < 10}
             aria-busy={suggestDraft.isPending}
             onClick={() => {
@@ -225,12 +229,12 @@ export default function NewIncidentPage() {
           >
             {suggestDraft.isPending ? "Suggesting..." : "Suggest wording (AI)"}
           </button>
-          <span className="self-center text-sm">
+          <span className="self-center text-sm text-text-muted">
             Proposal only — edit before saving. Requires AI and RAG permissions.
           </span>
         </div>
         {suggestError ? (
-          <p id={suggestErrorId} role="alert" className="text-sm text-red-700">
+          <p id={suggestErrorId} role="alert" className="text-sm text-danger">
             {suggestError}
           </p>
         ) : null}
@@ -269,7 +273,7 @@ export default function NewIncidentPage() {
             ))}
           </select>
           {!sites?.length ? (
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-glare-muted">
               No sites on file for this org yet — intake can continue without a site.
             </p>
           ) : null}
@@ -344,7 +348,7 @@ export default function NewIncidentPage() {
           onChange={setIntakePhotos}
           disabled={create.isPending}
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-glare-muted">
           Photos are not stored in the local draft — they stay in memory until you submit.
         </p>
         <div>
@@ -388,7 +392,7 @@ export default function NewIncidentPage() {
             {error}
           </p>
         ) : null}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3" data-stress-action-region="capture-create">
           <button
             type="submit"
             disabled={create.isPending || (!online && !isFieldOutboxEnabled())}
@@ -403,18 +407,15 @@ export default function NewIncidentPage() {
                 .filter(Boolean)
                 .join(" ") || undefined
             }
-            className="min-h-11 touch-target rounded-md bg-emerald-800 px-4 py-2 text-base font-semibold text-white hover:bg-emerald-900 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+            className="btn-primary touch-target min-h-11"
           >
             {create.isPending ? "Saving…" : "Submit"}
           </button>
-          <Link
-            href="/dashboard/incidents"
-            className="inline-flex min-h-11 touch-target items-center rounded-md border border-zinc-400 bg-white px-4 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
-          >
+          <Link href="/dashboard/incidents" className="btn-secondary">
             Cancel
           </Link>
         </div>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-glare-muted">
           After submit, open the incident to start investigation, add root cause, and close only when
           requirements are met.
         </p>

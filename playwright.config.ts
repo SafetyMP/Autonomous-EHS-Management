@@ -24,7 +24,7 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testIgnore: "**/smoke/core-spine-*.spec.ts",
+      testIgnore: ["**/smoke/core-spine-*.spec.ts", "**/a11y/**"],
       use: { ...devices["Desktop Chrome"] },
     },
     /**
@@ -34,6 +34,16 @@ export default defineConfig({
     {
       name: "core-spine",
       testMatch: "**/smoke/core-spine-*.spec.ts",
+      use: { ...devices["Desktop Chrome"] },
+    },
+    /**
+     * Dedicated a11y suite (ADR-UX-004 / AC-007 / AC-020).
+     * Invoked separately — not part of default `@smoke` grep.
+     * `npx playwright test --project=a11y` or `npm run test:e2e:a11y`.
+     */
+    {
+      name: "a11y",
+      testMatch: "**/a11y/**/*.spec.ts",
       use: { ...devices["Desktop Chrome"] },
     },
   ],

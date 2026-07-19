@@ -8,7 +8,8 @@ type BeforeInstallPromptEvent = Event & {
 };
 
 /**
- * Shows a dismissible banner when the browser can install the PWA.
+ * Optional installable progressive-web shortcut (ADR-UX-003 / AC-009 / D-006).
+ * Does not advertise offline queue (flag may be off). Not a native App Store client.
  * `beforeinstallprompt` is Chromium-centric; Safari users see nothing (expected).
  */
 export function PwaInstallHint() {
@@ -35,8 +36,8 @@ export function PwaInstallHint() {
       const choice = await deferred.userChoice;
       setOutcome(
         choice.outcome === "accepted"
-          ? "App install accepted — look for the icon on your home screen."
-          : "Install dismissed — you can use the site in the browser as usual.",
+          ? "Installable web shortcut accepted — look for EHS Console on your home screen."
+          : "Install dismissed — you can keep using the site in the browser.",
       );
       setDeferred(null);
     } catch {
@@ -51,15 +52,17 @@ export function PwaInstallHint() {
   return (
     <div
       role="region"
-      aria-label="Install app"
-      className="shrink-0 rounded-lg border border-emerald-200 bg-emerald-50/95 px-4 py-3 text-base text-emerald-950"
+      aria-label="Install web shortcut"
+      className="field-status-region shrink-0 rounded-lg border border-primary-soft-border bg-primary-soft text-base text-primary"
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="min-w-0">
           {deferred ? (
             <>
-              <span className="font-semibold">Install EHS Console on this device</span> — opens like an app
-              for quicker field access (offline queue works in the browser).
+              <span className="font-semibold">Install EHS Console on this device</span>
+              {" — "}
+              optional installable web shortcut for quicker field access (responsive progressive web,
+              not a native App Store or Play Store app).
             </>
           ) : (
             <span role="status" aria-live="polite">
@@ -75,14 +78,14 @@ export function PwaInstallHint() {
                 onClick={() => void onInstall()}
                 disabled={busy}
                 aria-busy={busy}
-                className="touch-target rounded-md bg-emerald-800 px-4 py-2 text-base font-semibold text-white hover:bg-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 disabled:opacity-60"
+                className="btn-primary touch-target"
               >
                 {busy ? "Installing…" : "Install"}
               </button>
               <button
                 type="button"
                 onClick={() => setDismissed(true)}
-                className="touch-target rounded-md border border-zinc-400 bg-white px-4 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                className="btn-secondary touch-target"
               >
                 Not now
               </button>
@@ -91,7 +94,7 @@ export function PwaInstallHint() {
             <button
               type="button"
               onClick={() => setDismissed(true)}
-              className="touch-target rounded-md border border-zinc-400 bg-white px-4 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+              className="btn-secondary touch-target"
             >
               Dismiss
             </button>

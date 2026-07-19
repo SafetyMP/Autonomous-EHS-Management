@@ -1,0 +1,33 @@
+ADR-UX-003 / PKT-UX-003 verification digest
+Date: 2026-07-19
+Worktree: .worktrees/adr-ux-003
+Branch: site/adr-ux-003
+
+Commands:
+  node scripts/claim-lint.mjs
+  npx vitest run tests/unit/lib/offline/outboxErrorKind.test.ts
+  npx playwright test tests/e2e --grep '@smoke|outbox|touch'
+
+Exit codes (honest):
+  claim-lint.mjs                              = 0
+  vitest outboxErrorKind.test.ts              = 0  (3 passed)
+  playwright --grep '@smoke|outbox|touch'     = 1
+    Summary observed: 14 passed, 1 skipped, 16 failed (~1.8m)
+    Sandbox first attempt: webServer timeout (uv_interface_addresses) — re-ran with full permissions.
+    Signed-in failures: Better Auth user SELECT failed against local DB (migrate/seed not available in this worker).
+    Outbox conflict seed test (@outbox persistent status region): SKIPPED — NEXT_PUBLIC_FIELD_OUTBOX != 1 in .env.ci.
+    flag=0 chrome absence / touch / safe-area signed-in asserts: FAILED (workspace not reached — same auth/DB blocker).
+    Unauthenticated @smoke gates (home, dashboard-gate, a11y-shell, contextsync, etc.): PASSED.
+
+Acceptance mapping (this packet):
+  AC-015  Persistent outbox status     → FieldOutboxStatusBar #field-outbox-status + success-toast additive only; e2e seed path SKIPPED without flag=1 + DB
+  AC-016  Retry / conflict messaging   → conflict labels + guidance + Remove/Retry; docs/qa/outbox-retry-conflict-uat.md rows PENDING staging
+  AC-017  PWA safe-area / ≥44px        → .field-status-region + touch-target buttons; Playwright signed-in asserts FAILED (env); checklist PENDING
+  AC-018  Device-loss / ops checklist  → status footnotes + offline-field-outbox.md ops hooks
+  AC-009  No native/filing claims      → claim-lint 0; PWA installable-web copy; D-006 blocked
+  AC-023  Unresolved decisions logged  → barrier playbook: D-006/D-010 blocked; UD-PL-UX-002 closed by ADR-UX-003
+
+Notes:
+  - Left uncommitted for root integrate.
+  - Do not mark site_verify / operations gates from this digest alone.
+  - Do not invent PASS for Playwright signed-in outbox/touch paths.

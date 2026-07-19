@@ -4,7 +4,7 @@ import { useId, useState } from "react";
 import Link from "next/link";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
-import { dfMuted, dfPrimarySubmit, dfSecondaryOutline } from "@/lib/dashboard-field-styles";
+import { dfMuted } from "@/lib/dashboard-field-styles";
 import { trpc } from "@/trpc/react";
 
 function entityLabel(entityType: string): string {
@@ -177,7 +177,7 @@ export default function ApprovalsPage() {
                       {!expanded ? (
                         <button
                           type="button"
-                          className={dfPrimarySubmit}
+                          className="btn-primary"
                           onClick={() => {
                             setActiveRequestId(request.id);
                             setComment("");
@@ -186,7 +186,10 @@ export default function ApprovalsPage() {
                           Review
                         </button>
                       ) : (
-                        <div className="flex max-w-md flex-col gap-2">
+                        <div
+                          className="flex max-w-md flex-col gap-2"
+                          data-stress-action-region="decide-approve-reject"
+                        >
                           <label htmlFor={commentId} className="text-sm font-medium text-zinc-900">
                             Comment (optional)
                           </label>
@@ -200,7 +203,7 @@ export default function ApprovalsPage() {
                           <div className="flex flex-wrap gap-2">
                             <button
                               type="button"
-                              className={dfPrimarySubmit}
+                              className="btn-primary"
                               disabled={decide.isPending}
                               aria-busy={decide.isPending}
                               onClick={() =>
@@ -222,7 +225,7 @@ export default function ApprovalsPage() {
                             </button>
                             <button
                               type="button"
-                              className={dfSecondaryOutline}
+                              className="btn-secondary"
                               disabled={decide.isPending}
                               onClick={() =>
                                 decide.mutate({

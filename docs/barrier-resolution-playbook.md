@@ -17,11 +17,18 @@ IDs match corporate master-spec R-014. **D-004, D-008, D-009, D-010, D-011, D-01
 | **D-003** | OIDC JIT default org/role policy for production | Security / IAM + HR | blocked | Identity go-live claims beyond scaffold | See [OIDC JIT org provisioning](#oidc-jit-org-provisioning) |
 | **D-004** | pg-boss vs HTTP cron as default production job model | Platform lead / SRE | unblocked | Autonomous-ops completeness claims | **ADR-S-005 / [`JOB_QUEUE.md`](JOB_QUEUE.md):** HTTP cron is the recorded default; pg-boss remains optional opt-in with worker evidence. Completeness claims still need scrape/worker digests where applicable. |
 | **D-005** | Chemicals path to Core vs permanent Plumbing + partner Tier2 Submit | Compliance / Counsel + Product | blocked | Chemicals Core / Tier2 Submit claims | Partner Tier2 Submit remains out of Core until counsel exception |
-| **D-006** | Native mobile vs progressive web field UX | Product + staff-eng-product | blocked | Native mobile inspection / field-app claims | Pilot stays responsive web ([portco-tier1-pilot-scope.md](./qa/portco-tier1-pilot-scope.md)) |
+| **D-006** | Native mobile vs progressive web field UX | Product + staff-eng-product | blocked | Native mobile inspection / field-app claims | Pilot stays responsive / installable progressive web ([portco-tier1-pilot-scope.md](./qa/portco-tier1-pilot-scope.md)); ADR-UX-003 PWA copy must not claim App Store / native |
 | **D-007** | Commercial support SLA separate from Apache 2.0 license | Commercial / Maintainers | blocked | Paid support-SLA sales claims | Open-source license ≠ enterprise support contract |
 | **D-008** | Production monitoring owner (Prometheus-operator vs vendor APM) + cron scrape parity | SRE / Platform | blocked | S4 ops / monitoring completeness claims | Runbook documents SLO parity templates for all `CRON_JOB_KEYS` ([cron-metrics-observability.md](./runbooks/cron-metrics-observability.md)); **no production scrape digests** — do not claim production-monitored |
 | **D-009** | Object-storage vendor + evidence DLP/encryption org controls | Platform + Security | blocked | In-app binary evidence upload claims | Ranked **P4**; `POST /api/evidence-upload-stub` returns **501** — **no production binary upload claim** until object-store path live ([evidence-binary-upload.md](./runbooks/evidence-binary-upload.md)) |
-| **D-010** | Field-outbox multi-device / photo policy for regulated evidence | Product + Compliance | blocked | Offline evidence / multi-device sync claims | Ops checklist shipped ([offline-field-outbox.md](./offline-field-outbox.md)); photos offline + multi-device reconciliation remain non-goals |
+| **D-010** | Field-outbox multi-device / photo policy for regulated evidence | Product + Compliance | blocked | Offline evidence / multi-device sync claims | Ops checklist + status-region conflict abandon UX ([offline-field-outbox.md](./offline-field-outbox.md), ADR-UX-003); photos offline + multi-device merge remain non-goals |
+
+### UX decision closures (site ADRs)
+
+| ID | Topic | Status | Resolution |
+|----|-------|--------|------------|
+| **UD-PL-UX-002** | Toast host vs status-region-first | **closed** | ADR-UX-003: status region is authority for failed sync / conflict / device-loss; optional success toast only |
+| **UD-PL-UX-001** | Draft-recovery form rehydration | open | Remains P3 / later — not authorized by ADR-UX-003 |
 | **D-011** | Context Sync provenance retention/purge under legal hold | Compliance + Platform | blocked | Scale-pilot sync-on claims under hold | Provenance runbook exists; retention/purge under hold undecided (counsel + platform) |
 | **D-012** | DEMO_MODE hard-fail outside development (all deploy classes) | Platform / Security | unblocked | Staging/prod safety claims for demo isolation | **ADR-S-004:** env-invariant `demoModePolicyViolation` / `rateLimitBackendPolicyViolation` + unit tests; pilot/prod Context Sync still needs enablement confirmation artifact |
 

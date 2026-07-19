@@ -1,0 +1,12 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+[WebServer] npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+Running 1 test using 1 worker
+
+(node:86937) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+  ✓  1 [a11y] › tests/e2e/a11y/incident-create-empty-submit.a11y.spec.ts:14:7 › a11y incident create empty submit › @a11y incident create empty submit shows alert and aria-invalid (4.6s)
+
+  1 passed (13.4s)

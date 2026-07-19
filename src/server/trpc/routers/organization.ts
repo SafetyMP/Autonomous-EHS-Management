@@ -52,6 +52,7 @@ export const organizationRouter = router({
 
   /**
    * Chooses field launcher vs full command center for `/dashboard` — heuristic from existing RBAC keys (no new permissions).
+   * AC-014: permissions are resolved via userHasPermission (server). Clients must not invent an isField flag.
    */
   dashboardHomeLayout: protectedProcedure
     .input(z.object({ organizationId: z.string().uuid() }))

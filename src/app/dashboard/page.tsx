@@ -14,6 +14,8 @@ import {
 } from "@/lib/dashboard/homeLayoutPreference";
 import { trpc } from "@/trpc/react";
 
+/** Today home — field vs desk from organization.dashboardHomeLayout (AC-002 / AC-014). */
+
 export default function DashboardHomePage() {
   return (
     <Suspense

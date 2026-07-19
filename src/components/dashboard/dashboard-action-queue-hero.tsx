@@ -18,22 +18,21 @@ function PrimaryCard({ item }: { item: NonNullable<ActionQueueOut["primary"]> })
   const dueLabel = formatDueLabel(item.dueAt, item.isOverdue);
   return (
     <div
-      className={`rounded-xl border-2 bg-white p-4 shadow-sm ${
-        item.isOverdue ? "border-amber-400 bg-amber-50/50" : "border-emerald-200"
+      data-stress-action-region="today-queue-row"
+      className={`rounded-xl border-2 bg-surface p-4 shadow-sm ${
+        item.isOverdue ? "border-warning bg-warning-surface/50" : "border-primary-soft-border/40"
       }`}
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-600">{item.reason}</p>
-      <p className="mt-1 text-lg font-semibold text-zinc-900">{item.title}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-text-subtle">{item.reason}</p>
+      <p className="mt-1 text-lg font-semibold text-foreground">{item.title}</p>
       {dueLabel ? (
-        <p className="mt-1 text-sm text-zinc-700" aria-live="polite">
+        <p className="mt-1 text-sm text-text-muted" aria-live="polite">
           {dueLabel}
         </p>
       ) : null}
       <div className="mt-4">
-        <Link
-          href={item.href}
-          className="inline-flex min-h-11 touch-target items-center justify-center rounded-lg bg-emerald-800 px-4 py-2 text-base font-semibold text-white hover:bg-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
-        >
+        {/* AC-004: exactly one filled primary CTA in this action region */}
+        <Link href={item.href} className="btn-primary touch-target">
           {item.ctaLabel} →
         </Link>
       </div>
@@ -52,12 +51,12 @@ export function DashboardActionQueueHero({
     return (
       <section
         aria-labelledby="your-work-heading"
-        className="rounded-xl border border-zinc-200 bg-white p-6"
+        className="rounded-xl border border-border bg-surface p-6"
       >
-        <h2 id="your-work-heading" className="text-lg font-semibold text-zinc-900">
+        <h2 id="your-work-heading" className="text-lg font-semibold text-foreground">
           Your work
         </h2>
-        <p role="status" aria-live="polite" className="mt-3 text-base text-zinc-600">
+        <p role="status" aria-live="polite" className="mt-3 text-base text-text-muted">
           Loading your next actions…
         </p>
       </section>
@@ -71,16 +70,16 @@ export function DashboardActionQueueHero({
   return (
     <section
       aria-labelledby="your-work-heading"
-      className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6"
+      className="rounded-xl border border-border bg-surface p-4 shadow-sm sm:p-6"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="your-work-heading" className="text-lg font-semibold text-zinc-900">
+        <h2 id="your-work-heading" className="text-lg font-semibold text-foreground">
           Your work
         </h2>
         {total > 0 ? (
           <Link
             href="/dashboard/tasks"
-            className="text-sm font-medium text-emerald-900 underline underline-offset-2 hover:text-emerald-950"
+            className="text-sm font-medium text-primary underline underline-offset-2 hover:text-primary-hover"
           >
             View all tasks
           </Link>
@@ -88,9 +87,9 @@ export function DashboardActionQueueHero({
       </div>
 
       {!primary ? (
-        <p className="mt-3 text-base text-zinc-700">
+        <p className="mt-3 text-base text-text-muted">
           You&apos;re caught up on assigned work. Open{" "}
-          <Link href="/dashboard/tasks" className="font-medium text-emerald-900 underline underline-offset-2">
+          <Link href="/dashboard/tasks" className="font-medium text-primary underline underline-offset-2">
             Tasks &amp; reviews
           </Link>{" "}
           for org-wide obligations and management reviews.
@@ -98,24 +97,24 @@ export function DashboardActionQueueHero({
       ) : (
         <div className="mt-4 space-y-4">
           <div>
-            <p className="mb-2 text-sm font-semibold text-zinc-800">Your next action</p>
+            <p className="mb-2 text-sm font-semibold text-foreground">Your next action</p>
             <PrimaryCard item={primary} />
           </div>
 
           {secondary.length > 0 ? (
             <div>
-              <p className="mb-2 text-sm font-medium text-zinc-700">
+              <p className="mb-2 text-sm font-medium text-text-muted">
                 {total > 1 ? `${total - 1} more item${total - 1 === 1 ? "" : "s"}` : null}
               </p>
-              <ul className="divide-y divide-zinc-100 rounded-lg border border-zinc-200" role="list">
+              <ul className="divide-y divide-border rounded-lg border border-border" role="list">
                 {secondary.map((item) => (
                   <li key={item.id}>
                     <Link
                       href={item.href}
-                      className="flex min-h-11 touch-target flex-col gap-0.5 px-3 py-3 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-600 sm:flex-row sm:items-center sm:justify-between"
+                      className="flex min-h-11 touch-target flex-col gap-0.5 px-3 py-3 hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <span className="text-base font-medium text-zinc-900">{item.title}</span>
-                      <span className="text-sm text-zinc-600">
+                      <span className="text-base font-medium text-foreground">{item.title}</span>
+                      <span className="text-sm text-text-subtle">
                         {formatDueLabel(item.dueAt, item.isOverdue) || item.reason}
                       </span>
                     </Link>

@@ -1,0 +1,10 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> ehs@0.1.0 db:seed:ci
+> tsx scripts/seed-ci-e2e.ts
+
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (1) from .env.local // tip: ⌁ auth for agents [www.vestauth.com]
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+Created CI E2E user: e2e.admin@ci.local
+CI E2E RBAC seed complete.

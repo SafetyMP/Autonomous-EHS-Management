@@ -6,7 +6,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { EhsEvidenceRegistrySection } from "@/components/dashboard/ehs-evidence-registry-section";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
-import { dfMuted, dfSecondaryOutline } from "@/lib/dashboard-field-styles";
+import { dfMuted } from "@/lib/dashboard-field-styles";
 import type { AppRouter } from "@/server/trpc/root";
 import { trpc } from "@/trpc/react";
 
@@ -20,11 +20,10 @@ const textareaClass =
 
 const labelClass = "block text-sm font-semibold text-zinc-900";
 
-const primaryBtn =
-  "min-h-11 touch-target rounded-md bg-emerald-800 px-4 py-2 text-base font-semibold text-white hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2";
+/** Token helpers from globals.css (ADR-UX-002) — ≤1 filled primary per action region. */
+const primaryBtn = "btn-primary";
 
-const secondaryBtn =
-  "touch-target rounded-md border-2 border-zinc-400 bg-white px-4 py-2 text-base font-semibold text-zinc-900 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2";
+const secondaryBtn = "btn-secondary";
 
 const tableActionBtn =
   "touch-target rounded-md px-3 text-base font-semibold text-emerald-900 underline decoration-emerald-800 underline-offset-2 hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-50";
@@ -336,7 +335,7 @@ export default function CapaPage() {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button
               type="button"
-              className={dfSecondaryOutline}
+              className="btn-secondary"
               disabled={suggestCapaDraft.isPending || capaContextHint.length < 10}
               aria-busy={suggestCapaDraft.isPending}
               onClick={() => {
@@ -352,7 +351,7 @@ export default function CapaPage() {
             </span>
           </div>
           {suggestError ? (
-            <p role="alert" className="mt-2 text-sm text-red-700">
+            <p role="alert" className="mt-2 text-sm text-danger">
               {suggestError}
             </p>
           ) : null}
