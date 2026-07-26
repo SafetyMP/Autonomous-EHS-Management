@@ -2,8 +2,8 @@
 
 | File | Purpose |
 |------|---------|
-| [`demo.gif`](demo.gif) | README hero — command center through metrics (6 frames, 2s each). Regenerate PNGs with `npm run screenshots`; rebuild GIF with `npm run screenshots:rebuild-gif`. |
-| [`command-center.png`](command-center.png) | Operations command center |
+| [`demo.gif`](demo.gif) | README hero — Calm Focus Today through metrics (6 frames, 2s each). Regenerate PNGs with `npm run screenshots`; rebuild GIF with `npm run screenshots:rebuild-gif`. |
+| [`command-center.png`](command-center.png) | Desk Today / operations command center (Your work first) |
 | [`incidents.png`](incidents.png) | Incident roster |
 | [`capa.png`](capa.png) | CAPA register |
 | [`approvals.png`](approvals.png) | Approval inbox |

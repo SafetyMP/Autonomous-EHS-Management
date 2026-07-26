@@ -7,7 +7,7 @@ Manual field-readability checks for high-glare (sunlight / reflective) use. Comp
 - Device: local Chromium Playwright Gen-1 routes (return-work 2026-07-19) + token review in `globals.css`
 - Surfaces: sign-in, field home (`/dashboard`), incident create, CAPA list, approvals, audit-trail
 - Prefer Calm Focus light theme tokens in `src/app/globals.css` (`data-theme="calm"`)
-- Axe WCAG 2.2 AA `color-contrast` executed via `--project=a11y` (9/9 passed on prior Gen-1; re-run after Calm Focus token PR)
+- Axe WCAG 2.2 AA `color-contrast` via `--project=a11y` (Calm Focus Gen-1 package; re-run after further token changes)
 
 ## Calm Focus tokens (AC-CF-A002)
 
@@ -57,7 +57,7 @@ Manual field-readability checks for high-glare (sunlight / reflective) use. Comp
 |-------|-------|
 | Tester | site return-work (root orchestrator) + PKT-CF-005-IMPL checklist update |
 | Date | 2026-07-19 |
-| Environment | local seeded + Calm Focus tokens in worktree `calm-focus-005-impl` |
+| Environment | local seeded + Calm Focus tokens on `feat/ehs-ux-site-delivery` |
 | Outstanding glare debts | True outdoor sunlight / notch-device visual spot-check not performed; axe AA color-contrast re-run after token land remains recommended |
 
 **Digest:** `.corp-harness/evidence/return-a11y.txt` sha256 `c6b8592feb9c0b3ebbe8f5c4690aceb18936f48f12075c26d0a010f731da00c4`

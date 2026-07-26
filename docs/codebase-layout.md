@@ -64,7 +64,7 @@ Where application code lives under [`src/`](../src/). Pair with [architecture-ma
 | `migrate.ts` | `db:migrate` | Apply Drizzle migrations |
 | `seed.ts` | `db:seed` | Link admin RBAC after signup |
 | `seed-demo.ts` | `db:seed:demo` | Demo org fixtures |
-| `seed-ci-e2e.ts` | `db:seed:ci` | CI Playwright seed |
+| `seed-ci-e2e.ts` | `db:seed:ci` | CI Playwright seed (`e2e.admin@ci.local` + `e2e.contributor@ci.local`) |
 | `demo-up.ts` | `demo:up` | Compose + migrate + demo seed |
 | `job-worker.ts` | `job:worker` | pg-boss worker process |
 | `portco-pilot-verify.ts` | `portco:pilot-verify` | PortCo staging checks |
@@ -74,11 +74,16 @@ Where application code lives under [`src/`](../src/). Pair with [architecture-ma
 
 | Path | Scope |
 |------|--------|
-| `tests/unit/` | Pure helpers, ranking, parsers |
+| `tests/unit/` | Pure helpers, ranking, parsers (includes `dashboard/density-ceiling`) |
 | `tests/integration/` | tRPC callers, Context Sync, inbound |
-| `tests/e2e/` | Playwright (`@smoke` subset in CI) |
+| `tests/e2e/smoke/` | Playwright `@smoke` (CI `e2e-smoke`) |
+| `tests/e2e/a11y/` | axe WCAG 2.2 AA (`--project=a11y`) |
+| `tests/e2e/density/` | Today density ceilings (`--project=density`) |
+| `tests/e2e/visual/` | Calm Focus screenshot digests (`--project=visual`) |
 | `tests/evals/` | Golden JSON for AI gateway |
 | `tests/helpers/` | Fake DB, shared fixtures |
+
+Evidence digests for visual capture land under [`evidence/`](../evidence/) (`calm-focus-visual-manifest.json`, `visual/*.png`).
 
 ## Infrastructure (outside `src/`)
 

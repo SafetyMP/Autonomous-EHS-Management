@@ -151,6 +151,13 @@ async function captureLive() {
 
   await signInDemoAdmin(page);
 
+  // Prefer a quiet first viewport for the README hero (dismiss product changelog if shown).
+  const dismissWhatsNew = page.getByRole("button", { name: /^dismiss$/i });
+  if (await dismissWhatsNew.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    await dismissWhatsNew.click();
+    await page.waitForTimeout(300);
+  }
+
   const gifFrames = [];
 
   for (const { path: route, file, name } of pages) {

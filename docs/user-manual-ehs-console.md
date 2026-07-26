@@ -93,8 +93,8 @@ Welcome to **EHS Console**—the signed-in experience for **Autonomous EHS**, an
 | **MOC** | Management Of Change—for changes to equipment, materials, staffing, layouts, contractors, processes. |
 | **Certification body (CB)** | An outside auditing organization that evaluates your management system toward certificate decisions. |
 | **CSV** | A simple comma-separated spreadsheet text format—for bulk uploads of certain lists. |
-| **Command center** | The operations home at `/dashboard` in **desk** layout: permission-scoped KPI tiles, optional **Needs attention** chips, **Recent activity**, **Quick actions**, and the **ISO setup checklist** (see that chapter). |
-| **Field workspace** | A compact home layout with large intake buttons and recent list links. Your organization may open this first; use **Full operations dashboard** to reach the command center. |
+| **Command center** | The operations home at `/dashboard` in **desk** layout: **Your work** first, then optional **Needs attention**, collapsed **Key indicators**, expandable **ISO setup checklist**, and **More on Today** (program updates, activity, quick actions / export when available). |
+| **Field workspace** | A compact home layout with large intake buttons and your pending work. Your organization may open this first; use **Open full operations dashboard** (or **Compact field menu** from desk) to switch layouts. |
 | **Operations dashboard** | The full command center layout (versus the compact field menu). |
 | **Audit trail** | Menu item **Audit trail** opens the read-only **System audit trail** (who changed what, when)—not ISO **Audits**. Approval buttons still explain that decisions are written to the audit trail behind the scenes. |
 | **Retention policy matrix** | Rows your organization defines per jurisdiction and **record class** (what kind of data), with minimum years, what happens after retention (**hold**, **anonymize**, **delete**), and **date anchor**—meanings are counsel-defined; the screen stores the register. |
@@ -227,17 +227,17 @@ If your tenant turns on the field outbox, a durable **Offline sync queue** banne
 
 ## Your work
 
-The **Your work** panel on the desk command center (and the **Pending for you** strip on field home) shows one **primary next action** plus up to four more items, ranked across approvals, CAPAs, training renewals, and compliance reviews you can see.
+The **Your work** panel on the desk command center (and the **Pending for you** strip on field home) shows one **primary next action** plus up to two more emphasized rows before **View all tasks**, ranked across approvals, CAPAs, training renewals, and compliance reviews you can see.
 
 ### SOP — Complete your next action
 
 1. Sign in and open **Command center** (`/dashboard`) or stay on **Field workspace** if that is your default.
 2. Read **Your next action** on desk layout—or the top row on the field pending strip.
-3. Tap the green button (**Review & decide**, **Open CAPA**, etc.) to open the exact record.
+3. Tap the primary button (**Review & decide**, **Open CAPA**, etc.) to open the exact record.
 4. For the full ranked list, open **Tasks & reviews** (`/dashboard/tasks`) or **View all tasks** from the Your work panel.
 5. Amber sidebar badges on **Tasks & reviews** and **Approvals** show pending counts; they match the same queue where possible.
 
-Desk supervisors still see program **Needs attention** chips and KPI tiles; desk contributors see KPIs collapsed below **Your work** to reduce clutter.
+**Key indicators** stay collapsed for everyone until you expand them (your preference is remembered in this browser). Program extras live under **More on Today**.
 
 ---
 
@@ -245,15 +245,13 @@ Desk supervisors still see program **Needs attention** chips and KPI tiles; desk
 
 1. Confirm your **Organization** in the header if you have more than one; until you pick a site you may see **Select an organization** with the picker.
 2. Review **Your work** first (see [Your work](#your-work)) before scanning program-wide alerts.
-3. Optional: tap **Download command center CSV** (when the snapshot has loaded) to save the command-center figures your account may export—useful for leadership packs or audits.
-4. When data loads, note **Snapshot as of** *date/time* under the header (if shown)—figures reflect that moment.
-5. If **Needs attention:** appears, read the amber pill links for program-level alerts (personal approvals are deduplicated when shown in **Your work**).
-6. Integration backlog and scheduled job health moved to **Integrations** (`/dashboard/integrations`) for administrators. Supervisors may also see a **PortCo pilot proof** panel summarizing integration health when your organization runs a portfolio pilot—details live on **Integrations**, not on the desk home.
-7. Under **Key indicators**, scan tiles (supervisors see the full grid; contributors may see them collapsed). Integration and cron panels no longer appear on the desk home.
-8. Open **Recent activity** for a timestamped feed; links open record detail.
-9. Expand **ISO setup checklist** in the sidebar panel when aligning the management system.
-10. Supervisors see **Quick actions** on desk home; field users use the compact field menu instead.
-11. Use **Full safety & metrics dashboard →** for the dedicated **Safety metrics** page (`/dashboard/analytics`).
+3. When data loads, note **Snapshot as of** *date/time* under the header (if shown)—figures reflect that moment.
+4. If **Needs attention** appears, expand it and use the amber pill links for program-level alerts (personal approvals are deduplicated when shown in **Your work**).
+5. Expand **Key indicators** only when you need the program KPI snapshot; collapse it again to keep Today calm.
+6. Expand **ISO setup checklist** when aligning the management system (mark steps done as you complete them).
+7. Open **More on Today** for program updates, recent activity, supervisor **Quick actions** / **PortCo pilot proof**, CSV **Export**, and the link to **Full safety & metrics dashboard**.
+8. Use **Compact field menu** when you need large intake buttons; field users switch back with **Open full operations dashboard**.
+9. Integration backlog and scheduled job health live on **Integrations** (`/dashboard/integrations`) for administrators—not on the desk home.
 
 ### What if things go wrong?
 
@@ -262,7 +260,8 @@ Desk supervisors still see program **Needs attention** chips and KPI tiles; desk
 | A tile shows **—** (dash) | Data still loading—or none yet. Wait; open the target module from the menu. |
 | **Loading operations snapshot…** or **Loading workspace…** stays visible | Network delay—reload once; check connection. |
 | **Mark done** seems stuck | Wait briefly; refresh; inform IT only if repeatable. |
-| You expected KPI tiles but see only the field menu | Your org defaulted to field layout—open **Full operations dashboard** / **Open full operations dashboard**. |
+| You expected KPI tiles but see only the field menu | Your org defaulted to field layout—open **Open full operations dashboard**, then expand **Key indicators** on desk Today. |
+| Desk Today looks empty of KPIs | **Key indicators** and **More on Today** stay collapsed by design—expand them when you need program figures or export. |
 
 ---
 
@@ -276,7 +275,7 @@ Gives coordinators and managers a snapshot of incidents, corrective actions, tra
 
 ### SOP — Use the Metrics page
 
-1. Open **Metrics** from **Records & metrics**, from **Quick actions** on the command center (**Metrics**), from the **Full safety & metrics dashboard →** link beside the ISO setup checklist, or after opening the full operations dashboard from **Field workspace**. Path: `/dashboard/analytics`.
+1. Open **Metrics** from **Records & metrics**, from **More on Today** → **Full safety & metrics dashboard** (or supervisor **Quick actions**), or after switching from **Field workspace** with **Open full operations dashboard**. Path: `/dashboard/analytics`.
 2. The page headline is **Safety metrics**; subtitle *Leading and lagging indicators scoped to your permissions.* Optional line **Snapshot:** *datetime* reflects generation time when present.
 3. Choose **Trailing months** (3, 6, 12, 18, or 24) from the dropdown beside that label—it drives trend windows alongside the headline controls.
 4. Read **Operations automation and SLAs** (panel with disclaimer about escalations). When data exists, tiles can include **Observation SLA escalations (90d)** and **Approval SLA escalations (90d)** linking to **Observations** and **Approvals**. This section aligns with anchors used by command-center chips (for example `#operations-sla-escalations`).
@@ -1314,9 +1313,10 @@ Use **Previous page** / **Next page** underneath the grid (buttons disable appro
 |------------------|--------------|
 | Organization selector | Pick which site’s records you’re viewing right now. |
 | **ISO setup checklist** “Mark done” | Mark complete only after leaders confirm the rollout step is truly finished. |
-| **Compact field menu** / **Full operations dashboard** | Switches between the large-button field layout and the full KPI command center for the same organization. |
+| **Compact field menu** / **Open full operations dashboard** | Switches between the large-button field layout and the desk Today command center for the same organization. |
 | **Install EHS on this device** banner | Optional shortcut (common on Chromium browsers); skip if you prefer the normal browser tab. |
-| **Download command center CSV** | Exports KPI-style figures tied to your current snapshot for reporting when the button appears. |
+| **Key indicators** (collapsed) | Program KPI snapshot—expand when you need counts; stays closed on first paint to keep Today calm. |
+| **More on Today** | Program updates, activity, quick actions, and CSV **Export** when your role allows. |
 | Command center **Needs attention** | Focus pills for items that may need action soon—open the one that matches your role. |
 | **Risk assessments** roster | Tracks JSA/site register rows beside **Planning**—distinct from permits to work and environmental permits. |
 | **Environmental permits** | Regulatory permit register—not the same intake as **Permits to work.** |

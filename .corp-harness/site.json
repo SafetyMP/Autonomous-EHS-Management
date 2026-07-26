@@ -4,9 +4,9 @@
   "corporate_program": "/Users/sagehart/Downloads/ehs-corporate-program",
   "corporate_handoff_sha256": "cc77cb694a0d0214b5adbfe18c1e04b72eef9a613b7283c5a5065ff45de646b4",
   "verify_argv": [
-    "./scripts/verify.sh"
+    "./scripts/harness/verify.sh"
   ],
   "adversarial_argv": [
-    "./scripts/adversarial.sh"
+    "./scripts/harness/adversarial.sh"
   ]
 }

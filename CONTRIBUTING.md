@@ -16,7 +16,7 @@ Read **[AGENTS.md](AGENTS.md)** (site gates + contributor/CI matrix), **[GOVERNA
 ## Workflow
 
 1. Branch from **`main`** (org rulesets may enforce PR-only merges).
-2. Run **`./scripts/verify.sh`** locally; use **`npm run verify:all`** or **`./scripts/integration-e2e.sh`** when you touch UI or cron paths covered by smoke E2E.
+2. Run **`./scripts/verify.sh`** locally; use **`npm run verify:all`** or **`./scripts/integration-e2e.sh`** when you touch UI or cron paths covered by smoke E2E. Console UX / token / Today density changes should also pass Playwright `--project=a11y` and `--project=density` (see [AGENTS.md](AGENTS.md) and [docs/qa/calm-focus-final-dossier.md](docs/qa/calm-focus-final-dossier.md)).
 3. When changing trust boundaries (auth, inbound, SCIM, Context Sync), also run **`./scripts/adversarial.sh`** against a local app URL (see [AGENTS.md](AGENTS.md)).
 4. Open a PR that follows **[`.github/pull_request_template.md`](.github/pull_request_template.md)** (linked issue, checks evidence).
 5. For compliance / retention / RAG — use the compliance issue template and get the right review path.

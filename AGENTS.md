@@ -41,6 +41,18 @@ CI always runs signed-in smoke against service Postgres (`db:migrate` + `db:seed
 
 Primary smoke coverage lives under [`tests/e2e/smoke/`](tests/e2e/smoke/) (dashboard gate, cron auth, integration inbound, Context Sync REST, and related `@smoke` flows). Prefer `./scripts/integration-e2e.sh` or `npm run test:e2e:smoke` over inventing ad-hoc Playwright commands.
 
+## Additional Playwright projects (Calm Focus)
+
+Not grepped by `test:e2e:smoke`. Use after `db:seed:ci` (admin + `e2e.contributor@ci.local`):
+
+| Project | Path | Notes |
+|---|---|---|
+| `a11y` | `tests/e2e/a11y/` | axe WCAG 2.2 AA; CI e2e-smoke step |
+| `density` | `tests/e2e/density/` | Today KPI-hidden + ≤12 controls; both desk personas |
+| `visual` | `tests/e2e/visual/` | Screenshot digests → `evidence/calm-focus-visual-manifest.json`; set `PLAYWRIGHT_VISUAL=1` to capture |
+
+Claim lint: `./scripts/check-wcag3-claims.sh` (also wired in CI `verify`). UX package summary: [`docs/qa/calm-focus-final-dossier.md`](docs/qa/calm-focus-final-dossier.md).
+
 ## Threat model
 
 Authoritative cells: [`specs/threat-model.yaml`](specs/threat-model.yaml). Static gate: `./scripts/check-threat-model.sh`. Executable denies: `./scripts/adversarial.sh` (requires `ADVERSARIAL_BASE_URL` / default `http://localhost:3000` and, for global inbound cases, `INTEGRATION_INBOUND_SECRET`).
