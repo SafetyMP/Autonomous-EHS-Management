@@ -1,6 +1,9 @@
 schema: threat-model/v1.1
 product: Autonomous EHS Management System
-updated: "2026-07-19"
+updated: "2026-07-26"
+# 2026-07-26: context_sync_artifacts cell unchanged — Context Sync service edits were
+# TypeScript noUncheckedIndexedAccess hardening only (parse/URI/diff/capability helpers);
+# session-bound trust boundary and anonymous deny oracles remain authoritative.
 
 runtime:
   base_url_env: ADVERSARIAL_BASE_URL

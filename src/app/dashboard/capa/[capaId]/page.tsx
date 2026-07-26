@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useId, useState } from "react";
+import { useId, useOptimistic, useState, useTransition } from "react";
 import { CapaSourcePanel, CapaStatusStepper } from "@/components/dashboard/capa-source-panel";
 import { EhsEvidenceRegistrySection } from "@/components/dashboard/ehs-evidence-registry-section";
 import { OrgSwitcher } from "@/components/org-switcher";
@@ -56,6 +56,7 @@ export default function CapaDetailPage() {
   const verifyNotesId = useId();
   const [verifyNotes, setVerifyNotes] = useState("");
   const [showVerify, setShowVerify] = useState(false);
+  const [isPending, startUiTransition] = useTransition();
 
   const utils = trpc.useUtils();
 
@@ -85,6 +86,12 @@ export default function CapaDetailPage() {
     },
   });
 
+  type CapaStatus = NonNullable<typeof data>["capa"]["status"];
+  const [optimisticStatus, setOptimisticStatus] = useOptimistic(
+    data?.capa.status ?? ("planned" as CapaStatus),
+    (_current, nextStatus: CapaStatus) => nextStatus,
+  );
+
   if (!organizationId || !capaId) {
     return (
       <div className="space-y-4">
@@ -102,7 +109,8 @@ export default function CapaDetailPage() {
     );
   }
 
-  const { capa, sources, hasOpenApproval } = data;
+  const { capa: capaRow, sources, hasOpenApproval } = data;
+  const capa = { ...capaRow, status: optimisticStatus };
   const next = nextCapaStatus(capa.status);
   const ownerEmail =
     members?.find((m) => m.userId === capa.ownerUserId)?.email ?? capa.ownerUserId ?? "Unassigned";
@@ -166,11 +174,14 @@ export default function CapaDetailPage() {
               className="mt-3 space-y-3"
               onSubmit={(e) => {
                 e.preventDefault();
-                updateStatus.mutate({
-                  organizationId: org,
-                  correctiveActionId: capa.id,
-                  status: "verified",
-                  verificationNotes: verifyNotes,
+                startUiTransition(async () => {
+                  setOptimisticStatus("verified");
+                  await updateStatus.mutateAsync({
+                    organizationId: org,
+                    correctiveActionId: capa.id,
+                    status: "verified",
+                    verificationNotes: verifyNotes,
+                  });
                 });
               }}
             >
@@ -187,8 +198,13 @@ export default function CapaDetailPage() {
                 onChange={(e) => setVerifyNotes(e.target.value)}
               />
               <div className="flex flex-wrap gap-2">
-                <button type="submit" disabled={updateStatus.isPending} className="btn-primary">
-                  {updateStatus.isPending ? "Saving…" : "Confirm verification"}
+                <button
+                  type="submit"
+                  disabled={updateStatus.isPending || isPending}
+                  aria-busy={updateStatus.isPending || isPending}
+                  className="btn-primary"
+                >
+                  {updateStatus.isPending || isPending ? "Saving…" : "Confirm verification"}
                 </button>
                 <button
                   type="button"
@@ -203,17 +219,26 @@ export default function CapaDetailPage() {
             <button
               type="button"
               className="btn-primary mt-3"
-              disabled={updateStatus.isPending || (capa.status === "pending_approval" && hasOpenApproval)}
+              disabled={
+                updateStatus.isPending ||
+                isPending ||
+                (capa.status === "pending_approval" && hasOpenApproval)
+              }
+              aria-busy={updateStatus.isPending || isPending}
               onClick={() => {
                 if (capa.status === "completed") {
                   setShowVerify(true);
                   return;
                 }
                 if (!next) return;
-                updateStatus.mutate({
-                  organizationId: org,
-                  correctiveActionId: capa.id,
-                  status: next,
+                const nextStatus = next;
+                startUiTransition(async () => {
+                  setOptimisticStatus(nextStatus);
+                  await updateStatus.mutateAsync({
+                    organizationId: org,
+                    correctiveActionId: capa.id,
+                    status: nextStatus,
+                  });
                 });
               }}
             >

@@ -105,7 +105,15 @@ test.describe("Calm Focus visual evidence scaffold @visual", () => {
     async ({ page }) => {
       test.setTimeout(180_000);
       const manifest = loadManifest();
-      const byId = Object.fromEntries(manifest.surfaces.map((s) => [s.id, s]));
+      const byId = Object.fromEntries(manifest.surfaces.map((s) => [s.id, s])) as Record<
+        string,
+        Surface | undefined
+      >;
+      function surface(id: (typeof CANONICAL_IDS)[number]): Surface {
+        const s = byId[id];
+        if (!s) throw new Error(`Missing visual surface: ${id}`);
+        return s;
+      }
 
       await page.setViewportSize({ width: 1440, height: 900 });
       const contributorEmail =
@@ -127,13 +135,14 @@ test.describe("Calm Focus visual evidence scaffold @visual", () => {
         timeout: 30_000,
       });
       await expect(page.locator("#main-content")).toBeVisible();
-      const contribHash = await capturePng(page, byId.desk_contributor_today_collapsed.path, {
+      const contribSurface = surface("desk_contributor_today_collapsed");
+      const contribHash = await capturePng(page, contribSurface.path, {
         width: 1440,
         height: 900,
       });
-      byId.desk_contributor_today_collapsed.sha256 = contribHash;
-      byId.desk_contributor_today_collapsed.digest_kind = "png";
-      byId.desk_contributor_today_collapsed.viewport = "1440x900";
+      contribSurface.sha256 = contribHash;
+      contribSurface.digest_kind = "png";
+      contribSurface.viewport = "1440x900";
 
       // Sign out via UI so supervisor session is clean.
       await page.getByRole("button", { name: /^Sign out$/i }).click();
@@ -147,42 +156,44 @@ test.describe("Calm Focus visual evidence scaffold @visual", () => {
       );
       await expect(page.locator("#main-content")).toBeVisible({ timeout: 30_000 });
 
-      const deskCollapsedHash = await capturePng(
-        page,
-        byId.desk_supervisor_today_collapsed.path,
-        { width: 1440, height: 900 },
-      );
-      byId.desk_supervisor_today_collapsed.sha256 = deskCollapsedHash;
-      byId.desk_supervisor_today_collapsed.digest_kind = "png";
-      byId.desk_supervisor_today_collapsed.viewport = "1440x900";
+      const deskCollapsed = surface("desk_supervisor_today_collapsed");
+      const deskCollapsedHash = await capturePng(page, deskCollapsed.path, {
+        width: 1440,
+        height: 900,
+      });
+      deskCollapsed.sha256 = deskCollapsedHash;
+      deskCollapsed.digest_kind = "png";
+      deskCollapsed.viewport = "1440x900";
 
       const kpiSummary = page.locator("#dash-kpis > summary");
       if (await kpiSummary.isVisible({ timeout: 5_000 }).catch(() => false)) {
         await kpiSummary.click();
         await expect(page.locator("[data-kpi-tile]").first()).toBeVisible({ timeout: 10_000 });
       }
-      const deskExpandedHash = await capturePng(
-        page,
-        byId.desk_supervisor_today_kpi_expanded.path,
-        { width: 1440, height: 900 },
-      );
-      byId.desk_supervisor_today_kpi_expanded.sha256 = deskExpandedHash;
-      byId.desk_supervisor_today_kpi_expanded.digest_kind = "png";
-      byId.desk_supervisor_today_kpi_expanded.viewport = "1440x900";
+      const deskExpanded = surface("desk_supervisor_today_kpi_expanded");
+      const deskExpandedHash = await capturePng(page, deskExpanded.path, {
+        width: 1440,
+        height: 900,
+      });
+      deskExpanded.sha256 = deskExpandedHash;
+      deskExpanded.digest_kind = "png";
+      deskExpanded.viewport = "1440x900";
 
       // S4 — field
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/dashboard?view=field");
       await expect(page.locator("#main-content")).toBeVisible({ timeout: 30_000 });
-      const fieldHash = await capturePng(page, byId.field_today.path, {
+      const fieldSurface = surface("field_today");
+      const fieldHash = await capturePng(page, fieldSurface.path, {
         width: 390,
         height: 844,
       });
-      byId.field_today.sha256 = fieldHash;
-      byId.field_today.digest_kind = "png";
-      byId.field_today.viewport = "390x844";
+      fieldSurface.sha256 = fieldHash;
+      fieldSurface.digest_kind = "png";
+      fieldSurface.viewport = "390x844";
 
-      const pngCount = Object.values(byId).filter((s) => s.digest_kind === "png").length;
+      const surfaces = CANONICAL_IDS.map((id) => surface(id));
+      const pngCount = surfaces.filter((s) => s.digest_kind === "png").length;
       const next: Manifest = {
         program: manifest.program,
         cycle: manifest.cycle,
@@ -191,7 +202,7 @@ test.describe("Calm Focus visual evidence scaffold @visual", () => {
           pngCount === 4
             ? "PNG digests from PLAYWRIGHT_VISUAL=1 capture (both desk personas + field). Human review of S1–S4 still required at promotion (AC-CF-V010 / UR-CF-007)."
             : "Partial PNG capture — one or more surfaces missing. Human review still required at promotion.",
-        surfaces: CANONICAL_IDS.map((id) => byId[id]),
+        surfaces,
       };
       writeFileSync(path.join(REPO_ROOT, MANIFEST_REL), `${JSON.stringify(next, null, 2)}\n`);
     },

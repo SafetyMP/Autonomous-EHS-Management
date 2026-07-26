@@ -20,5 +20,28 @@ export default defineConfig({
       "tests/integration/**/*.test.ts",
       "tests/evals/**/*.eval.test.ts",
     ],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov", "html"],
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/**/*.d.ts",
+        "src/app/**/layout.tsx",
+        "src/app/**/loading.tsx",
+        "src/app/**/error.tsx",
+        "src/app/**/not-found.tsx",
+        "src/app/**/page.tsx",
+        "src/app/**/*-client.tsx",
+        "src/app/**/*-list-client.tsx",
+        "src/instrumentation.ts",
+      ],
+      // Soft floors under full-src baseline (~23% lines) — catch regressions, not aspirational targets.
+      thresholds: {
+        lines: 22,
+        statements: 22,
+        functions: 17,
+        branches: 15,
+      },
+    },
   },
 });

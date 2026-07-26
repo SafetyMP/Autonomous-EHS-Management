@@ -396,12 +396,12 @@ export const organizationRouter = router({
 
       assertSafeOperationalWebhookTarget(input.targetUrl);
 
-      const [{ n }] = await ctx.db
+      const [countRow] = await ctx.db
         .select({ n: count() })
         .from(operationalWebhookEndpoint)
         .where(eq(operationalWebhookEndpoint.organizationId, input.organizationId));
 
-      if (Number(n ?? 0) >= 12) {
+      if (Number(countRow?.n ?? 0) >= 12) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Maximum operational webhook endpoints (12) reached for this organization.",

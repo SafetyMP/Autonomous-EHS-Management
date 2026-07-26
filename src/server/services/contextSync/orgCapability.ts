@@ -38,7 +38,8 @@ export async function gateContextSyncOrgEnabled(
     );
   }
 
-  if (!rows[0].enabled) {
+  const row = rows[0];
+  if (!row?.enabled) {
     return contextSyncDisabledRestResponse();
   }
 
@@ -56,7 +57,8 @@ export async function assertContextSyncEnabledForTrpc(db: Db, organizationId: st
     throw new TRPCError({ code: "BAD_REQUEST", message: "Unknown organization." });
   }
 
-  if (!rows[0].enabled) {
+  const row = rows[0];
+  if (!row?.enabled) {
     throw new TRPCError({
       code: "FORBIDDEN",
       message:

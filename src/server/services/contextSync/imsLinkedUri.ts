@@ -26,8 +26,9 @@ export function parseImsLinkedUri(parsed: ParsedCtxUri): ParsedImsLinked | null 
   if (parts.length !== 2) {
     return null;
   }
-  const [kindSeg, rawId] = parts;
-  if (!UUID_RE.test(rawId)) {
+  const kindSeg = parts[0];
+  const rawId = parts[1];
+  if (kindSeg === undefined || rawId === undefined || !UUID_RE.test(rawId)) {
     return null;
   }
 
