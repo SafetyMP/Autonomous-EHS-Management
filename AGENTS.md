@@ -2,10 +2,13 @@
 
 ## Gates
 
+
 | Command | Purpose |
 |---|---|
 | `./scripts/verify.sh` | Functional and static acceptance |
 | `./scripts/adversarial.sh` | Authorized local adversarial probes |
+
+Record `verification_scripts` as site-relative `scripts/harness` (exactly `verify.sh` and `adversarial.sh`). Optional wrappers may remain at `scripts/verify.sh` / `scripts/adversarial.sh` for humans; they are outside the digest boundary.
 
 The corporate handoff fixes scope. The site manager assigns ADRs; site specialists write;
 the root orchestrator dispatches nondelegating workers and runs gate commands; operations

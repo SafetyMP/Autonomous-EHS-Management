@@ -101,7 +101,7 @@ Job: **`release`** in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) + [
 
 ## 5. Vercel CLI deploy (trust model)
 
-Inbound **GitHub Actions → Vercel** deployments follow [Vercel’s GitHub Actions guide](https://vercel.com/guides/how-can-i-use-github-actions-with-vercel) (`vercel pull` / `vercel build` / `vercel deploy --prebuilt`).
+Inbound **GitHub Actions → Vercel** deployments follow [Vercel’s GitHub Actions guide](https://vercel.com/docs/git/vercel-for-github) (`vercel pull` / `vercel build` / `vercel deploy --prebuilt`).
 
 **Vercel OIDC federation** documented today centres on **outbound** access from **Vercel workloads** to AWS/GCP/Azure (`VERCEL_OIDC_TOKEN`). It **does not** replace `VERCEL_TOKEN` for Actions-based deploy auth at the time of writing — store a **short-lived rotated** PAT as **`production`** secret **`VERCEL_TOKEN`**.
 
