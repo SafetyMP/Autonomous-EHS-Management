@@ -75,6 +75,11 @@ describe("filterDashboardNavSections", () => {
 
 describe("task-first IA (ADR-UX-001)", () => {
   const byTitle = Object.fromEntries(DASHBOARD_NAV_SECTIONS.map((s) => [s.title, s]));
+  function section(title: string) {
+    const s = byTitle[title];
+    if (!s) throw new Error(`Missing nav section: ${title}`);
+    return s;
+  }
 
   it("exposes primary Today / Capture / Decide / Prove before secondary clusters", () => {
     const titles = DASHBOARD_NAV_SECTIONS.map((s) => s.title);
@@ -103,17 +108,17 @@ describe("task-first IA (ADR-UX-001)", () => {
   });
 
   it("keeps Today personal-work only (approvals under Decide)", () => {
-    const todayHrefs = byTitle.Today.items.map((i) => i.href);
+    const todayHrefs = section("Today").items.map((i) => i.href);
     expect(todayHrefs).toEqual(["/dashboard", "/dashboard/tasks"]);
     expect(todayHrefs).not.toContain("/dashboard/approvals");
   });
 
   it("places CAPA under Decide and Prove as audit/evidence-only", () => {
-    expect(byTitle.Decide.items.map((i) => i.href)).toEqual([
+    expect(section("Decide").items.map((i) => i.href)).toEqual([
       "/dashboard/approvals",
       "/dashboard/capa",
     ]);
-    const proveHrefs = byTitle.Prove.items.map((i) => i.href);
+    const proveHrefs = section("Prove").items.map((i) => i.href);
     expect(proveHrefs).toContain("/dashboard/audit-trail");
     expect(proveHrefs).toContain("/dashboard/documents");
     expect(proveHrefs).not.toContain("/dashboard/analytics");
@@ -121,11 +126,11 @@ describe("task-first IA (ADR-UX-001)", () => {
   });
 
   it("keeps PTW under Capture and env permits copy-separated in secondary programme", () => {
-    expect(byTitle.Capture.items.map((i) => i.href)).toContain("/dashboard/permits");
-    expect(byTitle.Capture.items.map((i) => i.href)).not.toContain(
+    expect(section("Capture").items.map((i) => i.href)).toContain("/dashboard/permits");
+    expect(section("Capture").items.map((i) => i.href)).not.toContain(
       "/dashboard/environmental-permits",
     );
-    expect(byTitle["Plan & programme"].items.map((i) => i.href)).toContain(
+    expect(section("Plan & programme").items.map((i) => i.href)).toContain(
       "/dashboard/environmental-permits",
     );
   });

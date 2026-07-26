@@ -32,9 +32,8 @@ export function OrgProvider({
   }, []);
 
   const value = useMemo(() => {
-    const effectiveId =
-      organizationId ??
-      (organizations.length === 1 ? organizations[0].id : null);
+    const soleOrg = organizations.length === 1 ? organizations[0] : undefined;
+    const effectiveId = organizationId ?? soleOrg?.id ?? null;
     return {
       organizations,
       organizationId: effectiveId,

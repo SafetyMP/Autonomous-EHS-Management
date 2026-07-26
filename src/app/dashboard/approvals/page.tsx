@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
@@ -22,6 +22,7 @@ export default function ApprovalsPage() {
   const utils = trpc.useUtils();
   const [comment, setComment] = useState("");
   const [activeRequestId, setActiveRequestId] = useState<string | null>(null);
+  const [isPending, startUiTransition] = useTransition();
 
   const pending = trpc.approval.listMyPendingSteps.useQuery(
     { organizationId: org },
@@ -40,6 +41,11 @@ export default function ApprovalsPage() {
     { enabled: !!organizationId },
   );
 
+  const [optimisticPending, removeOptimisticRequest] = useOptimistic(
+    pending.data ?? [],
+    (current, requestId: string) => current.filter((row) => row.request.id !== requestId),
+  );
+
   const decide = trpc.approval.decideRequest.useMutation({
     onSuccess: () => {
       void pending.refetch();
@@ -55,6 +61,25 @@ export default function ApprovalsPage() {
       setComment("");
     },
   });
+
+  function runDecision(
+    requestId: string,
+    decision: "approved" | "rejected",
+  ) {
+    startUiTransition(async () => {
+      removeOptimisticRequest(requestId);
+      try {
+        await decide.mutateAsync({
+          organizationId: org,
+          requestId,
+          decision,
+          comment: comment.trim() || undefined,
+        });
+      } catch {
+        // Server error: query refetch restores the row; optimistic list rolls back with transition.
+      }
+    });
+  }
 
   if (!organizationId) {
     return (
@@ -108,14 +133,14 @@ export default function ApprovalsPage() {
                   </span>
                 </td>
               </tr>
-            ) : pending.data?.length === 0 ? (
+            ) : optimisticPending.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-6 text-zinc-700">
                   No pending approvals for your account.
                 </td>
               </tr>
             ) : (
-              pending.data?.map(({ step, request }) => {
+              optimisticPending.map(({ step, request }) => {
                 const expanded = activeRequestId === request.id;
                 const due = step.dueAt ? new Date(step.dueAt) : null;
                 const overdue = due && due < new Date();
@@ -204,16 +229,9 @@ export default function ApprovalsPage() {
                             <button
                               type="button"
                               className="btn-primary"
-                              disabled={decide.isPending}
-                              aria-busy={decide.isPending}
-                              onClick={() =>
-                                decide.mutate({
-                                  organizationId: org,
-                                  requestId: request.id,
-                                  decision: "approved",
-                                  comment: comment.trim() || undefined,
-                                })
-                              }
+                              disabled={decide.isPending || isPending}
+                              aria-busy={decide.isPending || isPending}
+                              onClick={() => runDecision(request.id, "approved")}
                             >
                               {request.entityType === "capa"
                                 ? "Approve plan"
@@ -226,15 +244,9 @@ export default function ApprovalsPage() {
                             <button
                               type="button"
                               className="btn-secondary"
-                              disabled={decide.isPending}
-                              onClick={() =>
-                                decide.mutate({
-                                  organizationId: org,
-                                  requestId: request.id,
-                                  decision: "rejected",
-                                  comment: comment.trim() || undefined,
-                                })
-                              }
+                              disabled={decide.isPending || isPending}
+                              aria-busy={decide.isPending || isPending}
+                              onClick={() => runDecision(request.id, "rejected")}
                             >
                               Reject
                             </button>

@@ -37,16 +37,24 @@ export function computeLineDiff(fromText: string, toText: string, maxHunks = 500
   };
 
   while (i < a.length || j < b.length) {
-    if (i < a.length && j < b.length && a[i] === b[j]) {
+    const aLine = a[i];
+    const bLine = b[j];
+    if (i < a.length && j < b.length && aLine !== undefined && bLine !== undefined && aLine === bLine) {
       unchanged++;
       i++;
       j++;
-    } else if (j < b.length && (i === a.length || lcs[i][j + 1] >= lcs[i + 1][j])) {
-      pushAdd(j + 1, b[j]);
+    } else if (
+      j < b.length &&
+      bLine !== undefined &&
+      (i === a.length || cell(lcs, i, j + 1) >= cell(lcs, i + 1, j))
+    ) {
+      pushAdd(j + 1, bLine);
       j++;
-    } else if (i < a.length) {
-      pushRemove(i + 1, a[i]);
+    } else if (i < a.length && aLine !== undefined) {
+      pushRemove(i + 1, aLine);
       i++;
+    } else {
+      break;
     }
   }
 
@@ -67,14 +75,24 @@ function splitLines(s: string): string[] {
   return s.split(/\n/);
 }
 
+function cell(dp: number[][], i: number, j: number): number {
+  return dp[i]?.[j] ?? 0;
+}
+
 function lcsLengths(a: string[], b: string[]): number[][] {
   const n = a.length + 1;
   const m = b.length + 1;
-  const dp: number[][] = Array.from({ length: n }, () => Array(m).fill(0));
+  const dp: number[][] = Array.from({ length: n }, () => Array<number>(m).fill(0));
   for (let i = n - 2; i >= 0; i--) {
     for (let j = m - 2; j >= 0; j--) {
-      dp[i][j] =
-        a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      const row = dp[i];
+      if (!row) continue;
+      const aLine = a[i];
+      const bLine = b[j];
+      row[j] =
+        aLine !== undefined && bLine !== undefined && aLine === bLine
+          ? cell(dp, i + 1, j + 1) + 1
+          : Math.max(cell(dp, i + 1, j), cell(dp, i, j + 1));
     }
   }
   return dp;

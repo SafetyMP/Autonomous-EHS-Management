@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 /**
  * Installable progressive-web shell for field shortcut (ADR-UX-003 / AC-009).
  * Not a native App Store / Play Store client — D-006 remains blocked.
+ * Colors align with ADR-UX-005 Calm Focus tokens (`--background`, `--primary`).
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -14,8 +15,8 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait-primary",
-    background_color: "#fafafa",
-    theme_color: "#059669",
+    background_color: "#f8fafc",
+    theme_color: "#0f766e",
     icons: [
       {
         src: "/file.svg",

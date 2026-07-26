@@ -6,13 +6,21 @@ loadEnvConfig(process.cwd());
 
 const isDev = process.env.NODE_ENV !== "production";
 
-/** Baseline CSP; dev relaxes connect-src for Next.js HMR WebSockets. Extend for browser-side OIDC or third-party APIs. */
+/**
+ * Baseline CSP (July 2026 hardening plan):
+ * - Keep `'unsafe-inline'` / `'unsafe-eval'` on script-src until Next App Router supports
+ *   nonce/hash CSP without breaking hydration (track Next CSP nonce docs + Turbopack).
+ * - Production adds `upgrade-insecure-requests`.
+ * - Next step: middleware/proxy nonce injection + `strict-dynamic` once build pipeline can
+ *   stamp nonces on framework scripts without breaking standalone Docker/Vercel deploys.
+ */
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",
+  // Temporary: Next.js inline bootstrapping still requires these in many App Router builds.
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
@@ -20,6 +28,7 @@ const contentSecurityPolicy = [
   isDev
     ? "connect-src 'self' http: https: ws: wss:"
     : "connect-src 'self'",
+  ...(!isDev ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const securityHeaders = [

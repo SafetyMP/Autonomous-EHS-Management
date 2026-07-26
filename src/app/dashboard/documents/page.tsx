@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { startTransition, useOptimistic, useState, useTransition } from "react";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "@/server/trpc/root";
 import { OrgSwitcher } from "@/components/org-switcher";
@@ -17,6 +17,7 @@ import {
 import { trpc } from "@/trpc/react";
 
 type DocRow = inferRouterOutputs<AppRouter>["document"]["list"][number];
+type DocStatus = DocRow["status"];
 
 const tableBtnBase =
   "touch-target rounded-md px-3 text-base font-semibold underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-50";
@@ -28,10 +29,19 @@ export default function DocumentsPage() {
   const [documentNumber, setDocumentNumber] = useState("");
   const [revision, setRevision] = useState("1.0");
   const [actingDocId, setActingDocId] = useState<string | null>(null);
+  const [isPending, startUiTransition] = useTransition();
 
   const { data: docs, isLoading } = trpc.document.list.useQuery(
     { organizationId: organizationId! },
     { enabled: !!organizationId },
+  );
+
+  const [optimisticDocs, setOptimisticStatus] = useOptimistic(
+    docs ?? [],
+    (current, update: { documentId: string; status: DocStatus }) =>
+      current.map((d) =>
+        d.id === update.documentId ? { ...d, status: update.status } : d,
+      ),
   );
 
   const createDoc = trpc.document.create.useMutation({
@@ -46,6 +56,23 @@ export default function DocumentsPage() {
   const setStatus = trpc.document.setStatus.useMutation({
     onSuccess: () => void utils.document.list.invalidate(),
   });
+
+  function runStatusChange(documentId: string, status: DocStatus) {
+    if (!organizationId) return;
+    setActingDocId(documentId);
+    startUiTransition(async () => {
+      setOptimisticStatus({ documentId, status });
+      try {
+        await setStatus.mutateAsync({
+          organizationId,
+          documentId,
+          status,
+        });
+      } finally {
+        startTransition(() => setActingDocId(null));
+      }
+    });
+  }
 
   if (!organizationId) {
     return (
@@ -77,11 +104,13 @@ export default function DocumentsPage() {
             className="mt-4 flex flex-wrap items-end gap-3"
             onSubmit={(e) => {
               e.preventDefault();
-              createDoc.mutate({
-                organizationId,
-                title,
-                documentNumber,
-                revision: revision || undefined,
+              startUiTransition(() => {
+                createDoc.mutate({
+                  organizationId,
+                  title,
+                  documentNumber,
+                  revision: revision || undefined,
+                });
               });
             }}
           >
@@ -122,8 +151,8 @@ export default function DocumentsPage() {
             </div>
             <button
               type="submit"
-              disabled={createDoc.isPending}
-              aria-busy={createDoc.isPending}
+              disabled={createDoc.isPending || isPending}
+              aria-busy={createDoc.isPending || isPending}
               className={dfPrimarySubmit}
             >
               {createDoc.isPending ? "Saving…" : "Add draft"}
@@ -162,15 +191,18 @@ export default function DocumentsPage() {
                   </span>
                 </td>
               </tr>
-            ) : docs?.length === 0 ? (
+            ) : optimisticDocs.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-6 text-base text-zinc-700">
                   No controlled documents yet.
                 </td>
               </tr>
             ) : (
-              docs?.map((d: DocRow) => (
-                <tr key={d.id}>
+              optimisticDocs.map((d: DocRow) => (
+                <tr
+                  key={d.id}
+                  className={actingDocId === d.id ? "opacity-60 transition-opacity" : undefined}
+                >
                   <td className="px-4 py-3">
                     <span className="font-mono text-sm font-medium text-zinc-800">{d.documentNumber}</span>
                     <p className="font-medium text-zinc-900">
@@ -189,19 +221,9 @@ export default function DocumentsPage() {
                       <button
                         type="button"
                         className={`${tableBtnBase} text-emerald-900 decoration-emerald-800 hover:bg-emerald-50`}
-                        disabled={setStatus.isPending}
+                        disabled={setStatus.isPending || isPending}
                         aria-busy={actingDocId === d.id}
-                        onClick={() => {
-                          setActingDocId(d.id);
-                          setStatus.mutate(
-                            {
-                              organizationId,
-                              documentId: d.id,
-                              status: "approved",
-                            },
-                            { onSettled: () => setActingDocId(null) },
-                          );
-                        }}
+                        onClick={() => runStatusChange(d.id, "approved")}
                       >
                         Approve
                       </button>
@@ -210,19 +232,9 @@ export default function DocumentsPage() {
                       <button
                         type="button"
                         className={`${tableBtnBase} text-zinc-900 decoration-zinc-600 hover:bg-zinc-100`}
-                        disabled={setStatus.isPending}
+                        disabled={setStatus.isPending || isPending}
                         aria-busy={actingDocId === d.id}
-                        onClick={() => {
-                          setActingDocId(d.id);
-                          setStatus.mutate(
-                            {
-                              organizationId,
-                              documentId: d.id,
-                              status: "obsolete",
-                            },
-                            { onSettled: () => setActingDocId(null) },
-                          );
-                        }}
+                        onClick={() => runStatusChange(d.id, "obsolete")}
                       >
                         Obsolete
                       </button>

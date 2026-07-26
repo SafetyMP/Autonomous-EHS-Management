@@ -21,8 +21,16 @@ export function parseCtxUri(uri: string): ParsedCtxUri | null {
   if (segments.length < 3) {
     return null;
   }
-  const [orgId, domain, ...pathParts] = segments;
-  if (!UUID_RE.test(orgId) || pathParts.length === 0 || !DOMAIN_RE.test(domain)) {
+  const orgId = segments[0];
+  const domain = segments[1];
+  const pathParts = segments.slice(2);
+  if (
+    orgId === undefined ||
+    domain === undefined ||
+    !UUID_RE.test(orgId) ||
+    pathParts.length === 0 ||
+    !DOMAIN_RE.test(domain)
+  ) {
     return null;
   }
   const artifactPath = pathParts.join("/");
