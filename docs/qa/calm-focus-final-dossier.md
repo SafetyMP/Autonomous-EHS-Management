@@ -8,8 +8,8 @@
 **Prepared by:** corporate-ceo  
 **User approval:** granted (`user-approval-regate-r4.json`, `granted_by: user`, `2026-07-20T04:05:49Z`)
 
-**Corporate root:** `/Users/<redacted>/Downloads/ehs-corporate-program`  
-**Site:** `/Users/<redacted>/Downloads/Autonomous EHS Management System `
+**Corporate root:** `<home>/Downloads/ehs-corporate-program`  
+**Site:** `<home>/Downloads/Autonomous EHS Management System`
 
 **Predecessor:** Approved ehs-ux R1 task-first IA package (`_archives/ehs-ux-r1-approved`). R2 honesty non-negotiables remain in force.
 
