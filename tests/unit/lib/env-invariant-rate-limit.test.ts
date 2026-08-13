@@ -48,10 +48,27 @@ describe("rateLimitBackendPolicyViolation (R-009)", () => {
     ).toBeNull();
   });
 
-  it("allows RATE_LIMIT_DISABLED=true emergency bridge", () => {
+  it("does not allow RATE_LIMIT_DISABLED=true to skip the gate outside development (FO-021)", () => {
     expect(
       rateLimitBackendPolicyViolation(
         base({ NODE_ENV: "production", RATE_LIMIT_DISABLED: "true" }),
+      ),
+    ).toMatch(/Rate limiting backend is required/);
+    expect(
+      rateLimitBackendPolicyViolation(
+        base({
+          NODE_ENV: "development",
+          VERCEL_ENV: "preview",
+          RATE_LIMIT_DISABLED: "true",
+        }),
+      ),
+    ).toMatch(/Rate limiting backend is required/);
+  });
+
+  it("still allows RATE_LIMIT_DISABLED in development deploy class", () => {
+    expect(
+      rateLimitBackendPolicyViolation(
+        base({ NODE_ENV: "development", RATE_LIMIT_DISABLED: "true" }),
       ),
     ).toBeNull();
   });
