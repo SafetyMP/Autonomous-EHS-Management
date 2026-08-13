@@ -15,7 +15,7 @@
 | `organization.context_sync_enabled` | Default **false** for new orgs; set **true** only via org-admin `organization.updateContextSyncEnabled` (audited) |
 | Session actor binding | REST requires Better Auth session; `X-Actor-Id` must equal `human:{session.user.id}` (403 `actor_mismatch` otherwise) |
 | Agent class | `X-Agent-Class` honored only with org-bound claim rows from `contextSyncProtocol.agentClassClaimCreate` |
-| Rate limit | Non-dev deploy class has Upstash (`UPSTASH_REDIS_REST_*`) or explicit `RATE_LIMIT_DISABLED=true` bridge |
+| Rate limit | Non-dev deploy class has Upstash (`UPSTASH_REDIS_REST_*`); `RATE_LIMIT_DISABLED=true` is development-only |
 | Demo | `DEMO_MODE` / `NEXT_PUBLIC_DEMO_MODE` unset (or `DEMO_ALLOW_PRODUCTION=true` with documented exception) |
 
 Smoke oracle (anonymous gate): `tests/e2e/smoke/contextsync-rest-auth.spec.ts` — expects **401** `sign_in_required` without a session.

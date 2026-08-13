@@ -2,6 +2,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { TRPCError } from "@trpc/server";
 import { NextResponse } from "next/server";
+import { resolveDeployClass } from "@/lib/env";
 import { readValidatedEnv } from "@/server/read-env";
 
 function createLimiter(): Ratelimit | null {
@@ -32,19 +33,21 @@ function getLimiter(): Ratelimit | null {
 const isProd = process.env.NODE_ENV === "production";
 
 /**
- * Emergency kill switch (env: `RATE_LIMIT_DISABLED=true`) — bypasses the prod fail-closed gate so
- * the app can run before Upstash is provisioned. Logged once so it shows up in audit / boot logs.
+ * RATE_LIMIT_DISABLED=true is honored only in the development deploy class (FO-021).
+ * Production/preview must use Upstash; the flag cannot skip the fail-closed gate.
  */
 let killSwitchLogged = false;
 function isRateLimitDisabled(): boolean {
   const disabled = readValidatedEnv().RATE_LIMIT_DISABLED === "true";
-  if (disabled && isProd && !killSwitchLogged) {
+  if (!disabled) return false;
+  if (resolveDeployClass(process.env) !== "development") return false;
+  if (!killSwitchLogged) {
     killSwitchLogged = true;
     console.warn(
-      "[ratelimit] RATE_LIMIT_DISABLED=true in production — auth, tRPC, RAG ingest, and Context Sync REST are not rate-limited. Set UPSTASH_REDIS_REST_URL/TOKEN and unset this flag.",
+      "[ratelimit] RATE_LIMIT_DISABLED=true in development — auth, tRPC, RAG ingest, and Context Sync REST are not rate-limited.",
     );
   }
-  return disabled;
+  return true;
 }
 
 export function isRateLimiterConfigured(): boolean {

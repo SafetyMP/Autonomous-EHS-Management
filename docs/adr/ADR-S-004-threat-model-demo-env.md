@@ -25,7 +25,7 @@ Corporate handoff revision 1 records two maturation gaps:
 |--------|----------------|
 | `resolveDeployClass` | `APP_ENV` / `DEPLOY_ENV` ∈ {staging, production, prod, pilot}; `VERCEL_ENV` ∈ {production, preview}; or `NODE_ENV=production` |
 | `demoModePolicyViolation` | `DEMO_MODE=true` or `NEXT_PUBLIC_DEMO_MODE` ∈ {true, 1} without `DEMO_ALLOW_PRODUCTION=true` |
-| `rateLimitBackendPolicyViolation` | Missing `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` without `RATE_LIMIT_DISABLED=true` |
+| `rateLimitBackendPolicyViolation` | Missing `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` on non-dev deploy class (`RATE_LIMIT_DISABLED` cannot skip this gate) |
 
 These run at env module load (when validation is not skipped). Unit tests under `tests/unit/lib/env-invariant*.test.ts` prove the matrix.
 
@@ -58,7 +58,7 @@ Enablement remains opt-in (default off); session actor binding (`X-Actor-Id` = `
 
 **Negative / residual**
 
-- CI / sparse non-dev boots without Upstash must set `RATE_LIMIT_DISABLED=true` (documented kill switch) or provision Redis.
+- CI / sparse non-dev boots without Upstash must provision Redis (`UPSTASH_REDIS_REST_*`). `RATE_LIMIT_DISABLED=true` is development-only.
 - `src/instrumentation.ts` still mentions Vercel; broader invariant lives in `env.ts` (instrumentation left unchanged in this ADR write set).
 - Live `./scripts/adversarial.sh` still requires a running app URL.
 

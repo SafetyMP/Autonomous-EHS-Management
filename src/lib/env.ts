@@ -85,19 +85,19 @@ export function demoModePolicyViolation(vars: EnvInvariantVars): string | null {
 
 /**
  * Returns an error message when a non-dev deploy class lacks a rate-limit backend.
- * Escape hatch: RATE_LIMIT_DISABLED=true (short bridge while provisioning Upstash).
+ * RATE_LIMIT_DISABLED=true is allowed only for the development deploy class (FO-021),
+ * matching DEMO_MODE. Production/preview must provision Upstash.
  */
 export function rateLimitBackendPolicyViolation(
   vars: EnvInvariantVars,
 ): string | null {
   if (resolveDeployClass(vars) === "development") return null;
-  if (vars.RATE_LIMIT_DISABLED === "true") return null;
   const url = (vars.UPSTASH_REDIS_REST_URL ?? "").trim();
   const token = (vars.UPSTASH_REDIS_REST_TOKEN ?? "").trim();
   if (url && token) return null;
   return (
     "Rate limiting backend is required outside development. Set UPSTASH_REDIS_REST_URL and " +
-    "UPSTASH_REDIS_REST_TOKEN, or RATE_LIMIT_DISABLED=true only as an emergency bridge."
+    "UPSTASH_REDIS_REST_TOKEN. RATE_LIMIT_DISABLED=true cannot skip this gate in production/preview."
   );
 }
 
