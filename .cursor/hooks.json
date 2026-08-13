@@ -4,18 +4,18 @@
     "beforeShellExecution": [
       {
         "command": "python3 .cursor/hooks/guard-shell.py",
-        "failClosed": false
+        "failClosed": true
       },
       {
         "command": "python3 .cursor/hooks/guard-network.py",
         "matcher": "curl|wget|scp|nc ",
-        "failClosed": false
+        "failClosed": true
       }
     ],
     "beforeMCPExecution": [
       {
         "command": "python3 .cursor/hooks/guard-mcp.py",
-        "failClosed": false
+        "failClosed": true
       }
     ],
     "beforeReadFile": [

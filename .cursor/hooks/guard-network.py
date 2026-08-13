@@ -2,7 +2,7 @@
 """beforeShellExecution: ask before high-confidence outbound exfil patterns.
 
 Matcher-scoped in hooks.json (curl|wget|scp|nc). Returns permission: ask, not deny,
-so legitimate API work can proceed after user review. failClosed:false — secondary net.
+so legitimate API work can proceed after user review. failClosed:true — launch failure denies the matched command.
 """
 from __future__ import annotations
 

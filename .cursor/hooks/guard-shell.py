@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """beforeShellExecution: deny a narrow set of clearly destructive commands.
 
-Secondary denylist net (failClosed:false), NOT the security boundary — Cursor 2.0's
-OS sandbox (workspace-scoped, no internet by default on macOS) is primary. This hook
-catches a narrow set of high-confidence destructive patterns hooks can see. A
-fail-closed launch config would only add brick-risk without closing unlisted commands.
+Secondary denylist (failClosed:true on launch). Not the product security boundary —
+Cursor's OS sandbox is primary. This hook catches a narrow set of high-confidence
+destructive patterns. If the hook cannot start, the shell command is denied.
 Tuned to avoid false positives (e.g. `rm -rf node_modules`).
 """
 import os
