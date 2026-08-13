@@ -4,7 +4,7 @@
 Blocks only on high-confidence secret patterns to avoid friction.
 Output uses {"continue": bool} per the beforeSubmitPrompt contract.
 
-Guarded semantics (failClosed:false): launch failure -> fail OPEN; a detected
+Guarded semantics (failClosed:true): launch failure denies the prompt; a detected
 secret or an internal scan error -> {"continue": false}.
 """
 import os

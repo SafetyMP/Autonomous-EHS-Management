@@ -4,7 +4,7 @@ destructive ones (NEW in v2).
 
 Why this exists: MCP tools can mutate real systems (databases, cloud, files)
 and their *output* is untrusted data, never instructions. This hook is a
-fail-open net (failClosed:false): it logs every MCP call for observability and
+fail-closed launch (failClosed:true): if this hook cannot start, the MCP call is denied. It logs every MCP call for observability and
 denies only a narrow, high-confidence set of irreversible data-layer actions
 (DROP / TRUNCATE / unfiltered DELETE / mkfs / dd-to-device) found in the
 serialized tool arguments. It is NOT a security boundary.

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """beforeReadFile: keep secret files out of the model's context.
 
-Guarded semantics (failClosed:false in hooks.json):
-- Missing interpreter / launch failure -> Cursor fails OPEN (a vanished python3
-  never bricks all file reads).
-- A detected secret file -> explicit `deny` (effective fail-closed on detection).
+Guarded semantics (failClosed:true in hooks.json):
+- Missing interpreter / launch failure -> Cursor denies the read.
+- A detected secret file -> explicit `deny`.
 - An internal error while deciding -> `deny`, rather than risk leaking a file we
   failed to classify.
 """
