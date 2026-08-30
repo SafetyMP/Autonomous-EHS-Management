@@ -203,7 +203,7 @@ def is_sensitive_file(path: str) -> bool:
 # --- Destructive data-layer detection (shared by shell + MCP guards) --------
 # Narrow, high-confidence patterns for irreversible data/disk destruction that
 # can arrive either as a shell command or as serialized MCP tool arguments
-# (e.g. a database MCP running DROP). Fail-open nets, not boundaries.
+# (e.g. a database MCP running DROP). Narrow denylists, not product PDPs.
 DATA_DESTRUCTIVE: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"\b(drop\s+database|drop\s+table|truncate\s+table)\b", re.IGNORECASE),
      "Destructive SQL (DROP / TRUNCATE)."),
