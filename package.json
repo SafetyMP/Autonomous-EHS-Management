@@ -97,6 +97,12 @@
     "vite": "^8.1.4",
     "postcss": "^8.5.23",
     "sharp": "^0.35.3",
-    "vitest": "$vitest"
+    "vitest": "$vitest",
+    "browserslist": "4.28.9",
+    "brace-expansion@1": "1.1.18",
+    "brace-expansion@5": "5.0.9",
+    "ip-address": ">=10.3.1",
+    "npm": "11.19.1",
+    "esbuild@0.18": "0.25.12"
   }
 }
