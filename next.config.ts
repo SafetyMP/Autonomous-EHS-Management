@@ -1,5 +1,6 @@
 import { loadEnvConfig } from "@next/env";
 import type { NextConfig } from "next";
+import { nextOutputMode } from "./src/lib/nextOutputMode";
 
 /** Merge `.env*` into `process.env` before Next forks workers (avoids missing vars during collect). Safe here only — not in `src/lib/env.ts` (client-imported). */
 loadEnvConfig(process.cwd());
@@ -43,9 +44,12 @@ const securityHeaders = [
   },
 ];
 
+const output = nextOutputMode(process.env);
+
 const nextConfig: NextConfig = {
-  // Emits `.next/standalone` for the root Dockerfile (Kubernetes/ECS, etc.). Vercel builds ignore this for routing; see Next "output" docs.
-  output: "standalone",
+  // Docker/K8s need `.next/standalone`. On Vercel, skip it so Fluid/onBuildComplete
+  // can read `.next/next-server.js.nft.json` (see src/lib/nextOutputMode.ts).
+  ...(output ? { output } : {}),
   allowedDevOrigins: ["127.0.0.1"],
   async headers() {
     return [
