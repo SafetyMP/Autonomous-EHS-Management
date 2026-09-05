@@ -1,0 +1,11 @@
+# Autonomous EHS Management
+
+> Self-hosted EHS console for incidents, CAPA, audits, and TRIR-style metrics. PostgreSQL is the system of record. Optional AI may suggest wording; humans close records.
+
+## Docs
+
+- [README.md](README.md): product positioning, quick start, and what “autonomous” means here
+- [AGENTS.md](AGENTS.md): community contract — commands, layout, Always / Ask first / Never
+- [SECURITY.md](SECURITY.md): vulnerability reporting (do not file public issues for active findings)
+- [docs/ai-governed-intake.md](docs/ai-governed-intake.md): proposal-only AI; humans close records
+- [docs/architecture-map.md](docs/architecture-map.md): system map and PostgreSQL system of record
