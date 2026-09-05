@@ -1,22 +1,54 @@
-# Site contract
+# Community contract
 
-## Gates
+This repository is a **self-hosted EHS console**: incidents, CAPA, audits, and TRIR-style metrics with **PostgreSQL as the system of record**. Optional AI may suggest wording; humans close records. It does not claim OSHA certification.
 
+Corporate factory overlay (site contract / handoff): [docs/factory-overlay.md](docs/factory-overlay.md).
+
+## Commands
 
 | Command | Purpose |
 |---|---|
-| `./scripts/verify.sh` | Functional and static acceptance |
+| `npm run verify` | Lint + `tsc` + Vitest (fast local gate) |
+| `./scripts/verify.sh` | `npm ci` + `npm run verify` + audit-matrix greps + threat-model |
+| `npm run verify:all` | `verify` + Playwright smoke (not full CI) |
 | `./scripts/adversarial.sh` | Authorized local adversarial probes |
+| `npm run demo:up` then `npm run dev` | Turnkey local demo |
 
-Record `verification_scripts` as site-relative `scripts/harness` (exactly `verify.sh` and `adversarial.sh`). Optional wrappers may remain at `scripts/verify.sh` / `scripts/adversarial.sh` for humans; they are outside the digest boundary.
+## Layout
 
-The corporate handoff fixes scope. The site manager assigns ADRs; site specialists write;
-the root orchestrator dispatches nondelegating workers and runs gate commands; operations
-excellence reviews immutable root-produced evidence. Work in isolated roots, never edit
-corporate approval state, and never self-approve. A site role cannot return work to
-corporate design; that boundary requires an explicit user rework authorization.
+| Path | Role |
+|---|---|
+| `src/app/dashboard/` | EHS console (incidents, CAPA, audits, metrics) |
+| `src/server/db/schema.ts` | Drizzle schema — PostgreSQL system of record |
+| `src/server/trpc/routers/` | Domain procedures |
+| `src/lib/` | RBAC, workflow transitions, AI gateway |
+| `docs/` | Architecture, compliance, operator docs |
+| `tests/` | Vitest + Playwright |
+| `.github/skills/` | Portable agent skills (SkillsMP / Copilot) |
+| `.cursor/skills/` | Cursor-local skills |
 
-Site id: `ehs`. Prior Cursor Harness v4 is under `_archives/harness-v4/`.
+Full map: [docs/codebase-layout.md](docs/codebase-layout.md).
+
+## Always
+
+- Keep AI **proposal-only**: drafts and policy excerpts, never authoritative record state.
+- Persist regulated changes through permission-gated mutations with audit logs.
+- Run `npm run verify` or `./scripts/verify.sh` before claiming a change is done.
+- Treat humans as the closer of incidents, CAPAs, and audit findings.
+
+## Ask first
+
+- Incident / CAPA / audit lifecycle or status-machine changes.
+- Schema migrations, RBAC keys, retention, RAG, or compliance surfaces.
+- Auth, inbound webhooks, SCIM, or Context Sync trust boundaries.
+- Weakening, skipping, or replacing verify / threat-model / adversarial gates.
+
+## Never
+
+- Never auto-close incidents or CAPAs (or change regulated status) from AI output.
+- Never claim OSHA certification or official OSHA filings from in-app metrics.
+- Never commit secrets or enable `DEMO_MODE` in production.
+- Never weaken `./scripts/verify.sh` / `npm run verify`.
 
 ---
 
@@ -62,4 +94,4 @@ Authoritative cells: [`specs/threat-model.yaml`](specs/threat-model.yaml). Stati
 
 ## Agent skills
 
-Project skills index: [`.cursor/skills/README.md`](.cursor/skills/README.md).
+Portable path (SkillsMP, Copilot, other agents): [`.github/skills/`](.github/skills/). Cursor-local path: [`.cursor/skills/`](.cursor/skills/) — index [`.cursor/skills/README.md`](.cursor/skills/README.md).

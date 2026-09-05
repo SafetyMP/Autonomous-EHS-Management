@@ -1,4 +1,4 @@
-# Autonomous EHS Management System
+# Self-hosted EHS console
 
 [![CI](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/codeql-analysis.yml)
@@ -6,7 +6,7 @@
 [![License: Apache-2.0](docs/assets/badges/license-apache-2.0.svg)](LICENSE)
 [![Release](docs/assets/badges/release.svg)](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)
 
-**Autonomous compliance operations platform** — give your team one place to log what happened, assign fixes, and prove the follow-up.
+**Self-hosted EHS console** for incidents, CAPA, audits, and TRIR-style metrics, with **PostgreSQL as the system of record**. Optional AI may suggest wording; humans close records (HITL). This software does not claim OSHA certification. How scheduled jobs and optional AI fit in is in [What “autonomous” means here](#what-autonomous-means-here).
 
 **Console UX (Calm Focus):** task-first modes **Today / Capture / Decide / Prove**, a quieter teal/forest shell (Fraunces display + Source Sans 3 UI), and progressive disclosure on desk Today — **Your work** first, KPIs collapsed until expanded, secondary clusters under **More on Today**. Field home stays large-button intake. Accessibility bar is **WCAG 2.2 AA** (axe); WCAG 3 conformance is not claimed. Details: [docs/qa/calm-focus-final-dossier.md](docs/qa/calm-focus-final-dossier.md), ADRs [005](docs/adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md) / [006](docs/adr/ADR-UX-006-progressive-disclosure-today-home.md) / [007](docs/adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md).
 
@@ -74,7 +74,7 @@ Optional **proposal-only AI** (when enabled) suggests intake wording or retrieve
 
 **Console navigation:** field steps and routes in [`docs/user-manual-ehs-console.md`](docs/user-manual-ehs-console.md), including **Records & metrics → Incidence rates** (TRIR-style analytics) and the **Your work** action queue on command center / task hub. The **authoritative sidebar structure** in code is [`src/lib/dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`). UX contracts: [docs/qa/ia-task-mode-map.md](docs/qa/ia-task-mode-map.md), Calm Focus [final dossier](docs/qa/calm-focus-final-dossier.md).
 
-**Contributors & agents:** [AGENTS.md](AGENTS.md) (site + CI gates, Playwright projects), [`.cursor/skills/README.md`](.cursor/skills/README.md) (skills index), [GOVERNANCE.md](GOVERNANCE.md) (evergreen OSS), [docs/README.md](docs/README.md) (documentation index), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` map), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (regulatory / data governance).
+**Contributors & agents:** [AGENTS.md](AGENTS.md) (community contract + CI gates, Playwright projects), [`.github/skills/`](.github/skills/) (portable skills) / [`.cursor/skills/README.md`](.cursor/skills/README.md) (Cursor-local), [GOVERNANCE.md](GOVERNANCE.md) (evergreen OSS), [docs/README.md](docs/README.md) (documentation index), [docs/codebase-layout.md](docs/codebase-layout.md) (`src/` map), [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), [CONTEXT.md](CONTEXT.md) (architecture), [COMPLIANCE.md](COMPLIANCE.md) (regulatory / data governance).
 
 ---
 
