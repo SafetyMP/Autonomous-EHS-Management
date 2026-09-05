@@ -8,6 +8,8 @@
 
 **Self-hosted EHS console** for incidents, CAPA, audits, and TRIR-style metrics, with **PostgreSQL as the system of record**. Optional AI may suggest wording; humans close records (HITL). This software does not claim OSHA certification. How scheduled jobs and optional AI fit in is in [What “autonomous” means here](#what-autonomous-means-here).
 
+> **In the SafetyMP thesis:** This is the human system of record (permissions, audit log, named closer). Agents do **not** operate incidents or CAPA. Context Sync is governed **read** for IDE agents; a customer MCP server is not shipped. Joining this SoR to FidusGate receipts is still open. See the [portfolio README](https://github.com/SafetyMP/SafetyMP).
+
 **Console UX (Calm Focus):** task-first modes **Today / Capture / Decide / Prove**, a quieter teal/forest shell (Fraunces display + Source Sans 3 UI), and progressive disclosure on desk Today — **Your work** first, KPIs collapsed until expanded, secondary clusters under **More on Today**. Field home stays large-button intake. Accessibility bar is **WCAG 2.2 AA** (axe); WCAG 3 conformance is not claimed. Details: [docs/qa/calm-focus-final-dossier.md](docs/qa/calm-focus-final-dossier.md), ADRs [005](docs/adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md) / [006](docs/adr/ADR-UX-006-progressive-disclosure-today-home.md) / [007](docs/adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md).
 
 <p align="center">
