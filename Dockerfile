@@ -12,7 +12,8 @@
 #   - "runner" — tiny runtime: only standalone server + static assets + public/.
 #
 # Prerequisites:
-#   - next.config.ts sets output: "standalone" (see Next.js deploying docs).
+#   - next.config.ts sets output: "standalone" when VERCEL is unset (see Next.js
+#     deploying docs). Vercel Git deploys skip standalone so Fluid can trace NFT files.
 #
 # Build (from repo root):
 #   docker build -t ehs-web:local .
