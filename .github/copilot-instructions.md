@@ -18,3 +18,7 @@ Never auto-close a regulated record from model output.
 ## Handbook
 
 Read [AGENTS.md](../AGENTS.md) first (community contract, Always / Ask first / Never). Factory overlay: [docs/factory-overlay.md](../docs/factory-overlay.md).
+
+## Coding standards
+
+Follow path-specific files in [`.github/instructions/`](instructions/). Copilot code review loads [`.github/skills/code-review/`](skills/code-review/).
