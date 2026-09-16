@@ -9,3 +9,6 @@
 - [SECURITY.md](SECURITY.md): vulnerability reporting (do not file public issues for active findings)
 - [docs/ai-governed-intake.md](docs/ai-governed-intake.md): proposal-only AI; humans close records
 - [docs/architecture-map.md](docs/architecture-map.md): system map and PostgreSQL system of record
+- [.github/copilot-instructions.md](.github/copilot-instructions.md): repository-wide Copilot coding standards
+- [.github/instructions/](.github/instructions/): path-specific Copilot coding standards (September 2026)
+- [.github/skills/code-review/SKILL.md](.github/skills/code-review/SKILL.md): Copilot code review skill

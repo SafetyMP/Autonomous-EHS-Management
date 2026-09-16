@@ -95,3 +95,9 @@ Authoritative cells: [`specs/threat-model.yaml`](specs/threat-model.yaml). Stati
 ## Agent skills
 
 Portable path (SkillsMP, Copilot, other agents): [`.github/skills/`](.github/skills/). Cursor-local path: [`.cursor/skills/`](.cursor/skills/) — index [`.cursor/skills/README.md`](.cursor/skills/README.md).
+
+## Coding standards (September 2026)
+
+Path-specific Copilot instructions: [`.github/instructions/`](.github/instructions/).
+Repository-wide Copilot file: [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
+Copilot code review skill: [`.github/skills/code-review/SKILL.md`](.github/skills/code-review/SKILL.md).
