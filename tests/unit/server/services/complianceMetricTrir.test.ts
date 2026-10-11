@@ -78,7 +78,7 @@ describe("complianceMetricTrir", () => {
   });
 
   it("embeds formula version constant", () => {
-    expect(TRIR_FORMULA_VERSION).toBe(1);
+    expect(TRIR_FORMULA_VERSION).toBe(2);
   });
 
   describe("computeEffectiveHoursWorked", () => {
@@ -94,7 +94,7 @@ describe("complianceMetricTrir", () => {
       });
     });
 
-    it("sums monthly hours and warns when fewer than 12 months / rows with hours", async () => {
+    it("uses the annual total when the month grid is incomplete", async () => {
       const db = createHoursRollupFakeDb({
         monthRows: [
           { establishmentId: est, calendarMonth: 1, hoursWorked: 20_000 },
@@ -104,10 +104,23 @@ describe("complianceMetricTrir", () => {
         yearRows: [{ establishmentId: est, totalHoursWorked: 285_000 }],
       });
       await expect(computeEffectiveHoursWorked(db, [est], 2026)).resolves.toEqual({
-        hoursWorked: 60_000,
-        hoursSource: "monthly_roll_up",
+        hoursWorked: 285_000,
+        hoursSource: "annual_year_metrics",
         partialMonthlyCoverageWarning: true,
         monthMetricsRowCount: 3,
+      });
+    });
+
+    it("does not treat a partial month grid as the annual denominator when no annual total exists", async () => {
+      const db = createHoursRollupFakeDb({
+        monthRows: [{ establishmentId: est, calendarMonth: 1, hoursWorked: 20_000 }],
+        yearRows: [],
+      });
+      await expect(computeEffectiveHoursWorked(db, [est], 2026)).resolves.toEqual({
+        hoursWorked: 0,
+        hoursSource: "annual_year_metrics",
+        partialMonthlyCoverageWarning: true,
+        monthMetricsRowCount: 1,
       });
     });
 
@@ -142,7 +155,7 @@ describe("complianceMetricTrir", () => {
       });
     });
 
-    it("marks mixed when one establishment uses monthly and another annual", async () => {
+    it("uses each establishment's annual total when one of them has only a partial month grid", async () => {
       const estB = "00000000-0000-4000-8000-0000000000bb";
       const db = createHoursRollupFakeDb({
         monthRows: [{ establishmentId: est, calendarMonth: 1, hoursWorked: 10_000 }],
@@ -152,10 +165,29 @@ describe("complianceMetricTrir", () => {
         ],
       });
       await expect(computeEffectiveHoursWorked(db, [est, estB], 2026)).resolves.toEqual({
-        hoursWorked: 50_000,
-        hoursSource: "mixed",
+        hoursWorked: 90_000,
+        hoursSource: "annual_year_metrics",
         partialMonthlyCoverageWarning: true,
         monthMetricsRowCount: 1,
+      });
+    });
+
+    it("marks mixed when one establishment has a full month grid and another has only an annual total", async () => {
+      const estB = "00000000-0000-4000-8000-0000000000bb";
+      const monthRows = Array.from({ length: 12 }, (_, i) => ({
+        establishmentId: est,
+        calendarMonth: i + 1,
+        hoursWorked: 1_000,
+      }));
+      const db = createHoursRollupFakeDb({
+        monthRows,
+        yearRows: [{ establishmentId: estB, totalHoursWorked: 40_000 }],
+      });
+      await expect(computeEffectiveHoursWorked(db, [est, estB], 2026)).resolves.toEqual({
+        hoursWorked: 52_000,
+        hoursSource: "mixed",
+        partialMonthlyCoverageWarning: false,
+        monthMetricsRowCount: 12,
       });
     });
   });
