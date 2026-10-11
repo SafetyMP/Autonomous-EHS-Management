@@ -6,6 +6,10 @@
  *   npm run demo:up && npm run dev
  *   npm run screenshots
  *
+ * Default capture is the public path only: spine card, incidents, CAPA, incidence rates.
+ * Wider console gallery (not the default command):
+ *   npm run screenshots:gallery
+ *
  * Rebuild GIF only from existing PNGs (no browser):
  *   npm run screenshots:rebuild-gif
  *
@@ -37,10 +41,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const outDir = path.join(__dirname, "..", "docs", "assets");
 const baseUrl = process.env.SCREENSHOT_BASE_URL ?? "http://localhost:3000";
 
-const pages = [
-  { path: "/dashboard", file: "command-center.png", name: "Command center" },
+/** Default `npm run screenshots` set. Spine is an element clip, not a viewport frame. */
+const readmePages = [
+  { path: "/dashboard", file: "spine-home.png", name: "Incident, CAPA, and TRIR", clip: "spine" },
   { path: "/dashboard/incidents", file: "incidents.png", name: "Incidents" },
   { path: "/dashboard/capa", file: "capa.png", name: "CAPA register" },
+  {
+    path: "/dashboard/analytics/incidence-rates",
+    file: "incidence-rates.png",
+    name: "Incidence rates",
+  },
+];
+
+/** Wider console. Captured only when argv includes `--gallery`. */
+const galleryPages = [
+  { path: "/dashboard", file: "command-center.png", name: "Command center" },
   { path: "/dashboard/approvals", file: "approvals.png", name: "Approvals" },
   { path: "/dashboard/tasks", file: "tasks.png", name: "Tasks & reviews" },
   { path: "/dashboard/inspections", file: "inspections.png", name: "Inspections" },
@@ -50,15 +65,13 @@ const pages = [
   { path: "/dashboard/permits", file: "permits.png", name: "Work permits" },
 ];
 
-/** README hero GIF frames (subset of `pages`). */
-const gifFrameFiles = [
-  "command-center.png",
-  "incidents.png",
-  "capa.png",
-  "approvals.png",
-  "tasks.png",
-  "analytics.png",
-];
+/**
+ * demo.gif frames. Same 1280×800 viewport as the page screenshots.
+ * spine-home.png is omitted (element clip, different height).
+ */
+const gifFrameFiles = ["incidents.png", "capa.png", "incidence-rates.png"];
+
+const namedPages = [...readmePages, ...galleryPages];
 
 /** Frame duration in milliseconds (gifenc stores delay/10 as GIF centiseconds). */
 const GIF_FRAME_DELAY_MS = 2_000;
@@ -131,7 +144,7 @@ async function rebuildGifFromExisting() {
   await mkdir(outDir, { recursive: true });
   const frames = [];
   for (const file of gifFrameFiles) {
-    const pageMeta = pages.find((entry) => entry.file === file);
+    const pageMeta = namedPages.find((entry) => entry.file === file);
     const name = pageMeta?.name ?? file;
     const buffer = await readFile(path.join(outDir, file));
     frames.push({ buffer, name });
@@ -140,7 +153,50 @@ async function rebuildGifFromExisting() {
   await writeDemoGif(frames);
 }
 
-async function captureLive() {
+async function scrollBelowAppHeader(page, locator) {
+  await locator.evaluate((el) => {
+    el.scrollIntoView({ block: "start" });
+    const header = document.querySelector("header");
+    const offset = (header?.getBoundingClientRect().height ?? 64) + 8;
+    window.scrollBy(0, -offset);
+  });
+  await page.waitForTimeout(300);
+}
+
+async function revealCapaRegister(page) {
+  const table = page.getByRole("table", { name: /corrective actions for the workspace/i });
+  await table.waitFor({ state: "visible", timeout: 30_000 });
+  await table.getByRole("link").first().waitFor({ state: "visible", timeout: 30_000 });
+  await scrollBelowAppHeader(page, table);
+}
+
+async function revealSavedTrir(page) {
+  await page.getByRole("heading", { level: 1, name: "Incidence rates" }).waitFor({
+    state: "visible",
+    timeout: 30_000,
+  });
+  await page.getByRole("button", { name: "Compute and save snapshot" }).click();
+  await page.getByText(/Snapshot saved/i).waitFor({ state: "visible", timeout: 30_000 });
+  const heading = page.getByRole("heading", { name: "Recordable incidence rate (TRIR)" });
+  await page.getByText("(partial months)").first().waitFor({ state: "visible", timeout: 30_000 });
+  await scrollBelowAppHeader(page, heading);
+}
+
+async function screenshotSpineSection(page, route) {
+  const section = page.locator('[aria-labelledby="incident-capa-spine-heading"]');
+  const appeared = await section
+    .waitFor({ state: "visible", timeout: 30_000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!appeared || (await section.count()) === 0) {
+    throw new Error(
+      `Missing section [aria-labelledby="incident-capa-spine-heading"] after ${route}.`,
+    );
+  }
+  return section.screenshot();
+}
+
+async function captureLive(pageList, { writeGif }) {
   await mkdir(outDir, { recursive: true });
 
   const browser = await chromium.launch(launchOptions());
@@ -158,22 +214,40 @@ async function captureLive() {
     await page.waitForTimeout(300);
   }
 
-  const gifFrames = [];
+  const captured = new Map();
 
-  for (const { path: route, file, name } of pages) {
+  for (const { path: route, file, name, clip } of pageList) {
     await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle" });
     await page.waitForTimeout(500);
     await assertAuthenticatedRoute(page, route);
-    const buffer = await page.screenshot({ fullPage: false });
+    let buffer;
+    if (clip === "spine") {
+      buffer = await screenshotSpineSection(page, route);
+    } else {
+      if (file === "capa.png") {
+        await revealCapaRegister(page);
+      }
+      if (file === "incidence-rates.png") {
+        await revealSavedTrir(page);
+      }
+      buffer = await page.screenshot({ fullPage: false });
+    }
     const dest = path.join(outDir, file);
     await writeFile(dest, buffer);
     console.log(`Captured ${name} -> docs/assets/${file}`);
-    if (gifFrameFiles.includes(file)) {
-      gifFrames.push({ buffer, name });
-    }
+    captured.set(file, { buffer, name });
   }
 
-  await writeDemoGif(gifFrames);
+  if (writeGif) {
+    const gifFrames = gifFrameFiles.map((file) => {
+      const frame = captured.get(file);
+      if (!frame) {
+        throw new Error(`Missing GIF frame docs/assets/${file}.`);
+      }
+      return frame;
+    });
+    await writeDemoGif(gifFrames);
+  }
   await browser.close();
 }
 
@@ -182,7 +256,8 @@ async function main() {
     await rebuildGifFromExisting();
     return;
   }
-  await captureLive();
+  const gallery = process.argv.includes("--gallery");
+  await captureLive(gallery ? galleryPages : readmePages, { writeGif: !gallery });
 }
 
 main().catch((error) => {
