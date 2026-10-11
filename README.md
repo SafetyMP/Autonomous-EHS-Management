@@ -7,6 +7,18 @@ Record an incident, link a CAPA, and walk that CAPA to verified, on PostgreSQL y
 
 The public path is that spine. Other modules ship in the tree; maturity is listed in [docs/module-maturity.md](docs/module-maturity.md).
 
+**Record an incident**
+
+![Incident roster with title, severity, and status. Demo records are labeled Demo.](docs/assets/incidents.png)
+
+**Link a CAPA**
+
+![Corrective action register with status, due date, and linked incident.](docs/assets/capa.png)
+
+**Read TRIR**
+
+![Incidence rates with a saved TRIR. Partial monthly hours do not replace the annual total.](docs/assets/incidence-rates.png)
+
 ## TRIR
 
 Incidence rates use `(recordable count × 200,000) / hours worked`.
