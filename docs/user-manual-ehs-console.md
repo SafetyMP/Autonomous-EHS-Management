@@ -332,10 +332,10 @@ Safety managers, compliance coordinators, and multi-site administrators who main
 
 1. Open **Hours worked (denominator)**.
 2. If **Establishment scope** is still **Organization total**, the page explains: *Select an establishment to enter monthly or annual hours. Organization scope still uses summed logic across all establishments when you compute TRIR.*
-3. After you pick a specific establishment, enter monthly hours under **Jan** through **Dec** (numeric fields). Read the notes: when monthly rows exist, TRIR uses their sum (missing months count as zero); otherwise the annual fallback applies.
-4. If **Monthly rows present** appears, it shows a draft sum and reminds you to **save**; **Incomplete month grid** warns TRIR may understate risk if the grid is not full.
+3. After you pick a specific establishment, enter monthly hours under **Jan** through **Dec** (numeric fields). Read the notes: TRIR uses the monthly sum only when all 12 months have hours. A partial grid does not replace the annual total.
+4. If **Monthly rows present** appears, it shows a draft sum and reminds you to **save**; **Incomplete month grid** says the annual total stays the denominator until the grid is full.
 5. Tap **Save monthly hours** (shows **Saving…** while storing). Success feedback includes **Monthly hours saved.** Invalid input may show **Invalid hours for month** *N*.
-6. Scroll to **Annual summary (fallback)**, used *when no monthly rows exist for this establishment and year.* Enter **Total hours worked** and optional **Average employment (optional)**. Tap **Save annual metrics** (shows **Saving…**). Success: **Annual hours / average employment saved.** Whole-number validation errors: **Annual metrics must be whole numbers.**
+6. Scroll to **Annual summary**. That total is the denominator when the month grid is missing or incomplete. Enter **Total hours worked** and optional **Average employment (optional)**. Tap **Save annual metrics** (shows **Saving…**). Success: **Annual hours / average employment saved.** Whole-number validation errors: **Annual metrics must be whole numbers.**
 
 ### SOP — Investigation themes
 

@@ -6,6 +6,7 @@ import { Suspense, useState } from "react";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { CommandCenterDeskView } from "@/components/dashboard/command-center-desk-view";
 import { DashboardFieldLauncher } from "@/components/dashboard/dashboard-field-launcher";
+import { IncidentCapaSpine } from "@/components/dashboard/incident-capa-spine";
 import { useOrg } from "@/components/org-context";
 import {
   readDashboardHomePreference,
@@ -107,6 +108,7 @@ function DashboardHomeContent() {
   if (effectiveLayout === "field" && homeLayout) {
     return (
       <>
+        <IncidentCapaSpine organizationId={organizationId} />
         <DashboardFieldLauncher
           orgName={orgName}
           permissions={homeLayout.permissions}
@@ -138,20 +140,23 @@ function DashboardHomeContent() {
     homeLayout?.persona === "desk_supervisor" ? "desk_supervisor" : "desk_contributor";
 
   return (
-    <CommandCenterDeskView
-      organizationId={organizationId}
-      orgName={orgName}
-      persona={deskPersona}
-      isAdmin={homeLayout?.isAdmin ?? false}
-      canIntegrationRead={homeLayout?.permissions.canIntegrationRead ?? false}
-      cc={cc}
-      ccLoading={ccLoading}
-      actionQueue={actionQueue}
-      actionQueueLoading={actionQueueLoading}
-      doneKeys={doneKeys}
-      onCompleteSetupStep={(stepKey) => completeStep.mutate({ organizationId, stepKey })}
-      completeSetupStepPending={completeStep.isPending}
-      onPreferFieldLayout={() => persistPreference("field")}
-    />
+    <>
+      <IncidentCapaSpine organizationId={organizationId} />
+      <CommandCenterDeskView
+        organizationId={organizationId}
+        orgName={orgName}
+        persona={deskPersona}
+        isAdmin={homeLayout?.isAdmin ?? false}
+        canIntegrationRead={homeLayout?.permissions.canIntegrationRead ?? false}
+        cc={cc}
+        ccLoading={ccLoading}
+        actionQueue={actionQueue}
+        actionQueueLoading={actionQueueLoading}
+        doneKeys={doneKeys}
+        onCompleteSetupStep={(stepKey) => completeStep.mutate({ organizationId, stepKey })}
+        completeSetupStepPending={completeStep.isPending}
+        onPreferFieldLayout={() => persistPreference("field")}
+      />
+    </>
   );
 }
