@@ -1286,9 +1286,9 @@ async function seedTasksGovernanceMetrics(
     /*
      * Incidence-rate demo (TRIR):
      * - Two federal recordables (strain + fall from height) with occurredAt in the current UTC calendar year.
-     * - Partial monthly hours Jan–Mar only: 20k + 20k + 20k = 60,000 → TRIR ≈ (2×200,000)/60,000 ≈ 6.67.
-     * - Delete `establishment_month_metrics` for this establishment+year (or save twelve months covering full annual hours)
-     *   to fall back to annual total_hours_worked (285,000) → TRIR ≈ (2×200,000)/285,000 ≈ 1.40.
+     * - Jan–Mar monthly hours are present (20k each) and incomplete, so they are not the denominator.
+     * - Annual total_hours_worked (285,000) is used → TRIR ≈ (2×200,000)/285,000 ≈ 1.40, with a partial-month warning.
+     * - Save twelve months of hours to switch the denominator to the monthly sum.
      */
     const [anyMonth] = await db
       .select({ id: establishmentMonthMetrics.id })

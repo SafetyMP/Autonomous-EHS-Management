@@ -12,7 +12,8 @@ import {
 
 /** OSHA incidence rate convention: (N × 200,000) / total hours worked (Form 300A-style). */
 export const OSHA_INCIDENCE_RATE_HOURS_BASE = 200_000 as const;
-export const TRIR_FORMULA_VERSION = 1 as const;
+/** v2: a partial month grid does not replace the annual hours total. */
+export const TRIR_FORMULA_VERSION = 2 as const;
 
 export type TrirHoursSource = "monthly_roll_up" | "annual_year_metrics" | "mixed";
 
@@ -88,15 +89,16 @@ export async function computeEffectiveHoursWorked(
 
   for (const estId of establishmentIds) {
     const months = monthByEst.get(estId) ?? [];
-    if (months.length > 0) {
+    const distinctMonths = new Set(months.map((m) => m.calendarMonth)).size;
+    const monthsWithHours = months.filter((m) => m.hoursWorked != null).length;
+    const monthlyComplete = distinctMonths >= 12 && monthsWithHours >= 12;
+    if (monthlyComplete) {
       usedMonthly = true;
       total += months.reduce((s, m) => s + (m.hoursWorked ?? 0), 0);
-      const distinctMonths = new Set(months.map((m) => m.calendarMonth)).size;
-      const monthsWithHours = months.filter((m) => m.hoursWorked != null).length;
-      if (distinctMonths < 12 || monthsWithHours < 12) {
+    } else {
+      if (months.length > 0) {
         partialMonthlyCoverageWarning = true;
       }
-    } else {
       usedAnnual = true;
       const yr = yearByEst.get(estId);
       total += yr?.totalHoursWorked ?? 0;

@@ -97,14 +97,15 @@ function MonthlyHoursFields(props: {
   return (
     <>
       <p className="mt-2 text-sm text-zinc-800">
-        When any monthly rows exist for this establishment and year, TRIR uses the sum of monthly
-        hours (missing months count as zero). Otherwise the annual total hours field below is used.
+        TRIR uses the monthly sum only when all 12 months have hours. A partial grid does not
+        replace the annual total below. With neither a full grid nor an annual total, the rate is
+        not computed.
       </p>
       {monthRowsExist && monthSum.any ? (
         <p className="mt-2 text-sm font-semibold text-amber-950" role="status">
           Monthly rows present: draft sum {monthSum.sum.toLocaleString()} hours (save to persist).
           {(props.monthRows?.length ?? 0) < 12 ? (
-            <span> Incomplete month grid—TRIR may understate risk vs full-year hours.</span>
+            <span> Incomplete month grid—the annual total is the denominator until all 12 months have hours.</span>
           ) : null}
         </p>
       ) : null}
@@ -181,9 +182,9 @@ function AnnualHoursFields(props: {
 
   return (
     <>
-      <h3 className={`mt-8 ${dfSectionHeading}`}>Annual summary (fallback)</h3>
+      <h3 className={`mt-8 ${dfSectionHeading}`}>Annual summary</h3>
       <p className="mt-2 text-sm text-zinc-800">
-        Used when no monthly rows exist for this establishment and year.
+        Denominator when the month grid is missing or incomplete.
       </p>
       <div className="mt-4 flex max-w-xl flex-col gap-4 sm:flex-row">
         <label className="block flex-1">
