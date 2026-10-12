@@ -28,7 +28,10 @@ const rateLimited = middleware(async ({ ctx, path, next }) => {
   return next();
 });
 
-/** Blocks mutations when DEMO_MODE and DEMO_READ_ONLY are both true (browse-only sandbox). */
+/**
+ * Rejects the call when DEMO_MODE and DEMO_READ_ONLY are both true.
+ * Attached to protectedMutation and protectedRateLimitedProcedure, including export queries.
+ */
 const demoReadOnly = middleware(({ next }) => {
   if (env.DEMO_MODE === "true" && env.DEMO_READ_ONLY === "true") {
     throw new TRPCError({
