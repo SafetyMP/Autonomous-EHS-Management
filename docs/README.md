@@ -124,3 +124,8 @@ Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a d
 | [ROADMAP.md](../ROADMAP.md) | Product backlog (high level) |
 
 When you add or retire a doc under `docs/`, update this index and any adopter table in the root README.
+
+
+## Canonical community files
+
+`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md` are at the repository root. This repository does not keep a second copy under `.github/`, because GitHub would show that copy instead of the root file.
