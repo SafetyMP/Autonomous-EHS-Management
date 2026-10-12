@@ -65,7 +65,7 @@ Search the codebase for `writeAuditLog` under `src/server/trpc/routers/` for the
 ## 4. Enterprise permission model
 
 - Every new procedure that exposes or mutates regulated data should use **`assertPermission`** with a key from **`PERMISSIONS`** ([`src/lib/rbac.ts`](../src/lib/rbac.ts)).
-- **Demo read-only:** `DEMO_READ_ONLY` + `DEMO_MODE` rejects `protectedMutation` and `protectedRateLimitedProcedure` in [`src/server/trpc/init.ts`](../src/server/trpc/init.ts). That includes the export queries `auditTrail.exportCsv` and `integration.exportEventsWarehouseSlice`. Ordinary `protectedProcedure` reads stay available. Production RBAC is unchanged.
+- **Demo read-only:** `DEMO_READ_ONLY` + `DEMO_MODE` rejects `protectedMutation` and `protectedRateLimitedProcedure` in [`src/server/trpc/init.ts`](../src/server/trpc/init.ts). That includes the export queries `auditTrail.exportCsv` and `integration.exportEventsWarehouseSlice`. The same flags return 403 from Context Sync POST, PUT, and DELETE in [`src/app/api/contextsync/`](../src/app/api/contextsync/). Ordinary `protectedProcedure` reads and Context Sync GET stay available. Production RBAC is unchanged.
 
 ---
 
