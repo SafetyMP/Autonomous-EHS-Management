@@ -58,3 +58,8 @@ If port 5432 already has another Postgres, the error `role "ehs" does not exist`
 - Self-host: [docs/self-host-quickstart.md](docs/self-host-quickstart.md)
 - Security reports: [SECURITY.md](SECURITY.md)
 - License: [Apache 2.0](LICENSE)
+
+
+## Documentation map
+
+[docs/README.md](docs/README.md) is the documentation index. Community policy files are the root `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`.
