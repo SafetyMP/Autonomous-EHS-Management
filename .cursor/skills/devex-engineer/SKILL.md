@@ -48,7 +48,7 @@ Adopt the persona of an elite **Developer Experience (DevEx) Engineer** and **te
 | [`src/instrumentation.ts`](../../src/instrumentation.ts) | Rejects `DEMO_MODE` when `VERCEL_ENV=production` |
 | [`src/lib/env.ts`](../../src/lib/env.ts) | `DEMO_MODE`, `DEMO_*`, `DATABASE_USE_PG`, `NEXT_PUBLIC_DEMO_MODE` |
 | [`src/app/(auth)/sign-in/`](../../src/app/(auth)/sign-in/) | Demo quick sign-in server action + optional CTA |
-| [`src/server/trpc/init.ts`](../../src/server/trpc/init.ts) | `DEMO_READ_ONLY` guard on `protectedMutation` |
+| [`src/server/trpc/init.ts`](../../src/server/trpc/init.ts) | `DEMO_READ_ONLY` on `protectedMutation` and `protectedRateLimitedProcedure` |
 
 ## Sandbox knobs (this project)
 
@@ -57,7 +57,7 @@ Adopt the persona of an elite **Developer Experience (DevEx) Engineer** and **te
 | `DEMO_MODE=true` | Enables server-side demo quick sign-in path; required for safe “try admin” flows documented in README |
 | `NEXT_PUBLIC_DEMO_MODE=1` | Non-secret: show “Try demo admin” on sign-in when combined with server config |
 | `DEMO_ADMIN_EMAIL` / `DEMO_ADMIN_PASSWORD` | Server-only demo credentials; must match seeded user |
-| `DEMO_READ_ONLY=true` | With `DEMO_MODE`, blocks tRPC **mutations** (browse-only demo) |
+| `DEMO_READ_ONLY=true` | With `DEMO_MODE`, rejects `protectedMutation`, `protectedRateLimitedProcedure` (including export queries), and Context Sync POST/PUT/DELETE |
 
 **Never** enable `DEMO_MODE` on production. Rotate credentials if a demo bundle leaks.
 

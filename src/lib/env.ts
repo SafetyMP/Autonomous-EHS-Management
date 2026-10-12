@@ -142,7 +142,7 @@ export const env = createEnv({
      * Otherwise `signInAsDemoAdmin` returns an error in production even when `DEMO_MODE=true`.
      */
     DEMO_ALLOW_PRODUCTION: z.literal("true").optional(),
-    /** When `"true"` with DEMO_MODE, tRPC mutations return FORBIDDEN (browse-only demo). */
+    /** When `"true"` with DEMO_MODE, rejects protectedMutation, protectedRateLimitedProcedure (including export queries), and Context Sync POST/PUT/DELETE. */
     DEMO_READ_ONLY: z.string().optional(),
     DEMO_ADMIN_EMAIL: z.string().email().optional(),
     DEMO_ADMIN_PASSWORD: z.string().optional(),
