@@ -1,5 +1,9 @@
 # OIDC JIT (just-in-time) org membership — scaffolding
 
+## Better Auth 1.7 upgrade
+
+The security dependency update uses Better Auth 1.7's standard social sign-in API for Generic OAuth. Before enabling enterprise OIDC on the updated deployment, register the provider callback as `/api/auth/callback/<OIDC_PROVIDER_ID>` (default: `/api/auth/callback/enterprise-oidc`), replacing the former `/api/auth/oauth2/callback/<OIDC_PROVIDER_ID>` URL. Discovery-provider issuer, audience and signature validation are automatic; invalid identity tokens remain rejected. Keep the existing trusted origins, allowed hosts and opt-in JIT membership settings. No identity-provider configuration is changed automatically by this repository.
+
 This is **not legal or IAM policy** for your enterprise. Work with **Identity, HR, and counsel** before enabling in production.
 
 ## What it does

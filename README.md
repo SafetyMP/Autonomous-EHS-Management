@@ -1,11 +1,19 @@
-# Self-hosted EHS console
+# Autonomous EHS Management: Self-Hosted EHS Software
 
 [![CI](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/ci.yml)
 [![License: Apache-2.0](docs/assets/badges/license-apache-2.0.svg)](LICENSE)
 
+Autonomous EHS Management is a self-hosted **environmental, health and safety (EHS)** console for incident management, **corrective and preventive actions (CAPA)**, and **total recordable incident rate (TRIR)** reporting, with PostgreSQL as the system of record.
+
 Record an incident, link a CAPA, and walk that CAPA to verified, on PostgreSQL you run. Optional AI may suggest wording. A person closes the record. This software does not claim OSHA certification and is not an official filing tool.
 
 The public path is that spine. Other modules ship in the tree; maturity is listed in [docs/module-maturity.md](docs/module-maturity.md).
+
+**Jump to:** [Incident and CAPA workflow](#incident-and-capa-workflow) · [TRIR calculation](#trir) · [Run the demo](#run-the-demo) · [Self-hosting and security](#more) · [Documentation](#documentation-map)
+
+## Incident and CAPA workflow
+
+The core EHS workflow links incident records to corrective actions and human verification. Start with the [EHS console user manual](docs/user-manual-ehs-console.md) for field routes, or the [self-hosting quick start](docs/self-host-quickstart.md) for deployment instructions. The local demo below uses Docker and PostgreSQL.
 
 **Record an incident**
 
@@ -58,6 +66,8 @@ If port 5432 already has another Postgres, the error `role "ehs" does not exist`
 - Self-host: [docs/self-host-quickstart.md](docs/self-host-quickstart.md)
 - Security reports: [SECURITY.md](SECURITY.md)
 - License: [Apache 2.0](LICENSE)
+
+Part of the [SafetyMP portfolio](https://github.com/SafetyMP/SafetyMP). For separate research into HAZOP hazard analysis for AI agent swarms, see [Agentic Process Safety (APS)](https://github.com/SafetyMP/Agentic-Process-Safety).
 
 
 ## Documentation map
