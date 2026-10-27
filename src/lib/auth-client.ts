@@ -1,5 +1,4 @@
 import { createAuthClient } from "better-auth/react";
-import { genericOAuthClient } from "better-auth/client/plugins";
 
 /**
  * In the browser, always use the current origin so preview deployments, aliases,
@@ -18,5 +17,4 @@ export const enterpriseOidcProviderId =
 
 export const authClient = createAuthClient({
   baseURL: authClientBaseURL(),
-  plugins: [genericOAuthClient()],
 });

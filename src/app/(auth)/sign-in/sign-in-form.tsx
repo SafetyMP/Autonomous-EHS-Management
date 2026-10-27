@@ -39,8 +39,8 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
     setSsoLoading(true);
     const nextPath = safeAppRelativePath(callbackUrl, "/dashboard");
     const callbackURL = `${window.location.origin}${nextPath}`;
-    const result = await authClient.signIn.oauth2({
-      providerId: enterpriseOidcProviderId,
+    const result = await authClient.signIn.social({
+      provider: enterpriseOidcProviderId,
       callbackURL,
     });
     setSsoLoading(false);

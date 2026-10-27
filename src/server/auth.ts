@@ -32,7 +32,6 @@ function createAuthInstance() {
               clientId: env.OIDC_CLIENT_ID,
               clientSecret: env.OIDC_CLIENT_SECRET,
               scopes: ["openid", "email", "profile"],
-              requireIssuerValidation: true,
             },
           ],
         })
