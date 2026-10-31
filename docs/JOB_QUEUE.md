@@ -6,7 +6,7 @@ This repo can move work off the HTTP request thread using **[pg-boss](https://gi
 
 | Choice | Status |
 |--------|--------|
-| **Default production job model** | **HTTP cron** (`vercel.ts` schedules and/or Kubernetes `CronJob` manifests hitting `/api/cron/*` with `CRON_SECRET`) |
+| **Default production job model** | **HTTP cron** (`vercel.json` schedules and/or Kubernetes `CronJob` manifests hitting `/api/cron/*` with `CRON_SECRET`) |
 | **Optional durable queue** | **pg-boss** when `PG_BOSS_ENABLED=true` **and** a long-lived `npm run job:worker` process runs against the same database |
 
 **Recorded decision (ADR-S-005):** HTTP cron is the lasting default for platform schedules (reminders, data-retention, integration-roster-reconcile). Enabling pg-boss is an **ops opt-in**, not assumed production-true. Before any “durable queue / autonomous-ops completeness” claim:

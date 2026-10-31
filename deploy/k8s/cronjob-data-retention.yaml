@@ -1,4 +1,4 @@
-# Replaces Vercel cron for GET /api/cron/data-retention (vercel.ts + src/app/api/cron/data-retention/route.ts).
+# Replaces Vercel cron for GET /api/cron/data-retention (vercel.json + src/app/api/cron/data-retention/route.ts).
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: ehs-cron-data-retention
 spec:
-  # Match vercel.ts: "30 9 * * *"
+  # Match vercel.json: "30 9 * * *"
   schedule: "30 9 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3

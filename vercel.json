@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/reminders",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/data-retention",
+      "schedule": "30 9 * * *"
+    },
+    {
+      "path": "/api/cron/integration-roster-reconcile",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}
