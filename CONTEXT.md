@@ -30,7 +30,7 @@
 | Validation / env | zod **4.x**, `@t3-oss/env-nextjs` **^0.13** | Typed env boundaries in `src/lib/env.ts`. |
 | Client cache | `@tanstack/react-query` **5.100.x** | Default staleTime in provider — invalidate explicitly on mutations. |
 | Rate limits | `@upstash/ratelimit`, `@upstash/redis` **2.x / 1.x** | Sensitive **tRPC** paths via **`protectedMutation`**/`rateLimitOrThrow`; **`/api/contextsync/*`** shares the sliding window via **`rateLimitContextSyncResponse`** ([`src/server/ratelimit.ts`](src/server/ratelimit.ts)). |
-| Config | `@vercel/config` **^0.1.x** (`vercel.ts`) | Prefer over duplicate `vercel.json`. |
+| Config | `@vercel/config` **^0.1.x** (`vercel.json`) | Prefer over duplicate `vercel.json`. |
 | Test | Vitest **4.x**, Playwright **1.59.x**, jsdom **29.x**, `@vitejs/plugin-react` **6.x** | Unit + smoke E2E are merge gates. |
 | Lint / types | ESLint **9.x**, eslint-config-next **16.2.4**, TypeScript **^5.x** | `tsc --noEmit` in verify. |
 
@@ -89,9 +89,9 @@ Shipped programme-of-record surfaces (not agency SoR / not CB certification). Ca
 |-------|---------|
 | [`src/app/api/trpc/[trpc]/route.ts`](src/app/api/trpc/[trpc]/route.ts) | tRPC HTTP adapter |
 | [`src/app/api/auth/[...all]/route.ts`](src/app/api/auth/[...all]/route.ts) | better-auth |
-| [`src/app/api/cron/reminders/route.ts`](src/app/api/cron/reminders/route.ts) | Scheduled reminders (`vercel.ts` cron) |
-| [`src/app/api/cron/data-retention/route.ts`](src/app/api/cron/data-retention/route.ts) | Data retention cron (`vercel.ts` cron): incidents plus program records (`safety_observation`, `work_permit`) when `retain_until` set |
-| [`src/app/api/cron/metrics/route.ts`](src/app/api/cron/metrics/route.ts) | Prometheus or JSON rollup of `cron_job_run` rows; `Authorization: Bearer <CRON_SECRET>` (pull/scrape for SLO dashboards — not scheduled in [`vercel.ts`](vercel.ts) `crons`) |
+| [`src/app/api/cron/reminders/route.ts`](src/app/api/cron/reminders/route.ts) | Scheduled reminders (`vercel.json` cron) |
+| [`src/app/api/cron/data-retention/route.ts`](src/app/api/cron/data-retention/route.ts) | Data retention cron (`vercel.json` cron): incidents plus program records (`safety_observation`, `work_permit`) when `retain_until` set |
+| [`src/app/api/cron/metrics/route.ts`](src/app/api/cron/metrics/route.ts) | Prometheus or JSON rollup of `cron_job_run` rows; `Authorization: Bearer <CRON_SECRET>` (pull/scrape for SLO dashboards — not scheduled in [`vercel.json`](vercel.json) `crons`) |
 | [`src/app/api/contextsync/`](src/app/api/contextsync/) | Context Sync REST (session + `human:{user}` actor binding; rate-limited JSON — see [REST Context Sync](#rest-context-sync-open-protocol-subset)) |
 | [`src/app/api/evidence-upload-stub/route.ts`](src/app/api/evidence-upload-stub/route.ts) | Evidence upload stub |
 | [`src/proxy.ts`](src/proxy.ts) | Matcher gate for `/dashboard/*`, `/sign-in`, `/sign-up` via [`dashboard-auth-gate`](src/lib/dashboard-auth-gate.ts) — risky to change without updating [`tests/unit/middleware-auth-gate.test.ts`](tests/unit/middleware-auth-gate.test.ts) |

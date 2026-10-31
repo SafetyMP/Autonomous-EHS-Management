@@ -1,4 +1,4 @@
-# Replaces Vercel cron for GET /api/cron/integration-roster-reconcile (vercel.ts + src/app/api/cron/integration-roster-reconcile/route.ts).
+# Replaces Vercel cron for GET /api/cron/integration-roster-reconcile (vercel.json + src/app/api/cron/integration-roster-reconcile/route.ts).
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: ehs-cron-integration-roster-reconcile
 spec:
-  # Match vercel.ts: "0 3 * * *"
+  # Match vercel.json: "0 3 * * *"
   schedule: "0 3 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3

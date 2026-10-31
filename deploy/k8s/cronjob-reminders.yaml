@@ -1,4 +1,4 @@
-# Replaces Vercel cron for GET /api/cron/reminders (see vercel.ts and src/app/api/cron/reminders/route.ts).
+# Replaces Vercel cron for GET /api/cron/reminders (see vercel.json and src/app/api/cron/reminders/route.ts).
 # Auth: Authorization: Bearer <CRON_SECRET> — same secret the web app reads from env.
 #
 # map: Vercel scheduled function → Kubernetes CronJob (Job creates a short-lived pod).
@@ -9,7 +9,7 @@ metadata:
   labels:
     app.kubernetes.io/name: ehs-cron-reminders
 spec:
-  # Match vercel.ts: "0 8 * * *" (controller timezone is usually UTC — confirm in your cloud).
+  # Match vercel.json: "0 8 * * *" (controller timezone is usually UTC — confirm in your cloud).
   schedule: "0 8 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3

@@ -82,7 +82,7 @@ Link first admin: `SEED_ADMIN_EMAIL=admin@example.com npm run db:seed`.
 
 ## 3. Cron jobs (Vercel substitute)
 
-On **Vercel**, [`vercel.ts`](../vercel.ts) schedules HTTP cron for reminders, data retention, and integration roster reconciliation. On **Kubernetes**, use [`deploy/k8s/cronjob-reminders.yaml`](../deploy/k8s/cronjob-reminders.yaml), [`deploy/k8s/cronjob-data-retention.yaml`](../deploy/k8s/cronjob-data-retention.yaml), and [`deploy/k8s/cronjob-integration-roster-reconcile.yaml`](../deploy/k8s/cronjob-integration-roster-reconcile.yaml).
+On **Vercel**, [`vercel.json`](../vercel.json) schedules HTTP cron for reminders, data retention, and integration roster reconciliation. On **Kubernetes**, use [`deploy/k8s/cronjob-reminders.yaml`](../deploy/k8s/cronjob-reminders.yaml), [`deploy/k8s/cronjob-data-retention.yaml`](../deploy/k8s/cronjob-data-retention.yaml), and [`deploy/k8s/cronjob-integration-roster-reconcile.yaml`](../deploy/k8s/cronjob-integration-roster-reconcile.yaml).
 
 All three curl the web service with:
 
@@ -90,7 +90,7 @@ All three curl the web service with:
 Authorization: Bearer <CRON_SECRET>
 ```
 
-| Route | Schedule (UTC, match `vercel.ts`) |
+| Route | Schedule (UTC, match `vercel.json`) |
 |-------|-----------------------------------|
 | `GET /api/cron/reminders` | `0 8 * * *` |
 | `GET /api/cron/data-retention` | `30 9 * * *` |

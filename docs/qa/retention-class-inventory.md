@@ -18,7 +18,7 @@ Lifecycle automation (anonymize or delete past `retain_until`, when `legal_hold 
 
 **Legal hold:** rows with `legal_hold = true` are skipped by the cron. Rows without `retain_until` are skipped until policy defaults or an authorized override sets a date.
 
-Schedule: `GET /api/cron/data-retention` (see [`vercel.ts`](../../vercel.ts) / K8s CronJob). Metrics job key: `data-retention` ([`CRON_JOB_KEYS`](../../src/server/cron/recordCronRun.ts)).
+Schedule: `GET /api/cron/data-retention` (see [`vercel.json`](../../vercel.json) / K8s CronJob). Metrics job key: `data-retention` ([`CRON_JOB_KEYS`](../../src/server/cron/recordCronRun.ts)).
 
 ## Policy-only classes (no cron lifecycle pass)
 

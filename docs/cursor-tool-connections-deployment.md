@@ -11,7 +11,7 @@ Production and staging deployments **must** remain:
 | CI / merge verification | `.github/workflows/ci.yml` (`npm run verify`, smoke E2E) |
 | Container image | CI job `publish` in `.github/workflows/ci.yml` → GHCR |
 | Controlled promotion | `.github/workflows/cd-promote-production.yml` — GitHub Environment **`production`**, optional Vercel prebuilt + EKS rollout |
-| Contracts | `src/lib/env.ts`, `vercel.ts`, `deploy/k8s/` |
+| Contracts | `src/lib/env.ts`, `vercel.json`, `deploy/k8s/` |
 
 **Cursor MCP and related connections do not replace** OAuth to GitHub, `VERCEL_TOKEN`, AWS IAM OIDC, or kubernetes RBAC—they are ergonomics layered on those systems.
 
@@ -60,8 +60,8 @@ Teams often combine **Vercel Preview deployments** with **branching Postgres** (
 
 | Runtime | Scheduling |
 |---------|-------------|
-| **Vercel** | `vercel.ts` configures HTTP crons (`/api/cron/reminders`, `/api/cron/data-retention`, `/api/cron/integration-roster-reconcile`). All use `Authorization: Bearer <CRON_SECRET>`. Preview deployments typically **must not** run duplicate schedules against prod-like data unless intentionally isolated envs. Prefer **staging** projects with isolated DBs when testing cron side effects. |
-| **Kubernetes** | `vercel.ts` cron **does not** run inside the cluster. Use `CronJob` manifests under `deploy/k8s/` calling the **same secured routes**. See DevOps skill. |
+| **Vercel** | `vercel.json` configures HTTP crons (`/api/cron/reminders`, `/api/cron/data-retention`, `/api/cron/integration-roster-reconcile`). All use `Authorization: Bearer <CRON_SECRET>`. Preview deployments typically **must not** run duplicate schedules against prod-like data unless intentionally isolated envs. Prefer **staging** projects with isolated DBs when testing cron side effects. |
+| **Kubernetes** | `vercel.json` cron **does not** run inside the cluster. Use `CronJob` manifests under `deploy/k8s/` calling the **same secured routes**. See DevOps skill. |
 | **`/api/cron/metrics`** | **Not scheduled** — Prometheus-style scrape endpoint; scrape from your collector (`docs/runbooks/cron-metrics-observability.md`). |
 
 ### Data isolation

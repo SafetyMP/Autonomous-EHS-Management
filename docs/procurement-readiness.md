@@ -47,7 +47,7 @@ It covers: ROI framing, pilot structure, economic moat narrative, implementation
 
 ## 4. Enterprise deployment path
 
-- **SaaS:** Vercel + managed Postgres (e.g. Neon) — see [README](../README.md), [`vercel.ts`](../vercel.ts).
+- **SaaS:** Vercel + managed Postgres (e.g. Neon) — see [README](../README.md), [`vercel.json`](../vercel.json).
 - **Container / cluster:** Dockerfile + `deploy/k8s/` + Terraform starters per [devops-sre skill](../.cursor/skills/devops-sre/SKILL.md); cron as `CronJob` hitting secured `/api/cron/*` routes.
 
 **SSO:** Optional **OIDC** via Better Auth Generic OAuth when `OIDC_*` env vars are set ([README Enterprise SSO](../README.md#enterprise-sso-oidc-pilot)). **Default:** new users require org membership (admin invite or seed)—no automatic tenant provisioning. **Optional:** JIT provisioning when `OIDC_JIT_ENABLED=true` and related env vars are set—review with IdP owners and counsel before production ([OIDC_JIT_PROVISIONING.md](./OIDC_JIT_PROVISIONING.md)). **SCIM** Users/Groups (MVP) ships for PortCo identity—see [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md).

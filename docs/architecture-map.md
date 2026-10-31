@@ -113,7 +113,7 @@ flowchart LR
 ## 7. Compliance evidence & retention design
 
 - **Retention services:** [`src/server/services/dataRetention.ts`](../src/server/services/dataRetention.ts) (incidents, **`safety_observation`**, **`work_permit`**, **`environmental_regulatory_permit`**, **`risk_assessment`** when `retain_until` populated per policy class), [`src/server/services/incidentRetentionDefault.ts`](../src/server/services/incidentRetentionDefault.ts) (default `retain_until` from org policy for incidents and program entities).
-- **Cron:** [`src/app/api/cron/data-retention/route.ts`](../src/app/api/cron/data-retention/route.ts) (scheduled in [`vercel.ts`](../vercel.ts)).
+- **Cron:** [`src/app/api/cron/data-retention/route.ts`](../src/app/api/cron/data-retention/route.ts) (scheduled in [`vercel.json`](../vercel.json)).
 - **Policy & process:** [COMPLIANCE.md](../COMPLIANCE.md); org-facing procedures under `compliance.*` in tRPC.
 
 ---
@@ -147,10 +147,10 @@ flowchart LR
 ## 11. Health & operations
 
 - **Liveness + DB ping:** [`src/app/api/health/route.ts`](../src/app/api/health/route.ts) — `GET /api/health`.
-- **Cron run metrics (scrape):** [`src/app/api/cron/metrics/route.ts`](../src/app/api/cron/metrics/route.ts) — `GET /api/cron/metrics` returns Prometheus text or JSON rollups over `cron_job_run`; same `Bearer` `CRON_SECRET` gate as other cron handlers; intended for external monitoring/SLO dashboards (not a `vercel.ts` scheduled path).
+- **Cron run metrics (scrape):** [`src/app/api/cron/metrics/route.ts`](../src/app/api/cron/metrics/route.ts) — `GET /api/cron/metrics` returns Prometheus text or JSON rollups over `cron_job_run`; same `Bearer` `CRON_SECRET` gate as other cron handlers; intended for external monitoring/SLO dashboards (not a `vercel.json` scheduled path).
 - **Demo guard:** [`src/instrumentation.ts`](../src/instrumentation.ts) blocks `DEMO_MODE` on Vercel production.
 
-For **deployment** topology (Vercel, Kubernetes, Docker), see [README.md](../README.md) (operators section summarizes §9–10), [`vercel.ts`](../vercel.ts), and [`.cursor/skills/devops-sre/SKILL.md`](../.cursor/skills/devops-sre/SKILL.md).
+For **deployment** topology (Vercel, Kubernetes, Docker), see [README.md](../README.md) (operators section summarizes §9–10), [`vercel.json`](../vercel.json), and [`.cursor/skills/devops-sre/SKILL.md`](../.cursor/skills/devops-sre/SKILL.md).
 
 ---
 

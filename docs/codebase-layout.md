@@ -93,7 +93,7 @@ Evidence digests for visual capture land under [`evidence/`](../evidence/) (`cal
 | [`deploy/k8s/`](../deploy/k8s/) | Kubernetes manifests + CronJobs |
 | [`infra/terraform/`](../infra/terraform/) | Optional EKS starter |
 | [`.github/workflows/`](../.github/workflows/) | CI, Docker publish, production promote |
-| [`vercel.ts`](../vercel.ts) | Vercel cron schedule |
+| [`vercel.json`](../vercel.json) | Vercel cron schedule |
 
 ## Conventions (quick reference)
 
