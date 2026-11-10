@@ -7,6 +7,8 @@ Autonomous EHS Management is a self-hosted **environmental, health and safety (E
 
 Record an incident, link a CAPA, and walk that CAPA to verified, on PostgreSQL you run. Optional AI may suggest wording. A person closes the record. This software does not claim OSHA certification and is not an official filing tool.
 
+**SafetyMP operating thesis — reliability requires accountability.** Sustainable automation depends on trustworthy records, assigned ownership, and verification that corrective actions actually close. This project demonstrates those operational risk-management mechanisms in EHS: AI can assist with wording, but human review and closure remain essential. It is an EHS workflow reference, not an autonomous compliance authority. See the [portfolio thesis](https://github.com/SafetyMP/SafetyMP).
+
 The public path is that spine. Other modules ship in the tree; maturity is listed in [docs/module-maturity.md](docs/module-maturity.md).
 
 **Jump to:** [Incident and CAPA workflow](#incident-and-capa-workflow) · [TRIR calculation](#trir) · [Run the demo](#run-the-demo) · [Self-hosting and security](#more) · [Documentation](#documentation-map)
