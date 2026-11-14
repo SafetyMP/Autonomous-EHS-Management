@@ -1,0 +1,338 @@
+
+> ehs@0.1.0 verify
+> npm run lint && npx tsc --noEmit && npm test
+
+
+> ehs@0.1.0 lint
+> eslint
+
+
+/Users/sagehart-creativestudio/Documents/ChatGPT/Github/Autonomous-EHS-Management/coverage/block-navigation.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/Users/sagehart-creativestudio/Documents/ChatGPT/Github/Autonomous-EHS-Management/coverage/lcov-report/block-navigation.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/Users/sagehart-creativestudio/Documents/ChatGPT/Github/Autonomous-EHS-Management/src/components/dashboard-shell.tsx
+  33:5  warning  Do not use `window.location.href` to navigate to internal Next.js pages. Use `redirect()` in the render phase, or `useRouter().push()` in Client Components' event handlers instead. See: https://nextjs.org/docs/messages/no-location-assign-relative-destination  @next/next/no-location-assign-relative-destination
+
+✖ 3 problems (0 errors, 3 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
+
+
+> ehs@0.1.0 test
+> vitest run --coverage
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.12 /Users/sagehart-creativestudio/Documents/ChatGPT/Github/Autonomous-EHS-Management
+      Coverage enabled with v8
+
+
+ Test Files  92 passed (92)
+      Tests  463 passed (463)
+   Start at  15:01:27
+   Duration  3.62s (transform 5.51s, setup 6.19s, import 25.22s, tests 1.48s, environment 6ms)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   23.36 |    16.89 |   19.21 |   23.87 |                   
+ src               |       0 |      100 |       0 |       0 |                   
+  proxy.ts         |       0 |      100 |       0 |       0 | 5-8               
+ src/app           |       0 |      100 |       0 |       0 |                   
+  manifest.ts      |       0 |      100 |       0 |       0 | 9                 
+ ...(auth)/sign-in |       0 |        0 |       0 |       0 |                   
+  demo-actions.ts  |       0 |        0 |       0 |       0 | 1-47              
+  sign-in-form.tsx |       0 |        0 |       0 |       0 | 1-163             
+ .../auth/[...all] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-58             
+ ...ntextsync/_lib |       0 |        0 |       0 |       0 |                   
+  http.ts          |       0 |        0 |       0 |       0 | 15-87             
+ ...extsync/actors |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 17-121            
+ ...tors/[actorId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 10-45             
+ ...sync/artifacts |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 20-278            
+ ...artifacts/diff |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 9-71              
+ ...ifacts/history |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 9-67              
+ ...artifacts/list |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 8-56              
+ ...nc/permissions |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 14-83             
+ ...ssions/explain |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 12-88             
+ ...ync/provenance |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 9-59              
+ ...data-retention |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 15-48             
+ ...ster-reconcile |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 18-75             
+ ...i/cron/metrics |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 22-114            
+ ...cron/reminders |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 19-122            
+ ...ce-upload-stub |       0 |      100 |       0 |       0 |                   
+  route.ts         |       0 |      100 |       0 |       0 | 8                 
+ ...app/api/health |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 6-19              
+ ...ration/inbound |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 28-173            
+ ...scim/v2/Groups |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 12-24             
+ ...oups/[groupId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 18-68             
+ ...ProviderConfig |       0 |      100 |       0 |       0 |                   
+  route.ts         |       0 |      100 |       0 |       0 | 4                 
+ .../scim/v2/Users |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 16-70             
+ ...Users/[userId] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 18-65             
+ ...pi/trpc/[trpc] |       0 |        0 |       0 |       0 |                   
+  route.ts         |       0 |        0 |       0 |       0 | 6-14              
+ src/components    |       0 |        0 |       0 |       0 |                   
+  ...ed-layout.tsx |       0 |        0 |       0 |       0 | 1-87              
+  ...eadcrumbs.tsx |       0 |        0 |       0 |       0 | 1-16              
+  ...rd-chrome.tsx |       0 |      100 |       0 |       0 | 1-11              
+  ...ouped-nav.tsx |       0 |        0 |       0 |       0 | 1-71              
+  ...e-context.tsx |       0 |        0 |       0 |       0 | 1-36              
+  ...ard-shell.tsx |       0 |        0 |       0 |       0 | 1-163             
+  ...te-header.tsx |       0 |        0 |       0 |       0 | 1-10              
+  ...obal-sync.tsx |       0 |        0 |       0 |       0 | 1-398             
+  ...ui-bridge.tsx |       0 |        0 |       0 |       0 | 1-283             
+  ...ne-banner.tsx |       0 |        0 |       0 |       0 | 1-23              
+  org-context.tsx  |       0 |        0 |       0 |       0 | 1-64              
+  org-switcher.tsx |       0 |        0 |       0 |       0 | 1-26              
+  ...s-section.tsx |       0 |        0 |       0 |       0 | 1-660             
+  ...tall-hint.tsx |       0 |        0 |       0 |       0 | 1-96              
+ ...ents/dashboard |    0.72 |     2.51 |    1.36 |    0.77 |                   
+  ...a-actions.tsx |       0 |        0 |       0 |       0 | 1-101             
+  ...rce-panel.tsx |       0 |        0 |       0 |       0 | 1-61              
+  ...sv-button.tsx |       0 |      100 |       0 |       0 | 1-25              
+  ...desk-view.tsx |       0 |        0 |       0 |       0 | 1-376             
+  ...rds-panel.tsx |       0 |        0 |       0 |       0 | 1-94              
+  ...eld-strip.tsx |       0 |        0 |       0 |       0 | 1-48              
+  ...ueue-hero.tsx |       0 |        0 |       0 |       0 | 1-133             
+  ...vity-feed.tsx |       0 |        0 |       0 |       0 | 11-43             
+  ...pty-state.tsx |       0 |      100 |       0 |       0 | 14                
+  ...-launcher.tsx |       0 |        0 |       0 |       0 | 1-71              
+  ...-kpi-tile.tsx |       0 |        0 |       0 |       0 | 16-19             
+  ...ge-header.tsx |       0 |        0 |       0 |       0 | 12                
+  ...m-updates.tsx |       0 |        0 |       0 |       0 | 1-49              
+  ...k-actions.tsx |       0 |        0 |       0 |       0 | 9-126             
+  ...d-section.tsx |       0 |        0 |       0 |       0 | 19-23             
+  ...ew-banner.tsx |       0 |        0 |       0 |       0 | 1-53              
+  ...y-section.tsx |       0 |        0 |       0 |       0 | 1-120             
+  ...ing-panel.tsx |       0 |        0 |       0 |       0 | 1-118             
+  ...apa-spine.tsx |       0 |        0 |       0 |       0 | 1-47              
+  ...a-section.tsx |       0 |        0 |       0 |       0 | 1-155             
+  ...orm-panel.tsx |       0 |        0 |       0 |       0 | 1-157             
+  ...preference.ts |       0 |        0 |       0 |       0 | 2-32              
+  ...ty-banner.tsx |       0 |        0 |       0 |       0 | 1-75              
+  ...nce-panel.tsx |       0 |        0 |       0 |       0 | 1-139             
+  ...ity-panel.tsx |       0 |        0 |       0 |       0 | 1-278             
+  ...oof-panel.tsx |       0 |      100 |       0 |       0 | 1-7               
+ ...mponents/field |       0 |        0 |       0 |       0 |                   
+  ...tachments.tsx |       0 |        0 |       0 |       0 | 1-126             
+ src/hooks         |       0 |        0 |       0 |       0 |                   
+  ...atorOnline.ts |       0 |        0 |       0 |       0 | 1-29              
+  ...dFormDraft.ts |       0 |        0 |       0 |       0 | 1-80              
+  ...dJsonDraft.ts |       0 |        0 |       0 |       0 | 1-77              
+ src/lib           |   78.45 |     81.2 |    92.1 |   79.11 |                   
+  auth-client.ts   |      80 |     62.5 |     100 |      80 | 10                
+  ...eld-styles.ts |       0 |      100 |     100 |       0 | 7-59              
+  env.ts           |      80 |     74.6 |   83.33 |   88.57 | 12-15             
+  logger.ts        |   54.54 |    66.66 |      50 |   54.54 | 6-7,13-17,25      
+  rcaFishbone.ts   |     100 |       75 |     100 |     100 | 65                
+  request-ip.ts    |   86.66 |       75 |     100 |   91.66 | 20                
+  safe-app-path.ts |    87.5 |      100 |     100 |   83.33 | 11                
+  safe-http-url.ts |    90.9 |      100 |     100 |   88.88 | 21                
+ src/lib/ai        |   36.28 |     5.26 |    42.1 |   36.93 |                   
+  ...turedParse.ts |   88.57 |      100 |     100 |   88.57 | 70,91,110,127     
+  gateway.ts       |      80 |       50 |     100 |      80 | 37                
+  ...lIntakeSlm.ts |       0 |      100 |       0 |       0 | 11                
+  ...ai-gateway.ts |       0 |        0 |       0 |       0 | 16-170            
+  structured.ts    |       0 |      100 |       0 |       0 | 9-14              
+ src/lib/analytics |   86.27 |       70 |   96.15 |    87.2 |                   
+  auditTrailCsv.ts |     100 |       90 |     100 |     100 | 52                
+  ...dCenterCsv.ts |   60.71 |    53.84 |      75 |    62.5 | 8,19,25-30,34-35  
+  ...icatorsCsv.ts |     100 |    64.28 |     100 |     100 | 31-56             
+  ...owUpSlaCsv.ts |     100 |    66.66 |     100 |     100 | 39-40             
+  ...hboardKpis.ts |   93.33 |    77.27 |     100 |   94.28 | 50-51             
+ ...lib/contractor |   84.21 |    78.04 |      75 |   88.23 |                   
+  ...cessStatus.ts |   84.21 |    78.04 |      75 |   88.23 | 37-38,50,98       
+ src/lib/dashboard |   38.46 |     25.9 |   34.14 |      41 |                   
+  ...terSignals.ts |   29.89 |     16.1 |   26.47 |   31.11 | ...99,106,154-300 
+  ...Preference.ts |       0 |        0 |       0 |       0 | 1-19              
+  ...tCapaSpine.ts |   83.33 |    77.77 |     100 |   83.33 | 31,41-42          
+  ...Preference.ts |     100 |     87.5 |     100 |     100 | 7                 
+  ...Highlights.ts |   23.07 |        0 |       0 |      30 | 100-107           
+  ...NewDismiss.ts |   72.72 |       60 |     100 |   88.88 | 10                
+ src/lib/field     |   29.03 |    15.38 |      75 |      30 |                   
+  ...ntakeImage.ts |   29.03 |    15.38 |      75 |      30 | 21-51             
+ ...ib/integration |    82.5 |    34.69 |      60 |   86.11 |                   
+  ...torPresets.ts |       0 |      100 |       0 |       0 | 12-151            
+  ...ndEnvelope.ts |   83.33 |    28.88 |   66.66 |   86.95 | 66-83,123         
+ .../investigation |   76.36 |    42.85 |   73.91 |   79.59 |                   
+  ...estigation.ts |   76.36 |    42.85 |   73.91 |   79.59 | 152-154,189-206   
+ src/lib/offline   |    6.08 |    21.05 |    4.87 |    7.03 |                   
+  fieldOutbox.ts   |       0 |        0 |       0 |       0 | 5-213             
+  ...xErrorKind.ts |   34.61 |     42.1 |   66.66 |   34.61 | 26-29,37-66       
+ src/lib/oidc      |   93.33 |       90 |     100 |   91.66 |                   
+  claimParser.ts   |   93.33 |       90 |     100 |   91.66 | 10                
+ ...ationalWebhook |   41.53 |    25.33 |   45.45 |   47.27 |                   
+  ...elAdapters.ts |   96.15 |     82.6 |     100 |     100 | 22,50-55          
+  eventTypes.ts    |      50 |        0 |       0 |      50 | 13                
+  urlValidation.ts |     2.7 |        0 |       0 |    3.44 | 19-65             
+ ...lib/regulatory |   88.09 |       60 |   84.61 |   86.84 |                   
+  ...gories2027.ts |      90 |     62.5 |     100 |    87.5 | 234,252           
+  ...rtScaffold.ts |   77.77 |       50 |   66.66 |   77.77 | 34,62             
+  ...gReference.ts |      80 |      100 |       0 |      80 | 103               
+ src/lib/tasks     |   52.17 |    37.83 |   72.72 |   51.89 |                   
+  actionQueue.ts   |   52.17 |    37.83 |   72.72 |   51.89 | ...41,145-150,159 
+ src/lib/workflow  |   93.33 |    88.88 |     100 |     100 |                   
+  ...ransitions.ts |     100 |       50 |     100 |     100 | 16                
+  ...ransitions.ts |   83.33 |    86.66 |     100 |     100 | 14-16             
+ src/server        |   21.79 |    15.25 |   22.22 |   21.62 |                   
+  auth.ts          |       0 |        0 |       0 |       0 | 16-128            
+  ratelimit.ts     |   28.88 |    19.44 |   42.85 |   29.26 | ...1-65,72,82-122 
+  read-env.ts      |   66.66 |       50 |     100 |   66.66 | 14,21             
+ src/server/cron   |   36.36 |    44.44 |   33.33 |   33.33 |                   
+  ...yOnFailure.ts |       0 |        0 |       0 |       0 | 8-30              
+  recordCronRun.ts |   72.72 |       80 |      50 |      70 | 32-42             
+ ...on/cronMetrics |   97.56 |       75 |   66.66 |   97.56 |                   
+  ...heusFormat.ts |   97.56 |       75 |   66.66 |   97.56 | 78                
+ src/server/db     |   39.76 |        0 |    0.28 |   44.87 |                   
+  index.ts         |       0 |        0 |       0 |       0 | 9-37              
+  schema.ts        |   40.77 |      100 |    0.28 |   46.16 | ...3745,3756-3761 
+ src/server/jobs   |    37.5 |    18.75 |   28.57 |    38.7 |                   
+  pgbossQueue.ts   |   13.33 |        0 |       0 |   14.28 | 10-35             
+  queue.ts         |   56.25 |     37.5 |      50 |   56.25 | ...41-42,45-49,57 
+ ...erver/services |   22.51 |    19.42 |    28.9 |   22.65 |                   
+  ...Escalation.ts |   88.88 |       70 |     100 |     100 | 44-72             
+  ...eCondition.ts |       0 |        0 |       0 |       0 | 13-26             
+  audit.ts         |     100 |       50 |     100 |     100 | 18-23             
+  ...rovalSteps.ts |       0 |        0 |       0 |       0 | 21-56             
+  ...MetricTrir.ts |   55.55 |       56 |      70 |   53.03 | 142-246           
+  ...bleDrivers.ts |    1.28 |        0 |       0 |    1.44 | 13-195            
+  ...tialExpiry.ts |       0 |        0 |       0 |       0 | 20-66             
+  dataRetention.ts |       0 |        0 |       0 |       0 | 28-529            
+  ...itApproval.ts |       0 |        0 |       0 |       0 | 19-47             
+  ...SyncIngest.ts |   53.84 |    41.66 |     100 |   53.84 | 16-22,40-63       
+  ...SyncIngest.ts |    1.36 |       10 |   16.66 |    1.47 | 18-103,125-214    
+  ...ionDefault.ts |   36.36 |    33.33 |   33.33 |    42.1 | 44-96             
+  ...ndDispatch.ts |   11.53 |    11.11 |   11.11 |   11.53 | ...76-203,215-306 
+  ...tencyCache.ts |       0 |        0 |       0 |       0 | 11-34             
+  ...dempotency.ts |       0 |        0 |       0 |       0 | 8-58              
+  ...Escalation.ts |     100 |    71.42 |     100 |     100 | 65-72             
+  ...ovisioning.ts |       0 |        0 |       0 |       0 | 15-193            
+  ...okDispatch.ts |      22 |     7.69 |   28.57 |   23.91 | 35-167            
+  ragSearch.ts     |   35.61 |    19.23 |   43.75 |   32.83 | ...93,107,130-290 
+  ...nciliation.ts |   34.04 |    21.73 |      40 |   34.09 | 32-40,83,98-190   
+  ...tionIngest.ts |   66.66 |    53.57 |     100 |   66.66 | ...49,159,167-190 
+  ...itApproval.ts |       0 |        0 |       0 |       0 | 19-44             
+ ...er/services/ai |   76.92 |    53.84 |      75 |   76.92 |                   
+  ...ftPipeline.ts |   76.92 |    53.84 |      75 |   76.92 | 21-26,104,158-172 
+ ...ices/analytics |   21.76 |    25.25 |    22.8 |   22.98 |                   
+  ...CenterFeed.ts |   45.83 |        0 |      50 |   68.75 | 149-155           
+  ...enterQuery.ts |   27.77 |    41.89 |    7.14 |   27.77 | 126-429           
+  ...atorsQuery.ts |   23.07 |       20 |   16.66 |      25 | 20-106            
+  ...ollowUpSla.ts |       0 |        0 |       0 |       0 | 12-105            
+  ...tonomyKpis.ts |   38.46 |    31.25 |      25 |   38.46 | 75-99             
+  ...onomyQuery.ts |       0 |        0 |       0 |       0 | 21-39             
+  ...boardQuery.ts |      32 |    33.33 |   16.66 |      32 | 57-194            
+  ...KpiQueries.ts |       0 |        0 |       0 |       0 | 40-201            
+ ...es/contextSync |   34.82 |    32.61 |   43.75 |   34.55 |                   
+  ...ClassClaim.ts |    5.88 |        0 |   33.33 |    5.88 | 22-87             
+  artifacts.ts     |       0 |        0 |       0 |       0 | 29-862            
+  authorize.ts     |   69.64 |       62 |   83.33 |   70.37 | ...48,274-275,300 
+  ...yReadQuota.ts |       0 |        0 |       0 |       0 | 7-83              
+  errors.ts        |       0 |        0 |       0 |       0 | 9-13              
+  glob.ts          |   74.28 |    65.71 |     100 |   82.75 | 27,34-39          
+  imsLinkedUri.ts  |   66.66 |    61.53 |     100 |   66.66 | 27,32,39-43       
+  imsRead.ts       |       0 |        0 |       0 |       0 | 28-195            
+  lineDiff.ts      |   94.11 |    82.85 |     100 |   95.74 | 57,73             
+  orgCapability.ts |   35.71 |     37.5 |   33.33 |   35.71 | 9-46,57           
+  parseCtxUri.ts   |      95 |     92.3 |     100 |   94.73 | 38                
+ ...ces/contractor |     100 |     92.3 |     100 |     100 |                   
+  ...ceSnapshot.ts |     100 |     92.3 |     100 |     100 | 45                
+ .../services/scim |   26.66 |    26.99 |    28.2 |   28.93 |                   
+  ...ntIdentity.ts |     100 |       50 |     100 |     100 | 16                
+  ...erSessions.ts |      50 |       50 |     100 |      50 | 23-27             
+  scimAuth.ts      |       0 |        0 |       0 |       0 | 16-46             
+  scimGroupRole.ts |      50 |    33.33 |      40 |   57.14 | 38-56             
+  scimGroups.ts    |   35.29 |    45.23 |   22.22 |   41.81 | 21-30,40-169      
+  scimResponse.ts  |       0 |        0 |       0 |       0 | 11-60             
+  ...outeHelper.ts |       0 |        0 |       0 |       0 | 10-42             
+  scimToken.ts     |     100 |       75 |     100 |     100 | 15                
+  scimUsers.ts     |   16.66 |    19.56 |      20 |   18.47 | ...39,277,280-288 
+ ...services/tasks |    1.21 |        0 |       0 |    1.35 |                   
+  ...QueueQuery.ts |    1.21 |        0 |       0 |    1.35 | 39-408            
+ src/server/trpc   |   48.97 |    33.33 |   38.46 |   48.97 |                   
+  ...tOrgScoped.ts |   22.22 |    22.22 |   22.22 |   22.22 | ...50-161,190-198 
+  context.ts       |       0 |      100 |       0 |       0 | 6-11              
+  init.ts          |   94.44 |    66.66 |     100 |   94.44 | 37                
+ ...r/trpc/routers |   16.46 |     9.83 |   17.64 |   16.66 |                   
+  aiAssistant.ts   |    9.61 |        0 |   14.28 |     9.8 | 47-161,213-343    
+  aiDrafts.ts      |    9.67 |        0 |       0 |    9.67 | 26-119            
+  analytics.ts     |   80.95 |       50 |     100 |   80.95 | 146-157,211       
+  approval.ts      |    5.76 |        0 |   18.75 |    5.88 | ...66-130,160-546 
+  aspect.ts        |   10.71 |        0 |       0 |   10.71 | 27-226            
+  ...railRouter.ts |   85.71 |    70.83 |     100 |   85.71 | 54,61,64,67,70,73 
+  capa.ts          |      25 |    30.76 |   44.44 |   26.11 | ...90-507,550-720 
+  ...toryRouter.ts |    1.04 |        0 |       0 |    1.04 | 24-563            
+  ...ricsRouter.ts |   59.09 |       50 |     100 |   59.09 | 36,67-96,127-134  
+  consultation.ts  |    5.55 |        0 |       0 |    5.55 | 12-104            
+  context.ts       |       5 |        0 |       0 |    5.08 | 27-67,72-434      
+  ...ncProtocol.ts |   14.81 |        0 |      25 |   14.81 | 16-30,55-112      
+  ...tionRouter.ts |   21.73 |        0 |       0 |   21.73 | 22-140            
+  document.ts      |   23.68 |     6.66 |      25 |   23.68 | 71-247            
+  dsarRouter.ts    |    12.5 |        0 |       0 |    12.5 | 14-120            
+  ehsEvidence.ts   |   28.57 |    16.66 |   33.33 |   28.57 | 73-148            
+  emergency.ts     |    2.94 |        0 |       0 |    2.94 | 22-217            
+  ...Monitoring.ts |    2.94 |        0 |       0 |    2.94 | 25-196            
+  ...toryPermit.ts |   10.52 |     2.06 |    5.26 |   10.52 | 63,71,74,92-653   
+  ...mentRouter.ts |   26.08 |     6.52 |      30 |   24.44 | 13-20,52,106-311  
+  externalParty.ts |   16.94 |     4.25 |    7.69 |   17.24 | 29-270,321-356    
+  ...gramRouter.ts |    2.46 |        0 |       0 |     2.5 | 27-33,38-463      
+  importData.ts    |    2.08 |        0 |       0 |     2.7 | 16-86             
+  incident.ts      |   54.08 |    46.57 |   54.54 |   54.63 | ...65,568,571,574 
+  inspection.ts    |    8.77 |        0 |      10 |    8.77 | 34-285            
+  integration.ts   |   21.12 |     7.14 |   46.66 |   21.42 | ...83-260,277-401 
+  internalAudit.ts |      12 |        0 |   11.11 |      12 | ...42-166,201-321 
+  ...mentReview.ts |    5.55 |        0 |       0 |    5.55 | 12-136            
+  obligation.ts    |   11.11 |     12.5 |      15 |   11.11 | 44-79,156-610     
+  observation.ts   |   27.69 |     4.54 |   36.36 |   27.69 | 43-260,281,295    
+  organization.ts  |   11.11 |     2.94 |   23.52 |   11.21 | ...79-274,323-610 
+  permit.ts        |    6.66 |        0 |   11.76 |    6.66 | 38-437            
+  ...coIdentity.ts |   22.22 |     9.09 |      25 |   22.22 | ...39-271,304-332 
+  program.ts       |    3.88 |        0 |       0 |    4.04 | 30-549            
+  rag.ts           |    12.5 |     6.25 |   18.18 |   12.64 | 52-90,118,143-393 
+  ...OshaRouter.ts |    8.19 |        0 |       0 |    8.19 | 35-448            
+  tasks.ts         |   23.07 |      100 |   66.66 |   23.07 | 19-92,109,117     
+  training.ts      |   13.63 |        0 |      20 |   13.63 | 39-148            
+  ...alogRouter.ts |   33.33 |      100 |       0 |   33.33 | 9-15              
+ ...uters/planning |   19.16 |     6.73 |    9.67 |   19.16 |                   
+  controlRouter.ts |    3.84 |        0 |       0 |    3.84 | 16-156            
+  hazardRouter.ts  |   11.11 |        0 |   16.66 |   11.11 | 30-158            
+  kpiRouter.ts     |    7.69 |        0 |       0 |    7.69 | 22-109            
+  ...tiveRouter.ts |    5.55 |        0 |       0 |    5.55 | 17-145            
+  riskRouter.ts    |   25.97 |    10.76 |   16.66 |   25.97 | ...40,143,161-447 
+ src/trpc          |       0 |        0 |       0 |       0 |                   
+  query-client.ts  |       0 |        0 |       0 |       0 | 8-16              
+  react.tsx        |       0 |        0 |       0 |       0 | 1-66              
+  server.tsx       |       0 |        0 |       0 |       0 | 12-58             
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 23.36% ( 1838/7866 )
+Branches     : 16.89% ( 983/5818 )
+Functions    : 19.21% ( 351/1827 )
+Lines        : 23.87% ( 1750/7330 )
+================================================================================

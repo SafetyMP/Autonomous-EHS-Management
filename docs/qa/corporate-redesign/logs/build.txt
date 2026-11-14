@@ -1,0 +1,103 @@
+
+> ehs@0.1.0 build
+> next build
+
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 20ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.9s
+  Running TypeScript ...
+  Finished TypeScript in 11.5s ...
+  Collecting page data using 17 workers ...
+  Generating static pages using 17 workers (0/63) ...
+  Generating static pages using 17 workers (15/63) 
+  Generating static pages using 17 workers (31/63) 
+  Generating static pages using 17 workers (47/63) 
+✓ Generating static pages using 17 workers (63/63) in 410ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/auth/[...all]
+├ ƒ /api/contextsync/actors
+├ ƒ /api/contextsync/actors/[actorId]
+├ ƒ /api/contextsync/artifacts
+├ ƒ /api/contextsync/artifacts/diff
+├ ƒ /api/contextsync/artifacts/history
+├ ƒ /api/contextsync/artifacts/list
+├ ƒ /api/contextsync/permissions
+├ ƒ /api/contextsync/permissions/explain
+├ ƒ /api/contextsync/provenance
+├ ƒ /api/cron/data-retention
+├ ƒ /api/cron/integration-roster-reconcile
+├ ƒ /api/cron/metrics
+├ ƒ /api/cron/reminders
+├ ƒ /api/evidence-upload-stub
+├ ƒ /api/health
+├ ƒ /api/integration/inbound
+├ ƒ /api/scim/v2/Groups
+├ ƒ /api/scim/v2/Groups/[groupId]
+├ ƒ /api/scim/v2/ServiceProviderConfig
+├ ƒ /api/scim/v2/Users
+├ ƒ /api/scim/v2/Users/[userId]
+├ ƒ /api/trpc/[trpc]
+├ ○ /dashboard
+├ ○ /dashboard/analytics
+├ ○ /dashboard/analytics/incidence-rates
+├ ○ /dashboard/approvals
+├ ○ /dashboard/assurance
+├ ○ /dashboard/audit-trail
+├ ○ /dashboard/audits
+├ ○ /dashboard/capa
+├ ƒ /dashboard/capa/[capaId]
+├ ○ /dashboard/chemicals
+├ ○ /dashboard/context
+├ ○ /dashboard/contractors
+├ ƒ /dashboard/contractors/[id]
+├ ○ /dashboard/documents
+├ ƒ /dashboard/documents/[documentId]
+├ ○ /dashboard/emergency
+├ ○ /dashboard/environment
+├ ○ /dashboard/environmental-permits
+├ ƒ /dashboard/environmental-permits/[permitId]
+├ ○ /dashboard/environmental-permits/new
+├ ○ /dashboard/heat-program
+├ ○ /dashboard/import
+├ ○ /dashboard/incidents
+├ ƒ /dashboard/incidents/[incidentId]
+├ ○ /dashboard/incidents/new
+├ ƒ /dashboard/inspections
+├ ƒ /dashboard/inspections/[inspectionId]
+├ ○ /dashboard/inspections/new
+├ ○ /dashboard/integrations
+├ ○ /dashboard/management-review
+├ ○ /dashboard/moc
+├ ƒ /dashboard/observations
+├ ƒ /dashboard/observations/[observationId]
+├ ○ /dashboard/observations/new
+├ ○ /dashboard/permits
+├ ƒ /dashboard/permits/[permitId]
+├ ○ /dashboard/permits/new
+├ ○ /dashboard/planning
+├ ○ /dashboard/privacy-requests
+├ ○ /dashboard/program
+├ ○ /dashboard/rag
+├ ○ /dashboard/retention
+├ ○ /dashboard/risk-assessments
+├ ƒ /dashboard/risk-assessments/[riskAssessmentId]
+├ ○ /dashboard/risk-assessments/new
+├ ƒ /dashboard/tasks
+├ ○ /dashboard/training
+├ ○ /dashboard/workflow-catalog
+├ ○ /manifest.webmanifest
+├ ƒ /sign-in
+└ ○ /sign-up
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

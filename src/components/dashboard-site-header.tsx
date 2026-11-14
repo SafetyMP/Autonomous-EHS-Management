@@ -1,47 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { OrgSwitcher } from "@/components/org-switcher";
 
-const brandLinkClassName =
-  "font-display inline-flex min-h-11 touch-target items-center rounded-md px-2 py-1.5 text-lg font-semibold text-primary hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2";
-
-const homeLinkClassName =
-  "inline-flex min-h-11 touch-target items-center rounded-md px-3 py-1.5 text-base text-text-subtle hover:bg-surface-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 sm:text-sm";
-
-const menuBtnClass =
-  "touch-target inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md border border-border-strong bg-surface-muted px-4 py-1.5 text-base font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 md:hidden";
-
-/**
- * Site header — Calm Focus quiet chrome (ADR-UX-005 / AC-CF-V006).
- * Height target 48–56px (plus safe-area inset); no hero gradient.
- */
-export function DashboardSiteHeader({
-  onMenuClick,
-}: {
-  /** Opens mobile drawer; desktop uses sidebar inside layout. */
+export function DashboardSiteHeader({ onMenuClick, menuOpen = false }: {
   onMenuClick?: () => void;
+  menuOpen?: boolean;
 }) {
   return (
-    <header
-      aria-label="EHS Console site"
-      data-dashboard-chrome="site-header"
-      className="sticky top-0 z-40 border-b border-border bg-surface pt-[max(0px,env(safe-area-inset-top))]"
-    >
-      <div className="mx-auto flex h-12 w-full max-w-[90rem] items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] pr-[max(1.5rem,env(safe-area-inset-right))] sm:h-14 sm:pl-[max(1.5rem,env(safe-area-inset-left))]">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <Link href="/dashboard" className={brandLinkClassName}>
-            <span className="sr-only">Autonomous EHS — </span>
-            EHS Console
+    <header aria-label="EHS Console site" data-dashboard-chrome="site-header"
+      className="border-b border-border bg-surface pt-[max(0px,env(safe-area-inset-top))]">
+      <div className="mx-auto flex w-full max-w-[90rem] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <button type="button" onClick={onMenuClick} aria-label="Open workspace menu" aria-expanded={menuOpen} aria-controls="workspace-navigation"
+            className="min-h-11 rounded-md border border-border px-3 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus md:hidden">Menu</button>
+          <Link href="/dashboard" className="font-display inline-flex min-h-11 items-center rounded-md text-lg font-semibold text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+            <span className="sr-only">Autonomous EHS — </span>EHS Console
           </Link>
-          <button type="button" className={menuBtnClass} onClick={onMenuClick} aria-label="Open workspace menu">
-            Menu
-          </button>
         </div>
-        <nav aria-label="Account" className="flex shrink-0 items-center gap-2">
-          <Link href="/" className={homeLinkClassName}>
-            Home
-          </Link>
-        </nav>
+        <div className="w-full min-w-0 border-t border-border pt-2 sm:ml-auto sm:w-64 sm:border-0 sm:pt-0"><OrgSwitcher /></div>
+        <Link href="/dashboard" className="hidden min-h-11 items-center rounded-md px-3 text-sm text-text-subtle hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus lg:inline-flex">Overview</Link>
       </div>
     </header>
   );

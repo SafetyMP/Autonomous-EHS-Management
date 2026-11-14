@@ -1,26 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useLayoutEffect, useRef } from "react";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useOrg } from "@/components/org-context";
 import { trpc } from "@/trpc/react";
 
 export default function IncidentsPage() {
-  const { organizationId } = useOrg();
-  const [titleFilter, setTitleFilter] = useState("");
+  return <Suspense fallback={<p role="status">Loading incidents…</p>}><IncidentsContent /></Suspense>;
+}
 
-  const { data: incidents, isLoading } = trpc.incident.list.useQuery(
+function IncidentsContent() {
+  const { organizationId } = useOrg();
+  const searchParams = useSearchParams();
+  const titleFilter = searchParams.get("q") ?? "";
+  const filterInput = useRef<HTMLInputElement>(null);
+
+  useLayoutEffect(() => {
+    // The native input retains fast keystrokes while Next transitions the query.
+    // Only synchronize navigation that still matches the browser URL; an older
+    // transition must never overwrite characters typed since it was scheduled.
+    const currentFilter = new URL(window.location.href).searchParams.get("q") ?? "";
+    if (currentFilter === titleFilter && filterInput.current) {
+      filterInput.current.value = titleFilter;
+    }
+  }, [titleFilter]);
+  const incidentHref = (id: string) =>
+    `/dashboard/incidents/${encodeURIComponent(id)}${titleFilter ? `?${new URLSearchParams({ incidentFilter: titleFilter })}` : ""}`;
+
+  function updateFilter(value: string) {
+    // Next synchronizes native history with useSearchParams. Keep this local filter
+    // responsive without a server navigation or a history entry for every keystroke.
+    window.history.replaceState(null, "", `/dashboard/incidents${value ? `?${new URLSearchParams({ q: value })}` : ""}`);
+  }
+
+  const { data: incidents, isLoading, error } = trpc.incident.list.useQuery(
     { organizationId: organizationId! },
     { enabled: !!organizationId },
   );
 
-  const filtered = useMemo(() => {
-    if (!incidents?.length) return [];
-    const q = titleFilter.trim().toLowerCase();
-    if (!q) return incidents;
-    return incidents.filter((i) => i.title.toLowerCase().includes(q));
-  }, [incidents, titleFilter]);
+  const query = titleFilter.trim().toLowerCase();
+  const filtered = (incidents ?? []).filter((incident) => !query || incident.title.toLowerCase().includes(query));
 
   if (!organizationId) {
     return (
@@ -58,8 +79,9 @@ export default function IncidentsPage() {
           <span className="font-medium">Filter by title</span>
           <input
             type="search"
-            value={titleFilter}
-            onChange={(e) => setTitleFilter(e.target.value)}
+            ref={filterInput}
+            defaultValue={titleFilter}
+            onChange={(e) => updateFilter(e.target.value)}
             placeholder='e.g. "fall" or "[Demo]"'
             className="min-h-11 w-full min-w-0 rounded-md border border-zinc-300 px-3 py-2 text-base text-zinc-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
             autoComplete="off"
@@ -98,6 +120,12 @@ export default function IncidentsPage() {
                   </span>
                 </td>
               </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-6">
+                  <p role="alert" className="text-base text-red-800">Unable to load incidents: {error.message}</p>
+                </td>
+              </tr>
             ) : incidents?.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-6 text-base text-zinc-700">
@@ -116,7 +144,7 @@ export default function IncidentsPage() {
                 <tr key={i.id}>
                   <td className="px-4 py-3 font-medium text-zinc-900">
                     <Link
-                      href={`/dashboard/incidents/${i.id}`}
+                      href={incidentHref(i.id)}
                       className="text-emerald-900 underline decoration-emerald-800 underline-offset-2 hover:text-emerald-950"
                     >
                       {i.title}
@@ -126,7 +154,7 @@ export default function IncidentsPage() {
                   <td className="px-4 py-3 capitalize">{i.status.replace("_", " ")}</td>
                   <td className="px-4 py-3">
                     <Link
-                      href={`/dashboard/incidents/${i.id}`}
+                      href={incidentHref(i.id)}
                       className="touch-target text-base font-medium text-emerald-800 underline decoration-emerald-700 underline-offset-2 hover:bg-emerald-50"
                     >
                       Open record

@@ -47,9 +47,11 @@ function PrimaryCard({ item }: { item: NonNullable<ActionQueueOut["primary"]> })
 export function DashboardActionQueueHero({
   queue,
   loading,
+  error,
 }: {
   queue: ActionQueueOut | undefined;
   loading: boolean;
+  error?: string;
 }) {
   if (loading) {
     return (
@@ -65,6 +67,14 @@ export function DashboardActionQueueHero({
         </p>
       </section>
     );
+  }
+
+  if (error) {
+    return <section aria-label="Your work" className="rounded-xl border border-danger bg-danger-surface p-5">
+      <h2 className="text-lg font-semibold text-foreground">Your work</h2>
+      <p role="alert" className="mt-2 text-danger">{error}</p>
+      <Link href="/dashboard/tasks" className="mt-3 inline-flex min-h-11 items-center font-medium text-primary underline">Open Tasks &amp; reviews</Link>
+    </section>;
   }
 
   const primary = queue?.primary;
@@ -138,13 +148,7 @@ export function DashboardActionQueueHero({
 
           {hasMoreBeyondCeiling ? (
             <p className="text-sm text-text-muted">
-              Showing {emphasizedCount} of {total}.{" "}
-              <Link
-                href="/dashboard/tasks"
-                className="font-medium text-primary underline underline-offset-2"
-              >
-                View all
-              </Link>
+              Showing {emphasizedCount} of {total}. Use View all tasks to see the full queue.
             </p>
           ) : null}
         </div>

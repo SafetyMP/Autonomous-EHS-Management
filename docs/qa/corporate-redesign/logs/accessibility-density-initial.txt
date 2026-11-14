@@ -1,0 +1,187 @@
+◇ injected env (12) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+
+Running 13 tests using 4 workers
+
+(node:32509) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32507) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (0) from .env.ci // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env.ci // tip: ⌘ enable debugging { debug: true }
+  ✓   2 [a11y] › tests/e2e/a11y/chrome-landmarks.a11y.spec.ts:9:7 › a11y chrome landmarks › @a11y marketing home skip-link and main landmark (641ms)
+  ✓   5 [a11y] › tests/e2e/a11y/chrome-landmarks.a11y.spec.ts:25:7 › a11y chrome landmarks › @a11y sign-in skip-link targets main landmark (522ms)
+  ✘   4 [a11y] › tests/e2e/a11y/approvals-decide.a11y.spec.ts:15:7 › a11y approvals decide › @a11y approvals page has no serious/critical axe violations (1.2s)
+  ✓   1 [a11y] › tests/e2e/a11y/capa-happy-path.a11y.spec.ts:15:7 › a11y CAPA happy path › @a11y CAPA page has no serious/critical axe violations (1.3s)
+  ✘   3 [a11y] › tests/e2e/a11y/audit-trail-list.a11y.spec.ts:15:7 › a11y audit-trail list › @a11y audit-trail list has no serious/critical axe violations (1.4s)
+(node:32573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+(node:32576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+  ✓   7 [a11y] › tests/e2e/a11y/incident-create-empty-submit.a11y.spec.ts:14:7 › a11y incident create empty submit › @a11y incident create empty submit shows alert and aria-invalid (586ms)
+  ✓   6 [a11y] › tests/e2e/a11y/desk-today.a11y.spec.ts:18:7 › a11y desk Today › @a11y desk Today has no serious/critical axe violations (877ms)
+  ✓  11 [a11y] › tests/e2e/a11y/sign-in.a11y.spec.ts:9:7 › a11y sign-in › @a11y sign-in page has no serious/critical axe violations (444ms)
+  ✓   8 [a11y] › tests/e2e/a11y/field-home.a11y.spec.ts:18:7 › a11y field home › @a11y field home has no serious/critical axe violations (923ms)
+  ✓   9 [a11y] › tests/e2e/a11y/incident-create.a11y.spec.ts:15:7 › a11y incident create › @a11y incident create has no serious/critical axe violations (896ms)
+(node:32598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+(node:32599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ suppress logs { quiet: true }
+  ✓  10 [a11y] › tests/e2e/a11y/keyboard-field-to-incident.a11y.spec.ts:17:7 › a11y keyboard field to incident › @a11y @keyboard field home to incident create via keyboard (1.0s)
+DENSITY_METRIC persona=desk_supervisor visible_kpi_tiles=0
+DENSITY_METRIC persona=desk_supervisor interactive_controls=9 viewport=1440x900
+  ✓  12 [density] › tests/e2e/density/calm-focus-today-density.spec.ts:66:7 › Calm Focus Today density @density › @density desk_supervisor first-visit: KPI hidden, ≤12 controls (1.2s)
+DENSITY_METRIC persona=desk_contributor visible_kpi_tiles=0
+DENSITY_METRIC persona=desk_contributor interactive_controls=5 viewport=1440x900
+  ✓  13 [density] › tests/e2e/density/calm-focus-today-density.spec.ts:79:7 › Calm Focus Today density @density › @density desk_contributor first-visit: KPI hidden, ≤12 controls (1.2s)
+
+
+  1) [a11y] › tests/e2e/a11y/approvals-decide.a11y.spec.ts:15:7 › a11y approvals decide › @a11y approvals page has no serious/critical axe violations 
+
+    Error: axe serious/critical violations:
+    [serious] document-title: Documents must have <title> element to aid in navigation → ["html"]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 43
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure each HTML document contains a non-empty <title> element",
+    +     "help": "Documents must have <title> element to aid in navigation",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/document-title?application=playwright",
+    +     "id": "document-title",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "doc-has-title",
+    +             "impact": "serious",
+    +             "message": "Document does not have a non-empty <title> element",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Document does not have a non-empty <title> element",
+    +         "html": "<html lang=\"en\" data-theme=\"calm\" class=\"fraunces_b202e7d9-module__YSVETG__variable source_sans_3_b4607951-module__Q5h3hq__variable geist_mono_8d43a2aa-module__8Li5zG__variable h-full antialiased\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "html",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.text-alternatives",
+    +       "wcag2a",
+    +       "wcag242",
+    +       "TTv5",
+    +       "TT12.a",
+    +       "EN-301-549",
+    +       "EN-9.2.4.2",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-8.5.1",
+    +     ],
+    +   },
+    + ]
+
+       at a11y/helpers/axe-wcag22.ts:31
+
+      29 |     (v) => v.impact === "serious" || v.impact === "critical",
+      30 |   );
+    > 31 |   expect(blocking, `axe serious/critical violations:\n${formatViolations(blocking)}`).toEqual([]);
+         |                                                                                       ^
+      32 | }
+      33 |
+        at expectNoSeriousCriticalAxeViolations (/Users/sagehart-creativestudio/Documents/ChatGPT/Github/Autonomous-EHS-Management/tests/e2e/a11y/helpers/axe-wcag22.ts:31:87)
+        at /Users/sagehart-creativestudio/Documents/ChatGPT/Github/Autonomous-EHS-Management/tests/e2e/a11y/approvals-decide.a11y.spec.ts:24:5
+
+    Error Context: test-results/a11y-approvals-decide.a11y-000f9-ous-critical-axe-violations-a11y/error-context.md
+
+  2) [a11y] › tests/e2e/a11y/audit-trail-list.a11y.spec.ts:15:7 › a11y audit-trail list › @a11y audit-trail list has no serious/critical axe violations 
+
+    Error: axe serious/critical violations:
+    [serious] document-title: Documents must have <title> element to aid in navigation → ["html"]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 43
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure each HTML document contains a non-empty <title> element",
+    +     "help": "Documents must have <title> element to aid in navigation",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/document-title?application=playwright",
+    +     "id": "document-title",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "doc-has-title",
+    +             "impact": "serious",
+    +             "message": "Document does not have a non-empty <title> element",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Document does not have a non-empty <title> element",
+    +         "html": "<html lang=\"en\" data-theme=\"calm\" class=\"fraunces_b202e7d9-module__YSVETG__variable source_sans_3_b4607951-module__Q5h3hq__variable geist_mono_8d43a2aa-module__8Li5zG__variable h-full antialiased\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "html",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.text-alternatives",
+    +       "wcag2a",
+    +       "wcag242",
+    +       "TTv5",
+    +       "TT12.a",
+    +       "EN-301-549",
+    +       "EN-9.2.4.2",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-8.5.1",
+    +     ],
+    +   },
+    + ]
+
+       at a11y/helpers/axe-wcag22.ts:31
+
+      29 |     (v) => v.impact === "serious" || v.impact === "critical",
+      30 |   );
+    > 31 |   expect(blocking, `axe serious/critical violations:\n${formatViolations(blocking)}`).toEqual([]);
+         |                                                                                       ^
+      32 | }
+      33 |
+        at expectNoSeriousCriticalAxeViolations (/Users/sagehart-creativestudio/Documents/ChatGPT/Github/Autonomous-EHS-Management/tests/e2e/a11y/helpers/axe-wcag22.ts:31:87)
+        at /Users/sagehart-creativestudio/Documents/ChatGPT/Github/Autonomous-EHS-Management/tests/e2e/a11y/audit-trail-list.a11y.spec.ts:24:5
+
+    Error Context: test-results/a11y-audit-trail-list.a11y-f2b51-ous-critical-axe-violations-a11y/error-context.md
+
+  2 failed
+    [a11y] › tests/e2e/a11y/approvals-decide.a11y.spec.ts:15:7 › a11y approvals decide › @a11y approvals page has no serious/critical axe violations 
+    [a11y] › tests/e2e/a11y/audit-trail-list.a11y.spec.ts:15:7 › a11y audit-trail list › @a11y audit-trail list has no serious/critical axe violations 
+  11 passed (4.7s)

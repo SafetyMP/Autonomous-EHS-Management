@@ -16,21 +16,17 @@ const CAPA_STATUSES = [
 ] as const;
 
 export function CapaStatusStepper({ status }: { status: string }) {
-  const idx = CAPA_STATUSES.indexOf(status as (typeof CAPA_STATUSES)[number]);
   return (
     <ol className="flex flex-wrap gap-2" aria-label="CAPA workflow status">
-      {CAPA_STATUSES.map((s, i) => {
-        const active = i === idx;
-        const done = idx >= 0 && i < idx;
+      {CAPA_STATUSES.map((s) => {
+        const active = s === status;
         return (
           <li
             key={s}
             className={`min-h-9 rounded-md px-3 py-1.5 text-xs font-semibold capitalize ${
               active
                 ? "border-2 border-emerald-700 bg-emerald-50 text-emerald-950"
-                : done
-                  ? "border border-emerald-200 bg-emerald-50/50 text-emerald-900"
-                  : "border border-zinc-200 bg-zinc-50 text-zinc-600"
+                : "border border-border bg-surface text-text-muted"
             }`}
             aria-current={active ? "step" : undefined}
           >
@@ -45,26 +41,33 @@ export function CapaStatusStepper({ status }: { status: string }) {
 export function CapaSourcePanel({
   sources,
   hasOpenApproval,
+  incidentFilter = "",
 }: {
   sources: CapaGet["sources"];
   hasOpenApproval: boolean;
+  incidentFilter?: string;
 }) {
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-      <h2 className={dfSectionHeading}>Source &amp; context</h2>
+    <section id="action-source" aria-labelledby="action-source-heading" className="scroll-mt-44 sm:scroll-mt-24 rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
+      <h2 id="action-source-heading" className={dfSectionHeading}>Source &amp; context</h2>
       <p className={`mt-1 ${dfHelperXs}`}>
-        Upstream records that drove this corrective action (schema-linked sources).
+        Return to the incident or finding that prompted this action. Its record and this action keep their own status.
       </p>
       {sources.length === 0 ? (
         <p className={`mt-3 text-base ${dfMuted}`}>Standalone CAPA — no linked source record.</p>
       ) : (
         <ul className="mt-3 space-y-2 text-base">
           {sources.map((s) => (
-            <li key={`${s.kind}-${s.id}`}>
+            <li key={`${s.kind}-${s.id}`} className="rounded-lg border border-border px-4 py-3">
               <span className="font-semibold capitalize text-zinc-900">
                 {s.kind.replaceAll("_", " ")}:{" "}
               </span>
-              <Link href={s.href} className={dfInlineNavLink}>
+              <Link
+                href={s.kind === "incident" && incidentFilter
+                  ? `/dashboard/incidents/${encodeURIComponent(s.id)}?${new URLSearchParams({ incidentFilter })}#corrective-actions`
+                  : s.href}
+                className={dfInlineNavLink}
+              >
                 {s.label}
               </Link>
             </li>
@@ -80,6 +83,6 @@ export function CapaSourcePanel({
           .
         </p>
       ) : null}
-    </div>
+    </section>
   );
 }

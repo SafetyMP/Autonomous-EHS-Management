@@ -1,8 +1,10 @@
 # EHS Console — User manual
 
-Welcome to **EHS Console**—the signed-in experience for **Autonomous EHS**, an integrated management system (IMS) for health, safety, and environment programs. This guide helps safety managers and field workers record activity in plain steps.
+Welcome to **EHS Console**—the signed-in experience for **Autonomous EHS**, an integrated management system (IMS) for health, safety, and environment programs. This guide helps corporate EHS users, safety managers, and field workers find and complete their work.
 
 **Naming:** **Autonomous EHS** is the product and repo name; **EHS Console** is what you see after sign-in. **Autonomous** means scheduled reminders, escalations, and optional field outbox replay—not automatic approval of incidents or CAPAs.
+
+**Navigation revision (2026-11-14):** This guide describes the corporate redesign in [ADR-UX-008](./adr/ADR-UX-008-corporate-navigation.md). Its work-area names supersede **Today / Capture / Decide / Prove** and the older secondary groups. Existing route URLs, permissions, and record workflows remain unchanged; this documentation does not claim customer usability validation.
 
 ---
 
@@ -14,7 +16,7 @@ Welcome to **EHS Console**—the signed-in experience for **Autonomous EHS**, an
 4. [Signing in and out](#signing-in-and-out)
 5. [Your organization (workspace)](#your-organization-workspace)
 6. [Moving around the app](#moving-around-the-app)
-7. [Command center (operations home)](#command-center-operations-home)
+7. [Corporate overview](#corporate-overview)
 7a. [Your work (next actions)](#your-work)
 8. [Metrics (Safety metrics)](#metrics-safety-metrics)
 9. [Incidence rates](#incidence-rates)
@@ -87,15 +89,15 @@ Welcome to **EHS Console**—the signed-in experience for **Autonomous EHS**, an
 | **RAG / knowledge search** | A search over document text your organization has uploaded and indexed—you see short excerpts and stable references (“citations”) for audit traceability—not live legal advice. |
 | **Knowledge base citations** | Search results that quote stored document chunks with identifiers you can cite in records. |
 | **Safety observation** | A fast field log of what people saw (safe behavior, at-risk behavior, unsafe condition, other). It is for program learning—not the same as an injury/illness record. |
-| **Permit to work (PTW)** | A controlled **work authorization** under **Capture** (**Work permits (PTW)** in the menu). Status moves from draft through approval to active, then completed or cancelled—not the same as **Regulatory env permits** under **Plan & programme** (air / water / waste register). |
+| **Permit to work (PTW)** | A controlled **work authorization** under **Programs & risks** (**Work permits (PTW)** in the menu). Status moves from draft through approval to active, then completed or cancelled—not the same as **Environmental permits** under **Programs & risks** (air / water / waste register). |
 | **Environmental permit (regulatory)** | A **program record** for regulatory air / water / waste permits: renewal tracking and links to your environment program—not a permit to perform a specific hot-work or similar task on site. |
 | **Risk assessment (register)** | Task-based or site-based risk records on the **Risk assessments** roster; related ISO planning hazards and scenario assessments still live under **Planning**. |
 | **MOC** | Management Of Change—for changes to equipment, materials, staffing, layouts, contractors, processes. |
 | **Certification body (CB)** | An outside auditing organization that evaluates your management system toward certificate decisions. |
 | **CSV** | A simple comma-separated spreadsheet text format—for bulk uploads of certain lists. |
-| **Command center** | The operations home at `/dashboard` in **desk** layout: **Your work** first, then optional **Needs attention**, collapsed **Key indicators**, expandable **ISO setup checklist**, and **More on Today** (program updates, activity, quick actions / export when available). |
+| **Corporate overview** | The home at `/dashboard` in **desk** layout: four concise, permission-scoped measures, **Your work**, **Needs attention**, expandable **Key indicators**, **ISO setup checklist**, and **Program activity & tools**. Older documentation calls this the command center. |
 | **Field workspace** | A compact home layout with large intake buttons and your pending work. Your organization may open this first; use **Open full operations dashboard** (or **Compact field menu** from desk) to switch layouts. |
-| **Operations dashboard** | The full command center layout (versus the compact field menu). |
+| **Operations dashboard** | The desk layout, now titled **Corporate overview** (versus the compact field menu). |
 | **Audit trail** | Menu item **Audit trail** opens the read-only **System audit trail** (who changed what, when)—not ISO **Audits**. Approval buttons still explain that decisions are written to the audit trail behind the scenes. |
 | **Retention policy matrix** | Rows your organization defines per jurisdiction and **record class** (what kind of data), with minimum years, what happens after retention (**hold**, **anonymize**, **delete**), and **date anchor**—meanings are counsel-defined; the screen stores the register. |
 | **Encoded workflow catalog** | A read-only list of **status → status** transitions baked into the application for each major entity. It is **not** a tenant-configurable workflow builder. |
@@ -132,7 +134,7 @@ Lets you prove who you are. After sign‑in you land inside the dashboard world.
 1. Go to `/sign-in` (or tap **Sign in** from the home page).
 2. Enter **Email** and **Password**.
 3. Tap **Sign in** (or Submit).
-4. You should land in the **Command center** (full operations dashboard), **Field workspace** (compact intake layout), or another start your administrator configured—both live under `/dashboard`.
+4. You should land in the **Corporate overview** (desk layout), **Field workspace** (compact intake layout), or another start your administrator configured—both live under `/dashboard`.
 
 ### SOP — Create account
 
@@ -165,9 +167,12 @@ Shows data for **one workplace group at a time** (often a company entity or divi
 
 ### SOP — Pick an organization
 
-1. Look in the page header area (top-right on wide screens) for the **Organization** drop-down (**only appears if you belong to more than one**).
-2. Choose the correct site name.
-3. Wait for counts and lists to refresh.
+1. Read **Organization** in the shared header on any dashboard screen. A single membership shows its name; multiple memberships show a selector.
+2. Choose the organization whose records you need. The selector contains only your current memberships.
+3. Switching returns to **Overview** and clears the previous organization's page/form state. Finish or save your current work before switching.
+4. Your selection survives refreshes in the same browser tab when browser storage is available. The app checks saved selections against your current memberships; a stale selection grants no access. If you have several memberships and no valid saved selection, choose one to load navigation and records.
+
+The header identifies one organization at a time. It does not combine records across organizations.
 
 ### What if things go wrong?
 
@@ -180,35 +185,38 @@ Shows data for **one workplace group at a time** (often a company entity or divi
 
 ## Moving around the app
 
-Navigation is **task-first** (sidebar on wide screens; **Menu** drawer on phones): primary modes **Today / Capture / Decide / Prove**, then secondary programme clusters. Labels below match the live menu source [`src/lib/dashboard-nav-links.ts`](../src/lib/dashboard-nav-links.ts).
+The sidebar on wide screens and **Menu** drawer on phones expose six named work areas, with **Administration** separate. Open a work area to see its destinations. The area containing the current page opens automatically, and the current destination is highlighted. Labels below match [`src/lib/dashboard-nav-links.ts`](../src/lib/dashboard-nav-links.ts).
 
-| Section | Links (in menu order) |
-|---------|----------------------|
-| **Today** | **Command center**, **Tasks & reviews** |
-| **Capture** | **Incidents**, **Observations**, **Inspections**, **Work permits (PTW)** |
-| **Decide** | **Approvals**, **CAPA register** |
-| **Prove** | **Audit trail**, **Documents** |
-| **Plan & programme** *(secondary)* | **Planning hub**, **Heat NEP program aid**, **Risk assessments**, **Environment**, **Chemical inventory**, **Regulatory env permits** |
-| **Assure & improve** *(secondary)* | **Internal audits**, **Assurance hub**, **Mgmt review** |
-| **Records & metrics** *(secondary)* | **Knowledge corpus**, **Retention**, **Metrics**, **Incidence rates** |
-| **People** *(secondary)* | **Training**, **Contractors** |
-| **Administration** *(secondary)* | **Program overview**, **Emergency prep**, **Management of change**, **Import**, **Integrations**, **Privacy**, **Organization context (ISO 4)**, **Workflow catalog** |
+| Work area | Destinations (in menu order) |
+|-----------|------------------------------|
+| **Overview** | **Overview** |
+| **Actions & approvals** | **Tasks & reviews**, **Corrective actions (CAPA)**, **Approvals** |
+| **Incidents & observations** | **Incidents**, **Observations** |
+| **Audits & inspections** | **Internal audits**, **Inspections**, **Assurance**, **Management review** |
+| **Programs & risks** | **Program overview**, **Planning**, **Risk assessments**, **Work permits (PTW)**, **Environment**, **Environmental permits**, **Chemical inventory**, **Heat program aid**, **Training**, **Contractors**, **Emergency preparedness**, **Management of change** |
+| **Reports & evidence** | **Metrics**, **Incidence rates**, **Documents**, **Audit trail**, **Knowledge library**, **Retention** |
+| **Administration** | **Import**, **Integrations**, **Privacy requests**, **Organization context (ISO 4)**, **Workflow catalog** |
 
-**Home** in the corner returns toward the marketing home page—not always needed during daily tasks.
+- **Find a workspace:** Type a destination or work-area name, such as **CAPA**, **incidents**, or **reports**, into the navigation search. Matching areas expand. Clear the search to see all available areas again. This searches menu destinations, not record contents.
+- **Breadcrumbs:** Read **Overview → work area → destination → record details** above the page. Use the linked overview or destination to return; the work-area name supplies context. Destination breadcrumbs return to the register; record-specific **Back to incidents** and source links preserve the incident title filter when you follow that journey.
+- **Overview:** The header link returns to the signed-in overview, rather than the public marketing page.
+- **Mobile keyboard:** Open **Menu** to move focus into navigation. Tab and Shift+Tab stay in the drawer; Escape or **Close** closes it and restores focus to the opener. Choosing a destination also closes the drawer.
 
-**Field layout:** If your org defaults to the compact field workspace, the **Administration** section is hidden unless you are an org admin or have integration or audit-trail read access—use **Full operations dashboard** to reach admin routes when permitted. Secondary clusters may stay collapsed until you open them.
+**Field visibility:** Existing field-role restrictions remain. Without organization admin, integration-read, or audit-trail-read access, the menu hides **Program overview**, **Emergency preparedness**, **Management of change**, and the Administration destinations. Changing the grouping or opening the desk layout does not grant access; each page and action retains its server permission checks.
 
-**Note:** **Audit trail** under **Prove** is the read-only **system audit trail** (who changed what). **Internal audits** under **Assure & improve** is the ISO **internal audit** programme—they are different modules. **Metrics** / **Incidence rates** stay under **Records & metrics**, not Prove.
+**Audits and evidence:** **Audit trail** under **Reports & evidence** shows system changes. **Internal audits** under **Audits & inspections** manages the audit program. These remain different modules.
 
-**Permits:** **Work permits (PTW)** live under **Capture**. **Regulatory env permits** live under **Plan & programme**—they are not the same family and are never mixed as a single undifferentiated “Permits” list.
+**Permits:** **Work permits (PTW)** and **Environmental permits** have separate destinations under **Programs & risks**. A work authorization and a regulatory permit register remain different workflows. Navigation visibility does not change module maturity; existing limitations and maturity notices still apply.
 
 ---
 
-## Command center (operations home)
+<a id="command-center-operations-home"></a>
 
-In the sidebar this route is labeled **Command center**. The main heading reads **Operations —** *your organization name* (or **Operations command center** if the name is still loading).
+## Corporate overview
 
-The short description under the title: *Permission-scoped snapshot of open work, approvals, permits, inspections, and recent activity across your IMS.*
+Choose **Overview** to open `/dashboard`. In desk layout the heading reads **Corporate overview**, with the organization named in the shared header and page description.
+
+The overview shows four concise measures: **Open incidents**, **Overdue corrective actions**, **Open audit findings** (open nonconformances), and **Your pending approvals**. They use the existing permission-scoped snapshot. **0** means an actual zero; **— / Not available in this view** means a measure is unavailable, including when your permissions do not expose it. A snapshot failure is reported rather than presented as completed work.
 
 A **installable web** strip (**Install EHS Console on this device**) may appear on supported browsers—an optional home-screen shortcut (progressive web), not a native App Store or Play Store app.
 
@@ -218,8 +226,8 @@ After a major release, a dismissible **What's new** banner may appear at the top
 
 ### Desk layout versus field layout
 
-- **Desk (operations dashboard):** The sections below describe this layout. Your org may open it by default after sign-in.
-- **Field workspace:** You may land on a compact screen titled **Field —** *org* (or **Field workspace**) with subtitle *Quick actions for intake in the field…* Under **Start here**, large buttons match permissions (**Report incident**, **Log observation**, **Start inspection**, **New permit**). A **Pending for you** strip lists up to three ranked items (approvals, due CAPAs). **Recent lists** links include **Incidents**, **Observations**, **Inspections**, and **Work permits (PTW)** when you can read those modules. At the bottom, **Full operations dashboard** switches to desk layout. Your layout preference is remembered in the browser.
+- **Desk (corporate overview):** The sections below describe this layout. Your org may open it by default after sign-in.
+- **Field workspace:** You may land on a compact screen titled **Field —** *org* (or **Field workspace**) with subtitle *Quick actions for intake in the field…* Under **Start here**, large buttons match permissions (**Report incident**, **Log observation**, **Start inspection**, **New permit**). A **Pending for you** strip lists up to three ranked items (approvals, due CAPAs). **Quick lists** links include **Incidents**, **Observations**, **Inspections**, and **Work permits (PTW)** when you can read those modules. At the bottom, **Full operations dashboard** switches to desk layout. Your layout preference is remembered in the browser.
 
 ### Offline sync queue (when enabled)
 
@@ -227,29 +235,29 @@ If your tenant turns on the field outbox, a durable **Offline sync queue** banne
 
 ## Your work
 
-The **Your work** panel on the desk command center (and the **Pending for you** strip on field home) shows one **primary next action** plus up to two more emphasized rows before **View all tasks**, ranked across approvals, CAPAs, training renewals, and compliance reviews you can see.
+The **Your work** panel on the corporate overview (and the **Pending for you** strip on field home) shows one **primary next action** plus up to two more emphasized rows before **View all tasks**, ranked across approvals, CAPAs, training renewals, and compliance reviews you can see.
 
 ### SOP — Complete your next action
 
-1. Sign in and open **Command center** (`/dashboard`) or stay on **Field workspace** if that is your default.
+1. Sign in and open **Overview** (`/dashboard`) or stay on **Field workspace** if that is your default.
 2. Read **Your next action** on desk layout—or the top row on the field pending strip.
 3. Tap the primary button (**Review & decide**, **Open CAPA**, etc.) to open the exact record.
 4. For the full ranked list, open **Tasks & reviews** (`/dashboard/tasks`) or **View all tasks** from the Your work panel.
 5. Amber sidebar badges on **Tasks & reviews** and **Approvals** show pending counts; they match the same queue where possible.
 
-**Key indicators** stay collapsed for everyone until you expand them (your preference is remembered in this browser). Program extras live under **More on Today**.
+**Key indicators** stay collapsed for everyone until you expand them (your preference is remembered in this browser). Program extras live under **Program activity & tools**.
 
 ---
 
-### SOP — Review the command center
+### SOP — Review the corporate overview
 
-1. Confirm your **Organization** in the header if you have more than one; until you pick a site you may see **Select an organization** with the picker.
+1. Confirm your **Organization** in the shared header, then read the four summary measures.
 2. Review **Your work** first (see [Your work](#your-work)) before scanning program-wide alerts.
 3. When data loads, note **Snapshot as of** *date/time* under the header (if shown)—figures reflect that moment.
-4. If **Needs attention** appears, expand it and use the amber pill links for program-level alerts (personal approvals are deduplicated when shown in **Your work**).
-5. Expand **Key indicators** only when you need the program KPI snapshot; collapse it again to keep Today calm.
+4. Review the first three categories under **Needs attention** and follow a link to the relevant register. Expand **More attention items** for additional categories; personal approval items are deduplicated when shown in **Your work**.
+5. Expand **Key indicators** only when you need the program KPI snapshot; collapse it again when you return to your priorities.
 6. Expand **ISO setup checklist** when aligning the management system (mark steps done as you complete them).
-7. Open **More on Today** for program updates, recent activity, supervisor **Quick actions** / **PortCo pilot proof**, CSV **Export**, and the link to **Full safety & metrics dashboard**.
+7. Open **Program activity & tools** for program updates, recent activity, supervisor **Quick actions** / **PortCo pilot proof**, CSV **Export**, and the link to **Full safety & metrics dashboard**.
 8. Use **Compact field menu** when you need large intake buttons; field users switch back with **Open full operations dashboard**.
 9. Integration backlog and scheduled job health live on **Integrations** (`/dashboard/integrations`) for administrators—not on the desk home.
 
@@ -257,11 +265,11 @@ The **Your work** panel on the desk command center (and the **Pending for you** 
 
 | Problem | What to try |
 |---------|--------------|
-| A tile shows **—** (dash) | Data still loading—or none yet. Wait; open the target module from the menu. |
+| A measure shows **—** (dash) | The value is unavailable in this view, which may reflect loading or permissions. Do not interpret it as zero; check the page message or open the relevant module. |
 | **Loading operations snapshot…** or **Loading workspace…** stays visible | Network delay—reload once; check connection. |
 | **Mark done** seems stuck | Wait briefly; refresh; inform IT only if repeatable. |
-| You expected KPI tiles but see only the field menu | Your org defaulted to field layout—open **Open full operations dashboard**, then expand **Key indicators** on desk Today. |
-| Desk Today looks empty of KPIs | **Key indicators** and **More on Today** stay collapsed by design—expand them when you need program figures or export. |
+| You expected KPI tiles but see only the field menu | Your org defaulted to field layout—open **Open full operations dashboard**, then expand **Key indicators** on the corporate overview. |
+| You need more than the four summary measures | Expand **Key indicators** for the full snapshot or **Program activity & tools** for activity and export. |
 
 ---
 
@@ -275,7 +283,7 @@ Gives coordinators and managers a snapshot of incidents, corrective actions, tra
 
 ### SOP — Use the Metrics page
 
-1. Open **Metrics** from **Records & metrics**, from **More on Today** → **Full safety & metrics dashboard** (or supervisor **Quick actions**), or after switching from **Field workspace** with **Open full operations dashboard**. Path: `/dashboard/analytics`.
+1. Open **Metrics** from **Reports & evidence**, from **Program activity & tools** → **Full safety & metrics dashboard** (or supervisor **Quick actions**), or after switching from **Field workspace** with **Open full operations dashboard**. Path: `/dashboard/analytics`.
 2. The page headline is **Safety metrics**; subtitle *Leading and lagging indicators scoped to your permissions.* Optional line **Snapshot:** *datetime* reflects generation time when present.
 3. Choose **Trailing months** (3, 6, 12, 18, or 24) from the dropdown beside that label—it drives trend windows alongside the headline controls.
 4. Read **Operations automation and SLAs** (panel with disclaimer about escalations). When data exists, tiles can include **Observation SLA escalations (90d)** and **Approval SLA escalations (90d)** linking to **Observations** and **Approvals**. This section aligns with anchors used by command-center chips (for example `#operations-sla-escalations`).
@@ -283,7 +291,7 @@ Gives coordinators and managers a snapshot of incidents, corrective actions, tra
 6. Scroll charts such as **Incidents created by month**, **CAPA register by status**, and **All-time incidents by type** when counts exist—plus downstream sections the build exposes (follow-up SLA tables where enabled).
 7. Open **Metric glossary (v3)** on the page to see definitions (including short **code** labels used internally).
 8. Tap **Download CSV** after data loads—it exports metrics your account may see (empty sections omitted).
-9. For **establishment hours**, **TRIR snapshots**, and **recordable investigation rollups**, open **[Incidence rates](#incidence-rates)** under **Records & metrics** (`/dashboard/analytics/incidence-rates`). That page links back to **Safety metrics** when you need the broader KPI dashboard.
+9. For **establishment hours**, **TRIR snapshots**, and **recordable investigation rollups**, open **[Incidence rates](#incidence-rates)** under **Reports & evidence** (`/dashboard/analytics/incidence-rates`). That page links back to **Safety metrics** when you need the broader KPI dashboard.
 
 ### What if things go wrong?
 
@@ -298,7 +306,7 @@ Gives coordinators and managers a snapshot of incidents, corrective actions, tra
 
 ## Incidence rates
 
-Menu path: **Records & metrics** → **Incidence rates**. Route: **`/dashboard/analytics/incidence-rates`**.
+Menu path: **Reports & evidence** → **Incidence rates**. Route: **`/dashboard/analytics/incidence-rates`**.
 
 ### Purpose
 
@@ -310,7 +318,7 @@ Safety managers, compliance coordinators, and multi-site administrators who main
 
 ### SOP — Open and scope the year
 
-1. Under **Records & metrics**, tap **Incidence rates**.
+1. Under **Reports & evidence**, tap **Incidence rates**.
 2. If you see **Select an organization**, pick a workspace from the **Organization** control before continuing.
 3. Read the title **Incidence rates** and the supporting lines: derived analytics from IMS recordables and establishment hours; **not** an official OSHA filing.
 4. Optional: follow **Safety metrics** in the helper line if you want the full **Metrics** dashboard (`/dashboard/analytics`).
@@ -354,7 +362,7 @@ Safety managers, compliance coordinators, and multi-site administrators who main
 | **Compute and save snapshot** shows an error | Read the red status line; fix hours or recordable data, then retry. |
 | **Invalid hours** / **Annual metrics must be whole numbers** | Enter whole numbers only; clear bad characters and save again. |
 | Themes section shows an error message | Reload; if it persists, your role may lack access or the server returned a temporary error—ask an administrator. |
-| You need charts and CSV export for general KPIs | Open **Metrics** (**Safety metrics**) from the link on this page or **Records & metrics**. |
+| You need charts and CSV export for general KPIs | Open **Metrics** (**Safety metrics**) from the link on this page or **Reports & evidence**. |
 
 ---
 
@@ -381,6 +389,15 @@ Cancel returns without saving via **Cancel**.
 
 Empty state text: **No incidents logged yet.**
 
+### SOP — Follow an incident into corrective action
+
+1. Open **Incidents & observations → Incidents**. Use **Filter by title** to find an incident, then open its title or **Open** link.
+2. On the detail page, use **Investigation status**, **Corrective actions**, **Edit investigation** (when available), and **Evidence & context** to move between sections.
+3. Under **Linked corrective actions**, open an existing action to review its recorded status and due date. Loading, no linked actions, and failure to load are shown separately.
+4. To create an action from this incident, use **Create CAPA from this incident**, enter **CAPA title** and optional details, then **Create CAPA from incident**. Existing server permissions and validation still apply. Creation links the action to this incident; it does not close the incident or verify the action.
+5. Open the created or existing action. Its **Source & context** panel links back to the source incident. Follow that source link, then **Back to incidents**, to return to the title-filtered list. The filter travels in this journey's URL; navigating directly to an unfiltered register or its generic breadcrumb starts from that destination instead.
+6. Use **Progress & verification** and **Evidence** on the action page for follow-up. The actual saved status and existing human approval/verification requirements determine which actions are available.
+
 ### What if things go wrong?
 
 | Problem | What to try |
@@ -402,7 +419,7 @@ Field staff and supervisors building a culture of proactive feedback; coordinato
 
 ### SOP — Open the register
 
-1. Under **Capture**, open **Observations**.
+1. Under **Incidents & observations**, open **Observations**.
 2. The page title reads **Safety observations** with a note that these are not OSHA 300 log records unless you also file an incident.
 3. Tap **Log observation** on an empty list or when adding another entry. The list table columns include **Summary**, **Category**, **Severity**, **Status**, **Observed**, **Actions**.
 
@@ -424,7 +441,7 @@ Empty state: **No observations yet.**
 
 ### SOP — Follow up
 
-Supervisors can set **assignee** and **follow-up due** on the observation detail screen when your process requires it. Past-due follow-ups surface on **Command center** (Needs attention) and **Metrics** for readers with the right permissions.
+Supervisors can set **assignee** and **follow-up due** on the observation detail screen when your process requires it. Past-due follow-ups surface on **Corporate overview** (Needs attention) and **Metrics** for readers with the right permissions.
 
 ### What if things go wrong?
 
@@ -439,21 +456,21 @@ Supervisors can set **assignee** and **follow-up due** on the observation detail
 
 ## Permits to work
 
-The sidebar lists this area as **Work permits (PTW)** under **Capture** (`/dashboard/permits`). The roster page heading reads **Work permits**, with subtitle *Controlled work authorizations (draft → approval → active).* **New permit** starts intake.
+The sidebar lists this area as **Work permits (PTW)** under **Programs & risks** (`/dashboard/permits`). The roster page heading reads **Work permits**, with subtitle *Controlled work authorizations (draft → approval → active).* **New permit** starts intake.
 
 ### Purpose
 
-Track **permits to work** from draft through approval to **active** work, then completion or cancellation—these are **not** regulatory **Environmental permits** (those live under **Plan & programme** → **Regulatory env permits**).
+Track **permits to work** from draft through approval to **active** work, then completion or cancellation—these are **not** regulatory **Environmental permits** (those live under **Programs & risks** → **Environmental permits**).
 
 ### SOP — Create a permit
 
-1. Under **Capture**, open **Work permits (PTW)**, then **New permit** (also available from command center quick actions).
+1. Under **Programs & risks**, open **Work permits (PTW)**, then **New permit** (also available from command center quick actions).
 2. Enter **Title**, **Valid from / Valid to**, and **Work summary** (required). Add **Hazards & controls** when known.
 3. Save as **draft**, then use **Submit for approval** when your chain is ready (approver names depend on your process).
 
 ### SOP — Act on approvals
 
-Approvers use **Approvals** under **Decide**—see [My approvals](#my-approvals). Permit chains and other items appear there when it is your turn in the sequence.
+Approvers use **Approvals** under **Actions & approvals**—see [My approvals](#my-approvals). Permit chains and other items appear there when it is your turn in the sequence.
 
 Empty roster: heading **No permits yet**—**Create permit** starts a draft (`/dashboard/permits/new`).
 
@@ -480,7 +497,7 @@ Safety engineers and coordinators who publish JSAs/site profiles beside day-to-d
 
 ### SOP — Browse the roster
 
-1. Under **Plan & programme**, open **Risk assessments**.
+1. Under **Programs & risks**, open **Risk assessments**.
 2. Header **Risk assessments**; description *Task-based (JSA-style) and site-based registers—separate from permits to work. Full ISO planning tools remain under Planning.*
 3. Use filters **Kind** / **Status** under **Filter roster**. Hint copy: *Open a record to edit steps and status. You can still add quick assessments from Planning.*
 4. Table columns: **Title / context**, **Kind**, **Status**, **Assessed**, **Actions** (**Open**).
@@ -525,7 +542,7 @@ Coordinators and field leads who run inspections and close them out on time.
 
 ### SOP — List and open records
 
-1. Under **Capture**, open **Inspections**.
+1. Under **Audits & inspections**, open **Inspections**.
 2. Read the description: *Workplace inspections (routine, regulatory, pre-job). Records support ISO 45001 operational monitoring.*
 3. Tap **New inspection** to add one, or open a **Title** link to the detail view.
 4. The table shows **Title**, **Type**, **Status**, **Scheduled**, **Actions**.
@@ -564,8 +581,8 @@ Named approvers and deputies who must authorize CAPA plans, permit work, or inci
 
 ### SOP — Review and decide
 
-1. Under **Decide**, open **Approvals**.
-2. Page title **My approvals**; subtitle *Pending serial steps assigned to you. Decisions are written to the audit trail.* For read-only browsing of transactional events organisation-wide (with filters), coordinators with access open **Prove** → **Audit trail** → **[System audit trail](#system-audit-trail)—not ISO **Audits**.
+1. Under **Actions & approvals**, open **Approvals**.
+2. Page title **My approvals**; subtitle *Pending serial steps assigned to you. Decisions are written to the audit trail.* For read-only browsing of transactional events organisation-wide (with filters), coordinators with access open **Reports & evidence** → **Audit trail** → **[System audit trail](#system-audit-trail)—not ISO **Audits**.
 3. Scan the table (**Item**, **Type**, **Due**, **Requested**, **Actions**). Item types include **CAPA plan**, **Work permit**, and **Incident** labels.
 4. Tap **Review** on your row. Optionally enter **Comment (optional)**.
 5. Submit the correct button: **Approve plan** (CAPA), **Authorize work** (work permit), **Approve** (incident), or **Reject**. Use **Cancel** to close the panel without deciding.
@@ -587,7 +604,7 @@ If present, **Overdue approval escalations (recorded)** lists steps that passed 
 
 ## Corrective actions (CAPA)
 
-Menu path: **Decide** → **CAPA register** (`/dashboard/capa`). Open a single record at **`/dashboard/capa/[id]`** from the register row, **Your work** links, or action-queue deep links.
+Menu path: **Actions & approvals** → **Corrective actions (CAPA)** (`/dashboard/capa`). Open a single record at **`/dashboard/capa/[id]`** from the register row, **Your work** links, or action-queue deep links.
 
 Page heading: Corrective actions — ISO 45001 CAPA.
 
@@ -620,7 +637,7 @@ Empty registry: **No corrective actions yet.**
 
 | Problem | What to try |
 |---------|--------------|
-| **Advance** ignores click | Busy network—retry. Plan may still need approval—check **Approvals** under **Decide**. |
+| **Advance** ignores click | Busy network—retry. Plan may still need approval—check **Approvals** under **Actions & approvals**. |
 | Incident dropdown empty | Record incidents first. |
 | Finding dropdown empty | Create audit findings; only findings without CAPA link yet qualify. |
 | Source panel empty on detail | Standalone CAPA with no linked upstream record—expected when **Link source** was **None**. |
@@ -629,13 +646,13 @@ Empty registry: **No corrective actions yet.**
 
 ## Heat NEP program aid
 
-Page: **`/dashboard/heat-program`** under **Plan & programme**.
+Page: **`/dashboard/heat-program`** under **Programs & risks**.
 
 Appendix I–aligned self-audit checklist and optional heat-condition logs for OSHA Heat NEP inspection readiness (CPL 03-00-024 effective **2026-04-10**). **Programme aid only** — not a federal heat standard or Cal/OSHA compliance engine. See [regulatory/heat-nep-cpl-03-00-024.md](./regulatory/heat-nep-cpl-03-00-024.md).
 
 ## Chemical inventory
 
-Page: **`/dashboard/chemicals`** under **Plan & programme**.
+Page: **`/dashboard/chemicals`** under **Programs & risks**.
 
 Plumbing-maturity programme register for chemicals, SDS references, HCS 2024 / EPCRA 2027 hazard class+category rows, and inventory snapshots. **Not** Tier2 Submit or EPA e-filing. See [regulatory/epcra-hazard-categories-2027.md](./regulatory/epcra-hazard-categories-2027.md).
 
@@ -701,7 +718,7 @@ Orange panel: AI proposes structured text only.
 
 ## Environmental permits
 
-Route **`/dashboard/environmental-permits`**. Sidebar label: **Regulatory env permits** (under **Plan & programme**).
+Route **`/dashboard/environmental-permits`**. Sidebar label: **Environmental permits** (under **Programs & risks**).
 
 ### Purpose
 
@@ -788,7 +805,7 @@ Navigate back via **← Documents**.
 
 ## Knowledge corpus (RAG ingest)
 
-Sidebar label **Knowledge corpus**; page title **Knowledge corpus (RAG)**. Route **`/dashboard/rag`**.
+Sidebar label **Knowledge library**; page title **Knowledge corpus (RAG)**. Route **`/dashboard/rag`**.
 
 ### Purpose
 
@@ -800,7 +817,7 @@ Program owners or document administrators with **`rag:ingest`** / **`rag:read`**
 
 ### SOP — Ingest a source
 
-1. Open **Knowledge corpus** from **Records & metrics**.
+1. Open **Knowledge library** from **Reports & evidence**.
 2. Under **Ingest source**, enter **Title** (required), optional **Source URI**, and **Raw text** (required body).
 3. Tap **Ingest** (shows busy state while submitting).
 4. Listed sources appear below when ingestion succeeds.
@@ -914,7 +931,7 @@ EHS coordinators, site access administrators, and supervisors managing vendor co
 
 ### SOP — Review portfolio summary
 
-1. Open **Contractors** from **People**.
+1. Open **Contractors** from **Programs & risks**.
 2. Read tile counts: **Parties**, **Expired**, **Due 30d**, **Active** credentials.
 3. Scan **Renewal queue (30 days)**—prioritize expired COI and training before site access.
 4. Tap a party name to open detail for credentials and evidence pointers.
@@ -936,7 +953,7 @@ EHS coordinators, site access administrators, and supervisors managing vendor co
 
 ## Audits (ISO internal audit programme)
 
-In the sidebar this area is labeled **Internal audits** (**Assure & improve**). Use it to plan ISO-style **internal audits** and record **findings**—do not confuse it with the transactional **audit trail** under **Prove** or approvals on [My approvals](#my-approvals).
+In the sidebar this area is labeled **Internal audits** (**Audits & inspections**). Use it to plan ISO-style **internal audits** and record **findings**—do not confuse it with the transactional **audit trail** under **Reports & evidence** or approvals on [My approvals](#my-approvals).
 
 ### SOP — Schedule audit (“Plan audit”)
 
@@ -1013,7 +1030,7 @@ Potential empty placeholders: **None open.**, **None in this window.**, etc.
 
 ### SOP — Use the Task hub
 
-1. Open **Tasks & reviews** from **Today** (or **Quick actions**).
+1. Open **Tasks & reviews** from **Actions & approvals** (or **Quick actions**).
 2. Start with the ranked queue at the top—the green action button opens the exact record (same as **Your work** on the command center).
 3. Tap any linked title in the bucket sections below to reach the module owning that item.
 
@@ -1029,7 +1046,7 @@ See also [Your work](#your-work) on the command center.
 
 ## Program register
 
-Program administration is split across dedicated routes under **Administration** (and **Assure & improve** for assurance). Source of truth for menu labels: [`src/lib/dashboard-nav-links.ts`](../src/lib/dashboard-nav-links.ts).
+Program registers are grouped under **Programs & risks**, with assurance and management review under **Audits & inspections**. Source of truth for menu labels: [`src/lib/dashboard-nav-links.ts`](../src/lib/dashboard-nav-links.ts).
 
 ### Program overview (`/dashboard/program`)
 
@@ -1045,21 +1062,21 @@ Links at the top point to **[Emergency prep](#emergency-prep)**, **[Management o
 
 ### Emergency prep
 
-Route **`/dashboard/emergency`** — sidebar **Administration** → **Emergency prep**. See [Emergency prep](#emergency-prep) for full steps.
+Route **`/dashboard/emergency`** — sidebar **Programs & risks** → **Emergency preparedness**. See [Emergency prep](#emergency-prep) for full steps.
 
 ### Management of change (MOC)
 
-Route **`/dashboard/moc`** — sidebar **Administration** → **Management of change**. See [Management of change (MOC)](#management-of-change-moc) for full steps.
+Route **`/dashboard/moc`** — sidebar **Programs & risks** → **Management of change**. See [Management of change (MOC)](#management-of-change-moc) for full steps.
 
 ### Assurance hub
 
-Route **`/dashboard/assurance`** — sidebar **Assure & improve** → **Assurance hub**. See [Assurance hub](#assurance-hub) for full steps.
+Route **`/dashboard/assurance`** — sidebar **Audits & inspections** → **Assurance**. See [Assurance hub](#assurance-hub) for full steps.
 
 ### Emergency preparedness (`/dashboard/emergency`)
 
 <a id="emergency-prep"></a>
 
-Under **Administration** → **Emergency prep**.
+Under **Programs & risks** → **Emergency preparedness**.
 
 1. **Emergency scenarios** – scenario name → **Add scenario**
 2. **Emergency drills** – scenario + date (**Log drill**)
@@ -1068,7 +1085,7 @@ Under **Administration** → **Emergency prep**.
 
 <a id="management-of-change-moc"></a>
 
-Under **Administration** → **Management of change**.
+Under **Programs & risks** → **Management of change**.
 
 1. **Create MOC** – Title + Description / scope → submit; rows show statuses
 2. **Entity links** – filter by MOC to see linked program records
@@ -1077,7 +1094,7 @@ Under **Administration** → **Management of change**.
 
 <a id="assurance-hub"></a>
 
-Under **Assure & improve** → **Assurance hub**. Cross-links **internal audits**, open CAPAs, **certification body audits**, and **certificates**—distinct from the transactional **Audit trail** (who changed what in the system).
+Under **Audits & inspections** → **Assurance**. Cross-links **internal audits**, open CAPAs, **certification body audits**, and **certificates**—distinct from the transactional **Audit trail** (who changed what in the system).
 
 ### What if things go wrong?
 
@@ -1231,7 +1248,7 @@ Program owners, internal auditors, IT/release reviewers—unusual for frontline 
 
 ## Privacy / data subject requests
 
-Route **`/dashboard/privacy-requests`** (**Administration** → **Privacy**).
+Route **`/dashboard/privacy-requests`** (**Administration** → **Privacy requests**).
 
 ### Purpose
 
@@ -1270,7 +1287,7 @@ Title **Privacy / data subject requests**; muted intro references following inte
 
 ## System audit trail
 
-Route **`/dashboard/audit-trail`** (**Prove** → **Audit trail**).
+Route **`/dashboard/audit-trail`** (**Reports & evidence** → **Audit trail**).
 
 ### Purpose
 
@@ -1313,11 +1330,11 @@ Use **Previous page** / **Next page** underneath the grid (buttons disable appro
 |------------------|--------------|
 | Organization selector | Pick which site’s records you’re viewing right now. |
 | **ISO setup checklist** “Mark done” | Mark complete only after leaders confirm the rollout step is truly finished. |
-| **Compact field menu** / **Open full operations dashboard** | Switches between the large-button field layout and the desk Today command center for the same organization. |
+| **Compact field menu** / **Open full operations dashboard** | Switches between the large-button field layout and the corporate overview for the same organization. |
 | **Install EHS on this device** banner | Optional shortcut (common on Chromium browsers); skip if you prefer the normal browser tab. |
-| **Key indicators** (collapsed) | Program KPI snapshot—expand when you need counts; stays closed on first paint to keep Today calm. |
-| **More on Today** | Program updates, activity, quick actions, and CSV **Export** when your role allows. |
-| Command center **Needs attention** | Focus pills for items that may need action soon—open the one that matches your role. |
+| **Key indicators** (collapsed) | Program KPI snapshot—expand when you need counts; starts collapsed; the four corporate summary measures remain visible. |
+| **Program activity & tools** | Program updates, activity, quick actions, and CSV **Export** when your role allows. |
+| Corporate overview **Needs attention** | Open a category to find records that may need follow-up. |
 | **Risk assessments** roster | Tracks JSA/site register rows beside **Planning**—distinct from permits to work and environmental permits. |
 | **Environmental permits** | Regulatory permit register—not the same intake as **Permits to work.** |
 | Integrations retry / backlog | Administrators retry failed LMS/HRIS envelopes or webhook failures when your role permits. |

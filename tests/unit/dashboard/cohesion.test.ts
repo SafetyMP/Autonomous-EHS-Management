@@ -5,8 +5,18 @@ import {
   buildAttentionChips,
   filterAttentionChipsForActionQueue,
 } from "@/lib/dashboard/commandCenterSignals";
-import { filterDashboardNavSections, navSectionsForUser } from "@/lib/dashboard-nav-filter";
-import { CORE_SPINE_HREFS, DASHBOARD_NAV_SECTIONS } from "@/lib/dashboard-nav-links";
+import {
+  filterDashboardNavSections,
+  navSectionsForUser,
+  sectionContainsPath,
+  sectionShouldExpandByDefault,
+} from "@/lib/dashboard-nav-filter";
+import {
+  CORE_SPINE_HREFS,
+  DASHBOARD_NAV_LINKS,
+  DASHBOARD_NAV_SECTIONS,
+  dashboardDestinationForPath,
+} from "@/lib/dashboard-nav-links";
 
 const repoRoot = join(import.meta.dirname, "../../..");
 
@@ -55,25 +65,34 @@ describe("filterDashboardNavSections", () => {
       canAuditTrailRead: false,
     });
     expect(filtered.some((s) => s.title === "Administration")).toBe(false);
-    expect(filtered.some((s) => s.title === "Plan & programme")).toBe(true);
+    expect(filtered.some((s) => s.title === "Programs & risks")).toBe(true);
     const flat = filtered.flatMap((s) => s.items);
     expect(flat.some((i) => i.href === "/dashboard/heat-program")).toBe(true);
     expect(flat.some((i) => i.href === "/dashboard/chemicals")).toBe(true);
-    expect(flat.length).toBeLessThanOrEqual(28);
+    expect(flat).toHaveLength(25);
+    expect(flat.some((i) => i.href === "/dashboard/retention")).toBe(true);
+    for (const href of [
+      "/dashboard/program", "/dashboard/emergency", "/dashboard/moc",
+      "/dashboard/import", "/dashboard/integrations", "/dashboard/privacy-requests",
+      "/dashboard/context", "/dashboard/workflow-catalog",
+    ]) {
+      expect(flat.some((i) => i.href === href), `Field navigation hides ${href}`).toBe(false);
+    }
   });
 
-  it("keeps management system for org admins", () => {
-    const filtered = navSectionsForUser({
-      layout: "field",
-      isAdmin: true,
-      canIntegrationRead: false,
-      canAuditTrailRead: false,
-    });
+  it.each([
+    { layout: "field" as const, isAdmin: true, canIntegrationRead: false, canAuditTrailRead: false },
+    { layout: "field" as const, isAdmin: false, canIntegrationRead: true, canAuditTrailRead: false },
+    { layout: "field" as const, isAdmin: false, canIntegrationRead: false, canAuditTrailRead: true },
+    { layout: "desk" as const, isAdmin: false, canIntegrationRead: false, canAuditTrailRead: false },
+  ])("preserves the existing management-navigation allowance for %o", (input) => {
+    const filtered = navSectionsForUser(input);
     expect(filtered.some((s) => s.title === "Administration")).toBe(true);
+    expect(filtered.flatMap((s) => s.items)).toHaveLength(33);
   });
 });
 
-describe("task-first IA (ADR-UX-001)", () => {
+describe("corporate EHS information architecture", () => {
   const byTitle = Object.fromEntries(DASHBOARD_NAV_SECTIONS.map((s) => [s.title, s]));
   function section(title: string) {
     const s = byTitle[title];
@@ -81,67 +100,92 @@ describe("task-first IA (ADR-UX-001)", () => {
     return s;
   }
 
-  it("exposes primary Today / Capture / Decide / Prove before secondary clusters", () => {
-    const titles = DASHBOARD_NAV_SECTIONS.map((s) => s.title);
-    expect(titles.slice(0, 4)).toEqual(["Today", "Capture", "Decide", "Prove"]);
-    expect(DASHBOARD_NAV_SECTIONS.slice(0, 4).every((s) => s.cluster === "primary")).toBe(true);
-    expect(DASHBOARD_NAV_SECTIONS.slice(4).every((s) => s.cluster === "secondary")).toBe(true);
+  it("exposes six named work areas with Administration separate", () => {
+    expect(DASHBOARD_NAV_SECTIONS.map((s) => s.title)).toEqual([
+      "Overview", "Actions & approvals", "Incidents & observations",
+      "Audits & inspections", "Programs & risks", "Reports & evidence", "Administration",
+    ]);
+    expect(DASHBOARD_NAV_SECTIONS.slice(0, 6).every((s) => s.cluster === "primary")).toBe(true);
+    expect(section("Administration").cluster).toBe("secondary");
   });
 
-  it("maps Core spine hrefs into exactly one primary mode each", () => {
-    const modeFor = (href: string): string | undefined => {
-      for (const section of DASHBOARD_NAV_SECTIONS) {
-        if (section.items.some((i) => i.href === href)) return section.title;
-      }
-      return undefined;
-    };
-    expect(modeFor("/dashboard/incidents")).toBe("Capture");
-    expect(modeFor("/dashboard/inspections")).toBe("Capture");
-    expect(modeFor("/dashboard/approvals")).toBe("Decide");
-    expect(modeFor("/dashboard/capa")).toBe("Decide");
-    expect(modeFor("/dashboard/audit-trail")).toBe("Prove");
+  it("preserves every existing route exactly once", () => {
+    const expectedRoutes = [
+      "/dashboard", "/dashboard/tasks", "/dashboard/incidents", "/dashboard/observations",
+      "/dashboard/inspections", "/dashboard/permits", "/dashboard/approvals", "/dashboard/capa",
+      "/dashboard/audit-trail", "/dashboard/documents", "/dashboard/planning", "/dashboard/heat-program",
+      "/dashboard/risk-assessments", "/dashboard/environment", "/dashboard/chemicals",
+      "/dashboard/environmental-permits", "/dashboard/audits", "/dashboard/assurance",
+      "/dashboard/management-review", "/dashboard/rag", "/dashboard/retention", "/dashboard/analytics",
+      "/dashboard/analytics/incidence-rates", "/dashboard/training", "/dashboard/contractors",
+      "/dashboard/program", "/dashboard/emergency", "/dashboard/moc", "/dashboard/import",
+      "/dashboard/integrations", "/dashboard/privacy-requests", "/dashboard/context", "/dashboard/workflow-catalog",
+    ];
+    const actualRoutes = DASHBOARD_NAV_LINKS.map((item) => item.href);
+    expect(actualRoutes).toHaveLength(33);
+    expect(new Set(actualRoutes).size).toBe(33);
+    expect([...actualRoutes].sort()).toEqual(expectedRoutes.sort());
+  });
+
+  it("keeps incident and action records discoverable within named corporate work areas", () => {
+    const areaFor = (href: string) => DASHBOARD_NAV_SECTIONS.find((s) => s.items.some((i) => i.href === href))?.title;
+    expect(areaFor("/dashboard/incidents")).toBe("Incidents & observations");
+    expect(areaFor("/dashboard/inspections")).toBe("Audits & inspections");
+    expect(areaFor("/dashboard/audits")).toBe("Audits & inspections");
+    expect(areaFor("/dashboard/approvals")).toBe("Actions & approvals");
+    expect(areaFor("/dashboard/capa")).toBe("Actions & approvals");
+    expect(areaFor("/dashboard/tasks")).toBe("Actions & approvals");
+    expect(areaFor("/dashboard/audit-trail")).toBe("Reports & evidence");
     for (const href of CORE_SPINE_HREFS) {
-      expect(modeFor(href)).toBeTruthy();
-      const section = DASHBOARD_NAV_SECTIONS.find((s) => s.items.some((i) => i.href === href));
-      expect(section?.cluster).toBe("primary");
+      expect(DASHBOARD_NAV_LINKS.filter((item) => item.href === href)).toHaveLength(1);
     }
   });
 
-  it("keeps Today personal-work only (approvals under Decide)", () => {
-    const todayHrefs = section("Today").items.map((i) => i.href);
-    expect(todayHrefs).toEqual(["/dashboard", "/dashboard/tasks"]);
-    expect(todayHrefs).not.toContain("/dashboard/approvals");
+  it("puts reporting and its supporting evidence together", () => {
+    const reportRoutes = section("Reports & evidence").items.map((item) => item.href);
+    expect(reportRoutes).toEqual(expect.arrayContaining([
+      "/dashboard/analytics", "/dashboard/analytics/incidence-rates", "/dashboard/audit-trail", "/dashboard/documents",
+    ]));
+    expect(section("Overview").items.map((item) => item.href)).toEqual(["/dashboard"]);
   });
 
-  it("places CAPA under Decide and Prove as audit/evidence-only", () => {
-    expect(section("Decide").items.map((i) => i.href)).toEqual([
-      "/dashboard/approvals",
-      "/dashboard/capa",
-    ]);
-    const proveHrefs = section("Prove").items.map((i) => i.href);
-    expect(proveHrefs).toContain("/dashboard/audit-trail");
-    expect(proveHrefs).toContain("/dashboard/documents");
-    expect(proveHrefs).not.toContain("/dashboard/analytics");
-    expect(proveHrefs).not.toContain("/dashboard/analytics/incidence-rates");
-  });
-
-  it("keeps PTW under Capture and env permits copy-separated in secondary programme", () => {
-    expect(section("Capture").items.map((i) => i.href)).toContain("/dashboard/permits");
-    expect(section("Capture").items.map((i) => i.href)).not.toContain(
-      "/dashboard/environmental-permits",
-    );
-    expect(section("Plan & programme").items.map((i) => i.href)).toContain(
-      "/dashboard/environmental-permits",
+  it("keeps work permits and environmental permits distinctly named", () => {
+    expect(DASHBOARD_NAV_LINKS.find((item) => item.href === "/dashboard/permits")?.label).toMatch(/work permits.*PTW/i);
+    expect(DASHBOARD_NAV_LINKS.find((item) => item.href === "/dashboard/environmental-permits")?.label).toMatch(/environmental permits/i);
+    expect(DASHBOARD_NAV_LINKS.find((item) => item.href === "/dashboard/permits")?.label).not.toEqual(
+      DASHBOARD_NAV_LINKS.find((item) => item.href === "/dashboard/environmental-permits")?.label,
     );
   });
 
-  it("does not promote Plumbing into primary chrome", () => {
-    const primaryHrefs = DASHBOARD_NAV_SECTIONS.filter((s) => s.cluster === "primary").flatMap(
-      (s) => s.items.map((i) => i.href),
-    );
-    expect(primaryHrefs).not.toContain("/dashboard/chemicals");
-    expect(primaryHrefs).not.toContain("/dashboard/import");
-    expect(primaryHrefs).not.toContain("/dashboard/privacy-requests");
+  it("keeps scaffold-only import and privacy destinations under Administration", () => {
+    expect(section("Administration").items.map((item) => item.href)).toEqual(expect.arrayContaining([
+      "/dashboard/import", "/dashboard/privacy-requests",
+    ]));
+    // Chemical inventory remains a program destination, with its existing maturity banner
+    // checked below. Changing its navigation group does not promote its workflow maturity.
+    expect(section("Programs & risks").items.some((item) => item.href === "/dashboard/chemicals")).toBe(true);
+  });
+
+  it("expands the active work area and leaves unrelated areas closed", () => {
+    expect(sectionShouldExpandByDefault(section("Actions & approvals"), "/dashboard/capa/example-id")).toBe(true);
+    expect(sectionShouldExpandByDefault(section("Reports & evidence"), "/dashboard/capa/example-id")).toBe(false);
+    expect(sectionContainsPath(section("Overview"), "/dashboard/capa/example-id")).toBe(false);
+    expect(sectionContainsPath(section("Incidents & observations"), "/dashboard/incidents-archive")).toBe(false);
+  });
+
+  it.each([
+    ["/dashboard", "/dashboard"],
+    ["/dashboard/incidents/new", "/dashboard/incidents"],
+    ["/dashboard/incidents/record-id", "/dashboard/incidents"],
+    ["/dashboard/capa/record-id", "/dashboard/capa"],
+    ["/dashboard/analytics/incidence-rates", "/dashboard/analytics/incidence-rates"],
+    ["/dashboard/analytics/incidence-rates/snapshot", "/dashboard/analytics/incidence-rates"],
+    ["/dashboard/analytics", "/dashboard/analytics"],
+    ["/dashboard/incidents-archive", undefined],
+    ["/dashboard/unknown", undefined],
+    ["/", undefined],
+  ] as const)("selects only the most specific destination for %s", (pathname, href) => {
+    expect(dashboardDestinationForPath(pathname)?.href).toBe(href);
   });
 });
 

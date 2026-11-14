@@ -27,7 +27,15 @@ export function filterDashboardNavSections(
 
   if (showManagementSystem) return sections;
 
-  return sections.filter((s) => s.title !== "Administration");
+  // Preserve the existing field-role visibility boundary after regrouping routes.
+  const managementRoutes = new Set([
+    "/dashboard/program", "/dashboard/emergency", "/dashboard/moc",
+    "/dashboard/import", "/dashboard/integrations", "/dashboard/privacy-requests",
+    "/dashboard/context", "/dashboard/workflow-catalog",
+  ]);
+  return sections
+    .map((section) => ({ ...section, items: section.items.filter((item) => !managementRoutes.has(item.href)) }))
+    .filter((section) => section.items.length > 0);
 }
 
 export function navSectionsForUser(input: NavFilterInput): readonly DashboardNavSection[] {
@@ -40,11 +48,10 @@ export function sectionContainsPath(section: DashboardNavSection, pathname: stri
   );
 }
 
-/** Primary task modes always expand; secondary clusters use progressive disclosure. */
+/** Keep the current work area open; all area names remain visible. */
 export function sectionShouldExpandByDefault(
   section: DashboardNavSection,
   pathname: string,
 ): boolean {
-  if (section.cluster === "primary") return true;
   return sectionContainsPath(section, pathname);
 }

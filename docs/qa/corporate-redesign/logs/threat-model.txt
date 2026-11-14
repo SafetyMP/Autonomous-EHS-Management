@@ -1,0 +1,4 @@
+== threat-model: integration=./scripts/integration-e2e.sh profile=corp-site ==
+== threat-model: yaml schema ==
+yaml ok: 4 cells, 9 deny_cases
+check-threat-model: ok

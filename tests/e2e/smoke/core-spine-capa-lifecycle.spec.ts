@@ -50,17 +50,19 @@ test.describe("core spine CAPA lifecycle (@smoke)", () => {
     await expect(page.getByRole("link", { name: incidentTitle })).toBeVisible();
 
     await page.getByRole("button", { name: /^Start work$/ }).click();
-    await expect(page.getByText(/^in progress$/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('[data-capa-status="in_progress"]')).toBeVisible({ timeout: 30_000 });
 
     await page.getByRole("button", { name: /^Mark complete$/ }).click();
-    await expect(page.getByText(/^completed$/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('[data-capa-status="completed"]')).toBeVisible({ timeout: 30_000 });
 
     await page.getByRole("button", { name: /^Verify effectiveness$/ }).click();
     await page
       .getByLabel(/Effectiveness \/ verification notes/i)
       .fill("Playwright verification notes confirming corrective action effectiveness.");
     await page.getByRole("button", { name: /^Confirm verification$/ }).click();
-    await expect(page.getByText(/^verified$/i).first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('[data-capa-status="verified"]')).toBeVisible({ timeout: 30_000 });
+    await page.reload();
+    await expect(page.locator('[data-capa-status="verified"]')).toBeVisible({ timeout: 30_000 });
     await expect(
       page.getByText("Playwright verification notes confirming corrective action effectiveness."),
     ).toBeVisible();

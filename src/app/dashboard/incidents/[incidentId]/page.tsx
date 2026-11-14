@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { IncidentLinkedCapaSection } from "@/components/dashboard/incident-linked-capa-section";
 import { OshaInjuryIllnessSection } from "@/components/osha-injury-illness-section";
@@ -325,43 +325,6 @@ function IncidentWorkspaceSection({
             </ul>
           )}
         </li>
-      </ul>
-    </div>
-  );
-}
-
-function IncidentRelatedCapasSection({
-  organizationId,
-  incidentId,
-}: {
-  organizationId: string;
-  incidentId: string;
-}) {
-  const { data: capas } = trpc.capa.list.useQuery(
-    { organizationId },
-    { enabled: !!organizationId },
-  );
-
-  const related = useMemo(
-    () => capas?.filter((c) => c.incidentId === incidentId) ?? [],
-    [capas, incidentId],
-  );
-
-  if (related.length === 0) return null;
-
-  return (
-    <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-6 shadow-sm">
-      <h2 className={dfSectionHeading}>Related corrective actions</h2>
-      <p className="mt-1 text-base text-zinc-600">CAPAs opened from this incident.</p>
-      <ul className="mt-3 space-y-2 text-base">
-        {related.map((c) => (
-          <li key={c.id}>
-            <Link href={`/dashboard/capa#capa-row-${c.id}`} className={dfInlineNavLink}>
-              {c.title}
-            </Link>
-            <span className={`ml-2 text-sm capitalize text-zinc-600`}>{c.status.replaceAll("_", " ")}</span>
-          </li>
-        ))}
       </ul>
     </div>
   );
@@ -1408,8 +1371,15 @@ function IncidentInvestigationForm({
 }
 
 export default function IncidentDetailPage() {
+  return <Suspense fallback={<p role="status">Loading incident…</p>}><IncidentDetailContent /></Suspense>;
+}
+
+function IncidentDetailContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const incidentFilter = searchParams.get("incidentFilter") ?? "";
+  const incidentsHref = `/dashboard/incidents${incidentFilter ? `?${new URLSearchParams({ q: incidentFilter })}` : ""}`;
   const incidentId = params.incidentId as string;
   const { organizationId } = useOrg();
   const utils = trpc.useUtils();
@@ -1419,6 +1389,7 @@ export default function IncidentDetailPage() {
   const [showClose, setShowClose] = useState(false);
   const [reopenNotes, setReopenNotes] = useState("");
   const [showReopen, setShowReopen] = useState(false);
+  const [recordDetailsOpen, setRecordDetailsOpen] = useState(false);
 
   const { data: incident, isLoading, isError, error: loadError } =
     trpc.incident.get.useQuery(
@@ -1426,7 +1397,7 @@ export default function IncidentDetailPage() {
       { enabled: !!organizationId },
     );
 
-  const { data: capas } = trpc.capa.list.useQuery(
+  const { data: capas, isLoading: capasLoading, error: capasError } = trpc.capa.list.useQuery(
     { organizationId: organizationId! },
     { enabled: !!organizationId },
   );
@@ -1446,7 +1417,7 @@ export default function IncidentDetailPage() {
       setShowReopen(false);
       setReopenNotes("");
       if (variables.status === "closed") {
-        router.push("/dashboard/incidents");
+        router.push(incidentsHref);
       }
     },
     onError: (e) => setError(e.message),
@@ -1468,7 +1439,7 @@ export default function IncidentDetailPage() {
           Loading incident…
         </p>
         <Link
-          href="/dashboard/incidents"
+          href={incidentsHref}
           className="text-emerald-800 underline underline-offset-2"
         >
           Back to incidents
@@ -1484,7 +1455,7 @@ export default function IncidentDetailPage() {
           {loadError?.message ?? "Incident not found."}
         </p>
         <Link
-          href="/dashboard/incidents"
+          href={incidentsHref}
           className="text-emerald-800 underline underline-offset-2"
         >
           Back to incidents
@@ -1498,13 +1469,17 @@ export default function IncidentDetailPage() {
     !canSeeNarrative &&
     "Full narrative and investigation fields require the incident sensitive-read permission.";
 
+  const narrative = "description" in incident && typeof incident.description === "string"
+    ? incident.description
+    : "";
   const formRemountKey = `${incident.id}-${+incident.updatedAt}`;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto w-full max-w-5xl space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-xl font-semibold">Incident</h1>
+          <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Incident record</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{incident.title}</h1>
           <p className="text-sm text-zinc-600 capitalize">
             {incident.status.replace("_", " ")} · {incident.severity} ·{" "}
             {String(incident.incidentType).replace("_", " ")}
@@ -1538,12 +1513,11 @@ export default function IncidentDetailPage() {
           </dl>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <OrgSwitcher />
           <Link
-            href="/dashboard/incidents"
+            href={incidentsHref}
             className={`${dfSecondaryOutline} px-4 py-2 no-underline hover:no-underline`}
           >
-            Back
+            Back to incidents
           </Link>
         </div>
       </div>
@@ -1560,12 +1534,29 @@ export default function IncidentDetailPage() {
         </p>
       ) : null}
 
-      <IncidentWorkspaceSection organizationId={organizationId} incidentId={incidentId} />
+      <nav aria-label="Incident sections" className="flex flex-wrap gap-x-5 gap-y-1 border-y border-border py-2">
+        <a href="#incident-workflow" className={dfInlineNavLink}>Investigation status</a>
+        <a href="#corrective-actions" className={dfInlineNavLink}>Corrective actions</a>
+        {canSeeNarrative ? <a href="#record-details" onClick={() => setRecordDetailsOpen(true)} className={dfInlineNavLink}>Edit investigation</a> : null}
+        <a href="#incident-evidence" className={dfInlineNavLink}>Evidence &amp; context</a>
+      </nav>
 
-      <IncidentRelatedCapasSection organizationId={organizationId} incidentId={incidentId} />
+      {canSeeNarrative ? (
+        <section aria-labelledby="incident-summary-heading" className="rounded-xl border border-border bg-surface p-5 sm:p-6">
+          <h2 id="incident-summary-heading" className={dfSectionHeading}>What happened</h2>
+          <p className="mt-3 whitespace-pre-wrap text-base leading-relaxed text-foreground">{narrative}</p>
+        </section>
+      ) : null}
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className={dfSectionHeading}>Workflow</h2>
+      <div id="incident-workflow" className="scroll-mt-44 sm:scroll-mt-24 rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
+        <h2 className={dfSectionHeading}>Investigation status</h2>
+        <p className="mt-2 text-base text-foreground">
+          {incident.status === "open"
+            ? "This incident is open. Start the investigation, document findings, and create any corrective actions below."
+            : incident.status === "investigating"
+              ? "Investigation is in progress. Keep findings and corrective actions connected before reviewing closure."
+              : "This incident is closed. Linked corrective actions retain their own status and verification records."}
+        </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {incident.status === "open" ? (
             <button
@@ -1730,30 +1721,46 @@ export default function IncidentDetailPage() {
         </div>
       ) : null}
 
-      {canSeeNarrative ? (
-        <IncidentInvestigationForm
-          key={formRemountKey}
-          incident={incident}
-          organizationId={organizationId}
-          incidentId={incidentId}
-          setFormError={setError}
-        />
-      ) : null}
-
-      <IncidentEvidenceSection
-        organizationId={organizationId}
-        incidentId={incidentId}
-        canRegister={canSeeNarrative}
-        setFormError={setError}
-      />
-
-      <OshaInjuryIllnessSection organizationId={organizationId} incidentId={incidentId} />
-
       <IncidentLinkedCapaSection
+        key={`${organizationId}-${incidentId}`}
         organizationId={organizationId}
         incidentId={incidentId}
         linkedCapas={linkedCapas}
+        loading={capasLoading}
+        errorMessage={capasError?.message}
+        incidentFilter={incidentFilter}
       />
+
+      {canSeeNarrative ? (
+        <details
+          id="record-details"
+          className="scroll-mt-44 sm:scroll-mt-24 rounded-xl border border-border bg-surface"
+          open={recordDetailsOpen}
+          onToggle={(event) => setRecordDetailsOpen(event.currentTarget.open)}
+        >
+          <summary className="touch-target cursor-pointer rounded-xl px-6 py-4 text-base font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+            Edit record &amp; investigation
+          </summary>
+          <IncidentInvestigationForm
+            key={formRemountKey}
+            incident={incident}
+            organizationId={organizationId}
+            incidentId={incidentId}
+            setFormError={setError}
+          />
+        </details>
+      ) : null}
+
+      <div id="incident-evidence" className="scroll-mt-44 sm:scroll-mt-24 space-y-6">
+        <IncidentEvidenceSection
+          organizationId={organizationId}
+          incidentId={incidentId}
+          canRegister={canSeeNarrative}
+          setFormError={setError}
+        />
+        <IncidentWorkspaceSection organizationId={organizationId} incidentId={incidentId} />
+        <OshaInjuryIllnessSection organizationId={organizationId} incidentId={incidentId} />
+      </div>
     </div>
   );
 }

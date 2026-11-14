@@ -7,6 +7,7 @@ import {
   FieldOutboxUiProvider,
 } from "@/components/field-outbox-ui-bridge";
 import { FieldOutboxGlobalSync } from "@/components/field-outbox-global-sync";
+import { DashboardBreadcrumbs } from "@/components/dashboard-breadcrumbs";
 import { DashboardAuthenticatedLayout } from "@/components/dashboard-authenticated-layout";
 import { DashboardWhatsNewBanner } from "@/components/dashboard/dashboard-whats-new-banner";
 import { OrgProvider, useOrg } from "@/components/org-context";
@@ -76,7 +77,7 @@ function OrgGate({
   shellMax: string;
   sessionDense: boolean;
   signOut: () => void;
-  session: { user: { name: string; email: string } };
+  session: { user: { id: string; name: string; email: string } };
 }) {
   const { data: orgs, isLoading } = trpc.organization.mine.useQuery();
 
@@ -105,7 +106,7 @@ function OrgGate({
   }
 
   return (
-    <OrgProvider organizations={orgs}>
+    <OrgProvider organizations={orgs} userId={session.user.id}>
       <FieldOutboxUiProvider>
         <FieldOutboxGlobalSync />
         <DashboardAuthenticatedLayout>
@@ -135,7 +136,7 @@ function DashboardWorkspace({
   children: React.ReactNode;
   shellMax: string;
   sessionDense: boolean;
-  session: { user: { name: string; email: string } };
+  session: { user: { id: string; name: string; email: string } };
   signOut: () => void;
 }) {
   const { organizationId } = useOrg();
@@ -149,9 +150,8 @@ function DashboardWorkspace({
       className={`mx-auto flex w-full ${shellMax} flex-1 flex-col gap-[var(--spacing-section)] p-4 sm:p-6`}
     >
       {/* Chrome above skip target — not counted in AC-CF-D005 Today density. */}
-      <DashboardWhatsNewBanner />
       <div
-        className={`content-card flex flex-wrap items-center justify-between gap-2 border border-border px-4 text-base ${
+        className={`flex flex-wrap items-center justify-between gap-2 text-sm ${
           sessionDense ? "py-2.5 sm:py-2" : "py-3"
         }`}
       >
@@ -164,6 +164,7 @@ function DashboardWorkspace({
           Sign out
         </button>
       </div>
+      <DashboardBreadcrumbs />
       <main
         id="main-content"
         tabIndex={-1}
@@ -172,8 +173,9 @@ function DashboardWorkspace({
       >
         {/* Status-region-first authority for pending/failed outbox (ADR-UX-003 / AC-015). */}
         <FieldOutboxStatusBar />
-        {children}
+        <div key={organizationId} className="min-w-0">{children}</div>
       </main>
+      <DashboardWhatsNewBanner />
     </div>
   );
 }

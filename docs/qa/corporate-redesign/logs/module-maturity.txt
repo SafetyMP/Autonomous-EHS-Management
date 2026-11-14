@@ -1,0 +1,1 @@
+module-maturity-check: ok — 33 rows cover 33 nav hrefs (ADR-S-001, R-001/R-004).

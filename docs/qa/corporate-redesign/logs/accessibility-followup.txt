@@ -1,0 +1,14 @@
+◇ injected env (12) from .env.ci // tip: ⌘ override existing { override: true }
+
+Running 2 tests using 2 workers
+
+(node:33548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (0) from .env.ci // tip: ◈ encrypted .env [www.dotenvx.com]
+  ✓  1 [a11y] › tests/e2e/a11y/approvals-decide.a11y.spec.ts:15:7 › a11y approvals decide › @a11y approvals page has no serious/critical axe violations (965ms)
+  ✓  2 [a11y] › tests/e2e/a11y/audit-trail-list.a11y.spec.ts:15:7 › a11y audit-trail list › @a11y audit-trail list has no serious/critical axe violations (1.2s)
+
+  2 passed (1.7s)
