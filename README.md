@@ -9,9 +9,20 @@ Record an incident, link a CAPA, and walk that CAPA to verified, on PostgreSQL y
 
 **SafetyMP operating thesis — reliability requires accountability.** Sustainable automation depends on trustworthy records, assigned ownership, and verification that corrective actions actually close. This project demonstrates those operational risk-management mechanisms in EHS: AI can assist with wording, but human review and closure remain essential. It is an EHS workflow reference, not an autonomous compliance authority. See the [portfolio thesis](https://github.com/SafetyMP/SafetyMP).
 
-The public path is that spine. Other modules ship in the tree; maturity is listed in [docs/module-maturity.md](docs/module-maturity.md).
+The main workflow is that spine. Other modules ship in the tree; maturity is listed in [docs/module-maturity.md](docs/module-maturity.md).
 
-**Jump to:** [Incident and CAPA workflow](#incident-and-capa-workflow) · [TRIR calculation](#trir) · [Run the demo](#run-the-demo) · [Self-hosting and security](#more) · [Documentation](#documentation-map)
+**Jump to:** [Public walkthrough](#public-walkthrough-and-full-application) · [Incident and CAPA workflow](#incident-and-capa-workflow) · [TRIR calculation](#trir) · [Run the demo](#run-the-demo) · [Self-hosting and security](#more) · [Documentation](#documentation-map)
+
+## Public walkthrough and full application
+
+| Experience | Use it for | Runtime |
+|------------|------------|---------|
+| [GitHub Pages walkthrough](https://SafetyMP.github.io/Autonomous-EHS-Management/) | Explore corporate navigation, the overview, and the incident-to-corrective-action journey with synthetic examples | Static files from `demo/`; no sign-in or database |
+| [Full application](docs/self-host-quickstart.md) | Operate the EHS workflows with your organization's records and permissions | Next.js, authentication, and PostgreSQL; source and Docker/GHCR deployment |
+
+The Pages URL is the public demo target; publication is tracked by the [Pages deployment workflow](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/pages-demo.yml). The walkthrough does not exercise server permissions, persist operational records, or establish regulatory compliance. The previous Vercel public demo is deprecated. See [demo setup and scope](docs/github-pages-demo.md).
+
+The full application remains a deployable package. CI publishes its container as `ghcr.io/safetymp/autonomous-ehs-management/ehs-web:<git-sha>` after the existing checks pass for image-relevant changes. Use a published immutable SHA for deployment; the public walkthrough is separate from that package.
 
 ## Incident and CAPA workflow
 
@@ -39,6 +50,8 @@ Incidence rates use `(recordable count × 200,000) / hours worked`.
 
 ## Run the demo
 
+This local demo runs the **full application** with a seeded PostgreSQL database. For the static walkthrough without app setup, see [GitHub Pages demo](docs/github-pages-demo.md).
+
 Prerequisites: Node.js 22 (`.nvmrc`), npm, Docker.
 
 ```bash
@@ -65,6 +78,7 @@ If port 5432 already has another Postgres, the error `role "ehs" does not exist`
 ## More
 
 - Field routes: [docs/user-manual-ehs-console.md](docs/user-manual-ehs-console.md)
+- Public walkthrough: [docs/github-pages-demo.md](docs/github-pages-demo.md)
 - Self-host: [docs/self-host-quickstart.md](docs/self-host-quickstart.md)
 - Security reports: [SECURITY.md](SECURITY.md)
 - License: [Apache 2.0](LICENSE)

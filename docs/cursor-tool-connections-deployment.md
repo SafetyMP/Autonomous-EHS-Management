@@ -2,9 +2,13 @@
 
 This guide explains how **Cursor IDE tool connections** (including MCP servers) relate to shipping Autonomous EHS. It complements [`.cursor/skills/devops-sre/SKILL.md`](../.cursor/skills/devops-sre/SKILL.md), [`REPO_SETUP.md`](../REPO_SETUP.md), and procurement-facing integration language in [`docs/procurement-readiness.md`](./procurement-readiness.md).
 
+## Public walkthrough versus application deployment
+
+The public demo target is [GitHub Pages](https://SafetyMP.github.io/Autonomous-EHS-Management/), serving synthetic static examples from `demo/` through [the Pages workflow](../.github/workflows/pages-demo.yml). It has no application server, sign-in, or PostgreSQL connection. See [demo setup and scope](./github-pages-demo.md). The previous Vercel public demo is deprecated; existing Vercel operator instructions below apply only when a team explicitly chooses Vercel for the full application.
+
 ## Canonical deployment (system of truth)
 
-Production and staging deployments **must** remain:
+Full-application production and staging deployments use the existing package and verification paths:
 
 | Path | Artifact |
 |------|----------|
@@ -47,7 +51,7 @@ Use this matrix when onboarding operators who use Cursor:
 
 ---
 
-## Vercel & Neon previews: Drizzle migrations and cron
+## Optional Vercel & Neon previews: Drizzle migrations and cron
 
 Teams often combine **Vercel Preview deployments** with **branching Postgres** (e.g. Neon). Apply these rules:
 

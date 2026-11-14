@@ -9,7 +9,7 @@ REPO="${1:-SafetyMP/Autonomous-EHS-Management}"
 
 gh repo edit "$REPO" \
   --description "Open-source EHS web console: incidents, CAPA, metrics, documents, training, and audits—role-aware, PostgreSQL-backed, self-hostable." \
-  --homepage "https://autonomous-ehs-management.vercel.app"
+  --homepage "https://safetymp.github.io/Autonomous-EHS-Management/"
 
 # GitHub caps repositories at 20 topics — replace the full set.
 gh api -X PUT "repos/${REPO}/topics" \

@@ -21,9 +21,9 @@ on:
         required: true
         type: string
       deploy_vercel:
-        description: Run Vercel production deploy (vercel pull/build/deploy --prebuilt)
+        description: Optional operator-owned Vercel deployment (public demo uses GitHub Pages)
         type: boolean
-        default: true
+        default: false
       rollout_eks:
         description: kubectl set image deployment/ehs-web on EKS
         type: boolean

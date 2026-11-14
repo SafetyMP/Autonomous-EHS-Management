@@ -2,7 +2,7 @@
 
 Autonomous EHS is an **open source, long-lived** compliance operations platform. This document states how the project is maintained so self-host adopters, integrators, and contributors can plan beyond a single pilot or demo.
 
-**Try before you fork:** hosted demo at [autonomous-ehs-management.vercel.app](https://autonomous-ehs-management.vercel.app); production adopters should pin [GitHub release tags](https://github.com/SafetyMP/Autonomous-EHS-Management/releases) or container image digests and run their own upgrade testing.
+**Try before you fork:** the [GitHub Pages walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/) uses synthetic, read-only records. The full application remains a self-hosted package; production adopters should pin [GitHub release tags](https://github.com/SafetyMP/Autonomous-EHS-Management/releases) or container image digests and run their own upgrade testing. The former Vercel public demo is deprecated.
 
 **Product positioning** (what it does, pilot framing, procurement language) stays in [README.md](README.md) and [docs/procurement-readiness.md](docs/procurement-readiness.md). **Regulatory scope and data governance** stay in [COMPLIANCE.md](COMPLIANCE.md).
 

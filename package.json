@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/SafetyMP/Autonomous-EHS-Management/issues"
   },
-  "homepage": "https://autonomous-ehs-management.vercel.app",
+  "homepage": "https://safetymp.github.io/Autonomous-EHS-Management/",
   "engines": {
     "node": ">=22 <23",
     "npm": ">=10.9.2 <11"
