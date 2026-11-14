@@ -14,13 +14,13 @@ It covers: ROI framing, pilot structure, economic moat narrative, implementation
 
 ## 1. Positioning (replace generic “AI EHS”)
 
-**Preferred phrase:** *Autonomous compliance operations platform* — emphasizes **workflows, system-of-record data, and evidence**, not chat-only UX. **“Autonomous”** here means **scheduled reliability, SLA escalation records, integrations, and field outbox replay**, with optional **proposal-only AI** ([README](../README.md), [docs/ai-governed-intake.md](./ai-governed-intake.md))—not LLM-owned approvals or regulatory transitions.
+**Preferred phrase:** *Self-hosted corporate EHS management* — emphasizes finding work, incident-to-corrective-action traceability, and ownership of records. **“Autonomous”** here means **scheduled reliability, SLA escalation records, integrations, and field outbox replay**, with optional **proposal-only AI** ([README](../README.md), [docs/ai-governed-intake.md](./ai-governed-intake.md))—not LLM-owned approvals or regulatory transitions.
 
 **Category label (RFP consistency):** **IMS-style EHS console** — integrated management system breadth for incidents, CAPA, permits, training, and audit evidence in one Postgres schema. **Not** a full **EHSQ suite replacement** (occupational health clinic depth, agency e-filing, no-code workflow design)—see [portco-module-value-assessment.md](./portco-module-value-assessment.md) and §12 below.
 
 **Product names:** **Autonomous EHS** (repo and diligence), **EHS Console** (signed-in UI and [user manual](./user-manual-ehs-console.md)).
 
-**Supporting line:** *Labor replacement + compliance infrastructure + system-of-record ownership* (outcomes buyers fund).
+**Supporting line:** *Find work, connect incidents to corrective actions, and retain ownership of records.* People remain accountable for approvals, investigation closure, and effectiveness verification.
 
 **Open source evergreen:** Apache 2.0, migrations in-repo, and published governance ([`GOVERNANCE.md`](../GOVERNANCE.md), [`open-source-tco.md`](./open-source-tco.md)) support **tenant-owned longevity** and forkability—distinct from per-seat SaaS lock-in, without implying zero ops or a commercial support SLA unless your org contracts for one separately.
 
@@ -40,17 +40,19 @@ It covers: ROI framing, pilot structure, economic moat narrative, implementation
 
 ## 3. Onboarding & customer success (lightweight)
 
-- **Technical onboarding:** README demo path (`demo:up`), devcontainer, [`/api/health`](../src/app/api/health/route.ts).
+- **Orientation:** [Public read-only walkthrough](./github-pages-demo.md) with synthetic examples; this does not validate authentication or operational workflows.
+- **Technical onboarding:** [Local full-app demo](../README.md#run-the-demo) (`demo:up`) or [self-hosted deployment](./self-host-quickstart.md), with runtime health and protected-route acceptance.
 - **Org onboarding:** First admin signup + `db:seed` linking; document RBAC role intent in internal runbooks (avoid exposing permission keys to end users—see [ehs-technical-writer](../.cursor/skills/ehs-technical-writer-enablement/SKILL.md)).
 
 ---
 
 ## 4. Enterprise deployment path
 
-- **SaaS:** Vercel + managed Postgres (e.g. Neon) — see [README](../README.md), [`vercel.json`](../vercel.json).
-- **Container / cluster:** Dockerfile + `deploy/k8s/` + Terraform starters per [devops-sre skill](../.cursor/skills/devops-sre/SKILL.md); cron as `CronJob` hitting secured `/api/cron/*` routes.
+- **Full application:** Tenant-operated Next.js application with authentication, RBAC, and PostgreSQL. Use the [Docker/GHCR package and self-host guide](./self-host-quickstart.md), `deploy/k8s/`, and Terraform starters as appropriate; cron jobs call secured `/api/cron/*` routes.
+- **Optional provider hosting:** Operators may choose managed infrastructure, including Vercel, with their own database and credentials. The repository does not supply a managed SaaS service or support SLA.
+- **Public walkthrough:** [GitHub Pages](./github-pages-demo.md) serves only static synthetic records; it is separate from the full application and its deployment verification.
 
-**SSO:** Optional **OIDC** via Better Auth Generic OAuth when `OIDC_*` env vars are set ([README Enterprise SSO](../README.md#enterprise-sso-oidc-pilot)). **Default:** new users require org membership (admin invite or seed)—no automatic tenant provisioning. **Optional:** JIT provisioning when `OIDC_JIT_ENABLED=true` and related env vars are set—review with IdP owners and counsel before production ([OIDC_JIT_PROVISIONING.md](./OIDC_JIT_PROVISIONING.md)). **SCIM** Users/Groups (MVP) ships for PortCo identity—see [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md).
+**SSO:** Optional **OIDC** via Better Auth Generic OAuth when `OIDC_*` env vars are set ([OIDC configuration and JIT rules](./OIDC_JIT_PROVISIONING.md)). **Default:** new users require org membership (admin invite or seed)—no automatic tenant provisioning. **Optional:** JIT provisioning when `OIDC_JIT_ENABLED=true` and related env vars are set—review with IdP owners and counsel before production ([OIDC_JIT_PROVISIONING.md](./OIDC_JIT_PROVISIONING.md)). **SCIM** Users/Groups (MVP) ships for PortCo identity—see [hris-portco-integration-playbook.md](./roadmap/hris-portco-integration-playbook.md).
 
 ### Customer-facing integrations vs internal Cursor tooling
 
@@ -61,9 +63,11 @@ It covers: ROI framing, pilot structure, economic moat narrative, implementation
 | **Customer / tenant integrations** | SSO (OIDC pilot), [`integration`](../src/server/trpc/routers/integration.ts) patterns, inbound envelopes and webhooks, HRIS/sync services, exports and audit evidence chains | Part of **solution fit**, security review, and DPIA / BAA discussions as applicable |
 | **Internal engineering tooling only** | Cursor **MCP servers** (Vercel, Neon, clouds, Slack), IDE “tool connections,” [`@cursor/sdk`](https://cursor.com/docs) automation for internal bots | **Vendor toolchain** for contributors—**not** something you list as a customer integration unless you explicitly resell or embed it (this repo does **not**) |
 
-**Operational note:** Production deploys remain **GitHub Actions** + **Vercel and/or EKS** per [REPO_SETUP.md](../REPO_SETUP.md). Cursor connections are **optional ergonomics** around those systems; they must not become a shadow path for production secrets or approvals. See **[cursor-tool-connections-deployment.md](./cursor-tool-connections-deployment.md)**.
+**Operational note:** Application verification and container publication use **GitHub Actions**; controlled promotion supports **EKS** and optional **Vercel** per [REPO_SETUP.md](../REPO_SETUP.md). Cursor connections are **optional ergonomics** around those systems; they must not become a shadow path for production secrets or approvals. See **[cursor-tool-connections-deployment.md](./cursor-tool-connections-deployment.md)**.
 
 ### Staging acceptance / QA artifacts
+
+QA dossiers retain historical navigation names and evidence. Use the [current user manual](./user-manual-ehs-console.md) for corporate work areas and exercise the deployed application for fresh acceptance; the static walkthrough is not operational UAT.
 
 - **Business-facing staging / UAT checklist:** [staging-uat-desk-to-field.md](./qa/staging-uat-desk-to-field.md) — desk-to-field acceptance for pilots and releases.
 - **Mutation auditability inventory:** [mutation-auditability-matrix.md](./qa/mutation-auditability-matrix.md) — which IMS mutations write `audit_log` (spot-check for procurement evidence; coverage is intentionally partial per [COMPLIANCE.md](../COMPLIANCE.md)).
@@ -135,12 +139,12 @@ Avoid claiming **contractor network effects** until network features exist.
 | Item | Location / action |
 |------|-------------------|
 | Strong README | [README.md](../README.md) — positioning + links |
-| Architecture diagrams | [architecture-map.md](./architecture-map.md), README Mermaid |
+| Architecture diagrams | [architecture-map.md](./architecture-map.md) |
 | Workflow examples | [workflow-depth.md](./workflow-depth.md) |
 | Deployment | README + [devops-sre](../.cursor/skills/devops-sre/SKILL.md) + optional [cursor-tool-connections-deployment](./cursor-tool-connections-deployment.md) (Cursor MCP scope) |
-| Product screenshots | Add `docs/screenshots/` when marketing supplies assets |
+| Product screenshots | [Asset inventory](./assets/README.md); verify capture date and scope before using as current UI evidence |
 | Use case documentation | [user-manual-ehs-console.md](./user-manual-ehs-console.md) |
-| Case studies | `docs/case-studies/` when available |
+| Case studies | [Synthetic narratives and pilot template](./case-studies/); no customer outcome claim |
 | OSS / TCO snapshot | [`open-source-tco.md`](./open-source-tco.md) |
 | OSS governance & evergreen intent | [`GOVERNANCE.md`](../GOVERNANCE.md) |
 | Self-host reference deployment | [`self-host-quickstart.md`](./self-host-quickstart.md) |

@@ -1,3 +1,7 @@
+# Historical changelog
+
+Current release notes and downloadable source are maintained in [GitHub Releases](https://github.com/SafetyMP/Autonomous-EHS-Management/releases). This file preserves earlier release history. The “Unreleased” section below is retained from that historical record; it is not the current roadmap. See [ROADMAP.md](ROADMAP.md) for current direction.
+
 ## Unreleased
 
 ### Features

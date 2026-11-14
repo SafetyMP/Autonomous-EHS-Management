@@ -50,7 +50,7 @@ Interpretation aligns with naming in [`src/server/cron/cronMetrics/prometheusFor
 
 Known `job` label values match [`CRON_JOB_KEYS`](../../src/server/cron/recordCronRun.ts) **exactly** (schedule parity requirement):
 
-| `job` label | HTTP route | Typical schedule ([`vercel.json`](../../vercel.json)) |
+| `job` label | HTTP route | Typical UTC schedule ([Kubernetes CronJobs](../../deploy/k8s/), optional [`vercel.json`](../../vercel.json)) |
 |-------------|------------|------------------------------------------------------|
 | `reminders` | `GET /api/cron/reminders` | `0 8 * * *` |
 | `data-retention` | `GET /api/cron/data-retention` | `30 9 * * *` |
@@ -58,9 +58,11 @@ Known `job` label values match [`CRON_JOB_KEYS`](../../src/server/cron/recordCro
 
 All three keys share the same metric families (`*_success_in_window`, `*_error_in_window`, `last_run_*`). Alert templates below must stay **parity-complete** across these labels — do not ship reminders/retention alerts while omitting roster-reconcile if you claim production-monitored cron health.
 
-## Vercel vs Kubernetes / self-hosted
+## Full-application scheduling and collection
 
-- **Vercel:** Cron invocations hit your **deployed URL** (`vercel.json` schedules reminders, data-retention, and integration-roster-reconcile). Metrics scrape does **not** run on Vercel’s cron schedule; configure an **external** scraper or synthetic check (collector, Grafana Agent, SaaS uptime with custom header—only if secrets can be injected safely).
+The static GitHub Pages walkthrough has no cron routes or metrics endpoint.
+
+- **Optional Vercel hosting:** Cron invocations hit your **deployed URL** (`vercel.json` schedules reminders, data-retention, and integration-roster-reconcile). Metrics scrape does **not** run on Vercel’s cron schedule; configure an **external** scraper or synthetic check (collector, Grafana Agent, SaaS uptime with custom header—only if secrets can be injected safely).
 
 - **Kubernetes:** Run Prometheus / Victoria Metrics / Datadog Agent with scrape config targeting the **`ehs-web` Service** (`ClusterIP`). Use `authorization` bearer from External Secrets/Kubernetes Secret; see patterns in [`deploy/k8s/`](../../deploy/k8s/) and the DevOps skill ([`.cursor/skills/devops-sre/SKILL.md`](../../.cursor/skills/devops-sre/SKILL.md)). Example CronJobs: `cronjob-reminders.yaml`, `cronjob-data-retention.yaml`, `cronjob-integration-roster-reconcile.yaml`.
 

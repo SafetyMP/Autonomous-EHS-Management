@@ -1,5 +1,7 @@
 # Security policy
 
+The deployable application includes authentication, tenant and role boundaries, scheduled jobs, and persistent records. The separate [GitHub Pages walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/) uses synthetic data and has no application backend or sign-in. Neither the walkthrough nor its accessibility checks validate a deployed application’s security.
+
 ## Supported versions
 
 | Area        | Supported |
@@ -13,7 +15,7 @@
 
 Use one of:
 
-- **GitHub [private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)** for this repository (**Report a vulnerability** on the Security tab).
+- **GitHub [private vulnerability reporting](https://github.com/SafetyMP/Autonomous-EHS-Management/security/advisories/new)** for this repository (**Report a vulnerability** on the Security tab).
 - Your **contractual / security channel** with SafetyMP (do not disclose active exploits on a public issue).
 
 Include: affected routes or components, reproduction steps, impact, and suggested fix if any.

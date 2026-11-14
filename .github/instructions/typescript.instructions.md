@@ -2,9 +2,9 @@
 applyTo: "**/*.ts,**/*.tsx"
 ---
 
-# TypeScript coding standards (September 2026)
+# TypeScript coding standards
 
-- Write TypeScript, not new application JavaScript. Leave existing tooling `.js` / `.mjs` / `.cjs` files alone.
+- Write TypeScript for the full application. Preserve the separate buildless HTML/CSS/JavaScript stack in `demo/`; do not introduce a demo toolchain to match the Next.js app. Leave existing tooling `.js` / `.mjs` / `.cjs` files alone.
 - Place imports at the top of the module. Do not use inline `import()` in function bodies except for a documented circular-dependency or optional-runtime case.
 - Prefer early returns over nested conditionals.
 - On `switch` over a discriminated union or enum, handle every variant. Use a `never` check in `default` so newly added variants fail at compile time.

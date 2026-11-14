@@ -1,6 +1,6 @@
 # Roadmap design documents
 
-Engineering specs and playbooks derived from enterprise diligence feedback. These are **design targets** — implementation tracked separately in product backlog.
+Engineering specs and playbooks derived from enterprise diligence feedback. Design targets and historical problem statements remain here; each document identifies its implementation status. Use the [current user manual](../user-manual-ehs-console.md) and [corporate navigation decision](../adr/ADR-UX-008-corporate-navigation.md) for the shipped navigation and overview, rather than old wireframes or Today/Capture/Decide/Prove labels.
 
 | Document | Theme | Status |
 |----------|-------|--------|

@@ -8,7 +8,7 @@ set -euo pipefail
 REPO="${1:-SafetyMP/Autonomous-EHS-Management}"
 
 gh repo edit "$REPO" \
-  --description "Open-source EHS web console: incidents, CAPA, metrics, documents, training, and audits—role-aware, PostgreSQL-backed, self-hostable." \
+  --description "Self-hosted EHS software for corporate teams: incidents, corrective actions (CAPA), audits and safety reporting. PostgreSQL-backed app with a separate interactive demo." \
   --homepage "https://safetymp.github.io/Autonomous-EHS-Management/"
 
 # GitHub caps repositories at 20 topics — replace the full set.
@@ -18,25 +18,22 @@ gh api -X PUT "repos/${REPO}/topics" \
 {
   "names": [
     "ehs",
+    "environmental-health-and-safety",
+    "incident-management",
+    "capa",
+    "corrective-actions",
     "safety-management",
     "occupational-health",
-    "incident-management",
-    "environmental-health-and-safety",
-    "capa",
-    "iso-45001",
-    "compliance",
-    "open-source",
+    "environmental-management",
+    "audits",
+    "risk-assessment",
     "self-hosted",
-    "gitops",
-    "nextjs",
-    "react",
-    "typescript",
+    "open-source",
     "postgresql",
-    "drizzle-orm",
-    "trpc",
-    "better-auth",
+    "nextjs",
+    "typescript",
     "docker",
-    "kubernetes"
+    "github-pages"
   ]
 }
 EOF

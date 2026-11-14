@@ -2,7 +2,7 @@
 
 Reference deployment for **tenant-owned** Autonomous EHS: Docker image, Kubernetes manifests, scheduled cron HTTP jobs, optional pg-boss worker, and metrics scrape. The Apache 2.0 application remains a complete deployable package; your PostgreSQL service and operational infrastructure stay under your account.
 
-The [GitHub Pages walkthrough](./github-pages-demo.md) is a separate static demonstration with synthetic examples. It does not host this application, authentication, API routes, or PostgreSQL. Follow this guide for an operational installation.
+The [GitHub Pages walkthrough](./github-pages-demo.md) is a separate read-only static demonstration with synthetic examples. It does not host this application, authentication, API routes, or PostgreSQL. Follow this guide for an operational installation.
 
 **Related:** [GOVERNANCE.md](../GOVERNANCE.md), [open-source-tco.md](./open-source-tco.md), [README local demo](../README.md#run-the-demo), [JOB_QUEUE.md](./JOB_QUEUE.md), [runbooks/cron-metrics-observability.md](./runbooks/cron-metrics-observability.md), [REPO_SETUP.md](../REPO_SETUP.md).
 
@@ -41,7 +41,7 @@ docker run --rm -p 3000:3000 \
 
 Runtime acceptance requires **HTTP 200** from `GET /api/health` with `{"ok":true,"database":"up"}`, plus an unauthenticated request to `/dashboard` redirecting to sign-in. A successful image build alone does not establish working runtime configuration. A database connectivity failure returns HTTP 503; resolve startup or connection errors before accepting the deployment.
 
-CI publishes **`ghcr.io/safetymp/autonomous-ehs-management/ehs-web`** on pushes to `main`/`master` after the required checks pass and image-relevant paths change (CI job **`publish`** in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)). Each published image is tagged with its full Git commit SHA. Select an available, verified SHA from the successful publish run:
+CI publishes **`ghcr.io/safetymp/autonomous-ehs-management/ehs-web`** on pushes to `main`/`master` after the required checks pass and image-relevant paths change (CI job **`publish`** in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)). Find release notes in [the latest release](https://github.com/SafetyMP/Autonomous-EHS-Management/releases/latest) and available images in [the GHCR package](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web). Each published image is tagged with its full Git commit SHA; a release tag alone does not establish that a matching image was published. Select an available, verified SHA from the successful publish run:
 
 ```bash
 docker pull ghcr.io/safetymp/autonomous-ehs-management/ehs-web:YOUR_PUBLISHED_40_CHARACTER_GIT_SHA

@@ -235,7 +235,7 @@ Mid-market PortCos often use BambooHR + Okta; SCIM from Okta handles **user crea
 
 ### 6.1 Nightly roster reconciliation
 
-**Job:** `integration.reconcileRoster` (pg-boss worker + optional Vercel cron at `/api/cron/integration-roster-reconcile`).
+**Job:** `integration.reconcileRoster` (pg-boss worker + HTTP cron (Kubernetes or optional Vercel) at `/api/cron/integration-roster-reconcile`).
 
 1. iPaaS POSTs `roster_snapshot` to inbound webhook (or operator enqueues reconcile from UI).
 2. Diff latest snapshot against active `membership` rows for org.

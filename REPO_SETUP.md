@@ -4,7 +4,7 @@ This checklist is **manual**: GitHub org/repo settings and cloud IAM consoles. I
 
 **Clone path:** If your local folder name ends with a **trailing space** (unquoted paths and some CI copy/paste flows), shells and Node tooling may mis-resolve the workspace—**rename the directory** or always `cd`/`open` with a **quoted** path (e.g. `"./Autonomous EHS Management System "`).
 
-**Canonical GitHub repo:** [`SafetyMP/Autonomous-EHS-Management`](https://github.com/SafetyMP/Autonomous-EHS-Management). Use IAM OIDC trust subjects such as `repo:SafetyMP/Autonomous-EHS-Management:*` scoped to **`production`** environment (see §3).
+**Canonical GitHub repo:** [`SafetyMP/Autonomous-EHS-Management`](https://github.com/SafetyMP/Autonomous-EHS-Management). Use IAM OIDC trust subjects such as `repo:SafetyMP/Autonomous-EHS-Management:*` scoped to **`Production`** environment (see §3).
 
 ### Repository About (topics are not committed to Git)
 
@@ -24,15 +24,15 @@ With [**GitHub CLI**](https://cli.github.com/) authenticated against the repo, p
 bash scripts/apply-github-about.sh
 ```
 
-The public demo homepage target is `https://SafetyMP.github.io/Autonomous-EHS-Management/`. Verify its Pages deployment before updating repository metadata; the legacy Vercel public demo is deprecated.
+The live public read-only walkthrough is [safetymp.github.io/Autonomous-EHS-Management](https://safetymp.github.io/Autonomous-EHS-Management/). Repository homepage metadata points to this synthetic walkthrough; the legacy Vercel public demo is deprecated. See [discovery maintenance](docs/repository-discovery.md) for the coordinated repository and demo surfaces.
 
 ---
 
 ## Public walkthrough hosting
 
-The static public demo lives in `demo/` and deploys through [`.github/workflows/pages-demo.yml`](.github/workflows/pages-demo.yml). In repository **Settings → Pages → Build and deployment → Source**, choose **GitHub Actions**. The target URL is [SafetyMP.github.io/Autonomous-EHS-Management/](https://SafetyMP.github.io/Autonomous-EHS-Management/). Confirm the successful deployment and rendered walkthrough before treating it as available. See [GitHub Pages demo setup](docs/github-pages-demo.md).
+The static public demo lives in `demo/` and deploys through [`.github/workflows/pages-demo.yml`](.github/workflows/pages-demo.yml). In repository **Settings → Pages → Build and deployment → Source**, choose **GitHub Actions**. The live URL is [safetymp.github.io/Autonomous-EHS-Management/](https://safetymp.github.io/Autonomous-EHS-Management/). For updates, verify both the successful deployment and rendered navigation, filters, and incident-to-action links. See [GitHub Pages demo setup](docs/github-pages-demo.md).
 
-Pages does not replace the full application package or its CI gates. The authenticated Next.js/PostgreSQL app retains the Docker/GHCR and controlled-promotion paths below. Vercel instructions now describe an optional full-app deployment only; retiring a pre-existing Vercel deployment requires access to that account and is separate from changing repository configuration.
+Pages does not replace the full application package or its CI gates. The authenticated Next.js/PostgreSQL app retains the Docker/GHCR and controlled-promotion paths below. Vercel instructions describe an optional full-app deployment only. Git auto-deployment is disabled and manual promotion defaults to skipping Vercel. Remote retirement has not been established; further Vercel work is outside the current scope.
 
 ---
 
@@ -52,7 +52,7 @@ Create a **ruleset** targeting **`main`** and **`master`** (or unify on one trun
 
 **CI database (Playwright):** the **`e2e-smoke`** job starts **PostgreSQL (pgvector)**, runs **`npm run db:migrate`** and **`npm run db:seed:ci`**, then smoke tests (including signed-in), threat-model (on `pull_request`), and adversarial probes against the standalone build. Forked PRs from untrusted contributors should not receive repo secrets unless your org explicitly allows it.
 
-**Post-merge sequencing:** on `push` to `main`/`master`, the **CI** workflow runs `supply-chain-audit` / `verify` / `e2e-smoke`, then **`release`** (semantic-release) and **`publish`** (GHCR) jobs via `needs:` (Scorecard-safe; no `workflow_run` checkout). **Promote production** uses GitHub Environment **`Production`** and requires a **full 40-char git SHA** for both Vercel checkout and GHCR `ehs-web:<sha>` — never `latest`.
+**Post-merge sequencing:** on `push` to `main`/`master`, the **CI** workflow runs `supply-chain-audit` / `verify` / `e2e-smoke`, then **`release`** (semantic-release) and **`publish`** (GHCR) jobs via `needs:` (Scorecard-safe; no `workflow_run` checkout). **Promote production** uses GitHub Environment **`Production`** and requires a **full 40-char git SHA** for GHCR `ehs-web:<sha>` and, only when explicitly enabled, Vercel checkout — never `latest`.
 
 ---
 
@@ -67,10 +67,10 @@ GitHub may display the name as **`Production`** (capital P). Workflows should us
 3. **Required reviewers:** at least one reviewer (solo maintainer ok); prefer two for segregated duty when a team exists.
 4. **Wait timer:** optional cool-down between approval and deployment.
 5. **Secrets**
-   - **`VERCEL_TOKEN`** — rotate regularly; scopes limited to deployment. Stored here (environment-scoped), **not** committed.
+   - **`VERCEL_TOKEN`** — only for explicitly enabled Vercel promotion; rotate regularly; scopes limited to deployment. Stored here (environment-scoped), **not** committed.
 6. **Variables**
-   - **`VERCEL_ORG_ID`**, **`VERCEL_PROJECT_ID`** — from `.vercel/project.json` (`vercel link`).
-   - **`AWS_DEPLOY_ROLE_ARN`** — IAM role trusted by GitHub OIDC for EKS rollout (see §3).
+   - **`VERCEL_ORG_ID`**, **`VERCEL_PROJECT_ID`** — only for explicitly enabled Vercel promotion; from `.vercel/project.json` (`vercel link`).
+   - **`AWS_DEPLOY_ROLE_ARN`** — for EKS promotion; IAM role trusted by GitHub OIDC for EKS rollout (see §3).
    - **`AWS_REGION`**
    - **`EKS_CLUSTER_NAME`**
    - **`K8S_NAMESPACE`** — default in manifests is **`ehs-prod`** (`deploy/k8s/` alignment).
@@ -88,15 +88,17 @@ Issue template links: [`.github/ISSUE_TEMPLATE/config.yml`](.github/ISSUE_TEMPLA
 1. Create an **IAM OIDC provider** for **`token.actions.githubusercontent.com`** if missing.
 2. Create an IAM **role** (e.g. `github-ehs-eks-rollout`) with trust policy restricting:
    - **`sub`** / **`repository`** / **`ref`** patterns (e.g. `repo:SafetyMP/Autonomous-EHS-Management:ref:refs/heads/main`)  
-   - Optional: require **`repository_owner`** claim and environment via [`job_workflow`](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect) **`environment:production`** in the JWT for defense in depth (condition on `"job_workflow_*"` / `*` sub-formats documented for your Org).
+   - Optional: require **`repository_owner`** claim and environment via [`job_workflow`](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect) **`environment:Production`** in the JWT for defense in depth (condition on `"job_workflow_*"` / `*` sub-formats documented for your Org).
 3. Attach **minimal** policies to **update kube rollout** via EKS access:
    - Prefer **EKS access entries / IAM Roles for Kubernetes RBAC mapping** (`eks DescribeCluster`, `sts:GetCallerIdentity`, and kubectl auth via **`aws eks update-kubeconfig`**).
    - Do **not** grant `iam:*`; scope to the single cluster ARN if possible.
-4. Store that role ARN in **`AWS_DEPLOY_ROLE_ARN`** (environment **`production`** variable).
+4. Store that role ARN in **`AWS_DEPLOY_ROLE_ARN`** (environment **`Production`** variable).
 
 ---
 
 ## 4. Releases & `semantic-release`
+
+Use [latest release notes](https://github.com/SafetyMP/Autonomous-EHS-Management/releases/latest) and the [published container package](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web) for delivery artifacts. Select a full commit SHA that has a successful image publication; release notes and container publication are distinct evidence.
 
 Job: **`release`** in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) + [`.releaserc.json`](.releaserc.json).
 
@@ -113,7 +115,7 @@ This optional path deploys the full application, not the GitHub Pages walkthroug
 
 Inbound **GitHub Actions → Vercel** deployments follow [Vercel’s GitHub Actions guide](https://vercel.com/docs/git/vercel-for-github) (`vercel pull` / `vercel build` / `vercel deploy --prebuilt`).
 
-**Vercel OIDC federation** documented today centres on **outbound** access from **Vercel workloads** to AWS/GCP/Azure (`VERCEL_OIDC_TOKEN`). It **does not** replace `VERCEL_TOKEN` for Actions-based deploy auth at the time of writing — store a **short-lived rotated** PAT as **`production`** secret **`VERCEL_TOKEN`**.
+**Vercel OIDC federation** documented today centres on **outbound** access from **Vercel workloads** to AWS/GCP/Azure (`VERCEL_OIDC_TOKEN`). It **does not** replace `VERCEL_TOKEN` for Actions-based deploy auth at the time of writing — store a **short-lived rotated** PAT as **`Production`** secret **`VERCEL_TOKEN`**.
 
 Avoid double-shipping prod: disable automatic **Production** deployments from Git if Actions is canonical, **or** run Actions only when promotion is deliberate.
 
@@ -149,7 +151,7 @@ Downstream Admission / policy engines (Kyverno, Ratify, Sigstore Admission) cons
 ## 8. Rollback playbook (high level)
 
 - **Image:** rerun **Promote production** with **`image_tag`** set to prior **immutable SHA**.
-- **Vercel:** redeploy earlier git ref via Vercel UI or rerun workflow from known-good commit (**document your source of truth**).
+- **Optional Vercel installation:** redeploy earlier git ref via Vercel UI or rerun workflow from known-good commit (**document your source of truth**).
 
 ---
 
@@ -173,8 +175,6 @@ Apply the description, homepage, and topics from § **Repository About** at the 
 ```bash
 bash scripts/apply-github-about.sh
 ```
-
-Or manually with [`gh`](https://cli.github.com/) (same end state as the script):
 
 ### Social preview image
 
@@ -234,4 +234,4 @@ Canonical guidance tying MCP scope to Drizzle migrations, preview DBs, and cron 
 
 ---
 
-_Last updated July 2026 (ruleset required checks, Production env, API-only semantic-release, CODEOWNERS @SafetyMP)._
+_Documentation alignment updated November 2026: full application package, separate public walkthrough, and optional provider deployment paths._

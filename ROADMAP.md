@@ -1,8 +1,18 @@
 # Roadmap (high level)
 
-This file tracks **direction**, not detailed delivery dates. Priorities shift with customer and counsel input.
+This file tracks direction, not delivery commitments. The priority is usable corporate EHS work: clear shared navigation, an actionable overview, and a coherent incident-to-corrective-action journey with existing permissions and human approvals preserved. Priorities should be informed by user feedback and applicable operational requirements.
+
+The full application remains a self-hosted package. The [GitHub Pages walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/) provides a separate synthetic, read-only way to evaluate the interface. The [module maturity map](docs/module-maturity.md) records capability limits; [release notes](https://github.com/SafetyMP/Autonomous-EHS-Management/releases) identify released changes.
 
 ## Shipped recently
+
+- **Corporate navigation and overview:** work grouped by EHS domain, with attention and site context visible from the overview. Existing routes, permissions, and workflow authority remain in the full application.
+- **Incident-to-corrective-action journey:** clearer context and navigation between an incident, its linked CAPAs, and human review steps. See the [user manual](docs/user-manual-ehs-console.md) and [workflow depth](docs/workflow-depth.md).
+- **Separate public walkthrough and deployable package:** static GitHub Pages examples alongside source releases and the authenticated PostgreSQL application distributed through GHCR. See [demo scope](docs/github-pages-demo.md) and [self-hosting](docs/self-host-quickstart.md).
+
+### Earlier package capabilities
+
+The following shipped work remains part of the application. Its presence does not establish production deployment or regulatory readiness.
 
 - **Cron SLO artifact:** example Prometheus alerting rules in [`deploy/k8s/prometheus-rules-cron.example.yml`](deploy/k8s/prometheus-rules-cron.example.yml) (cross-linked from [`docs/runbooks/cron-metrics-observability.md`](docs/runbooks/cron-metrics-observability.md)).
 - **Authenticated `@smoke` E2E:** minimal **inspection** create flow ([`tests/e2e/auth/inspection-intake.spec.ts`](tests/e2e/auth/inspection-intake.spec.ts)) alongside incident + observation intake.
@@ -27,18 +37,19 @@ This file tracks **direction**, not detailed delivery dates. Priorities shift wi
 
 ## In progress / next
 
-- **July 2026 regulatory alignment:** Heat NEP Appendix I program aid, EPCRA/HCS 2024 hazard categories (Plumbing chemicals UI), ISO 14001:2026 context/aspect/MOC fields — programme-of-record only (see [COMPLIANCE.md](COMPLIANCE.md)).
-- **Production dashboards:** wire `GET /api/cron/metrics` alerts per runbook + example `PrometheusRule`; tune SLO windows in your environment.
-- **E2E depth:** expand authenticated `@smoke` data setup and optional flake retries for additional flows as features ship.
-- **Field UX:** deeper offline drafts, conflict surfacing, and substantive degraded-mode behavior using the accessibility skill playbook (outbox retry + visibility is a first slice).
-- **Watch list (not this release):** LOTO energy-isolation module (OSHA agenda ~Nov 2026), walkaround employee-rep companion on inspections, Cal/OSHA heat rule engine, Core-tier chemical inventory / Tier2 Submit.
+- **Validate corporate usability:** evaluate whether users can find site context, outstanding work, incident details, linked actions, and approval responsibilities. Use task completion and observed friction to prioritize further changes; do not infer improved outcomes from a redesign alone.
+- **Keep discovery and onboarding coherent:** maintain the repository overview, documentation, agent entry points, public walkthrough, and package setup as the same product evolves.
+- **Operator readiness:** exercise installation and upgrades in the target environment, including migrations, backup restoration, authentication, permissions, and scheduled-job observability. Production alerting remains operator configured.
+- **Workflow and browser coverage:** extend meaningful authenticated and accessibility checks as flows change, preserving existing authorization and audit behavior.
+- **Field resilience:** improve draft recovery, offline conflict surfacing, and degraded-mode behavior beyond the existing outbox retry and visibility controls.
+- **Potential domains:** energy isolation, employee-representative inspection support, and jurisdiction-specific chemical or heat workflows need scoped requirements and source validation before implementation. They are not committed releases or claims of current regulatory coverage.
 
-## Partnership backlog (Innovation Auditor + EHS Program Director)
+## Partnership backlog
 
-Joint priorities: **field resilience** and **supervisory actionability** without making AI authoritative over regulated workflows—PostgreSQL, permission-gated tRPC mutations, and `audit_log` (where procedures already record changes) remain the system of truth; see [CONTEXT.md](CONTEXT.md).
+Potential collaboration priorities build on existing capabilities: **field resilience** and **supervisory actionability** without making AI authoritative over regulated workflows—PostgreSQL, permission-gated tRPC mutations, and `audit_log` (where procedures already record changes) remain the system of truth; see [CONTEXT.md](CONTEXT.md).
 
 - **Offline / outbox capture:** durable **IndexedDB** queue for high-friction intake (incidents, observations, inspections, permits) with **RBAC-preserving replay** and **failed-row retry UX** when `NEXT_PUBLIC_FIELD_OUTBOX=1` — deeper draft recovery and conflict surfacing remain on the roadmap.
-- **Assistive drafting on intake:** **Incident** + **observation** context-aware drafting (`aiAssistant` proposal-only patterns, optional RAG); explicit human acknowledgment before persistence; never auto-submit incident/CAPA/permit transitions.
+- **Assistive drafting on intake:** build on the existing **incident** + **observation** context-aware drafting (`aiAssistant` proposal-only patterns, optional RAG); explicit human acknowledgment before persistence; never auto-submit incident/CAPA/permit transitions.
 - **Observation follow-up SLA ladder:** SLA-backed follow-up chains (assignment, due dates, escalation tiers, optional CAPA/permit linkage) surfaced in dashboards and metric-friendly hooks aligned with cron observability—not LLM-mediated approval.
 - **Leading-indicator analytics:** Postgres-first aggregates in `analytics.*` for repeat hazards, overdue follow-ups, recurrence after CAPA, and related supervisory views; distinguish clearly from statutory/regulatory filings (see barriers table for OSHA agency export gaps).
 - **AI / RAG resilience:** timeouts, structured-output repair/retry where safe, visible failure UX, audit-friendly assistant failure telemetry alongside structured logging (`src/lib/logger.ts`).
@@ -63,6 +74,7 @@ Autonomous EHS is **Apache 2.0** software intended to stay **maintained and fork
 | Surface | Purpose |
 |---------|---------|
 | [CONTRIBUTING.md](CONTRIBUTING.md) | PR workflow, `npm run verify`, compliance templates |
+| [SUPPORT.md](SUPPORT.md) | Troubleshooting and issue routing |
 | [GOVERNANCE.md](GOVERNANCE.md) | Maintainers (`CODEOWNERS`), releases, security, forks |
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Expected behavior for contributors and partners |
 | [SECURITY.md](SECURITY.md) | Responsible disclosure |

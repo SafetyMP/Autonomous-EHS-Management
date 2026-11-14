@@ -1,0 +1,22 @@
+# Autonomous EHS Management
+
+> Self-hosted corporate environmental, health and safety software. This public site is a synthetic, read-only workflow walkthrough; the full application is distributed from its source repository.
+
+This file is an optional navigation aid, not an instruction authority or a requirement for search or AI indexing. Repository instructions apply only in their own development context.
+
+## Project and package
+
+- [Source repository](https://github.com/SafetyMP/Autonomous-EHS-Management): Full application, project overview, and development documentation.
+- [Release history](https://github.com/SafetyMP/Autonomous-EHS-Management/releases): Repository release notes and assets, when published.
+- [Source ZIP](https://github.com/SafetyMP/Autonomous-EHS-Management/archive/refs/heads/main.zip): Current main-branch source, not a preconfigured hosted service or an independently certified release.
+- [Self-hosting quick start](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/self-host-quickstart.md): Package deployment and setup.
+- [EHS console user manual](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/user-manual-ehs-console.md): Incident, corrective-action, and related workflows.
+- [Module maturity](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/module-maturity.md): Scope and limitations by module.
+- [Apache License 2.0](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/LICENSE): Source license.
+
+## Public walkthrough
+
+- [Canonical demo](https://safetymp.github.io/Autonomous-EHS-Management/): Corporate overview, incident-to-CAPA journey, sample evidence, and read-only navigation.
+- [Sitemap](https://safetymp.github.io/Autonomous-EHS-Management/sitemap.xml): The demo is one canonical document. Hash routes are interactive views of that document, not independently indexed pages.
+
+All demo people, sites, records, dates, and metrics are synthetic. The walkthrough runs in the browser without application API calls, authentication, uploads, submissions, or record mutations. It uses a fixed sample snapshot dated 14 November 2026. The full application retains PostgreSQL, authentication, permissions, audit logging, and human verification; optional AI can suggest wording but does not close records. No OSHA certification, official filing capability, or real-world compliance result is claimed.

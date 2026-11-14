@@ -2,6 +2,8 @@
 
 These `SKILL.md` files steer **persona**, **checklists**, and **repo-local sources of truth** for AI agents and humans. **Load the relevant skill at session start** when the user’s task matches its trigger (see each file’s intro).
 
+Start with [AGENTS.md](../../AGENTS.md), then retrieve the skill and current documentation needed for the task. Autonomous EHS has two artifacts: the full self-hosted corporate EHS application (`src/`, PostgreSQL, authentication, permissions) and a separate synthetic read-only Pages walkthrough (`demo/`, no backend). The DevEx local demo stack runs the full application; it is different from Pages. Current navigation and operator guidance are indexed in [docs/README.md](../../docs/README.md).
+
 | Skill | Path | When to use |
 |--------|------|-------------|
 | **Corporate compliance & data governance** | [corporate-compliance-data-governance/SKILL.md](corporate-compliance-data-governance/SKILL.md) | Retention, legal hold, PII/RAG, OSHA sidecar, Tier II schema, `compliance.*` API, `COMPLIANCE.md`, audit lifecycle |
@@ -18,8 +20,10 @@ These `SKILL.md` files steer **persona**, **checklists**, and **repo-local sourc
 | **Staff Release Engineer & GitOps Architect** | [staff-release-gitops-architect/SKILL.md](staff-release-gitops-architect/SKILL.md) | GitHub Actions/rulesets/Environments, OIDC deploy auth, semantic-release, Dependabot & supply-chain gates, attestations/`REPO_SETUP.md` — not app/RBAC/schema |
 | **DevEx Engineer** | [devex-engineer/SKILL.md](devex-engineer/SKILL.md) | Demo stack (Docker/pgvector, devcontainer), realistic seeds, `DEMO_*` / read-only sandbox, README quick starts, low-friction onboarding without weakening prod auth |
 | **Competitive intelligence & market analyst** | [competitive-intelligence-strategist/SKILL.md](competitive-intelligence-strategist/SKILL.md) | Repo-grounded competitive analysis, competitor landscape, feature gaps, engineering “attack vectors”; strict report format; web/GitHub recon |
-| **Site delivery** | [site-delivery/SKILL.md](site-delivery/SKILL.md) | Corporate handoff → ADR-scoped implementation, isolated writers, site gates (`verify.sh` / `adversarial.sh`) |
+| **Site delivery** | [site-delivery/SKILL.md](site-delivery/SKILL.md) | Historical corporate site-contract work when explicitly in scope; preserve handoff, ADR, isolated-writer, and evidence requirements |
 
 **Workspace rule:** [.cursor/rules/compliance-data-governance.mdc](../rules/compliance-data-governance.mdc) — requestable hook for complianceScope tasks. Site contract: [.cursor/rules/site-contract.mdc](../rules/site-contract.mdc).
 
-**Handbook:** [AGENTS.md](../../AGENTS.md) — site contract, contributor/CI gates, threat model, and this skills index.
+**Historical overlay:** [docs/factory-overlay.md](../../docs/factory-overlay.md) preserves the corporate site contract and evidence boundaries. Its presence does not activate archived harness tooling. Dated skill checklists, QA records, and screenshots are context; check current source and gates before claiming current behavior.
+
+**Handbook:** [AGENTS.md](../../AGENTS.md) — product/artifact boundaries, commands, Always / Ask first / Never, contributor/CI gates, threat model, and this skills index.

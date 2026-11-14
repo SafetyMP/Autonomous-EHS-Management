@@ -1,42 +1,47 @@
-## Summary
+## Problem and resulting behavior
 
--
-
-## Tracking
+Describe the user task or defect, then the behavior after this change. Link the issue and include relevant screenshots using synthetic data.
 
 - Fixes / refs:
-- Screenshots / Loom / deploy preview (optional):
+- Affected experience: full application / static walkthrough / documentation / deployment
 
----
+## Scope and boundaries
 
-## Verification (paste evidence)
+- [ ] Corporate navigation / overview / incident-to-CAPA journey
+- [ ] Other application UI
+- [ ] tRPC routers / server
+- [ ] Database schema / migrations
+- [ ] Authentication / organization scope / RBAC
+- [ ] Compliance / retention / RAG / AI gateway
+- [ ] Public synthetic walkthrough (`demo/`)
+- [ ] Documentation / discovery metadata
+- [ ] CI/CD / infrastructure
 
-| Check                         | Evidence (paste command output snippet or Actions run URL / job name) |
-| ----------------------------- | --------------------------------------------------------------------- |
-| `supply-chain-audit` job (CI) | ✅ / ⏭️                                                                  |
-| `npm run lint`                | ✅ / ⏭️                                                                  |
-| `npx tsc --noEmit`            | ✅ / ⏭️                                                                  |
-| `npm test` (Vitest)           | ✅ / ⏭️                                                                  |
-| `npm run test:e2e:smoke` @smoke | ✅ / ⏭️                                                                  |
-| Threat model (`check-threat-model.sh`, CI `e2e-smoke`) | ✅ / ⏭️ |
-| Adversarial (`./scripts/adversarial.sh`, CI `e2e-smoke`) | ✅ / ⏭️ |
+Explain relevant workflow, permission, deployment, or compatibility effects. For regulated changes, link the Compliance issue and state migration, rollback, retention, and audit impact. For walkthrough changes, confirm that examples remain synthetic and read-only.
 
-> PR authors must paste output or CI links for failing checks explaining why **skip** applies.
+## Verification evidence
 
----
+Record **passed**, **failed**, or **not run** with a reason and command output or Actions run link. Follow AGENTS.md for required checks; this table does not waive merge gates. Link results for the actual PR commit.
 
-## Areas touched
+| Check | Result and evidence |
+|---|---|
+| Lint, TypeScript, Vitest (`npm run verify`) | |
+| Repository checks (`./scripts/verify.sh`) | |
+| Applicable full-application integration / smoke browser tests | |
+| Applicable accessibility / responsive checks | |
+| Static walkthrough (`npx playwright test --config playwright.demo.config.ts`) when affected | |
+| Threat-model / adversarial checks when applicable | |
+| Supply-chain and other required CI jobs | |
+| Documentation links and documented setup changes when affected | |
 
-- [ ] Frontend / dashboards
-- [ ] tRPC routers / server (`src/server/`)
-- [ ] Database schema / migrations (`src/server/db/`, `drizzle/migrations/`)
-- [ ] Auth / RBAC (`src/lib/rbac.ts`, Better Auth flows)
-- [ ] Compliance / retention / RAG / AI gateway (see **`COMPLIANCE.md`** — link subsection)
-- [ ] CI/CD / infra only (`Dockerfile`, `deploy/k8s/`, `.github/workflows/`)
+## Review and deployment
 
-## Compliance acknowledgement
+- Independent review findings and resolution (for substantial changes):
+- Remaining limitations or follow-up work:
+- Deployment or external validation, if performed (otherwise state not performed):
 
-Use when any box under “regulated” areas applies:
+## Checklist
 
-- [ ] I linked the compliance issue and stated migration / rollback / retention impact.
-- [ ] No weakening of RBAC or audit trail intentionally introduced.
+- [ ] Existing authentication, organization scope, RBAC, and human approval boundaries are preserved, or authorized changes are explicitly described and tested.
+- [ ] Current documentation reflects changed behavior; historical evidence is identified as historical.
+- [ ] No secrets, personal data, or operational incident records are included.

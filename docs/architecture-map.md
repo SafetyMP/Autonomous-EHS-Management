@@ -10,7 +10,9 @@ This document answers **how the system works** for investors, operators, and ent
 
 ## 1. Product positioning (system of record)
 
-Autonomous EHS is designed as an **IMS-style system of record**: PostgreSQL holds authoritative state for incidents, CAPA, documents, training, internal audits, retention policy, and RAG metadata. **AI and assistants are non-authoritative** until outputs pass validation and are persisted through permission-gated tRPC procedures—see [CONTEXT.md § Security & compliance boundaries](../CONTEXT.md).
+Autonomous EHS is a **self-hosted corporate EHS application** and **IMS-style system of record**: PostgreSQL holds authoritative state for incidents, CAPA, documents, training, internal audits, retention policy, and RAG metadata. **AI and assistants are non-authoritative** until outputs pass validation and are persisted through permission-gated tRPC procedures—see [CONTEXT.md § Security & compliance boundaries](../CONTEXT.md).
+
+The [public GitHub Pages walkthrough](./github-pages-demo.md) is a separate read-only artifact with synthetic records. It has no authentication, operational API, or database. The architecture below describes the full application; people retain responsibility for investigation closure, approvals, and CAPA verification.
 
 ---
 
@@ -60,10 +62,10 @@ flowchart LR
 
 | Concern | Implementation | Notes |
 |---------|----------------|--------|
-| **Grouped sidebar** | [`src/lib/dashboard-nav-links.ts`](../src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`), rendered via [`dashboard-grouped-nav.tsx`](../src/components/dashboard-grouped-nav.tsx) | Lifecycle-oriented sections: **Today**, **Report & respond**, **Permits**, **Corrective action**, **Plan & programme**, **Assure & improve**, **Records & metrics**, **People**, **Administration**. |
-| **Role / layout filter** | [`src/lib/dashboard-nav-filter.ts`](../src/lib/dashboard-nav-filter.ts) | Field home hides **Administration** unless user is org admin or has `integration:read` / `audit_trail:read`; desk layout shows full nav. |
-| **Unified action queue** | [`tasks.actionQueue`](../src/server/trpc/routers/tasks.ts), [`actionQueueQuery.ts`](../src/server/services/tasks/actionQueueQuery.ts), [`actionQueue.ts`](../src/lib/tasks/actionQueue.ts) | Ranks approvals, owned CAPAs, training renewals, obligation reviews, and management reviews; deep-links include `/dashboard/capa/[capaId]`, `/dashboard/environment?obligation=`, `/dashboard/management-review?review=`. Hero on desk home and field **Pending for you** strip consume the same API—see [action-queue-dashboard-spec.md](./roadmap/action-queue-dashboard-spec.md). |
-| **CAPA detail & traceability** | [`/dashboard/capa/[capaId]`](../src/app/dashboard/capa/[capaId]/page.tsx), [`capa.get`](../src/server/trpc/routers/capa.ts) `sources`, [`capa-source-panel.tsx`](../src/components/dashboard/capa-source-panel.tsx) | Detail view exposes workflow stepper and schema-linked upstream records (incident, audit finding, obligation, etc.). |
+| **Grouped sidebar** | [`src/lib/dashboard-nav-links.ts`](../src/lib/dashboard-nav-links.ts) (`DASHBOARD_NAV_SECTIONS`), rendered via [`dashboard-grouped-nav.tsx`](../src/components/dashboard-grouped-nav.tsx) | Corporate work areas: **Overview**, **Actions & approvals**, **Incidents & observations**, **Audits & inspections**, **Programs & risks**, **Reports & evidence**, plus **Administration**. The current area expands automatically; navigation search uses destination names. |
+| **Role / layout filter** | [`src/lib/dashboard-nav-filter.ts`](../src/lib/dashboard-nav-filter.ts) | Field layout hides **Administration** and the program, emergency, and management-of-change routes unless the user is org admin or has `integration:read` / `audit_trail:read`; desk layout shows the full navigation. This presentation filter does not replace server RBAC. |
+| **Unified action queue** | [`tasks.actionQueue`](../src/server/trpc/routers/tasks.ts), [`actionQueueQuery.ts`](../src/server/services/tasks/actionQueueQuery.ts), [`actionQueue.ts`](../src/lib/tasks/actionQueue.ts) | Ranks approvals, owned CAPAs, training renewals, obligation reviews, and management reviews; deep-links include `/dashboard/capa/[capaId]`, `/dashboard/environment?obligation=`, `/dashboard/management-review?review=`. Corporate overview and field **Pending for you** strip consume the same API—see [action-queue-dashboard-spec.md](./roadmap/action-queue-dashboard-spec.md). |
+| **CAPA detail & traceability** | [`/dashboard/capa/[capaId]`](../src/app/dashboard/capa/[capaId]/page.tsx), [`capa.get`](../src/server/trpc/routers/capa.ts) `sources`, [`capa-source-panel.tsx`](../src/components/dashboard/capa-source-panel.tsx) | Detail view shows saved workflow status and schema-linked upstream records (incident, audit finding, obligation, etc.). Incident-linked actions expose a return to the source; incident title filters survive that journey. Status selection alone does not establish saved completion or verification. |
 | **Assurance hub** | [`/dashboard/assurance`](../src/app/dashboard/assurance/page.tsx) | Cross-links internal audits, CAPA register, CB audits, and certificates—terminology distinct from transactional **`audit_log`**. |
 | **Program registers (split routes)** | [`/dashboard/program`](../src/app/dashboard/program/page.tsx), [`/dashboard/emergency`](../src/app/dashboard/emergency/page.tsx), [`/dashboard/moc`](../src/app/dashboard/moc/page.tsx) | Program overview (KPIs, external parties); emergency scenarios/drills; management-of-change register and entity links. |
 
@@ -80,7 +82,7 @@ flowchart LR
 | **Permit to work** | [`permitTransitions.ts`](../src/lib/workflow/permitTransitions.ts) + [`permit` router](../src/server/trpc/routers/permit.ts) | User-driven `draft`/`pending_approval`/`active`/terminal moves; authorization to `active` is applied when the final approval step completes (see `decideRequest`). |
 | **Environmental regulatory permits** | [`environmentalRegulatoryPermit` router](../src/server/trpc/routers/environmentalRegulatoryPermit.ts) + UI [`/dashboard/environmental-permits`](../src/app/dashboard/environmental-permits/) | **Program register** (air/water/waste metadata, conditions, renewals)—distinct from PTW; links to monitoring/CAPA per schema; not claimed as agency filing ([COMPLIANCE.md](../COMPLIANCE.md)). |
 | **July 2026 regulatory pack (PoR)** | Heat NEP [`/dashboard/heat-program`](../src/app/dashboard/heat-program/page.tsx); chemicals [`/dashboard/chemicals`](../src/app/dashboard/chemicals/page.tsx); ISO aids on context / environment / MOC | Catalogs in [`src/lib/regulatory/`](../src/lib/regulatory/); `compliance.heatProgram` + `compliance.chemicalInventory`; posture docs in [`docs/regulatory/`](./regulatory/). Programme-of-record only — see [COMPLIANCE.md](../COMPLIANCE.md). |
-| **Risk assessments (ISO / JSA)** | [`planning.risk`](../src/server/trpc/routers/planning/riskRouter.ts) + [`risk_assessment` / `risk_assessment_step`](../src/server/db/schema.ts), roster [`/dashboard/risk-assessments`](../src/app/dashboard/risk-assessments/) | `assessment_kind` (`general`, `task_based`, `site_based`); task-based rows require steps; command center surfaces overdue `review_due_at` when the user has `risk:read`. |
+| **Risk assessments (ISO / JSA)** | [`planning.risk`](../src/server/trpc/routers/planning/riskRouter.ts) + [`risk_assessment` / `risk_assessment_step`](../src/server/db/schema.ts), roster [`/dashboard/risk-assessments`](../src/app/dashboard/risk-assessments/) | `assessment_kind` (`general`, `task_based`, `site_based`); task-based rows require steps; overview surfaces overdue `review_due_at` when the user has `risk:read`. |
 | **Safety observations** | [`observation` router](../src/server/trpc/routers/observation.ts) | `safety_observation` records (category, severity); optional **`assignee_user_id` / `follow_up_due_at`**; overdue follow-up → **`escalation_event`** (`entity_type` **`safety_observation`**) via cron; optional link to existing CAPA (`linkToCapa`). |
 | **Exception handling** | tRPC `TRPCError` + validators | `protectedProcedure` / `protectedMutation` in [`src/server/trpc/init.ts`](../src/server/trpc/init.ts); rate limits for sensitive paths. |
 
@@ -113,7 +115,7 @@ flowchart LR
 ## 7. Compliance evidence & retention design
 
 - **Retention services:** [`src/server/services/dataRetention.ts`](../src/server/services/dataRetention.ts) (incidents, **`safety_observation`**, **`work_permit`**, **`environmental_regulatory_permit`**, **`risk_assessment`** when `retain_until` populated per policy class), [`src/server/services/incidentRetentionDefault.ts`](../src/server/services/incidentRetentionDefault.ts) (default `retain_until` from org policy for incidents and program entities).
-- **Cron:** [`src/app/api/cron/data-retention/route.ts`](../src/app/api/cron/data-retention/route.ts) (scheduled in [`vercel.json`](../vercel.json)).
+- **Cron:** [`src/app/api/cron/data-retention/route.ts`](../src/app/api/cron/data-retention/route.ts) (scheduled by [`deploy/k8s/cronjob-data-retention.yaml`](../deploy/k8s/cronjob-data-retention.yaml), or optional Vercel configuration in [`vercel.json`](../vercel.json)).
 - **Policy & process:** [COMPLIANCE.md](../COMPLIANCE.md); org-facing procedures under `compliance.*` in tRPC.
 
 ---
@@ -148,9 +150,9 @@ flowchart LR
 
 - **Liveness + DB ping:** [`src/app/api/health/route.ts`](../src/app/api/health/route.ts) — `GET /api/health`.
 - **Cron run metrics (scrape):** [`src/app/api/cron/metrics/route.ts`](../src/app/api/cron/metrics/route.ts) — `GET /api/cron/metrics` returns Prometheus text or JSON rollups over `cron_job_run`; same `Bearer` `CRON_SECRET` gate as other cron handlers; intended for external monitoring/SLO dashboards (not a `vercel.json` scheduled path).
-- **Demo guard:** [`src/instrumentation.ts`](../src/instrumentation.ts) blocks `DEMO_MODE` on Vercel production.
+- **Startup guards:** [`src/lib/env.ts`](../src/lib/env.ts), loaded by [`src/instrumentation.ts`](../src/instrumentation.ts), validates non-development demo and rate-limit configuration. Production installations keep demo flags disabled and provide valid Upstash credentials, including when running the production image locally.
 
-For **deployment** topology (Vercel, Kubernetes, Docker), see [README.md](../README.md) (operators section summarizes §9–10), [`vercel.json`](../vercel.json), and [`.cursor/skills/devops-sre/SKILL.md`](../.cursor/skills/devops-sre/SKILL.md).
+For the **full application package and deployment** topology (Docker/GHCR, Kubernetes, optional provider hosting), see the [self-host quickstart](./self-host-quickstart.md) and [repository setup](../REPO_SETUP.md). [GitHub Pages publication](./github-pages-demo.md) is separate from application CI, container publication, and runtime acceptance.
 
 ---
 

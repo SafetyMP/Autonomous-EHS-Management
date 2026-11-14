@@ -173,7 +173,7 @@ function render(focus = false) {
   updateList();
   const areaName = navigation.find((item) => item.route === area)?.name || (area === "about" ? "About this demo" : "Workspace");
   document.getElementById("current-area").textContent = areaName;
-  document.title = `${main.querySelector("h1").textContent} · Autonomous EHS demo`;
+  document.title = area === "overview" ? "Autonomous EHS | Self-hosted corporate EHS software demo" : `${main.querySelector("h1").textContent} · Autonomous EHS demo`;
   refreshNavigation();
   if (dialog.open) dialog.close();
   if (focus) {

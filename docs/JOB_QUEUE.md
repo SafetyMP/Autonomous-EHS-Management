@@ -2,11 +2,13 @@
 
 This repo can move work off the HTTP request thread using **[pg-boss](https://github.com/timgit/pg-boss)** on PostgreSQL. Typed job names live in [`src/server/jobs/types.ts`](../src/server/jobs/types.ts); producers call [`getJobQueue()`](../src/server/jobs/queue.ts).
 
+These jobs belong to the full application. The [public read-only walkthrough](./github-pages-demo.md) has no database or background workers.
+
 ## Production job-model decision (D-004 / R-011)
 
 | Choice | Status |
 |--------|--------|
-| **Default production job model** | **HTTP cron** (`vercel.json` schedules and/or Kubernetes `CronJob` manifests hitting `/api/cron/*` with `CRON_SECRET`) |
+| **Default production job model** | **HTTP cron** (Kubernetes `CronJob` manifests or optional `vercel.json` schedules hitting `/api/cron/*` with `CRON_SECRET`) |
 | **Optional durable queue** | **pg-boss** when `PG_BOSS_ENABLED=true` **and** a long-lived `npm run job:worker` process runs against the same database |
 
 **Recorded decision (ADR-S-005):** HTTP cron is the lasting default for platform schedules (reminders, data-retention, integration-roster-reconcile). Enabling pg-boss is an **ops opt-in**, not assumed production-true. Before any “durable queue / autonomous-ops completeness” claim:

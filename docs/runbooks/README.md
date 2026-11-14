@@ -1,6 +1,8 @@
 # Operator runbooks
 
-Day-2 procedures for platform engineers and integration administrators. Pair with [self-host-quickstart.md](../self-host-quickstart.md) and [README operators section](../../README.md#operators-and-integrations-self-host).
+Day-2 procedures for platform engineers and integration administrators. Pair with [self-host-quickstart.md](../self-host-quickstart.md) and [repository deployment setup](../../REPO_SETUP.md).
+
+These runbooks operate the full authenticated application. The [GitHub Pages walkthrough](../github-pages-demo.md) has no database, cron jobs, or worker.
 
 | Runbook | When to use |
 |---------|-------------|
