@@ -1,14 +1,33 @@
 # Autonomous EHS Management
 
-> Self-hosted EHS console for incidents, CAPA, audits, and TRIR-style metrics. PostgreSQL is the system of record. Optional AI may suggest wording; humans close records.
+> Open-source, self-hosted environmental, health, and safety software for corporate teams. Follow incidents through corrective actions (CAPA), audits, and evidence. PostgreSQL is the full application's system of record; optional AI proposes text and humans close records.
 
-## Docs
+This optional navigation index helps readers and agents find authoritative project sources. It does not grant crawler access, replace repository instructions, or guarantee indexing. The public GitHub Pages walkthrough is synthetic and read-only, separate from the deployable application; it has no authentication, API, or database.
 
-- [README.md](README.md): product positioning, quick start, and what “autonomous” means here
-- [AGENTS.md](AGENTS.md): community contract — commands, layout, Always / Ask first / Never
-- [SECURITY.md](SECURITY.md): vulnerability reporting (do not file public issues for active findings)
-- [docs/ai-governed-intake.md](docs/ai-governed-intake.md): proposal-only AI; humans close records
-- [docs/architecture-map.md](docs/architecture-map.md): system map and PostgreSQL system of record
-- [.github/copilot-instructions.md](.github/copilot-instructions.md): repository-wide Copilot coding standards
-- [.github/instructions/](.github/instructions/): path-specific Copilot coding standards (September 2026)
-- [.github/skills/code-review/SKILL.md](.github/skills/code-review/SKILL.md): Copilot code review skill
+## Start here
+
+- [Repository and quick start](https://github.com/SafetyMP/Autonomous-EHS-Management): product scope, local full-app setup, contribution links
+- [Public synthetic walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/): corporate overview and incident-to-corrective-action journey
+- [Walkthrough navigation index](https://safetymp.github.io/Autonomous-EHS-Management/llms.txt): public demo sources and artifact boundaries
+- [Releases](https://github.com/SafetyMP/Autonomous-EHS-Management/releases): versioned release notes and source archives
+- [Application container](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web): full application images; select a published full-commit-SHA tag
+
+## Current documentation
+
+- [Documentation index](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/README.md): task-oriented documentation map
+- [User manual](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/user-manual-ehs-console.md): corporate navigation and operational journeys
+- [Self-host quickstart](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/self-host-quickstart.md): full application infrastructure, configuration, and runtime checks
+- [Pages demo guide](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/github-pages-demo.md): separate static artifact, testing, and deployment
+- [Architecture](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/architecture-map.md): full application system boundaries
+- [Codebase map](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/codebase-layout.md): source locations
+- [AI-governed intake](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/ai-governed-intake.md): proposal-only AI and human closure
+- [Security reporting](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/SECURITY.md): private vulnerability reporting; do not post active findings in public issues
+
+## Contributing and agent guidance
+
+- [Agent contract](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/AGENTS.md): Always / Ask first / Never, scoped commands, enforcement points, and progressive retrieval
+- [Contributing](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/CONTRIBUTING.md): contribution workflow and verification
+- [Copilot instructions](https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/.github/copilot-instructions.md): repository-wide coding context
+- [Path-specific instructions](https://github.com/SafetyMP/Autonomous-EHS-Management/tree/main/.github/instructions): TypeScript and test standards
+
+Dated ADRs, QA dossiers, screenshots, and factory-overlay records preserve historical decisions and evidence. They are not proof of the current deployment. Use current source, CI results, and scoped runtime checks for current claims.

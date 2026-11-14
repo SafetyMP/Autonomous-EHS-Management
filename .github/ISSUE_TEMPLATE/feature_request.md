@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Net-new capability (no regulated-data impact)
+about: Propose a capability or usability improvement
 title: "[feat]: "
 labels: ""
 assignees: ""
@@ -8,27 +8,34 @@ assignees: ""
 
 ## Problem statement
 
-What friction or gap does this solve?
+Which user role and EHS task does this serve? Describe the friction, including how the user currently completes the task.
+
+## Affected experience
+
+- [ ] Full authenticated application
+- [ ] Public synthetic walkthrough
+- [ ] Documentation / deployment / contributor experience
 
 ## Proposed solution
 
+Describe the desired behavior and how users would find it from the corporate navigation or relevant workflow.
 
 ## Acceptance criteria
 
+What observable result would show that the problem is resolved?
 
 ## Out of scope
 
 
-## UX / RBAC implications
+## Workflow / RBAC implications
 
-Which roles (`src/lib/rbac.ts`) does this touch, if any?
+Which roles (`src/lib/rbac.ts`), organization boundaries, approvals, or workflow transitions does this affect? The public walkthrough cannot perform operational writes or validate backend permissions.
 
-## Links
+## Links or evidence
 
-- Tracking issue:
+Use synthetic examples and remove personal or operational data.
 
----
+## Checklist
 
-**Checklist**
-
-- [ ] Does **not** change retention, legal hold, COMPLIANCE.md, RAG PII classification, OSHA sidecar/Tier II, or incident lifecycle without a **Compliance** issue (use that template).
+- [ ] I searched existing issues and the roadmap.
+- [ ] I will use a **Compliance** issue for changes to retention, legal hold, RAG PII classification, regulatory records, or incident/CAPA lifecycle behavior.

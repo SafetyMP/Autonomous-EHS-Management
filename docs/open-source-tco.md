@@ -17,11 +17,13 @@ Autonomous EHS is positioned as a **long-lived OSS product**, not a throwaway de
 
 Autonomous EHS optimizes for **tenant-owned infrastructure** and **predictable ops cost**:
 
-- **Application:** self-host (Docker/Kubernetes per [`deploy/k8s/`](../deploy/k8s/) and [`AGENTS.md`](../AGENTS.md)) or use managed hosts (e.g. Vercel) with your Postgres bill separated from per-user SaaS markup.
+- **Application:** self-host the [full Docker/GHCR application](./self-host-quickstart.md), or choose an optional managed infrastructure provider with your Postgres bill separated from per-user SaaS markup.
 - **Data:** PostgreSQL is the **system of record** — warehouse and BI tools read your database or exports; you are not locked into a vendor’s reporting SKU for basic program metrics.
 - **AI (optional):** proposals go through **permission-gated** procedures and **Zod** validation; smaller models and optional **local / VPC** intake paths reduce inference spend vs “always GPT-4” defaults (see [`docs/ai-governed-intake.md`](./ai-governed-intake.md)).
 
 This is **not** “free forever with zero ops”: you still fund compute, backups, monitoring, IAM, and support for the people using the system.
+
+The [public read-only walkthrough](./github-pages-demo.md) is a separate static artifact with synthetic data. Its hosting does not provide or price the operational application.
 
 ## Illustrative seat-cost comparison (inspection-first SaaS)
 

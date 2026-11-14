@@ -128,7 +128,7 @@ flowchart TB
 
 - **HRIS integration** = identity, roster, site assignment (who works where).
 - **Context Sync / MCP** = agent read access to compliance artifacts (what the system knows).
-- **Cursor MCP** = how engineers deploy and operate the SaaS — not a PortCo adoption path.
+- **Cursor MCP** = optional engineering tools for operating the self-hosted application — not a PortCo adoption path.
 
 ---
 

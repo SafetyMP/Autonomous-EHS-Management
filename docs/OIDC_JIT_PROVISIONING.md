@@ -8,7 +8,7 @@ This is **not legal or IAM policy** for your enterprise. Work with **Identity, H
 
 ## What it does
 
-When **`OIDC_JIT_ENABLED=true`** and **`OIDC_JIT_DEFAULT_ORG_ID`** point to an existing organization, users who sign in with the configured **Generic OAuth** provider (see README Enterprise SSO) can receive a **membership** row linking them to that org and role **if they do not already have one** in that org.
+When **`OIDC_JIT_ENABLED=true`** and **`OIDC_JIT_DEFAULT_ORG_ID`** point to an existing organization, users who sign in with the configured **Generic OAuth** provider (configured in [`src/server/auth.ts`](../src/server/auth.ts)) can receive a **membership** row linking them to that org and role **if they do not already have one** in that org.
 
 Email/password users are **not** auto-linked (no matching `account.provider_id` for the OIDC provider).
 
@@ -20,7 +20,7 @@ Email/password users are **not** auto-linked (no matching `account.provider_id` 
 | `OIDC_JIT_DEFAULT_ORG_ID` | UUID of an **existing** `organization` row. |
 | `OIDC_JIT_ROLE_SLUG` | Optional; defaults to `admin`. Role must exist under that org. |
 
-You must still configure **`OIDC_DISCOVERY_URL`**, **`OIDC_CLIENT_ID`**, **`OIDC_CLIENT_SECRET`**, and optional **`OIDC_PROVIDER_ID`** for SSO per README.
+You must still configure **`OIDC_DISCOVERY_URL`**, **`OIDC_CLIENT_ID`**, **`OIDC_CLIENT_SECRET`**, and optional **`OIDC_PROVIDER_ID`** for SSO; the validated configuration contract is [`src/lib/env.ts`](../src/lib/env.ts).
 
 ## Multi-org claim rules (PortCo)
 

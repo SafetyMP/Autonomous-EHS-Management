@@ -7,10 +7,10 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Autonomous EHS — ISO 45001- & 14001-style IMS",
+    name: "Autonomous EHS — Corporate EHS Console",
     short_name: "EHS Console",
     description:
-      "Installable web EHS Console — incident, CAPA, and environmental management with human approval for material changes. Responsive progressive web; not a native mobile store app.",
+      "Corporate EHS Console for incidents, corrective actions, audits, and environmental programmes. Installable web application with role-based access and human approval.",
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",

@@ -108,5 +108,14 @@
     "esbuild@0.18": "0.25.12",
     "handlebars": "^4.7.10",
     "minimatch": "^11.0.3"
-  }
+  },
+  "description": "Self-hosted corporate EHS software for incidents, corrective actions, audits, and safety reporting, with a separate synthetic GitHub Pages walkthrough.",
+  "keywords": [
+    "ehs",
+    "environmental-health-and-safety",
+    "incident-management",
+    "capa",
+    "safety-management",
+    "self-hosted"
+  ]
 }

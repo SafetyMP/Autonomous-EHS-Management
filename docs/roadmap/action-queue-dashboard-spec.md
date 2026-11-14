@@ -4,6 +4,8 @@
 **Addresses:** CTO feedback on information density and “visual dashboard highlighting next action.”  
 **Related:** [workflow-depth.md](../workflow-depth.md) §5, [commandCenterSignals.ts](../../src/lib/dashboard/commandCenterSignals.ts), [staging-uat-desk-to-field.md](../qa/staging-uat-desk-to-field.md), [architecture-map.md](../architecture-map.md) §2a.
 
+**Navigation context:** This spec preserves the original problem statement and wireframes. The corporate redesign is documented in [ADR-UX-008](../adr/ADR-UX-008-corporate-navigation.md) and the [current user manual](../user-manual-ehs-console.md). The shared `tasks.actionQueue` API remains part of the application; historical screen descriptions below are not the current navigation contract.
+
 ---
 
 ## 1. Problem statement

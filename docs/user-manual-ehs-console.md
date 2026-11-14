@@ -2,6 +2,8 @@
 
 Welcome to **EHS Console**—the signed-in experience for **Autonomous EHS**, an integrated management system (IMS) for health, safety, and environment programs. This guide helps corporate EHS users, safety managers, and field workers find and complete their work.
 
+This manual describes the **full authenticated application**. The [public read-only walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/) uses synthetic examples and has no sign-in, record editing, approvals, or uploads. Deploy the application with the [self-host guide](./self-host-quickstart.md) to use operational workflows.
+
 **Naming:** **Autonomous EHS** is the product and repo name; **EHS Console** is what you see after sign-in. **Autonomous** means scheduled reminders, escalations, and optional field outbox replay—not automatic approval of incidents or CAPAs.
 
 **Navigation revision (2026-11-14):** This guide describes the corporate redesign in [ADR-UX-008](./adr/ADR-UX-008-corporate-navigation.md). Its work-area names supersede **Today / Capture / Decide / Prove** and the older secondary groups. Existing route URLs, permissions, and record workflows remain unchanged; this documentation does not claim customer usability validation.
@@ -218,7 +220,7 @@ Choose **Overview** to open `/dashboard`. In desk layout the heading reads **Cor
 
 The overview shows four concise measures: **Open incidents**, **Overdue corrective actions**, **Open audit findings** (open nonconformances), and **Your pending approvals**. They use the existing permission-scoped snapshot. **0** means an actual zero; **— / Not available in this view** means a measure is unavailable, including when your permissions do not expose it. A snapshot failure is reported rather than presented as completed work.
 
-A **installable web** strip (**Install EHS Console on this device**) may appear on supported browsers—an optional home-screen shortcut (progressive web), not a native App Store or Play Store app.
+An **installable web** strip (**Install EHS Console on this device**) may appear on supported browsers—an optional home-screen shortcut (progressive web), not a native App Store or Play Store app.
 
 ### What's new banner
 
@@ -582,7 +584,7 @@ Named approvers and deputies who must authorize CAPA plans, permit work, or inci
 ### SOP — Review and decide
 
 1. Under **Actions & approvals**, open **Approvals**.
-2. Page title **My approvals**; subtitle *Pending serial steps assigned to you. Decisions are written to the audit trail.* For read-only browsing of transactional events organisation-wide (with filters), coordinators with access open **Reports & evidence** → **Audit trail** → **[System audit trail](#system-audit-trail)—not ISO **Audits**.
+2. Page title **My approvals**; subtitle *Pending serial steps assigned to you. Decisions are written to the audit trail.* For read-only browsing of transactional events organisation-wide (with filters), coordinators with access open **Reports & evidence** → **Audit trail** → **[System audit trail](#system-audit-trail)**—not ISO **Audits**.
 3. Scan the table (**Item**, **Type**, **Due**, **Requested**, **Actions**). Item types include **CAPA plan**, **Work permit**, and **Incident** labels.
 4. Tap **Review** on your row. Optionally enter **Comment (optional)**.
 5. Submit the correct button: **Approve plan** (CAPA), **Authorize work** (work permit), **Approve** (incident), or **Reject**. Use **Cancel** to close the panel without deciding.

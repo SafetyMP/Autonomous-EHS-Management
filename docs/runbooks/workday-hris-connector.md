@@ -34,7 +34,7 @@
 
 | Symptom | Likely cause | Action |
 |---------|--------------|--------|
-| 401 Unauthorized | Wrong inbound secret | Rotate secret in Vercel/env + iPaaS |
+| 401 Unauthorized | Wrong inbound secret | Rotate secret in the application deployment secret store + iPaaS |
 | Invalid siteId | Location not mapped | Fix site UUID or iPaaS lookup table |
 | Role not found | SCIM default role slug missing in org | Seed role or update SCIM config |
 | Drift persists | Snapshot not ingested | POST `roster_snapshot` batch nightly |
@@ -42,4 +42,4 @@
 ## Production promote
 
 - Enable operational webhook `integration.processing_failed`
-- Schedule nightly `roster_snapshot` + Vercel cron `GET /api/cron/integration-roster-reconcile` (or pg-boss `integration.reconcileRoster` via `npm run job:worker`)
+- Schedule nightly `roster_snapshot` + an authenticated HTTP cron for `GET /api/cron/integration-roster-reconcile` (Kubernetes `CronJob` or optional Vercel scheduler) (or pg-boss `integration.reconcileRoster` via `npm run job:worker`)

@@ -1,42 +1,47 @@
+# Project context
+
 ## Project identity
 
-**Autonomous EHS Management System** — Next.js IMS-style application with ISO-aligned domains (incidents, CAPA, documents, audits, obligations, planning, training, RAG-assisted context). PostgreSQL via Drizzle is the **single system of record** for regulated state; client and LLM outputs are never authoritative until validated and persisted through approved procedures.
+**Autonomous EHS Management** is Apache-2.0, self-hosted corporate environmental, health and safety software. The core journey is a corporate overview and shared navigation into incident investigation, linked corrective actions (CAPA), approvals, and human verification. PostgreSQL via Drizzle is the system of record; client and AI outputs become authoritative only through validated, permission-gated server procedures.
 
-**Naming / “autonomous”:** externally, autonomy is **deterministic program automation** (cron/SLA escalation paths, integrations, outbox replay) plus **human-validated assistive AI**—not LLM-owned workflow transitions. See [docs/procurement-readiness.md](docs/procurement-readiness.md) and [docs/ai-governed-intake.md](docs/ai-governed-intake.md).
+There are two distinct deliverables:
 
-## Mandatory reading order (before any PR)
+- **Full application:** Next.js in `src/`, Better Auth, server-side RBAC, PostgreSQL, migrations, and optional integrations. Distributed as source releases and a GHCR container for operator-managed deployment.
+- **Public walkthrough:** static `demo/` files deployed to [GitHub Pages](https://safetymp.github.io/Autonomous-EHS-Management/), with synthetic read-only examples. It has no application backend, authentication, or operational persistence. See [demo scope](docs/github-pages-demo.md).
 
-1. [AGENTS.md](AGENTS.md) — verification commands (`npm run verify`, smoke E2E).
-2. [.cursor/rules/ehs-ims-conventions.mdc](.cursor/rules/ehs-ims-conventions.mdc).
-3. This CONTEXT.md — stack, naming, boundaries, anti-patterns.
-4. [docs/README.md](docs/README.md) — documentation index; [docs/codebase-layout.md](docs/codebase-layout.md) — `src/` directory map.
-5. **Compliance- or retention-affecting changes:** [`.cursor/skills/corporate-compliance-data-governance/SKILL.md`](.cursor/skills/corporate-compliance-data-governance/SKILL.md) and [COMPLIANCE.md](COMPLIANCE.md); requestable rule [`.cursor/rules/compliance-data-governance.mdc`](.cursor/rules/compliance-data-governance.mdc).
-6. Cursor skill **context-guardian** — [`.cursor/skills/context-guardian/SKILL.md`](.cursor/skills/context-guardian/SKILL.md): architecture and documentation-only (“Context Guardian”) sessions; use for Memory Bank structures, Mermaid system views, and governance prose without shipping app code.
-7. **Enterprise packaging & diligence (keep aligned when boundaries change):** [docs/architecture-map.md](docs/architecture-map.md) (end-to-end map, integrations stub, retention/RBAC pointers), [docs/workflow-depth.md](docs/workflow-depth.md) (incident/CAPA transitions, `audit_log` scope), [docs/procurement-readiness.md](docs/procurement-readiness.md) (positioning, ROI template, pilot/moat narrative), [docs/procurement-integrations-appendix.md](docs/procurement-integrations-appendix.md) (HRIS limits, Context Sync vs MCP), [docs/approval-workflow.md](docs/approval-workflow.md) (CAPA approval gate).
+**Naming / “autonomous”:** deterministic program automation (scheduled escalation paths, integrations, outbox replay) plus human-validated assistive AI. People retain approval and closure authority. No certification, automatic regulatory judgment, or agency filing capability is implied. The former Vercel public demo is deprecated; it is not the supported public walkthrough.
 
-## Tech stack (pin from package.json — bump only with coordinated churn)
+## Reading order
 
-| Layer | Package / runtime | Notes |
-|------|-------------------|--------|
-| Runtime | Node engines `>=22 <23` | Match CI/deploy images. |
-| Framework | Next.js **16.2.4** | App Router — prefer RSC-first; `'use client'` only where hooks/browser APIs required. |
-| UI | React **19.2.5**, React DOM **19.2.5** | Server Component default boundary. |
-| Styling | Tailwind **^4**, PostCSS `@tailwindcss/postcss` **^4** | Token/theme in globals — avoid inline magic hex in new flows where tokens exist. |
-| API | **tRPC** `@trpc/server` / `@trpc/client` / `@trpc/react-query` **11.17.x** | All domain mutations/queries typed end-to-end. |
-| Serialization | superjson **2.2.x** | Configured both server init and HTTP link. |
-| Data | Drizzle ORM **0.45.x**, drizzle-kit **0.31.x** | Schema in `src/server/db/schema.ts`; always generate migrations. |
-| DB driver | `@neondatabase/serverless` **^1.x** | Serverless Postgres connectivity. |
-| Auth | better-auth **1.6.x** | Sessions via existing routes — do not reshape session JWT/cookies without coordinated test updates. |
-| Validation / env | zod **4.x**, `@t3-oss/env-nextjs` **^0.13** | Typed env boundaries in `src/lib/env.ts`. |
-| Client cache | `@tanstack/react-query` **5.100.x** | Default staleTime in provider — invalidate explicitly on mutations. |
-| Rate limits | `@upstash/ratelimit`, `@upstash/redis` **2.x / 1.x** | Sensitive **tRPC** paths via **`protectedMutation`**/`rateLimitOrThrow`; **`/api/contextsync/*`** shares the sliding window via **`rateLimitContextSyncResponse`** ([`src/server/ratelimit.ts`](src/server/ratelimit.ts)). |
-| Config | `@vercel/config` **^0.1.x** (`vercel.json`) | Prefer over duplicate `vercel.json`. |
-| Test | Vitest **4.x**, Playwright **1.59.x**, jsdom **29.x**, `@vitejs/plugin-react` **6.x** | Unit + smoke E2E are merge gates. |
-| Lint / types | ESLint **9.x**, eslint-config-next **16.2.4**, TypeScript **^5.x** | `tsc --noEmit` in verify. |
+1. [README.md](README.md) for product scope and setup; [AGENTS.md](AGENTS.md) for contributor and agent verification requirements.
+2. This file for boundaries and source entry points; [docs/codebase-layout.md](docs/codebase-layout.md) for the directory map.
+3. Retrieve the relevant material from [docs/README.md](docs/README.md) for the task. Start with [workflow depth](docs/workflow-depth.md) and [approval workflow](docs/approval-workflow.md) for incident/CAPA changes, or [architecture](docs/architecture-map.md) and [self-hosting](docs/self-host-quickstart.md) for deployment work.
+4. For compliance or retention changes, read [COMPLIANCE.md](COMPLIANCE.md) and [contribution requirements](CONTRIBUTING.md). For integration changes, read [the integrations appendix](docs/procurement-integrations-appendix.md).
 
-## Planned subsystems (scaffold — not full product)
+The repository also carries [Cursor conventions](.cursor/rules/ehs-ims-conventions.mdc) and [editor skills](.cursor/skills/README.md). They are supporting resources; contributors do not need a specific editor or hosted agent service.
 
-Cross-reference [ROADMAP.md](ROADMAP.md). **OIDC JIT:** [`docs/OIDC_JIT_PROVISIONING.md`](docs/OIDC_JIT_PROVISIONING.md), [`src/server/services/oidcJitProvisioning.ts`](src/server/services/oidcJitProvisioning.ts), session hook in [`src/server/auth.ts`](src/server/auth.ts). **Job queue:** [`src/server/jobs/`](src/server/jobs/), [`docs/JOB_QUEUE.md`](docs/JOB_QUEUE.md). **Terraform remote state:** [`docs/terraform-remote-state.md`](docs/terraform-remote-state.md). **DSAR intake:** `data_subject_request` table, `compliance.dsar.*`, [`/dashboard/privacy-requests`](src/app/dashboard/privacy-requests/page.tsx). **OSHA agency export:** placeholder only — [`src/lib/regulatory/oshaAgencyExportScaffold.ts`](src/lib/regulatory/oshaAgencyExportScaffold.ts), `compliance.regulatoryOsha.agencyExportPlaceholder`. **Governed AI / intake assistants:** [`docs/ai-governed-intake.md`](docs/ai-governed-intake.md). **Offline field outbox:** [`docs/offline-field-outbox.md`](docs/offline-field-outbox.md), [`src/components/field-outbox-global-sync.tsx`](src/components/field-outbox-global-sync.tsx).
+## Tech stack
+
+[package.json](package.json), [package-lock.json](package-lock.json), and [.nvmrc](.nvmrc) are the dependency and runtime authorities. Read their current pins before changing the stack; do not infer a supported dependency version from historical documentation.
+
+| Layer | Technology | Boundary |
+|---|---|---|
+| Runtime | Node.js 22, npm 10.9.2 | Match declared engines, CI, and container runtime. |
+| Application | Next.js App Router, React | Server Components by default; client boundaries where hooks or browser APIs require them. |
+| Styling | Tailwind CSS and shared tokens | Reuse existing theme and dashboard primitives. |
+| API | tRPC with superjson | Typed server procedures enforce organization scope and permissions. |
+| Data | PostgreSQL, Drizzle ORM and migrations | Schema in `src/server/db/schema.ts`; database changes need reviewed SQL migrations. |
+| Drivers | Neon serverless or `pg` | Follow the configured environment; local Docker setup uses `DATABASE_USE_PG=1`. |
+| Authentication | Better Auth | Preserve session shape, cookie policy, and server authorization checks. |
+| Validation | Zod and typed environment configuration | Validate at trust boundaries in existing server patterns. |
+| Client cache | TanStack Query | Invalidate affected queries after successful mutations. |
+| Rate limiting | Upstash Redis and rate limit helpers | Preserve protected tRPC and Context Sync budgets; use [deployment requirements](docs/self-host-quickstart.md). |
+| Verification | ESLint, TypeScript, Vitest, Playwright | Full application and static demo have separate browser configurations. |
+| Public walkthrough | Static HTML, CSS, JavaScript | Publish only `demo/`; no database, secrets, or API connections. |
+
+## Optional subsystems and scaffolds
+
+Use [docs/module-maturity.md](docs/module-maturity.md) for current maturity and [ROADMAP.md](ROADMAP.md) for direction. These subsystems have separate enablement and readiness requirements; a source implementation is not evidence of an operator deployment. **OIDC JIT:** [`docs/OIDC_JIT_PROVISIONING.md`](docs/OIDC_JIT_PROVISIONING.md), [`src/server/services/oidcJitProvisioning.ts`](src/server/services/oidcJitProvisioning.ts), session hook in [`src/server/auth.ts`](src/server/auth.ts). **Job queue:** [`src/server/jobs/`](src/server/jobs/), [`docs/JOB_QUEUE.md`](docs/JOB_QUEUE.md). **Terraform remote state:** [`docs/terraform-remote-state.md`](docs/terraform-remote-state.md). **DSAR intake:** `data_subject_request` table, `compliance.dsar.*`, [`/dashboard/privacy-requests`](src/app/dashboard/privacy-requests/page.tsx). **OSHA agency export:** placeholder only — [`src/lib/regulatory/oshaAgencyExportScaffold.ts`](src/lib/regulatory/oshaAgencyExportScaffold.ts), `compliance.regulatoryOsha.agencyExportPlaceholder`. **Governed AI / intake assistants:** [`docs/ai-governed-intake.md`](docs/ai-governed-intake.md). **Offline field outbox:** [`docs/offline-field-outbox.md`](docs/offline-field-outbox.md), [`src/components/field-outbox-global-sync.tsx`](src/components/field-outbox-global-sync.tsx).
 
 Use this section when navigating procedure paths or onboarding agents. **Always register** top-level routers in [`src/server/trpc/root.ts`](src/server/trpc/root.ts).
 
@@ -89,9 +94,9 @@ Shipped programme-of-record surfaces (not agency SoR / not CB certification). Ca
 |-------|---------|
 | [`src/app/api/trpc/[trpc]/route.ts`](src/app/api/trpc/[trpc]/route.ts) | tRPC HTTP adapter |
 | [`src/app/api/auth/[...all]/route.ts`](src/app/api/auth/[...all]/route.ts) | better-auth |
-| [`src/app/api/cron/reminders/route.ts`](src/app/api/cron/reminders/route.ts) | Scheduled reminders (`vercel.json` cron) |
-| [`src/app/api/cron/data-retention/route.ts`](src/app/api/cron/data-retention/route.ts) | Data retention cron (`vercel.json` cron): incidents plus program records (`safety_observation`, `work_permit`) when `retain_until` set |
-| [`src/app/api/cron/metrics/route.ts`](src/app/api/cron/metrics/route.ts) | Prometheus or JSON rollup of `cron_job_run` rows; `Authorization: Bearer <CRON_SECRET>` (pull/scrape for SLO dashboards — not scheduled in [`vercel.json`](vercel.json) `crons`) |
+| [`src/app/api/cron/reminders/route.ts`](src/app/api/cron/reminders/route.ts) | Scheduled reminders (operator-managed scheduler; authenticated endpoint) |
+| [`src/app/api/cron/data-retention/route.ts`](src/app/api/cron/data-retention/route.ts) | Data retention endpoint (operator-managed scheduler): incidents plus program records (`safety_observation`, `work_permit`) when `retain_until` set |
+| [`src/app/api/cron/metrics/route.ts`](src/app/api/cron/metrics/route.ts) | Prometheus or JSON rollup of `cron_job_run` rows; `Authorization: Bearer <CRON_SECRET>` (operator pull/scrape for SLO dashboards) |
 | [`src/app/api/contextsync/`](src/app/api/contextsync/) | Context Sync REST (session + `human:{user}` actor binding; rate-limited JSON — see [REST Context Sync](#rest-context-sync-open-protocol-subset)) |
 | [`src/app/api/evidence-upload-stub/route.ts`](src/app/api/evidence-upload-stub/route.ts) | Evidence upload stub |
 | [`src/proxy.ts`](src/proxy.ts) | Matcher gate for `/dashboard/*`, `/sign-in`, `/sign-up` via [`dashboard-auth-gate`](src/lib/dashboard-auth-gate.ts) — risky to change without updating [`tests/unit/middleware-auth-gate.test.ts`](tests/unit/middleware-auth-gate.test.ts) |
@@ -133,7 +138,8 @@ Shipped programme-of-record surfaces (not agency SoR / not CB certification). Ca
 
 ```bash
 npm run verify           # eslint + tsc + vitest
-npm run verify:all       # add Playwright smoke
+npm run verify:all       # add full-application Playwright smoke
+npx playwright test --config playwright.demo.config.ts  # static walkthrough
 ```
 
 **Staging / business UAT:** [docs/qa/staging-uat-desk-to-field.md](docs/qa/staging-uat-desk-to-field.md).
@@ -156,7 +162,8 @@ Do not weaken smoke tests in `tests/e2e/smoke/` to green CI.
 ## Modular work guidance for coding agents
 
 - Touch **one router file** plus **matching UI route** unless cross-cutting infra.
-- **Dashboard UI (Calm Focus):** Sole shell + task modes Today / Capture / Decide / Prove. Desk Today keeps **Your work** first; KPIs and secondary clusters use progressive disclosure (`#main-content` = page children only). Reuse primitives under [`src/components/dashboard/`](src/components/dashboard/); tokens/chrome in [`src/app/globals.css`](src/app/globals.css). Nav: [`dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) + [`dashboard-nav-filter.ts`](src/lib/dashboard-nav-filter.ts). UX package: [`docs/qa/calm-focus-final-dossier.md`](docs/qa/calm-focus-final-dossier.md). Update the user manual and staging UAT docs when adding or renaming routes. Density/a11y/visual Playwright projects are documented in [AGENTS.md](AGENTS.md).
+- **Corporate dashboard:** Shared navigation groups Overview, Actions & approvals, Incidents & observations, Audits & inspections, Programs & risks, and Reports & evidence, with Administration separate. Preserve existing routes, permission filters, and incident-to-CAPA continuity. Reuse [`dashboard/` primitives](src/components/dashboard/) and [theme tokens](src/app/globals.css); navigation lives in [`dashboard-nav-links.ts`](src/lib/dashboard-nav-links.ts) and [`dashboard-nav-filter.ts`](src/lib/dashboard-nav-filter.ts). Update the [user manual](docs/user-manual-ehs-console.md) when routes or labels change. Earlier Calm Focus / Today / Capture / Decide / Prove reports describe a historical navigation design, not the current information architecture.
+- **Static walkthrough:** Keep `demo/` synthetic and read-only. Validate navigation, responsive behavior, and accessibility with [`playwright.demo.config.ts`](playwright.demo.config.ts); never weaken application auth or permissions to support the walkthrough.
 - **Planning IMS**: Extend [`src/server/trpc/routers/planning/`](src/server/trpc/routers/planning/) (sub-router file + [`index.ts`](src/server/trpc/routers/planning/index.ts) registration) rather than stuffing unrelated domains into `planning`.
 - Prefer **pure helpers** (`src/lib/workflow/*.ts`) for transition tables — keep procedures thin delegates.
 - When adding migrations: **`schema.ts` → `npm run db:generate` → review SQL → commit** under `drizzle/migrations/`.

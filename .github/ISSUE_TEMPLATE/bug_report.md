@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Describe a reproducible defect
+about: Report a reproducible problem in the application, walkthrough, or documentation
 title: "[bug]: "
 labels: ""
 assignees: ""
@@ -8,13 +8,25 @@ assignees: ""
 
 ## Summary
 
-What went wrong?
+What went wrong, and which task were you trying to complete?
+
+For vulnerabilities, follow SECURITY.md instead of opening a public issue. Use synthetic records; remove credentials, tokens, personal information, and operational incident data from all examples.
+
+## Affected experience
+
+- [ ] Public GitHub Pages walkthrough (synthetic, read-only)
+- [ ] Full application running locally
+- [ ] Full application deployed from source or container
+- [ ] Documentation or CI
 
 ## Environment
 
-- [ ] Local (`npm run dev`)
-- [ ] CI (link workflow run URL)
-- [ ] Staging / production (hosting provider)
+- Release tag, full commit SHA, or container digest:
+- Affected route / page:
+- Browser and operating system:
+- Node/npm versions or deployment method (if applicable):
+- User role and organization/site context (no personal identifiers):
+- Workflow run URL (for CI failures):
 
 ## Steps to reproduce
 
@@ -27,17 +39,16 @@ What went wrong?
 ## Actual behavior
 
 
-## Screenshots / logs
+## Sanitized screenshots / logs
 
 
 ## Links
 
-- Related PR (if any):
-- Related commits / deployments:
+- Related issue or PR:
+- Relevant deployment or workflow run:
 
----
-
-**Checklist (required)**
+## Checklist
 
 - [ ] I searched existing issues for duplicates.
-- [ ] I can reproduce on the branch / commit cited above.
+- [ ] I identified the version or environment where I reproduced the problem.
+- [ ] This report contains no secrets or operational/personal data.

@@ -4,7 +4,7 @@ This guide explains how **Cursor IDE tool connections** (including MCP servers) 
 
 ## Public walkthrough versus application deployment
 
-The public demo target is [GitHub Pages](https://SafetyMP.github.io/Autonomous-EHS-Management/), serving synthetic static examples from `demo/` through [the Pages workflow](../.github/workflows/pages-demo.yml). It has no application server, sign-in, or PostgreSQL connection. See [demo setup and scope](./github-pages-demo.md). The previous Vercel public demo is deprecated; existing Vercel operator instructions below apply only when a team explicitly chooses Vercel for the full application.
+The live public read-only walkthrough is on [GitHub Pages](https://safetymp.github.io/Autonomous-EHS-Management/), serving synthetic static examples from `demo/` through [the Pages workflow](../.github/workflows/pages-demo.yml). It has no application server, sign-in, or PostgreSQL connection. See [demo setup and scope](./github-pages-demo.md). The previous Vercel public demo is deprecated; existing Vercel operator instructions below apply only when a team explicitly chooses Vercel for the full application.
 
 ## Canonical deployment (system of truth)
 
@@ -13,8 +13,9 @@ Full-application production and staging deployments use the existing package and
 | Path | Artifact |
 |------|----------|
 | CI / merge verification | `.github/workflows/ci.yml` (`npm run verify`, smoke E2E) |
+| Public walkthrough | `.github/workflows/pages-demo.yml` → static `demo/` artifact only |
 | Container image | CI job `publish` in `.github/workflows/ci.yml` → GHCR |
-| Controlled promotion | `.github/workflows/cd-promote-production.yml` — GitHub Environment **`production`**, optional Vercel prebuilt + EKS rollout |
+| Controlled promotion | `.github/workflows/cd-promote-production.yml` — GitHub Environment **`Production`**, optional Vercel prebuilt + EKS rollout |
 | Contracts | `src/lib/env.ts`, `vercel.json`, `deploy/k8s/` |
 
 **Cursor MCP and related connections do not replace** OAuth to GitHub, `VERCEL_TOKEN`, AWS IAM OIDC, or kubernetes RBAC—they are ergonomics layered on those systems.

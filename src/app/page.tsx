@@ -14,12 +14,12 @@ export default function HomePage() {
             Autonomous EHS
           </p>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Programme operations for ISO 45001- &amp; ISO 14001-style management systems
+            Corporate safety, from incident to verified corrective action
           </h1>
           <p className="text-lg leading-relaxed text-foreground sm:text-base">
-            Incident tracking, CAPA, environmental obligations, audits, and role-based access—with
-            scheduled reminders, integration ingest, and optional proposal-only AI. Material changes
-            require human approval through normal workflows (not silent automation).
+            Give corporate teams a shared view of incidents, corrective and preventive actions (CAPA),
+            environmental obligations, and audits. Run the application on your own infrastructure
+            with role-based access and human approval for material changes.
           </p>
           <p className="text-sm leading-relaxed text-text-muted">
             <strong className="text-foreground">Autonomous</strong> here means operations keep moving
@@ -50,8 +50,8 @@ export default function HomePage() {
             What&apos;s in the console
           </h2>
           <p className="mt-2 text-center text-sm text-text-muted">
-            Lifecycle navigation and new program hubs for assurance, emergency prep, and change
-            management.
+            A corporate overview, grouped work areas, and a connected incident-to-corrective-action
+            journey help teams find priorities and follow through.
           </p>
           <ul className="mt-6 grid gap-4 sm:grid-cols-2" role="list">
             {HOME_FEATURE_HIGHLIGHTS.map((item) => (
@@ -74,16 +74,16 @@ export default function HomePage() {
           </h2>
           <ul className="mt-3 space-y-2 text-sm text-text-muted" role="list">
             <li>
-              <strong className="text-foreground">Self-host IT</strong> — tenant-owned Postgres,
-              predictable infra, data residency in your cloud account.
+              <strong className="text-foreground">Corporate EHS teams</strong> — review priorities,
+              assign corrective actions, and follow evidence through verification.
             </li>
             <li>
-              <strong className="text-foreground">Systems integrators</strong> — HRIS/LMS inbound
-              webhooks and connector mappings without reading internal APIs.
+              <strong className="text-foreground">IT and integration teams</strong> — self-host with
+              PostgreSQL and connect HRIS/LMS systems through documented webhooks.
             </li>
             <li>
-              <strong className="text-foreground">PortCo pilots</strong> — scoped IMS rollout from
-              incidents through CAPA, contractors, and evidence.
+              <strong className="text-foreground">Site and assurance teams</strong> — manage incidents,
+              contractors, audits, and supporting programme records.
             </li>
           </ul>
           <p className="mt-4 text-center">

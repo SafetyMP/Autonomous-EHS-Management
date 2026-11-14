@@ -2,6 +2,8 @@
 
 Where application code lives under [`src/`](../src/). Pair with [architecture-map.md](./architecture-map.md) (behavior) and [CONTEXT.md](../CONTEXT.md) (API map and conventions).
 
+The full application is built from `src/` and packaged by the root `Dockerfile`. The separate [`demo/`](../demo/) directory contains the public read-only GitHub Pages walkthrough: static HTML/CSS/JavaScript and synthetic fixtures, with no application API or database. See [demo scope](./github-pages-demo.md).
+
 ## Top-level `src/`
 
 | Path | Responsibility |
@@ -19,7 +21,7 @@ Where application code lives under [`src/`](../src/). Pair with [architecture-ma
 
 | Area | Path | Notes |
 |------|------|--------|
-| Marketing / auth | `(auth)/`, `/` | Sign-in, sign-up |
+| Application landing / auth | `(auth)/`, `/` | Full-app landing, sign-in, sign-up; separate from Pages |
 | Dashboard UI | `dashboard/**` | EHS Console pages; nav from [`dashboard-nav-links.ts`](../src/lib/dashboard-nav-links.ts) |
 | tRPC | `api/trpc/[trpc]/` | HTTP adapter |
 | Auth | `api/auth/[...all]/` | Better Auth |
@@ -78,7 +80,7 @@ Where application code lives under [`src/`](../src/). Pair with [architecture-ma
 | `tests/integration/` | tRPC callers, Context Sync, inbound |
 | `tests/e2e/smoke/` | Playwright `@smoke` (CI `e2e-smoke`) |
 | `tests/e2e/a11y/` | axe WCAG 2.2 AA (`--project=a11y`) |
-| `tests/e2e/density/` | Today density ceilings (`--project=density`) |
+| `tests/e2e/density/` | Corporate overview density ceilings (`--project=density`) |
 | `tests/e2e/visual/` | Calm Focus screenshot digests (`--project=visual`) |
 | `tests/evals/` | Golden JSON for AI gateway |
 | `tests/helpers/` | Fake DB, shared fixtures |
@@ -92,8 +94,8 @@ Evidence digests for visual capture land under [`evidence/`](../evidence/) (`cal
 | [`drizzle/migrations/`](../drizzle/migrations/) | Committed SQL migrations |
 | [`deploy/k8s/`](../deploy/k8s/) | Kubernetes manifests + CronJobs |
 | [`infra/terraform/`](../infra/terraform/) | Optional EKS starter |
-| [`.github/workflows/`](../.github/workflows/) | CI, Docker publish, production promote |
-| [`vercel.json`](../vercel.json) | Vercel cron schedule |
+| [`.github/workflows/`](../.github/workflows/) | Full-app CI, Docker publication, production promotion; separate Pages workflow |
+| [`vercel.json`](../vercel.json) | Optional full-app Vercel cron configuration; Git auto-deployment disabled |
 
 ## Conventions (quick reference)
 

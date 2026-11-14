@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, cite the repository and the specific release or commit used."
+type: software
+title: "Autonomous EHS Management"
+authors:
+  - name: "SafetyMP"
+repository-code: "https://github.com/SafetyMP/Autonomous-EHS-Management"
+url: "https://safetymp.github.io/Autonomous-EHS-Management/"
+license: Apache-2.0
+abstract: >-
+  Self-hosted environmental, health and safety software for corporate teams,
+  connecting incident reporting, corrective and preventive actions, audits,
+  and safety reporting with role-based access and human approval.
+  A separate GitHub Pages walkthrough presents synthetic, read-only data.
+keywords:
+  - environmental health and safety
+  - incident management
+  - corrective and preventive actions
+  - self-hosted software

@@ -20,9 +20,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Autonomous EHS | ISO 45001- & 14001-style IMS",
+  title: "Autonomous EHS | Corporate safety and corrective actions",
   description:
-    "Autonomous EHS programme platform — incident, CAPA, and environmental management with human approval for material changes. Not a certification body or agency filing system.",
+    "Self-hosted environmental, health and safety software for corporate teams: incident reporting, corrective actions, audits, and environmental programmes with role-based access and human approval.",
 };
 
 /** Allow pinch-zoom on small screens for field readability (WCAG 1.4.4). */

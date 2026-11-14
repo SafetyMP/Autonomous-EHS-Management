@@ -2,15 +2,15 @@
 
 Canonical map of repository documentation. **Start at the root [README](../README.md)** for quick start and deploy; use this index when you need a specific audience or workflow.
 
-**New here?** [Quick start](../README.md#quick-start) → [Turnkey local demo](../README.md#turnkey-local-demo-docker-postgres) → [Module maturity](./module-maturity.md) (honest shipped vs planned scope).
+**New here?** Explore the [public read-only walkthrough](./github-pages-demo.md), run the [local full application](../README.md#run-the-demo), or deploy the [self-hosted package](./self-host-quickstart.md). Review [module maturity](./module-maturity.md) for shipped vs planned scope. The walkthrough uses synthetic records; the application uses authentication, RBAC, PostgreSQL, and human-controlled closure.
 
 ## By role
 
 | Role | Start here |
 |------|------------|
-| **Field user / safety manager** | [user-manual-ehs-console.md](./user-manual-ehs-console.md) (Calm Focus Today: Your work first, KPIs collapsed) |
+| **Corporate EHS / safety manager / field user** | [user-manual-ehs-console.md](./user-manual-ehs-console.md) (current work areas, corporate overview, incident-to-corrective-action journey) |
 | **Contributor / agent** | [AGENTS.md](../AGENTS.md) → [codebase-layout.md](./codebase-layout.md) |
-| **UX / a11y reviewer** | [qa/calm-focus-final-dossier.md](./qa/calm-focus-final-dossier.md), [qa/a11y-test-plan.md](./qa/a11y-test-plan.md), ADRs UX-005…007 |
+| **UX / a11y reviewer** | [user-manual-ehs-console.md](./user-manual-ehs-console.md), [ADR-UX-008](./adr/ADR-UX-008-corporate-navigation.md), [qa/a11y-test-plan.md](./qa/a11y-test-plan.md) |
 | **Architect / diligence** | [architecture-map.md](./architecture-map.md), [workflow-depth.md](./workflow-depth.md), [CONTEXT.md](../CONTEXT.md) |
 | **Procurement / RFP** | [procurement-readiness.md](./procurement-readiness.md), [procurement-integrations-appendix.md](./procurement-integrations-appendix.md), [portco-module-value-assessment.md](./portco-module-value-assessment.md) |
 | **Platform / SRE (self-host)** | [self-host-quickstart.md](./self-host-quickstart.md), [runbooks/](./runbooks/), [JOB_QUEUE.md](./JOB_QUEUE.md) |
@@ -44,8 +44,8 @@ Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a d
 | [ai-governed-intake.md](./ai-governed-intake.md) | Assistive AI boundaries |
 | [offline-field-outbox.md](./offline-field-outbox.md) | Field offline replay |
 | [codebase-layout.md](./codebase-layout.md) | `src/` directory guide |
-| [qa/calm-focus-final-dossier.md](./qa/calm-focus-final-dossier.md) | Calm Focus Gen-1 console UX package summary |
-| [qa/ia-task-mode-map.md](./qa/ia-task-mode-map.md) | Today / Capture / Decide / Prove IA map |
+| [qa/calm-focus-final-dossier.md](./qa/calm-focus-final-dossier.md) | Historical Calm Focus Gen-1 UX evidence |
+| [qa/ia-task-mode-map.md](./qa/ia-task-mode-map.md) | Historical Today / Capture / Decide / Prove IA map; superseded navigation |
 
 ## Integrations & identity
 
@@ -62,7 +62,9 @@ Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a d
 
 | Document | Topic |
 |----------|--------|
-| [self-host-quickstart.md](./self-host-quickstart.md) | Docker, Kubernetes, crons, worker |
+| [self-host-quickstart.md](./self-host-quickstart.md) | Full application: Docker/GHCR, Kubernetes, crons, worker |
+| [github-pages-demo.md](./github-pages-demo.md) | Separate public read-only walkthrough; synthetic examples |
+| [repository-discovery.md](./repository-discovery.md) | Repository and demo discovery surfaces and maintenance |
 | [cursor-tool-connections-deployment.md](./cursor-tool-connections-deployment.md) | IDE tools vs Git-authoritative ship path |
 | [JOB_QUEUE.md](./JOB_QUEUE.md) | pg-boss worker |
 | [terraform-remote-state.md](./terraform-remote-state.md) | IaC remote state notes |
@@ -83,12 +85,14 @@ Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a d
 |----------|--------|
 | [procurement-readiness.md](./procurement-readiness.md) | Pilot workbook, positioning |
 | [procurement-portco-integration-budget.md](./procurement-portco-integration-budget.md) | Integration cost framing |
-| [open-source-tco.md](./open-source-tco.md) | License + illustrative TCO |
-| [competitive-intelligence-market-viability.md](./competitive-intelligence-market-viability.md) | Market positioning (engineering) |
+| [open-source-tco.md](./open-source-tco.md) | License + illustrative TCO snapshot; pricing is not refreshed here |
+| [competitive-intelligence-market-viability.md](./competitive-intelligence-market-viability.md) | Historical engineering market snapshot; not refreshed buyer or competitor evidence |
 | [case-studies/](./case-studies/) | Synthetic pilot narratives + publication workflow |
 | [barrier-resolution-playbook.md](./barrier-resolution-playbook.md) | Adoption blockers |
 
 ## Roadmap & ADRs
+
+ADRs and QA dossiers preserve the decisions and evidence of their time. **Today / Capture / Decide / Prove**, Calm Focus Gen-1 screenshots, and older sidebar groups are historical navigation references; use the [current user manual](./user-manual-ehs-console.md) and ADR-UX-008 for the corporate redesign. Earlier security, permission, and workflow decisions remain applicable unless explicitly superseded. Historical evidence is not fresh validation of the current UI.
 
 | Document | Topic |
 |----------|--------|
@@ -102,6 +106,7 @@ Evergreen OSS positioning: long-lived, forkable, tenant-owned Postgres—not a d
 | [adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md](./adr/ADR-UX-005-calm-focus-tokens-typography-chrome.md) | Calm Focus tokens / typography / chrome |
 | [adr/ADR-UX-006-progressive-disclosure-today-home.md](./adr/ADR-UX-006-progressive-disclosure-today-home.md) | Today density + progressive disclosure |
 | [adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md](./adr/ADR-UX-007-platform-status-disclosure-a11y-visual.md) | Maturity banner, visual digests, WCAG 3 claim lint |
+| [adr/ADR-UX-008-corporate-navigation.md](./adr/ADR-UX-008-corporate-navigation.md) | Current corporate navigation, overview, and incident/CAPA journey |
 
 ## Subdirectories
 
