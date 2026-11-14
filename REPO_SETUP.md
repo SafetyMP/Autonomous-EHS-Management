@@ -24,7 +24,15 @@ With [**GitHub CLI**](https://cli.github.com/) authenticated against the repo, p
 bash scripts/apply-github-about.sh
 ```
 
-(Add `--homepage https://…` is included in the script; currently `https://autonomous-ehs-management.vercel.app`.)
+The public demo homepage target is `https://SafetyMP.github.io/Autonomous-EHS-Management/`. Verify its Pages deployment before updating repository metadata; the legacy Vercel public demo is deprecated.
+
+---
+
+## Public walkthrough hosting
+
+The static public demo lives in `demo/` and deploys through [`.github/workflows/pages-demo.yml`](.github/workflows/pages-demo.yml). In repository **Settings → Pages → Build and deployment → Source**, choose **GitHub Actions**. The target URL is [SafetyMP.github.io/Autonomous-EHS-Management/](https://SafetyMP.github.io/Autonomous-EHS-Management/). Confirm the successful deployment and rendered walkthrough before treating it as available. See [GitHub Pages demo setup](docs/github-pages-demo.md).
+
+Pages does not replace the full application package or its CI gates. The authenticated Next.js/PostgreSQL app retains the Docker/GHCR and controlled-promotion paths below. Vercel instructions now describe an optional full-app deployment only; retiring a pre-existing Vercel deployment requires access to that account and is separate from changing repository configuration.
 
 ---
 
@@ -99,7 +107,9 @@ Job: **`release`** in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) + [
 
 ---
 
-## 5. Vercel CLI deploy (trust model)
+## 5. Optional Vercel CLI deploy (trust model)
+
+This optional path deploys the full application, not the GitHub Pages walkthrough. The previous public Vercel demo is deprecated.
 
 Inbound **GitHub Actions → Vercel** deployments follow [Vercel’s GitHub Actions guide](https://vercel.com/docs/git/vercel-for-github) (`vercel pull` / `vercel build` / `vercel deploy --prebuilt`).
 

@@ -1,8 +1,10 @@
 # Self-host quickstart
 
-Reference deployment for **tenant-owned** Autonomous EHS: Docker image, Kubernetes manifests, scheduled cron HTTP jobs, optional pg-boss worker, and metrics scrape. Same Apache 2.0 application source as managed SaaS—your Postgres bill and cluster ops stay under your account.
+Reference deployment for **tenant-owned** Autonomous EHS: Docker image, Kubernetes manifests, scheduled cron HTTP jobs, optional pg-boss worker, and metrics scrape. The Apache 2.0 application remains a complete deployable package; your PostgreSQL service and operational infrastructure stay under your account.
 
-**Related:** [GOVERNANCE.md](../GOVERNANCE.md), [open-source-tco.md](./open-source-tco.md), [README Deploy](../README.md#deploy), [JOB_QUEUE.md](./JOB_QUEUE.md), [runbooks/cron-metrics-observability.md](./runbooks/cron-metrics-observability.md), [REPO_SETUP.md](../REPO_SETUP.md).
+The [GitHub Pages walkthrough](./github-pages-demo.md) is a separate static demonstration with synthetic examples. It does not host this application, authentication, API routes, or PostgreSQL. Follow this guide for an operational installation.
+
+**Related:** [GOVERNANCE.md](../GOVERNANCE.md), [open-source-tco.md](./open-source-tco.md), [README local demo](../README.md#run-the-demo), [JOB_QUEUE.md](./JOB_QUEUE.md), [runbooks/cron-metrics-observability.md](./runbooks/cron-metrics-observability.md), [REPO_SETUP.md](../REPO_SETUP.md).
 
 ---
 
@@ -10,33 +12,42 @@ Reference deployment for **tenant-owned** Autonomous EHS: Docker image, Kubernet
 
 - **PostgreSQL 15+** with migrations applied (`npm run db:migrate` against your `DATABASE_URL`).
 - **Secrets** satisfying [`src/lib/env.ts`](../src/lib/env.ts): at minimum `DATABASE_URL`, `BETTER_AUTH_SECRET` (32+ chars), `BETTER_AUTH_URL`, `NEXT_PUBLIC_APP_URL`.
+- **Rate-limit backend outside development:** configure valid `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. The production image requires these even when running on localhost; the startup guard does not treat localhost as development. Keep the guard enabled.
 - **Production:** disable all demo flags (`DEMO_MODE`, `NEXT_PUBLIC_DEMO_MODE`, etc.).
 
 ---
 
 ## 1. Build the container image
 
-The root [`Dockerfile`](../Dockerfile) produces a **Next.js standalone** image (Node 22+).
+The root [`Dockerfile`](../Dockerfile) produces a **Next.js standalone** image (Node 22).
 
 ```bash
 docker build -t ehs-web:local .
 ```
 
-Smoke-run (replace secrets; use your secret manager in production):
+Smoke-run after exporting your real `DATABASE_URL`, `BETTER_AUTH_SECRET`, `UPSTASH_REDIS_REST_URL`, and `UPSTASH_REDIS_REST_TOKEN` into the operator environment through your secret manager. The `-e NAME` arguments pass those values into Docker without embedding credentials in this example:
 
 ```bash
 docker run --rm -p 3000:3000 \
-  -e DATABASE_URL="postgresql://USER:PASS@HOST:5432/DBNAME" \
+  -e DATABASE_URL \
   -e DATABASE_USE_PG=1 \
-  -e BETTER_AUTH_SECRET="CHANGE_ME_MIN_32_CHAR_SECRET_STRING!!" \
+  -e BETTER_AUTH_SECRET \
+  -e UPSTASH_REDIS_REST_URL \
+  -e UPSTASH_REDIS_REST_TOKEN \
   -e BETTER_AUTH_URL="http://localhost:3000" \
   -e NEXT_PUBLIC_APP_URL="http://localhost:3000" \
   ehs-web:local
 ```
 
-Health: `GET /api/health` → `{ ok, database }`.
+Runtime acceptance requires **HTTP 200** from `GET /api/health` with `{"ok":true,"database":"up"}`, plus an unauthenticated request to `/dashboard` redirecting to sign-in. A successful image build alone does not establish working runtime configuration. A database connectivity failure returns HTTP 503; resolve startup or connection errors before accepting the deployment.
 
-CI publishes **`ghcr.io/<owner>/<repo>/ehs-web`** on pushes to `main` when app or Docker paths change (CI job **`publish`** in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)).
+CI publishes **`ghcr.io/safetymp/autonomous-ehs-management/ehs-web`** on pushes to `main`/`master` after the required checks pass and image-relevant paths change (CI job **`publish`** in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)). Each published image is tagged with its full Git commit SHA. Select an available, verified SHA from the successful publish run:
+
+```bash
+docker pull ghcr.io/safetymp/autonomous-ehs-management/ehs-web:YOUR_PUBLISHED_40_CHARACTER_GIT_SHA
+```
+
+Use that immutable image reference in place of `ehs-web:local` in the run example or your deployment manifests. Database migrations and environment configuration are still required. The Pages demo artifact is not the application container.
 
 ---
 
@@ -61,6 +72,8 @@ kubectl -n ehs-prod create secret generic ehs-app-secrets \
   --from-literal=BETTER_AUTH_SECRET='...' \
   --from-literal=BETTER_AUTH_URL='https://app.example.com' \
   --from-literal=NEXT_PUBLIC_APP_URL='https://app.example.com' \
+  --from-literal=UPSTASH_REDIS_REST_URL="${UPSTASH_REDIS_REST_URL}" \
+  --from-literal=UPSTASH_REDIS_REST_TOKEN="${UPSTASH_REDIS_REST_TOKEN}" \
   --from-literal=CRON_SECRET='...'
 ```
 
@@ -80,11 +93,13 @@ Link first admin: `SEED_ADMIN_EMAIL=admin@example.com npm run db:seed`.
 
 ---
 
-## 3. Cron jobs (Vercel substitute)
+## 3. Scheduled jobs
 
-On **Vercel**, [`vercel.json`](../vercel.json) schedules HTTP cron for reminders, data retention, and integration roster reconciliation. On **Kubernetes**, use [`deploy/k8s/cronjob-reminders.yaml`](../deploy/k8s/cronjob-reminders.yaml), [`deploy/k8s/cronjob-data-retention.yaml`](../deploy/k8s/cronjob-data-retention.yaml), and [`deploy/k8s/cronjob-integration-roster-reconcile.yaml`](../deploy/k8s/cronjob-integration-roster-reconcile.yaml).
+On **Kubernetes**, use [`deploy/k8s/cronjob-reminders.yaml`](../deploy/k8s/cronjob-reminders.yaml), [`deploy/k8s/cronjob-data-retention.yaml`](../deploy/k8s/cronjob-data-retention.yaml), and [`deploy/k8s/cronjob-integration-roster-reconcile.yaml`](../deploy/k8s/cronjob-integration-roster-reconcile.yaml).
 
-All three curl the web service with:
+For an explicitly chosen **Vercel** installation of the full application, [`vercel.json`](../vercel.json) retains the corresponding HTTP cron configuration. Vercel is no longer the public demo target. GitHub Pages runs none of these jobs.
+
+All three Kubernetes jobs call the web service with:
 
 ```http
 Authorization: Bearer <CRON_SECRET>
@@ -123,8 +138,9 @@ In Kubernetes, add a second `Deployment` using the same image with command `npm 
 
 | Check | Command / surface |
 |-------|-------------------|
-| App health | `GET /api/health` |
-| Auth gate | Unauthenticated `/dashboard` → sign-in redirect |
+| App health | `GET /api/health` → **HTTP 200**, `{"ok":true,"database":"up"}` |
+| Auth gate | Unauthenticated `/dashboard` redirects to sign-in; protected content is not served |
+| Rate-limit backend | Valid `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` configured; startup guard enabled |
 | Cron auth | CronJob or curl with wrong bearer → **401** |
 | Demo disabled | No `DEMO_MODE` / `NEXT_PUBLIC_DEMO_MODE` in prod env |
 | CI parity | `npm run verify` before promoting image tag |
