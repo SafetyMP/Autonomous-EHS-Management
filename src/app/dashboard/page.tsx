@@ -58,7 +58,7 @@ function DashboardHomeContent() {
   const layoutLoading =
     viewOverride !== "desk" && viewOverride !== "field" && storedPreference === "auto" && !homeLayout;
 
-  const { data: cc, isLoading: ccLoading } = trpc.analytics.commandCenter.useQuery(
+  const { data: cc, isLoading: ccLoading, error: ccError } = trpc.analytics.commandCenter.useQuery(
     { organizationId: organizationId! },
     { enabled: !!organizationId && effectiveLayout === "desk" },
   );
@@ -68,7 +68,7 @@ function DashboardHomeContent() {
     { enabled: !!organizationId && effectiveLayout === "desk" },
   );
 
-  const { data: actionQueue, isLoading: actionQueueLoading } = trpc.tasks.actionQueue.useQuery(
+  const { data: actionQueue, isLoading: actionQueueLoading, error: actionQueueError } = trpc.tasks.actionQueue.useQuery(
     { organizationId: organizationId!, limit: 5, includeOrgWide: effectiveLayout !== "field" },
     { enabled: !!organizationId && !!effectiveLayout },
   );
@@ -141,7 +141,6 @@ function DashboardHomeContent() {
 
   return (
     <>
-      <IncidentCapaSpine organizationId={organizationId} />
       <CommandCenterDeskView
         organizationId={organizationId}
         orgName={orgName}
@@ -150,8 +149,10 @@ function DashboardHomeContent() {
         canIntegrationRead={homeLayout?.permissions.canIntegrationRead ?? false}
         cc={cc}
         ccLoading={ccLoading}
+        ccError={ccError ? "The organization snapshot could not be loaded. Try refreshing the page." : undefined}
         actionQueue={actionQueue}
         actionQueueLoading={actionQueueLoading}
+        actionQueueError={actionQueueError ? "Your work could not be loaded. Open Tasks & reviews to try again." : undefined}
         doneKeys={doneKeys}
         onCompleteSetupStep={(stepKey) => completeStep.mutate({ organizationId, stepKey })}
         completeSetupStepPending={completeStep.isPending}

@@ -1,0 +1,14 @@
+
+> ehs@0.1.0 test:e2e:smoke
+> playwright test tests/e2e --grep @smoke --grep title filter resets --workers=1
+
+◇ injected env (12) from .env.ci // tip: ⌘ override existing { override: true }
+
+Running 1 test using 1 worker
+
+(node:46149) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+◇ injected env (0) from .env.ci // tip: ⌘ override existing { override: true }
+  ✓  1 [chromium] › tests/e2e/smoke/incident-capa-journey.spec.ts:10:7 › corporate incident to corrective action navigation › @smoke title filter resets from navigation and survives the linked corrective action journey (2.2s)
+
+  1 passed (3.5s)

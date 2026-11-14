@@ -3,7 +3,7 @@ export type DashboardNavItem = {
   readonly label: string;
 };
 
-/** Primary = Today/Capture/Decide/Prove chrome; secondary = Connected/Plumbing clusters. */
+/** Corporate work areas; administration stays separate from everyday work. */
 export type DashboardNavCluster = "primary" | "secondary";
 
 export type DashboardNavSection = {
@@ -13,115 +13,88 @@ export type DashboardNavSection = {
   readonly items: readonly DashboardNavItem[];
 };
 
-/**
- * Grouped sidebar / drawer navigation — task-first primary modes, then secondary
- * programme breadth (Connected/Plumbing). Core spine hrefs are stable.
- */
+/** Navigation changes labels and grouping only. Existing routes retain their authority. */
 export const DASHBOARD_NAV_SECTIONS: readonly DashboardNavSection[] = [
   {
-    title: "Today",
-    ariaLabel: "Personal work queue and next actions",
+    title: "Overview",
+    cluster: "primary",
+    items: [{ href: "/dashboard", label: "Overview" }],
+  },
+  {
+    title: "Actions & approvals",
     cluster: "primary",
     items: [
-      { href: "/dashboard", label: "Command center" },
       { href: "/dashboard/tasks", label: "Tasks & reviews" },
+      { href: "/dashboard/capa", label: "Corrective actions (CAPA)" },
+      { href: "/dashboard/approvals", label: "Approvals" },
     ],
   },
   {
-    title: "Capture",
-    ariaLabel: "Field and desk intake",
+    title: "Incidents & observations",
     cluster: "primary",
     items: [
       { href: "/dashboard/incidents", label: "Incidents" },
       { href: "/dashboard/observations", label: "Observations" },
-      { href: "/dashboard/inspections", label: "Inspections" },
-      { href: "/dashboard/permits", label: "Work permits (PTW)" },
     ],
   },
   {
-    title: "Decide",
-    ariaLabel: "Human gates and corrective action",
+    title: "Audits & inspections",
     cluster: "primary",
-    items: [
-      { href: "/dashboard/approvals", label: "Approvals" },
-      { href: "/dashboard/capa", label: "CAPA register" },
-    ],
-  },
-  {
-    title: "Prove",
-    ariaLabel: "Audit trail and evidence registers",
-    cluster: "primary",
-    items: [
-      { href: "/dashboard/audit-trail", label: "Audit trail" },
-      { href: "/dashboard/documents", label: "Documents" },
-    ],
-  },
-  {
-    title: "Plan & programme",
-    ariaLabel: "Planning and environmental programme registers",
-    cluster: "secondary",
-    items: [
-      { href: "/dashboard/planning", label: "Planning hub" },
-      { href: "/dashboard/heat-program", label: "Heat NEP program aid" },
-      { href: "/dashboard/risk-assessments", label: "Risk assessments" },
-      { href: "/dashboard/environment", label: "Environment" },
-      { href: "/dashboard/chemicals", label: "Chemical inventory" },
-      { href: "/dashboard/environmental-permits", label: "Regulatory env permits" },
-    ],
-  },
-  {
-    title: "Assure & improve",
-    ariaLabel: "Assurance and management review",
-    cluster: "secondary",
     items: [
       { href: "/dashboard/audits", label: "Internal audits" },
-      { href: "/dashboard/assurance", label: "Assurance hub" },
-      { href: "/dashboard/management-review", label: "Mgmt review" },
+      { href: "/dashboard/inspections", label: "Inspections" },
+      { href: "/dashboard/assurance", label: "Assurance" },
+      { href: "/dashboard/management-review", label: "Management review" },
     ],
   },
   {
-    title: "Records & metrics",
-    ariaLabel: "Knowledge corpus and safety metrics",
-    cluster: "secondary",
+    title: "Programs & risks",
+    cluster: "primary",
     items: [
-      { href: "/dashboard/rag", label: "Knowledge corpus" },
-      { href: "/dashboard/retention", label: "Retention" },
-      { href: "/dashboard/analytics", label: "Metrics" },
-      { href: "/dashboard/analytics/incidence-rates", label: "Incidence rates" },
-    ],
-  },
-  {
-    title: "People",
-    ariaLabel: "Training and contractors",
-    cluster: "secondary",
-    items: [
+      { href: "/dashboard/program", label: "Program overview" },
+      { href: "/dashboard/planning", label: "Planning" },
+      { href: "/dashboard/risk-assessments", label: "Risk assessments" },
+      { href: "/dashboard/permits", label: "Work permits (PTW)" },
+      { href: "/dashboard/environment", label: "Environment" },
+      { href: "/dashboard/environmental-permits", label: "Environmental permits" },
+      { href: "/dashboard/chemicals", label: "Chemical inventory" },
+      { href: "/dashboard/heat-program", label: "Heat program aid" },
       { href: "/dashboard/training", label: "Training" },
       { href: "/dashboard/contractors", label: "Contractors" },
+      { href: "/dashboard/emergency", label: "Emergency preparedness" },
+      { href: "/dashboard/moc", label: "Management of change" },
+    ],
+  },
+  {
+    title: "Reports & evidence",
+    cluster: "primary",
+    items: [
+      { href: "/dashboard/analytics", label: "Metrics" },
+      { href: "/dashboard/analytics/incidence-rates", label: "Incidence rates" },
+      { href: "/dashboard/documents", label: "Documents" },
+      { href: "/dashboard/audit-trail", label: "Audit trail" },
+      { href: "/dashboard/rag", label: "Knowledge library" },
+      { href: "/dashboard/retention", label: "Retention" },
     ],
   },
   {
     title: "Administration",
-    ariaLabel: "Management system administration",
     cluster: "secondary",
     items: [
-      { href: "/dashboard/program", label: "Program overview" },
-      { href: "/dashboard/emergency", label: "Emergency prep" },
-      { href: "/dashboard/moc", label: "Management of change" },
       { href: "/dashboard/import", label: "Import" },
       { href: "/dashboard/integrations", label: "Integrations" },
-      { href: "/dashboard/privacy-requests", label: "Privacy" },
+      { href: "/dashboard/privacy-requests", label: "Privacy requests" },
       { href: "/dashboard/context", label: "Organization context (ISO 4)" },
       { href: "/dashboard/workflow-catalog", label: "Workflow catalog" },
     ],
   },
 ];
 
-/** Flattened ordered list — for tooling and legacy lookups. */
 export const DASHBOARD_NAV_LINKS: readonly DashboardNavItem[] = DASHBOARD_NAV_SECTIONS.flatMap((s) => [
   ...s.items,
 ]);
 
-/** Core spine hrefs — must remain stable across IA regroup (AC-010). */
+/** Deep links remain stable across the corporate navigation redesign. */
 export const CORE_SPINE_HREFS = [
   "/dashboard/incidents",
   "/dashboard/capa",
@@ -129,3 +102,10 @@ export const CORE_SPINE_HREFS = [
   "/dashboard/approvals",
   "/dashboard/audit-trail",
 ] as const;
+
+/** Choose the most specific destination so nested analytics routes have one active link. */
+export function dashboardDestinationForPath(pathname: string): DashboardNavItem | undefined {
+  return DASHBOARD_NAV_LINKS
+    .filter((item) => pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`)))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+}

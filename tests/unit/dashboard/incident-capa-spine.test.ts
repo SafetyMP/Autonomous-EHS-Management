@@ -30,18 +30,18 @@ describe("incident CAPA spine", () => {
     expect(sentence).toMatch(/partial month grid does not replace the annual total/);
   });
 
-  it("renders the spine above both dashboard homes", () => {
+  it("keeps the intake tutorial on the field home without duplicating it on the corporate overview", () => {
     const page = readSrc("src/app/dashboard/page.tsx");
     const field = page.indexOf("<DashboardFieldLauncher");
     const desk = page.indexOf("<CommandCenterDeskView");
     const spines = [...page.matchAll(/<IncidentCapaSpine/g)].map((match) => match.index ?? -1);
     expect(field).toBeGreaterThan(-1);
     expect(desk).toBeGreaterThan(-1);
-    expect(spines).toHaveLength(2);
+    expect(spines).toHaveLength(1);
     expect(spines[0]!).toBeGreaterThan(-1);
     expect(spines[0]!).toBeLessThan(field);
-    expect(spines[1]!).toBeLessThan(desk);
-    expect(spines[0]!).toBeLessThan(spines[1]!);
+    expect(page.slice(field, desk)).not.toContain("<IncidentCapaSpine");
+    expect(page.slice(desk)).not.toContain("<IncidentCapaSpine");
   });
 
   it("reads a saved snapshot without recomputing the rate", () => {

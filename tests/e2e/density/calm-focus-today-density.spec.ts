@@ -34,7 +34,7 @@ async function assertTodayDensity(page: Page, persona: "desk_supervisor" | "desk
   const main = page.locator("#main-content");
   await expect(main).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Operations/i);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Corporate overview/i);
 
   const kpiDetails = page.locator('details#dash-kpis[data-section="kpis"]');
   await expect(kpiDetails).toBeVisible();

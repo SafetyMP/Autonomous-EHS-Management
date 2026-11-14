@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useId, useOptimistic, useState, useTransition } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { Suspense, useId, useState } from "react";
 import { CapaSourcePanel, CapaStatusStepper } from "@/components/dashboard/capa-source-panel";
 import { EhsEvidenceRegistrySection } from "@/components/dashboard/ehs-evidence-registry-section";
 import { OrgSwitcher } from "@/components/org-switcher";
@@ -49,18 +49,24 @@ function advanceLabel(s: string): string {
 }
 
 export default function CapaDetailPage() {
+  return <Suspense fallback={<p role="status">Loading corrective action…</p>}><CapaDetailContent /></Suspense>;
+}
+
+function CapaDetailContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const incidentFilter = searchParams.get("incidentFilter") ?? "";
   const capaId = typeof params.capaId === "string" ? params.capaId : null;
   const { organizationId } = useOrg();
   const org = organizationId ?? "";
   const verifyNotesId = useId();
   const [verifyNotes, setVerifyNotes] = useState("");
   const [showVerify, setShowVerify] = useState(false);
-  const [isPending, startUiTransition] = useTransition();
+  const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   const utils = trpc.useUtils();
 
-  const { data, isLoading } = trpc.capa.get.useQuery(
+  const { data, isLoading, error: loadError } = trpc.capa.get.useQuery(
     { organizationId: org, correctiveActionId: capaId! },
     { enabled: !!organizationId && !!capaId },
   );
@@ -71,9 +77,10 @@ export default function CapaDetailPage() {
   );
 
   const updateStatus = trpc.capa.updateStatus.useMutation({
-    onSuccess: () => {
-      void utils.capa.get.invalidate({ organizationId: org, correctiveActionId: capaId! });
+    onSuccess: async () => {
+      await utils.capa.get.invalidate({ organizationId: org, correctiveActionId: capaId! });
       void utils.capa.list.invalidate({ organizationId: org });
+      setSavedMessage("Corrective action status saved.");
       setShowVerify(false);
       setVerifyNotes("");
     },
@@ -86,17 +93,20 @@ export default function CapaDetailPage() {
     },
   });
 
-  type CapaStatus = NonNullable<typeof data>["capa"]["status"];
-  const [optimisticStatus, setOptimisticStatus] = useOptimistic(
-    data?.capa.status ?? ("planned" as CapaStatus),
-    (_current, nextStatus: CapaStatus) => nextStatus,
-  );
-
   if (!organizationId || !capaId) {
     return (
       <div className="space-y-4">
         <p className="text-zinc-700">Missing corrective action.</p>
         <OrgSwitcher />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="space-y-4">
+        <p role="alert" className="text-red-800">{loadError.message}</p>
+        <Link href="/dashboard/capa" className={dfInlineNavLink}>Back to corrective actions</Link>
       </div>
     );
   }
@@ -109,14 +119,13 @@ export default function CapaDetailPage() {
     );
   }
 
-  const { capa: capaRow, sources, hasOpenApproval } = data;
-  const capa = { ...capaRow, status: optimisticStatus };
+  const { capa, sources, hasOpenApproval } = data;
   const next = nextCapaStatus(capa.status);
   const ownerEmail =
     members?.find((m) => m.userId === capa.ownerUserId)?.email ?? capa.ownerUserId ?? "Unassigned";
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
+    <div className="mx-auto w-full max-w-5xl space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-zinc-500">
@@ -127,13 +136,21 @@ export default function CapaDetailPage() {
             {capa.title.slice(0, 48)}
             {capa.title.length > 48 ? "…" : ""}
           </p>
-          <h1 className={`mt-1 ${dfSectionHeading}`}>{capa.title}</h1>
-          <p className={`mt-1 capitalize ${dfMuted}`}>{capa.status.replaceAll("_", " ")}</p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{capa.title}</h1>
+          <p data-capa-status={capa.status} className={`mt-1 capitalize ${dfMuted}`}>{capa.status.replaceAll("_", " ")}</p>
         </div>
-        <OrgSwitcher />
+        <Link href="/dashboard/capa" className="btn-secondary">Back to corrective actions</Link>
       </div>
 
-      <CapaStatusStepper status={capa.status} />
+      <nav aria-label="Corrective action sections" className="flex flex-wrap gap-x-5 gap-y-1 border-y border-border py-2">
+        <a href="#action-source" className={dfInlineNavLink}>Source record</a>
+        <a href="#action-progress" className={dfInlineNavLink}>Progress &amp; verification</a>
+        <a href="#action-evidence" className={dfInlineNavLink}>Evidence</a>
+      </nav>
+
+      <CapaSourcePanel sources={sources} hasOpenApproval={hasOpenApproval} incidentFilter={incidentFilter} />
+
+      {savedMessage ? <p role="status" className="text-sm text-foreground">{savedMessage}</p> : null}
 
       <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
         <h2 className={dfSectionHeading}>Details</h2>
@@ -164,24 +181,39 @@ export default function CapaDetailPage() {
         ) : null}
       </div>
 
-      <CapaSourcePanel sources={sources} hasOpenApproval={hasOpenApproval} />
+      <section id="action-progress" aria-labelledby="action-progress-heading" className="scroll-mt-44 sm:scroll-mt-24 rounded-xl border border-border bg-surface p-5 sm:p-6">
+        <h2 id="action-progress-heading" className={dfSectionHeading}>Progress &amp; verification</h2>
+        <div className="mt-4"><CapaStatusStepper status={capa.status} /></div>
+        <p className={`mt-3 ${dfMuted}`}>
+          {capa.status === "verified"
+            ? "This action has been verified. Its evidence and verification notes remain available on this record."
+            : capa.status === "completed"
+              ? "Work is complete. A person must review effectiveness and record verification notes before this action is verified."
+              : capa.status === "pending_approval"
+                ? "The plan is awaiting approval before work can begin."
+                : capa.status === "in_progress"
+                  ? "Work is in progress. Record supporting evidence, then mark the work complete when ready for verification."
+                  : "The action is planned. Confirm ownership and begin work when ready."}
+        </p>
+      </section>
 
       {next && capa.status !== "verified" ? (
         <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-6">
           <h2 className={dfSectionHeading}>Workflow actions</h2>
+          {updateStatus.error ? (
+            <p role="alert" className="mt-3 text-sm text-red-800">{updateStatus.error.message}</p>
+          ) : null}
           {capa.status === "completed" && showVerify ? (
             <form
               className="mt-3 space-y-3"
               onSubmit={(e) => {
                 e.preventDefault();
-                startUiTransition(async () => {
-                  setOptimisticStatus("verified");
-                  await updateStatus.mutateAsync({
-                    organizationId: org,
-                    correctiveActionId: capa.id,
-                    status: "verified",
-                    verificationNotes: verifyNotes,
-                  });
+                setSavedMessage(null);
+                updateStatus.mutate({
+                  organizationId: org,
+                  correctiveActionId: capa.id,
+                  status: "verified",
+                  verificationNotes: verifyNotes,
                 });
               }}
             >
@@ -200,15 +232,16 @@ export default function CapaDetailPage() {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="submit"
-                  disabled={updateStatus.isPending || isPending}
-                  aria-busy={updateStatus.isPending || isPending}
+                  disabled={updateStatus.isPending}
+                  aria-busy={updateStatus.isPending}
                   className="btn-primary"
                 >
-                  {updateStatus.isPending || isPending ? "Saving…" : "Confirm verification"}
+                  {updateStatus.isPending ? "Saving…" : "Confirm verification"}
                 </button>
                 <button
                   type="button"
                   className="min-h-11 rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold"
+                  disabled={updateStatus.isPending}
                   onClick={() => setShowVerify(false)}
                 >
                   Cancel
@@ -221,24 +254,20 @@ export default function CapaDetailPage() {
               className="btn-primary mt-3"
               disabled={
                 updateStatus.isPending ||
-                isPending ||
                 (capa.status === "pending_approval" && hasOpenApproval)
               }
-              aria-busy={updateStatus.isPending || isPending}
+              aria-busy={updateStatus.isPending}
               onClick={() => {
                 if (capa.status === "completed") {
                   setShowVerify(true);
                   return;
                 }
                 if (!next) return;
-                const nextStatus = next;
-                startUiTransition(async () => {
-                  setOptimisticStatus(nextStatus);
-                  await updateStatus.mutateAsync({
-                    organizationId: org,
-                    correctiveActionId: capa.id,
-                    status: nextStatus,
-                  });
+                setSavedMessage(null);
+                updateStatus.mutate({
+                  organizationId: org,
+                  correctiveActionId: capa.id,
+                  status: next,
                 });
               }}
             >
@@ -266,6 +295,7 @@ export default function CapaDetailPage() {
             id="capa-owner-select"
             className={`mt-1 ${dfControl}`}
             value={capa.ownerUserId ?? ""}
+            disabled={assignOwner.isPending}
             onChange={(e) =>
               assignOwner.mutate({
                 organizationId: org,
@@ -281,15 +311,20 @@ export default function CapaDetailPage() {
               </option>
             ))}
           </select>
+          {assignOwner.error ? (
+            <p role="alert" className="mt-2 text-sm text-red-800">{assignOwner.error.message}</p>
+          ) : null}
         </div>
       ) : null}
 
-      <EhsEvidenceRegistrySection
-        organizationId={org}
-        entityType="corrective_action"
-        entityId={capa.id}
-        canRegister
-      />
+      <div id="action-evidence" className="scroll-mt-44 sm:scroll-mt-24">
+        <EhsEvidenceRegistrySection
+          organizationId={org}
+          entityType="corrective_action"
+          entityId={capa.id}
+          canRegister
+        />
+      </div>
     </div>
   );
 }

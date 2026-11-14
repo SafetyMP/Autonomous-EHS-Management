@@ -17,9 +17,9 @@ test.describe("demo quick login", () => {
     ).toBeVisible({ timeout: 10_000 });
     await page.getByRole("button", { name: /try demo admin/i }).click();
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
-    // Desk home: "Operations — {org}" or "Operations command center"; field home: "Field — {org}" or "Field workspace".
+    // Desk home: "Corporate overview"; field home: "Field — {org}" or "Field workspace".
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      /Operations —|Operations command center|Field —|Field workspace/,
+      /Corporate overview|Field —|Field workspace/,
       { timeout: 10_000 },
     );
   });

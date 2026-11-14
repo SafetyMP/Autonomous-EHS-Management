@@ -30,9 +30,9 @@ export const PRODUCT_HIGHLIGHTS: readonly ProductHighlight[] = [
   },
   {
     id: "lifecycle-nav",
-    title: "Lifecycle navigation",
+    title: "Corporate navigation",
     description:
-      "Sidebar flows Today → Report → Correct → Assure → Records, matching how safety programs run day to day.",
+      "Find incidents, corrective actions, audits, programs, and reports from named work areas. Search navigation to jump to a destination.",
     href: "/dashboard",
     audience: "all",
   },

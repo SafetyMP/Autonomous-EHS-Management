@@ -3,7 +3,7 @@
 import type { inferRouterOutputs } from "@trpc/server";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { OrgSwitcher } from "@/components/org-switcher";
+import { CorporateOverviewSummary } from "@/components/dashboard/corporate-overview-summary";
 import { DashboardProgramUpdates } from "@/components/dashboard/dashboard-program-updates";
 import { DashboardActionQueueHero } from "@/components/dashboard/dashboard-action-queue-hero";
 import { DashboardActivityFeed } from "@/components/dashboard/dashboard-activity-feed";
@@ -98,8 +98,10 @@ export type CommandCenterDeskViewProps = {
   canIntegrationRead: boolean;
   cc: CommandCenterOut | undefined;
   ccLoading: boolean;
+  ccError?: string;
   actionQueue: ActionQueueOut | undefined;
   actionQueueLoading: boolean;
+  actionQueueError?: string;
   doneKeys: Set<string>;
   onCompleteSetupStep: (stepKey: string) => void;
   completeSetupStepPending: boolean;
@@ -115,8 +117,10 @@ export function CommandCenterDeskView({
   canIntegrationRead,
   cc,
   ccLoading,
+  ccError,
   actionQueue,
   actionQueueLoading,
+  actionQueueError,
   doneKeys,
   onCompleteSetupStep,
   completeSetupStepPending,
@@ -172,34 +176,19 @@ export function CommandCenterDeskView({
   return (
     <div className="space-y-8">
       <DashboardPageHeader
-        title={orgName ? `Operations — ${orgName}` : "Operations command center"}
-        description="Permission-scoped snapshot of open work, approvals, permits, inspections, and recent activity across your IMS."
-        actions={
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            {/* Org select counts when multi-org; CSV lives under More on Today (AC-CF-D005). */}
-            <OrgSwitcher />
-          </div>
-        }
+        title="Corporate overview"
+        description={orgName ? `Priorities and follow-through for ${orgName}.` : "Your organization’s priorities and follow-through."}
+
       />
 
-      <p className="-mt-4 text-xs text-text-muted">
-        {persona === "desk_contributor" ? (
-          <>
-            Your assigned work is ranked below. Program KPIs are collapsed — expand when you need the
-            full picture.{" "}
-          </>
-        ) : (
-          <>Program KPIs stay collapsed until you expand them. </>
-        )}
-        <Link
-          href="/dashboard?view=field"
-          className="font-medium text-primary underline underline-offset-2"
-          onClick={() => onPreferFieldLayout?.()}
-        >
-          Compact field menu
-        </Link>{" "}
-        — large buttons for incident, observation, inspection, and permit intake.
+      <p className="-mt-4 text-sm text-text-muted">
+        {persona === "desk_contributor"
+          ? "Start with your assigned work. Counts reflect records you can access."
+          : "Review what needs attention, then follow each item through to verified action."}
       </p>
+
+      {ccError ? <p role="alert" className="rounded-lg border border-danger bg-danger-surface p-4 text-danger">{ccError}</p> : null}
+      <CorporateOverviewSummary snapshot={ccError ? undefined : cc} />
 
       {ccLoading ? (
         <div
@@ -220,43 +209,35 @@ export function CommandCenterDeskView({
 
       {/* Slot order (AC-CF-D007): action queue → KPIs → onboarding → program updates → activity.
           Secondary clusters use closed <details> so AC-CF-D005 ≤12 controls stays reachable. */}
-      <DashboardActionQueueHero queue={actionQueue} loading={actionQueueLoading} />
+      <DashboardActionQueueHero queue={actionQueue} loading={actionQueueLoading} error={actionQueueError} />
 
-      {attention.length > 0 ? (
-        <details
-          role="region"
-          aria-label="Attention items"
-          data-status-region="attention"
-          data-section="attention"
-          className="rounded-xl border border-warning bg-warning-surface/95"
-        >
-          <summary className="cursor-pointer touch-target list-none px-4 py-3 text-sm font-semibold text-foreground">
-            Needs attention ({attention.length})
-          </summary>
-          <div className="flex flex-wrap gap-2 border-t border-warning/40 px-4 py-3">
-            <ul className="flex flex-wrap gap-2" role="list">
-              {visibleAttention.map((chip) => (
-                <li key={chip.id}>
-                  <Link
-                    href={chip.href}
-                    className="inline-flex min-h-9 touch-target items-center rounded-full border border-warning bg-surface px-3 py-1 text-sm font-medium text-foreground hover:bg-warning-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                  >
-                    {chip.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            {hiddenAttentionCount > 0 && !showAllAttention ? (
-              <button
-                type="button"
-                className="text-sm font-semibold text-primary underline underline-offset-2"
-                onClick={() => setShowAllAttention(true)}
-              >
-                Show {hiddenAttentionCount} more
-              </button>
-            ) : null}
+      {attention.length > 0 && !ccError ? (
+        <section aria-labelledby="corporate-attention-title" className="rounded-xl border border-border bg-surface p-5">
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <h2 id="corporate-attention-title" className="text-lg font-semibold text-foreground">Needs attention</h2>
+            <span className="text-sm text-text-muted">{attention.length} {attention.length === 1 ? "category" : "categories"}</span>
           </div>
-        </details>
+          <ul className="divide-y divide-border">
+            {attention.slice(0, 3).map((chip) => (
+              <li key={chip.id}>
+                <Link href={chip.href} className="flex min-h-11 items-center justify-between gap-3 rounded-md py-3 text-sm font-medium text-primary hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
+                  {chip.label}<span aria-hidden="true">→</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {attention.length > 3 ? (
+            <details className="mt-2 border-t border-border pt-2">
+              <summary className="touch-target cursor-pointer py-2 text-sm font-semibold text-primary">More attention items ({attention.length - 3})</summary>
+              <ul className="space-y-2 py-2">
+                {visibleAttention.slice(3).map((chip) => <li key={chip.id}><Link href={chip.href} className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-2">{chip.label}</Link></li>)}
+              </ul>
+              {hiddenAttentionCount > 0 && !showAllAttention ? (
+                <button type="button" className="btn-secondary" onClick={() => setShowAllAttention(true)}>Show {hiddenAttentionCount} more</button>
+              ) : null}
+            </details>
+          ) : null}
+        </section>
       ) : null}
 
       <KpiSection cc={cc} open={kpiOpen} onOpenChange={handleKpiOpenChange} />
@@ -328,7 +309,7 @@ export function CommandCenterDeskView({
         className="rounded-lg border border-border bg-surface shadow-sm"
       >
         <summary className="cursor-pointer touch-target list-none rounded-lg px-5 py-4 text-base font-semibold text-foreground hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus">
-          More on Today
+          Program activity & tools
         </summary>
         <div className="space-y-8 border-t border-border px-5 pb-5 pt-4">
           <div data-section="program-updates">
@@ -390,6 +371,10 @@ export function CommandCenterDeskView({
           </p>
         </div>
       </details>
+      <p className="text-sm text-text-muted">
+        Working in the field?{" "}
+        <Link href="/dashboard?view=field" onClick={() => onPreferFieldLayout?.()} className="font-medium text-primary underline underline-offset-2">Open the field workspace</Link>
+      </p>
     </div>
   );
 }
