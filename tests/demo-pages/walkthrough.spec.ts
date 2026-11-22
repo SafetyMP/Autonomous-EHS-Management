@@ -272,9 +272,9 @@ test("the case has its own entry, dynamic figures and return path from the techn
   await expect(page.locator("#project-overview")).toBeHidden();
   await expect(page.getByRole("img", { name: /conveyor sections/ })).toBeVisible();
   const trace = page.locator("#case-operator-trace");
-  await expect(trace).toContainText("still needs");
+  await expect(trace).toContainText("Evening operator · 20:40");
   await page.locator("#case-packet").selectOption("observation");
-  await expect(trace).toContainText("one shift");
+  await expect(trace).toHaveText("Day operator · 08:10.");
   const bar = page.locator(".cost-track i").nth(1);
   const before = await bar.getAttribute("style");
   await page.getByLabel("Minutes per action, tracker").fill("12");
@@ -293,7 +293,7 @@ test("the case has its own entry, dynamic figures and return path from the techn
 });
 
 
-test("the coordinator can exercise all four modeled handoffs and replay without closing the record", async ({ page }) => {
+test("the coordinator can exercise all six modeled handoffs and replay without closing the record", async ({ page }) => {
   await page.goto("./");
   const packet = page.locator("#case-packet");
   const outcome = page.locator("#case-outcome");
@@ -302,6 +302,8 @@ test("the coordinator can exercise all four modeled handoffs and replay without 
     ["installation", "Send to Alex Morgan", "Alex returns the incomplete packet"],
     ["observation", "Return for evidence", "The shift team receives a second follow-up"],
     ["observation", "Send to Alex Morgan", "Alex receives both records for closure review"],
+    ["evening", "Return for evidence", "Maya receives both shift accounts for follow-up"],
+    ["evening", "Send to Alex Morgan", "Alex holds closure review and returns both notes"],
   ] as const) {
     await packet.selectOption(selection);
     await page.getByRole("button", { name: button }).click();
@@ -309,9 +311,28 @@ test("the coordinator can exercise all four modeled handoffs and replay without 
     await expect(outcome).toContainText("CAPA-021 stays “Ready for verification”");
   }
   await page.getByRole("button", { name: "Replay the handoff" }).click();
-  await expect(packet).toHaveValue("installation");
+  await expect(packet).toHaveValue("evening");
   await expect(packet).toBeFocused();
   await expect(outcome).toContainText("choose the packet’s next stop");
   await page.getByRole("link", { name: "Inspect CAPA-021" }).click();
   await expect(page.getByRole("main")).toContainText("Ready for verification");
+});
+
+test("the dated field notes precede interpretation of the evening packet", async ({ page }) => {
+  await page.goto("./");
+  const notes = page.locator("#case-excerpt");
+  const outcome = page.locator("#case-outcome");
+  await expect(notes.locator("dt")).toHaveCount(3);
+  await expect(notes).toContainText("guard was in position");
+  await expect(notes).toContainText("same guard sitting out of position");
+  await expect(outcome).not.toContainText(/discrepancy|holds closure|different accounts/);
+  await expect(page.locator("#case-packet option:checked")).toHaveText("Packet through 14 November, 20:40");
+  await page.getByRole("button", { name: "Send to Alex Morgan" }).click();
+  await expect(outcome).toContainText("day note cannot establish the guard’s condition at 20:40");
+  await page.locator("#case-packet").selectOption("observation");
+  await expect(notes.locator("dt")).toHaveCount(2);
+  await expect(notes).not.toContainText("Evening operator");
+  await expect(outcome).not.toContainText("discrepancy");
+  await page.getByRole("button", { name: "Send to Alex Morgan" }).click();
+  await expect(outcome).toContainText("One run supports that time window");
 });

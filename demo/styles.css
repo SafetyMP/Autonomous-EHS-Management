@@ -51,7 +51,10 @@ main{min-width:0;width:100%}
 .case-evidence > div, .case-model, .case-pilot { padding: clamp(1.15rem, 2.3vw, 2.25rem); background: #fff; border: 1px solid #c9c8c4; border-radius: .45rem; }
 .case-evidence > div { border-top: 0; border-radius: 0; padding: 1rem 1.25rem; }
 .case-evidence h2 { font-size: 1.45rem; margin: 0 0 .45rem; }
-.case-evidence #case-excerpt { margin-top: .65rem; padding-left: .8rem; border-left: 3px solid #898b8e; }
+.case-evidence #case-excerpt { margin: .6rem 0 0; }
+#case-excerpt > div { padding: .4rem 0; border-top: 1px solid #c9c8c4; }
+#case-excerpt dt { font-size: .8125rem; font-weight: 700; color: #515357; }
+#case-excerpt dd { margin: .12rem 0 0; font-size: 1rem; line-height: 1.35; }
 .case-evidence .case-response { background: #e7e7e4; border-color: #b8b8b5; display: flex; flex-direction: column; justify-content: center; }
 .handoff-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; }
 .handoff-actions button, #case-replay { padding: .55rem .8rem; background: #fff; color: #242629; border: 1px solid #646669; border-radius: .2rem; font-weight: 650; }
@@ -110,6 +113,13 @@ main{min-width:0;width:100%}
   .handoff-bar > :first-child { padding: .45rem .55rem; }
   .handoff-register > div { padding: .3rem .65rem; }
   .case-inputs, .case-totals dl { grid-template-columns: 1fr; }
-  .case-masthead > div { display: grid; }
+  .case-view .case-masthead { display: grid; grid-template-columns: auto auto; align-items: center; gap: .1rem .5rem; padding: .45rem 1rem; }
+  .case-masthead > div { display: contents; }
+  .case-masthead .case-notice { grid-row: 2; grid-column: 1 / -1; }
+  .case-masthead a { grid-column: 2; grid-row: 1; justify-self: end; }
+  .case-view main { padding-top: .75rem; }
+  .case-study h1 { padding: .75rem; }
+  .case-evidence > div { padding: .8rem .85rem; }
+  #case-excerpt > div { padding: .3rem 0; }
   .case-masthead a { max-width: 8rem; text-align: right; }
 }

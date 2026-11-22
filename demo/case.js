@@ -2,20 +2,31 @@
 "use strict";
 
 window.ehsReviewCase = (() => {
+  // The installation entry summarizes the bundled fixture. Both shift notes are fictional case evidence.
+  const notes = [
+    ["13 Nov · Installation log", "Maya Chen logged the guard installation at conveyor 3. The entry references a site inspection."],
+    ["14 Nov 08:10 · Day operator", "“The guard was in position at the transfer point when our packing run ended.”"],
+    ["14 Nov 20:40 · Evening operator", "“At run end I saw the same guard sitting out of position.”"]
+  ];
   const example = {
     installation: {
-      evidence: "The 13 November installation entry refers to a site inspection. Its excerpt gives no observation of how the guard performed in use.",
-      returned: ["Shift supervisor receives the evidence request", "In this run, the supervisor asks the line operator for a dated observation. Maya keeps the packet until it can be linked to the installation record."],
-      advanced: ["Alex returns the incomplete packet", "In this run, Alex finds the installation entry but no account of the guard in use. The packet goes back to Maya for another handoff. Closure review is deferred."]
+      count: 1, shifts: "No shift notes attached.",
+      returned: ["Shift supervisor receives the evidence request", "The log documents installation. Maya asks the shift team to supply a dated account of the guard during work before handing the case to Alex."],
+      advanced: ["Alex returns the incomplete packet", "Alex finds the installation entry but no account from a working shift. The packet goes back to Maya for another handoff."]
     },
     observation: {
-      evidence: "Hypothetical shift note, 14 November. The supervisor observed normal packing on line 3. The operator reported that the guard stayed in place during that run. The note covers one shift.",
-      returned: ["The shift team receives a second follow-up", "In this run, the team already supplied one shift’s observation. The supervisor asks which other task or shift needs checking. The extra round delays Alex’s review."],
-      advanced: ["Alex receives both records for closure review", "In this run, Alex can assess the installation and the operator’s account together, then decide whether another shift needs checking. Signed closure requires a separate human decision."]
+      count: 2, shifts: "Day operator · 08:10.",
+      returned: ["The shift team receives a second follow-up", "The day operator has already reported on one run. Asking for another shift’s account adds a handoff and can reveal conditions that the day shift did not observe."],
+      advanced: ["Alex receives both records for closure review", "Alex can assess the installation and the day operator’s account together. One run supports that time window. Alex still decides whether other shifts need review before signing."]
+    },
+    evening: {
+      count: 3, shifts: "Day operator · 08:10. Evening operator · 20:40.",
+      returned: ["Maya receives both shift accounts for follow-up", "The operators give different accounts of the same guard. Maya keeps both notes with the action and asks the shift supervisors to establish what changed between the two observations. Alex has no signed closure to record."],
+      advanced: ["Alex holds closure review and returns both notes", "Passing on a longer packet did not resolve the discrepancy. The day note cannot establish the guard’s condition at 20:40. Alex sends the two accounts back to Maya, adding a review round."]
     }
   };
 
-  let selectedPacket = "installation";
+  let selectedPacket = "evening";
   let selectedAction = null;
   const worksheetValues = new Map();
 
@@ -34,8 +45,8 @@ window.ehsReviewCase = (() => {
       <section class="case-evidence" aria-labelledby="packet-heading">
         <div><h2 id="packet-heading">Evidence at handoff</h2>
         <label for="case-packet">Evidence available to ${action.reviewer}</label>
-        <select id="case-packet"><option value="installation">Installation record only</option><option value="observation">Add a hypothetical follow-up observation</option></select>
-        <p id="case-excerpt"></p></div>
+        <select id="case-packet"><option value="installation">Packet through 13 November</option><option value="observation">Packet through 14 November, 08:10</option><option value="evening">Packet through 14 November, 20:40</option></select>
+        <dl id="case-excerpt" aria-label="Illustrative record excerpts"></dl></div>
         <div class="case-response"><p class="case-kicker">YOUR SHIFT HANDOFF</p><h3 id="case-decision">Who should receive the packet next?</h3>
           <div class="handoff-actions"><button type="button" data-handoff="returned">Return for evidence</button><button type="button" data-handoff="advanced">Send to ${action.reviewer}</button></div>
           <div id="case-outcome" aria-live="polite"></div><button type="button" id="case-replay" hidden>Replay the handoff</button>
@@ -103,10 +114,10 @@ window.ehsReviewCase = (() => {
 
     function showPacket() {
       packet.value = selectedPacket;
-      container.querySelector("#case-excerpt").textContent = example[selectedPacket].evidence;
-      container.querySelector("#case-operator-trace").textContent = selectedPacket === "installation"
-        ? "The packet still needs an account of how the guard performed."
-        : "The supervisor and operator add one shift’s observation.";
+      const record = example[selectedPacket];
+      container.querySelector("#case-excerpt").innerHTML = notes.slice(0, record.count)
+        .map(([source, excerpt]) => `<div><dt>${source}</dt><dd>${excerpt}</dd></div>`).join("");
+      container.querySelector("#case-operator-trace").textContent = record.shifts;
       showDecision();
     }
     packet.addEventListener("change", () => {
@@ -119,7 +130,7 @@ window.ehsReviewCase = (() => {
       showDecision();
     });
     replay.addEventListener("click", () => {
-      selectedPacket = "installation";
+      selectedPacket = "evening";
       selectedAction = null;
       showPacket();
       packet.focus();
@@ -158,9 +169,9 @@ window.ehsReviewCase = (() => {
     return `<article class="case-guide"><p class="case-kicker">AUTONOMOUS EHS · TECHNICAL WORKSPACE</p>
       <h1>Verify the conveyor case</h1>
       <p>Trace the evidence behind the shift handoff, check the arithmetic or open the corporate walkthrough.</p>
-      <details open><summary>Which records does the case use?</summary><p>The browser reads synthetic incident <a href="#/incidents/INC-1042">INC-1042</a> and corrective action <a href="#/actions/CAPA-021">CAPA-021</a> from the bundled fixture. The status remains “Ready for verification.” The second packet adds a hypothetical shift note only for comparison.</p></details>
+      <details open><summary>Which records does the case use?</summary><p>The browser reads synthetic incident <a href="#/incidents/INC-1042">INC-1042</a> and corrective action <a href="#/actions/CAPA-021">CAPA-021</a> from the bundled fixture. The status remains “Ready for verification.” The three cutoffs add hypothetical day and evening operator notes to the installation summary. Times and quotations belong to the browser exercise.</p></details>
       <details><summary>How are the costs calculated?</summary><p>Each option uses annual reviews × minutes per review ÷ 60 × hourly labor cost + added first-year costs. With 600 reviews at $50 per hour, 12 minutes per review produces $6,000 of console labor. Adding $5,000 yields $11,000.</p></details>
-      <details><summary>How do I reproduce the checks?</summary><p>From a repository checkout with dependencies installed, run <code>npx playwright test --config playwright.demo.config.ts</code>. The suite checks both evidence packets, input changes, source navigation, mobile layout and accessibility. <a href="https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/github-pages-demo.md">Read the verification guide</a>.</p></details>
+      <details><summary>How do I reproduce the checks?</summary><p>From a repository checkout with dependencies installed, run <code>npx playwright test --config playwright.demo.config.ts</code>. The suite checks all three packets and six handoffs, input changes, source navigation, mobile layout and accessibility. <a href="https://github.com/SafetyMP/Autonomous-EHS-Management/blob/main/docs/github-pages-demo.md">Read the verification guide</a>.</p></details>
       <a class="guide-workspace-link" href="#/overview">Open full corporate workspace</a>
     </article>`;
   }

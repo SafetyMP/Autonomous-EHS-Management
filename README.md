@@ -6,7 +6,7 @@
 
 Autonomous EHS Management is **Apache-2.0 environmental, health and safety (EHS) software** for corporate teams coordinating incidents, corrective and preventive actions (CAPA), approvals, and evidence across sites. The full application runs on **Next.js, authentication, role-based permissions, and PostgreSQL you control**.
 
-In the public case, a conveyor guard has been installed after a near miss. Compare what the reviewer can conclude from two evidence packets, then weigh email, a standardized tracker and a self-hosted pilot. The [corporate overview](https://safetymp.github.io/Autonomous-EHS-Management/#/overview) connects that case to the wider incident, action and audit workflows. “Autonomous” means deterministic workflow automation and optional AI assistance: people retain approval and closure authority.
+In the public case, a conveyor guard has been installed after a near miss. Read the installation log and two operators’ accounts at three handoff times, decide where to send each packet, then weigh email, a standardized tracker and a self-hosted pilot. The [corporate overview](https://safetymp.github.io/Autonomous-EHS-Management/#/overview) connects that case to the wider incident, action and audit workflows. “Autonomous” means deterministic workflow automation and optional AI assistance: people retain approval and closure authority.
 
 **[Explore the live demo](https://safetymp.github.io/Autonomous-EHS-Management/)** · **[Download a release](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)** · **[Container package](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web)** · **[Run locally](#run-the-demo)** · **[Documentation](docs/README.md)**
 

@@ -1,8 +1,8 @@
 # GitHub Pages walkthrough
 
-The live [public read-only walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/) is hosted on GitHub Pages. It opens on the [conveyor 3 handoff](https://safetymp.github.io/Autonomous-EHS-Management/#/case). Compare the installation record for CAPA-021 with a hypothetical follow-up observation, then inspect the source incident or visit the [corporate overview](https://safetymp.github.io/Autonomous-EHS-Management/#/overview).
+The live [public read-only walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/) is hosted on GitHub Pages. It opens on the [conveyor 3 handoff](https://safetymp.github.io/Autonomous-EHS-Management/#/case). Inspect the installation record for CAPA-021 alongside hypothetical day- and evening-shift notes at three cutoffs, then inspect the source incident or visit the [corporate overview](https://safetymp.github.io/Autonomous-EHS-Management/#/overview).
 
-Visitors choose whether to return each packet for more evidence or forward it to the named closer, inspect the modeled consequence and replay the handoff. The source record remains ready for verification in every branch.
+The opening packet shows both operators’ dated accounts of the same guard. Visitors choose whether to return each packet for more evidence or forward it to the named closer. The explanation follows the decision. Compare the six possible consequences or replay the handoff. The source record remains ready for verification in every branch.
 
 The standalone case includes a conceptual drawing of the transfer point, a handoff diagram that changes with the evidence packet, and a year-one cost chart. The Technical workspace link opens a compact guide to fixtures, the cost calculation and verification. Readers can expand a question or open the full corporate walkthrough from the guide. Its navigation includes a return to the conveyor case. All existing record URLs remain directly accessible.
 
