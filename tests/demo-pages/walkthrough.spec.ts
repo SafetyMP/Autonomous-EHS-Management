@@ -22,7 +22,7 @@ async function openDemo(page: Page, hash = "/overview") {
 }
 
 async function expectSyntheticLabel(page: Page) {
-  const banner = page.locator(".demo-banner");
+  const banner = page.locator(".demo-banner:visible, .case-notice:visible");
   await expect(banner).toContainText(/synthetic/i);
   await expect(banner).toContainText(/read only/i);
 }
@@ -128,7 +128,7 @@ test("exploration uses only deployment assets, without APIs or transmitted fixtu
   });
   page.on("websocket", (socket) => webSockets.push(socket.url()));
   for (const route of [
-    "/overview", "/incidents", "/incidents/INC-1042", "/actions", "/actions/CAPA-021",
+    "/case", "/overview", "/incidents", "/incidents/INC-1042", "/actions", "/actions/CAPA-021",
     "/audits", "/programs", "/reports", "/about",
   ]) {
     await openDemo(page, route);
@@ -194,6 +194,7 @@ test("unknown routes and HTML-like search remain safe and recoverable", async ({
 });
 
 for (const [route, heading] of [
+  ["/case", "The guard is installed. Is the action ready to close?"],
   ["/overview", "See what needs your attention."],
   ["/incidents", "Every report has a next step."],
   ["/incidents/INC-1042", incidentTitle],
@@ -213,7 +214,7 @@ for (const [route, heading] of [
   });
 }
 
-for (const route of ["/overview", "/incidents", "/incidents/INC-1042", "/actions/CAPA-021", "/reports"]) {
+for (const route of ["/case", "/technical", "/overview", "/incidents", "/incidents/INC-1042", "/actions/CAPA-021", "/reports"]) {
   test(`WCAG 2.2 AA automated checks: ${route}`, async ({ page }) => {
     await openDemo(page, route);
     // Evaluate final painted colors, not the brief entrance animation's intermediate opacity.
@@ -228,3 +229,64 @@ for (const route of ["/overview", "/incidents", "/incidents/INC-1042", "/actions
     }))).toEqual([]);
   });
 }
+
+test("the default case compares evidence and changes the business decision with review volume", async ({ page }) => {
+  await page.goto("./");
+  const main = page.getByRole("main");
+  await expect(main.getByRole("heading", { level: 1 })).toContainText("The guard is installed");
+  await expect(main.getByRole("heading", { name: "Ask for the follow-up record" })).toBeVisible();
+  await main.getByLabel("Evidence available to Alex Morgan").selectOption("observation");
+  await expect(main.getByRole("heading", { name: "Route the packet for human review" })).toBeVisible();
+  const result = main.getByRole("status");
+  await expect(result).toContainText("The console costs $1,400 more");
+  const volume = main.getByLabel("Actions reviewed per year");
+  await volume.fill("1200");
+  await expect(result).toContainText("The console costs $1,600 less");
+  await volume.fill("");
+  await expect(result).toContainText("Complete each assumption");
+  await main.getByRole("link", { name: "Inspect CAPA-021" }).click();
+  await expect(main.getByRole("heading", { level: 1 })).toHaveText(actionTitle);
+  await expect(main).toContainText("Ready for verification");
+  await page.goBack();
+  await expect(main.getByLabel("Evidence available to Alex Morgan")).toHaveValue("observation");
+  await expect(volume).toHaveValue("");
+});
+
+for (const [width, height] of [[1440, 900], [390, 844]] as const) {
+  test(`the shift handoff exposes the records and evidence choice at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await page.goto("./");
+    const register = page.locator(".handoff-register");
+    await expect(register).toContainText("Closure reviewerAlex Morgan");
+    await expect(register.getByRole("link", { name: "Inspect CAPA-021" })).toBeInViewport();
+    await expect(page.getByLabel("Evidence available to Alex Morgan")).toBeInViewport({ ratio: 1 });
+    await expect(page.locator("#case-decision")).toBeInViewport({ ratio: 1 });
+  });
+}
+
+
+test("the case has its own entry, dynamic figures and return path from the technical workspace", async ({ page }) => {
+  await page.goto("./");
+  await expect(page.locator(".sidebar")).toBeHidden();
+  await expect(page.locator("#project-overview")).toBeHidden();
+  await expect(page.getByRole("img", { name: /conveyor sections/ })).toBeVisible();
+  const trace = page.locator("#case-operator-trace");
+  await expect(trace).toContainText("still needs");
+  await page.locator("#case-packet").selectOption("observation");
+  await expect(trace).toContainText("one shift");
+  const bar = page.locator(".cost-track i").nth(1);
+  const before = await bar.getAttribute("style");
+  await page.getByLabel("Minutes per action, tracker").fill("12");
+  await expect(bar).not.toHaveAttribute("style", before!);
+  await expect(page.locator(".cost-graphic")).toContainText("$6,600");
+  await page.getByRole("link", { name: "Technical workspace", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Verify the conveyor case" })).toBeVisible();
+  await expect(page.locator(".sidebar")).toBeHidden();
+  await page.getByText("How are the costs calculated?").click();
+  await expect(page.getByRole("main")).toContainText("$11,000");
+  await page.getByRole("link", { name: "Open full corporate workspace" }).click();
+  await expect(page).toHaveURL(/#\/overview$/);
+  await expect(page.locator(".sidebar")).toBeVisible();
+  await page.locator(".sidebar").getByRole("link", { name: "Conveyor 3 case" }).click();
+  await expect(page.getByRole("heading", { name: "Evidence at handoff" })).toBeVisible();
+});
