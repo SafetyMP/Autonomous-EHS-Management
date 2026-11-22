@@ -53,6 +53,12 @@ main{min-width:0;width:100%}
 .case-evidence h2 { font-size: 1.45rem; margin: 0 0 .45rem; }
 .case-evidence #case-excerpt { margin-top: .65rem; padding-left: .8rem; border-left: 3px solid #898b8e; }
 .case-evidence .case-response { background: #e7e7e4; border-color: #b8b8b5; display: flex; flex-direction: column; justify-content: center; }
+.handoff-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; }
+.handoff-actions button, #case-replay { padding: .55rem .8rem; background: #fff; color: #242629; border: 1px solid #646669; border-radius: .2rem; font-weight: 650; }
+.handoff-actions button[aria-pressed="true"] { background: #323438; color: #fff; }
+#case-outcome strong, #case-outcome small { display: block; }
+#case-outcome p { margin: .3rem 0; }
+#case-replay { align-self: flex-start; margin-top: .65rem; font-size: .875rem; }
 .case-study label { display: block; font-size: .9375rem; font-weight: 600; }
 .case-study select, .case-study input { display: block; width: 100%; min-width: 0; padding: .65rem; margin: .35rem 0 .8rem; border: 1px solid #646669; border-radius: .25rem; font: inherit; background-color: white; color: #242629; }
 .case-evidence > div > :last-child, .case-model > :last-child, .case-pilot > :last-child { margin-bottom: 0; }

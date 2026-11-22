@@ -4,18 +4,19 @@
 window.ehsReviewCase = (() => {
   const example = {
     installation: {
-      heading: "Ask for the follow-up record",
       evidence: "The 13 November installation entry refers to a site inspection. Its excerpt gives no observation of how the guard performed in use.",
-      decision: "Alex can match the installation to the near miss. Ask the shift supervisor for the observation and the operator’s account of what happened at the transfer point during work."
+      returned: ["Shift supervisor receives the evidence request", "In this run, the supervisor asks the line operator for a dated observation. Maya keeps the packet until it can be linked to the installation record."],
+      advanced: ["Alex returns the incomplete packet", "In this run, Alex finds the installation entry but no account of the guard in use. The packet goes back to Maya for another handoff. Closure review is deferred."]
     },
     observation: {
-      heading: "Route the packet for human review",
       evidence: "Hypothetical shift note, 14 November. The supervisor observed normal packing on line 3. The operator reported that the guard stayed in place during that run. The note covers one shift.",
-      decision: "Alex can review the installation alongside a firsthand account. Do other tasks or shifts still need follow-up? The named reviewer owns that judgment and can request more evidence."
+      returned: ["The shift team receives a second follow-up", "In this run, the team already supplied one shift’s observation. The supervisor asks which other task or shift needs checking. The extra round delays Alex’s review."],
+      advanced: ["Alex receives both records for closure review", "In this run, Alex can assess the installation and the operator’s account together, then decide whether another shift needs checking. Signed closure requires a separate human decision."]
     }
   };
 
   let selectedPacket = "installation";
+  let selectedAction = null;
   const worksheetValues = new Map();
 
   function page(action) {
@@ -35,7 +36,10 @@ window.ehsReviewCase = (() => {
         <label for="case-packet">Evidence available to ${action.reviewer}</label>
         <select id="case-packet"><option value="installation">Installation record only</option><option value="observation">Add a hypothetical follow-up observation</option></select>
         <p id="case-excerpt"></p></div>
-        <div class="case-response" aria-live="polite"><p class="case-kicker">REVIEWER’S DECISION · ${action.reviewer}</p><h3 id="case-decision"></h3><p id="case-reason"></p></div>
+        <div class="case-response"><p class="case-kicker">YOUR SHIFT HANDOFF</p><h3 id="case-decision">Who should receive the packet next?</h3>
+          <div class="handoff-actions"><button type="button" data-handoff="returned">Return for evidence</button><button type="button" data-handoff="advanced">Send to ${action.reviewer}</button></div>
+          <div id="case-outcome" aria-live="polite"></div><button type="button" id="case-replay" hidden>Replay the handoff</button>
+        </div>
       </section>
       <section class="case-figures" aria-label="Conveyor and review diagrams">
         <figure class="conveyor-context">
@@ -82,19 +86,45 @@ window.ehsReviewCase = (() => {
 
   function activate(container) {
     const packet = container.querySelector("#case-packet");
-    function updateEvidence() {
-      selectedPacket = packet.value;
-      const result = example[selectedPacket];
-      container.querySelector("#case-excerpt").textContent = result.evidence;
-      container.querySelector("#case-decision").textContent = result.heading;
-      container.querySelector("#case-reason").textContent = result.decision;
+    const outcome = container.querySelector("#case-outcome");
+    const replay = container.querySelector("#case-replay");
+    const buttons = container.querySelectorAll("[data-handoff]");
+    function showDecision() {
+      const record = example[selectedPacket];
+      for (const button of buttons) button.setAttribute("aria-pressed", String(selectedAction === button.dataset.handoff));
+      replay.hidden = !selectedAction;
+      if (!selectedAction) {
+        outcome.textContent = "As shift coordinator, choose the packet’s next stop. Alex owns the final closure decision.";
+        return;
+      }
+      const [title, consequence] = record[selectedAction];
+      outcome.innerHTML = `<strong>${title}</strong><p>${consequence}</p><small>Modeled handoff · CAPA-021 stays “Ready for verification” in the source record.</small>`;
+    }
+
+    function showPacket() {
+      packet.value = selectedPacket;
+      container.querySelector("#case-excerpt").textContent = example[selectedPacket].evidence;
       container.querySelector("#case-operator-trace").textContent = selectedPacket === "installation"
         ? "The packet still needs an account of how the guard performed."
         : "The supervisor and operator add one shift’s observation.";
+      showDecision();
     }
-    packet.value = selectedPacket;
-    packet.addEventListener("change", updateEvidence);
-    updateEvidence();
+    packet.addEventListener("change", () => {
+      selectedPacket = packet.value;
+      selectedAction = null;
+      showPacket();
+    });
+    for (const button of buttons) button.addEventListener("click", () => {
+      selectedAction = button.dataset.handoff;
+      showDecision();
+    });
+    replay.addEventListener("click", () => {
+      selectedPacket = "installation";
+      selectedAction = null;
+      showPacket();
+      packet.focus();
+    });
+    showPacket();
 
     const model = container.querySelector(".case-model");
     const totals = model.querySelector("#case-totals");

@@ -234,9 +234,10 @@ test("the default case compares evidence and changes the business decision with 
   await page.goto("./");
   const main = page.getByRole("main");
   await expect(main.getByRole("heading", { level: 1 })).toContainText("The guard is installed");
-  await expect(main.getByRole("heading", { name: "Ask for the follow-up record" })).toBeVisible();
+  await expect(main.getByRole("heading", { name: "Who should receive the packet next?" })).toBeVisible();
   await main.getByLabel("Evidence available to Alex Morgan").selectOption("observation");
-  await expect(main.getByRole("heading", { name: "Route the packet for human review" })).toBeVisible();
+  await main.getByRole("button", { name: "Send to Alex Morgan" }).click();
+  await expect(main.locator("#case-outcome")).toContainText("Alex receives both records for closure review");
   const result = main.getByRole("status");
   await expect(result).toContainText("The console costs $1,400 more");
   const volume = main.getByLabel("Actions reviewed per year");
@@ -289,4 +290,28 @@ test("the case has its own entry, dynamic figures and return path from the techn
   await expect(page.locator(".sidebar")).toBeVisible();
   await page.locator(".sidebar").getByRole("link", { name: "Conveyor 3 case" }).click();
   await expect(page.getByRole("heading", { name: "Evidence at handoff" })).toBeVisible();
+});
+
+
+test("the coordinator can exercise all four modeled handoffs and replay without closing the record", async ({ page }) => {
+  await page.goto("./");
+  const packet = page.locator("#case-packet");
+  const outcome = page.locator("#case-outcome");
+  for (const [selection, button, consequence] of [
+    ["installation", "Return for evidence", "Shift supervisor receives the evidence request"],
+    ["installation", "Send to Alex Morgan", "Alex returns the incomplete packet"],
+    ["observation", "Return for evidence", "The shift team receives a second follow-up"],
+    ["observation", "Send to Alex Morgan", "Alex receives both records for closure review"],
+  ] as const) {
+    await packet.selectOption(selection);
+    await page.getByRole("button", { name: button }).click();
+    await expect(outcome).toContainText(consequence);
+    await expect(outcome).toContainText("CAPA-021 stays “Ready for verification”");
+  }
+  await page.getByRole("button", { name: "Replay the handoff" }).click();
+  await expect(packet).toHaveValue("installation");
+  await expect(packet).toBeFocused();
+  await expect(outcome).toContainText("choose the packet’s next stop");
+  await page.getByRole("link", { name: "Inspect CAPA-021" }).click();
+  await expect(page.getByRole("main")).toContainText("Ready for verification");
 });
