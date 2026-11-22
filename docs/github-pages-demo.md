@@ -1,8 +1,12 @@
-# Conveyor-guard closure case
+# EHS shift handoff and verification
 
 [Open the North plant case](https://safetymp.github.io/Autonomous-EHS-Management/) or [trace a selected evening handoff](https://safetymp.github.io/Autonomous-EHS-Management/#/technical?handoff=advanced&trial=evening&phase=record).
 
-INC-1042 links a near miss on conveyor 3 to CAPA-021. Maya Chen records the installation. Two operators describe the guard at 08:10 and 20:40. The shift coordinator chooses which packet to return or send to Alex Morgan. The three cutoffs and two routing decisions have six distinct consequences. The conveyor drawing, handoff diagram and cost comparison use synthetic evidence. Only a human reviewer can verify the real action.
+The landing brief introduces the EHS coordinator, maintenance, operators and closure reviewer. The issue is how a team follows a completed job across shifts and obtains working observations before it verifies a corrective action.
+
+[Walk the dock](https://safetymp.github.io/Autonomous-EHS-Management/#/case?section=round) to inspect up to two stops on a receiving or dispatch round. Each collected note belongs to River Distribution’s CAPA-041. Issue a handover to the shift supervisor, a stop owner or the human reviewer. Collecting another observation changes the notebook. Previously issued handovers retain the evidence they had at issue. The dock guide opens on the reader’s round and follows it through field evidence, the review and its record effect.
+
+[Open Maya’s conveyor file](https://safetymp.github.io/Autonomous-EHS-Management/#/case?section=packet) to apply the same method to a separate action. INC-1042 links a near miss on conveyor 3 to CAPA-021. Maya Chen records the installation. Two operators describe the guard at 08:10 and 20:40. The shift coordinator chooses which packet to return or send to Alex Morgan. The three cutoffs and two routing decisions have six distinct consequences. The conveyor drawing, handoff diagram and cost comparison use synthetic evidence. Only a human reviewer can verify the real action.
 
 The EHS director compares email, a standardized tracker and a self-hosted console. At 600 annual reviews and $50 per hour, the illustrative first-year costs are $12,500, $9,600 and $11,000. Change the volume, time and costs to see when the order changes. The plant manager decides whether to fund a pilot that preserves worker observations and reduces handling costs. The case draws on the worker participation, control effectiveness and program evaluation sections of [OSHA 3885](https://www.govinfo.gov/content/pkg/GOVPUB-L35-PURL-gpo142334/pdf/GOVPUB-L35-PURL-gpo142334.pdf).
 
