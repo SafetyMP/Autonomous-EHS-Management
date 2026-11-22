@@ -11,6 +11,8 @@ const icons = {
   arrow: '<path d="M5 12h14M14 7l5 5-5 5"/>',
 };
 const navigation = [
+  { route: "technical", name: "Technical guide", keywords: "fixture method verification tests" },
+  { route: "case", name: "Conveyor 3 case", keywords: "shift handoff evidence business case pilot" },
   { route: "overview", name: "Overview", keywords: "home dashboard" },
   { route: "actions", name: "Actions & approvals", keywords: "CAPA corrective preventive tasks review" },
   { route: "incidents", name: "Incidents & observations", keywords: "report incident hazard near miss" },
@@ -51,7 +53,7 @@ const statusBadge = (status) => badge(status, ["Closed", "Verified", "Complete"]
 const severityBadge = (severity) => badge(severity, severity === "High" ? "danger" : severity === "Medium" ? "warning" : "plain");
 const person = (name, initials) => `<span class="person"><span class="avatar" aria-hidden="true">${escapeHtml(initials)}</span>${escapeHtml(name)}</span>`;
 const button = (href, label, primary = false) => `<a class="button${primary ? " button-primary" : ""}" href="${href}">${label}${icon("arrow")}</a>`;
-const routePath = () => location.hash.startsWith("#/") ? location.hash.slice(2) : "overview";
+const routePath = () => location.hash.startsWith("#/") ? (location.hash.slice(2) || "case") : "case";
 const currentArea = () => routePath().split("/")[0];
 
 function renderNavigation(container, query = "") {
@@ -163,13 +165,20 @@ function render(focus = false) {
     listSearch = listPreferences[area].search;
     statusFilter = listPreferences[area].status;
   }
-  const views = { overview, incidents: incidentsPage, actions: actionsPage, audits: auditsPage, programs: programsPage, reports: reportsPage, about: aboutPage };
+  const views = { technical: window.ehsReviewCase.guide, case: () => window.ehsReviewCase.page(actions.find((action) => action.id === "CAPA-021")), overview, incidents: incidentsPage, actions: actionsPage, audits: auditsPage, programs: programsPage, reports: reportsPage, about: aboutPage };
   let html;
   if (!extra && id && area === "incidents") html = incidentDetail(id);
   else if (!extra && id && area === "actions") html = actionDetail(id);
   else if (!id && Object.hasOwn(views, area)) html = views[area]();
   else html = notFound();
   main.innerHTML = html;
+  const caseVisible = !!main.querySelector(".case-study");
+  const guideVisible = !!main.querySelector(".case-guide");
+  document.body.classList.toggle("case-view", caseVisible || guideVisible);
+  const sectionLink = document.getElementById("case-section-link");
+  sectionLink.href = guideVisible ? "#/case" : "#/technical";
+  sectionLink.textContent = guideVisible ? "Back to shift handoff" : "Technical workspace";
+  if (caseVisible) window.ehsReviewCase.activate(main);
   updateList();
   const areaName = navigation.find((item) => item.route === area)?.name || (area === "about" ? "About this demo" : "Workspace");
   document.getElementById("current-area").textContent = areaName;

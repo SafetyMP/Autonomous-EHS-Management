@@ -6,7 +6,7 @@
 
 Autonomous EHS Management is **Apache-2.0 environmental, health and safety (EHS) software** for corporate teams coordinating incidents, corrective and preventive actions (CAPA), approvals, and evidence across sites. The full application runs on **Next.js, authentication, role-based permissions, and PostgreSQL you control**.
 
-Start with a corporate overview, find the work that needs attention, and follow an incident through a corrective action to human verification. “Autonomous” means deterministic workflow automation and optional AI assistance: people retain approval and closure authority.
+In the public case, a conveyor guard has been installed after a near miss. Read the installation log and two operators’ accounts at three handoff times, decide where to send each packet, then weigh email, a standardized tracker and a self-hosted pilot. The [corporate overview](https://safetymp.github.io/Autonomous-EHS-Management/#/overview) connects that case to the wider incident, action and audit workflows. “Autonomous” means deterministic workflow automation and optional AI assistance: people retain approval and closure authority.
 
 **[Explore the live demo](https://safetymp.github.io/Autonomous-EHS-Management/)** · **[Download a release](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)** · **[Container package](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web)** · **[Run locally](#run-the-demo)** · **[Documentation](docs/README.md)**
 
@@ -14,7 +14,7 @@ Start with a corporate overview, find the work that needs attention, and follow 
 
 | | Public GitHub Pages demo | Full application package |
 |---|---|---|
-| Purpose | Explore navigation, the corporate overview, and the incident-to-corrective-action journey | Run the EHS workflows in your own environment |
+| Purpose | Explore the conveyor case, compare review costs, and follow the incident-to-corrective-action journey | Run the EHS workflows in your own environment |
 | Data | Synthetic, read-only examples | Your PostgreSQL database and organization records |
 | Access | No sign-in; static HTML, CSS, and JavaScript | Better Auth sessions and server-enforced permissions |
 | Actions | Interactive navigation and example filters; no operational writes | Permission-gated mutations, human approvals, and workflow controls |

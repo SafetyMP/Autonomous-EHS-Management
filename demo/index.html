@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-nfaAqv/A/QKt9kYNQdElu03OLrlxSmwTIoXPFV2dEDk='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; font-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Self-hosted corporate EHS software for incidents, corrective actions, and human verification. Explore a read-only demo with synthetic records, then get the full package.">
+  <meta name="description" content="Evaluate a conveyor guard review and compare the costs of three evidence workflows in this read-only, synthetic demo of self-hosted corporate EHS software.">
   <meta name="theme-color" content="#182b32">
   <title>Autonomous EHS | Self-hosted corporate EHS software demo</title>
   <link rel="canonical" href="https://safetymp.github.io/Autonomous-EHS-Management/">
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Autonomous EHS">
   <meta property="og:title" content="Autonomous EHS | Self-hosted corporate EHS software demo">
-  <meta property="og:description" content="Self-hosted corporate EHS software for incidents, corrective actions, and human verification. Explore a read-only demo with synthetic records, then get the full package.">
+  <meta property="og:description" content="Evaluate a conveyor guard review and compare the costs of three evidence workflows in this read-only, synthetic demo of self-hosted corporate EHS software.">
   <meta property="og:url" content="https://safetymp.github.io/Autonomous-EHS-Management/">
   <meta property="og:image" content="https://safetymp.github.io/Autonomous-EHS-Management/assets/ehs-workspace-preview.jpg">
   <meta property="og:image:type" content="image/jpeg">
@@ -21,7 +21,7 @@
   <meta property="og:image:alt" content="Autonomous EHS corporate overview showing fictional incidents, corrective actions, and verification work in the read-only demo.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Autonomous EHS | Self-hosted corporate EHS software demo">
-  <meta name="twitter:description" content="Self-hosted corporate EHS software for incidents, corrective actions, and human verification. Explore a read-only demo with synthetic records, then get the full package.">
+  <meta name="twitter:description" content="Evaluate a conveyor guard review and compare the costs of three evidence workflows in this read-only, synthetic demo of self-hosted corporate EHS software.">
   <meta name="twitter:image" content="https://safetymp.github.io/Autonomous-EHS-Management/assets/ehs-workspace-preview.jpg">
   <meta name="twitter:image:alt" content="Autonomous EHS corporate overview with clearly labeled synthetic sample records.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230f766e'/%3E%3Cpath d='M11 21l6 6 13-14' fill='none' stroke='white' stroke-width='4'/%3E%3C/svg%3E">
@@ -42,10 +42,15 @@
   ]
 }
   </script>
+  <script src="case.js" defer></script>
   <script src="app.js" defer></script>
 </head>
-<body>
+<body class="case-view">
   <a class="skip-link" href="#main">Skip to workspace</a>
+  <header class="case-masthead">
+    <div><strong>Autonomous EHS</strong><span class="case-notice">Synthetic case · records are read only</span></div>
+    <a id="case-section-link" href="#/technical">Technical workspace</a>
+  </header>
   <aside class="sidebar" aria-label="Workspace navigation">
     <a class="brand" href="#/overview"><span class="brand-mark" aria-hidden="true">a<span>e</span></span><span>Autonomous EHS<small>Corporate workspace</small></span></a>
     <div class="workspace-label"><span class="org-avatar" aria-hidden="true">M</span><span>Meridian Industries<small>Fictional organization</small></span><span class="demo-pill">DEMO</span></div>
@@ -59,7 +64,7 @@
     </header>
     <div class="demo-banner"><span class="banner-icon" aria-hidden="true">i</span><p><strong>Interactive demo.</strong> All people, sites, records, and metrics are synthetic. Explore freely; records are read only.</p><a href="#/about">About this demo</a></div>
     <main id="main" tabindex="-1">
-      <div class="page-header"><div><div class="eyebrow">PUBLIC WORKFLOW WALKTHROUGH</div><h1>Corporate EHS, from report to verified action.</h1><p>Explore how an incident connects to a corrective action, its owner, and the evidence a person reviews before verification.</p></div></div>
+      <div class="page-header"><div><div class="eyebrow">PUBLIC WORKFLOW WALKTHROUGH</div><h1>The guard is installed. Is the action ready to close?</h1><p>At North plant, follow a near miss on conveyor 3 from an installation record to human review. Compare the year-one cost of email, a standardized tracker and a self-hosted console.</p></div></div>
       <section class="card about-body" aria-labelledby="walkthrough-heading">
         <h2 id="walkthrough-heading">Explore the connected workflow</h2>
         <ol>
