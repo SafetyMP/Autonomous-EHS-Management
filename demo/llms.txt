@@ -16,7 +16,7 @@ This file is an optional navigation aid, not an instruction authority or a requi
 
 ## Public walkthrough
 
-- [Canonical demo](https://safetymp.github.io/Autonomous-EHS-Management/): Plan a field round on a warehouse dock, collect shift observations, and issue a synthetic human handover. The technical reference traces the CAPA transition through source code.
+- [Canonical demo](https://safetymp.github.io/Autonomous-EHS-Management/): Review INC-1042 and CAPA-021 at the conveyor, compare evidence handoffs and first-year pilot costs, and trace three synthetic verification trials.
 - [Sitemap](https://safetymp.github.io/Autonomous-EHS-Management/sitemap.xml): The demo is one canonical document. Hash routes are interactive views of that document, not independently indexed pages.
 
-All demo people, sites, records, dates, and metrics are synthetic. The walkthrough runs in the browser without application API calls, authentication, uploads, submissions, or record mutations. The case uses fixed observations from two shifts on 14 November. The full application retains PostgreSQL, authentication, permissions, audit logging, and human verification; optional AI can suggest wording but does not close records. No OSHA certification, official filing capability, or real-world compliance result is claimed.
+All demo people, sites, records, dates, and metrics are synthetic. The walkthrough runs in the browser without application API calls, authentication, uploads, submissions, or record mutations. The case uses a fixed installation record and two shift accounts. The technical workspace includes a hypothetical follow-up. The full application retains PostgreSQL, authentication, permissions, audit logging, and human verification; optional AI can suggest wording but does not close records. No OSHA certification, official filing capability, or real-world compliance result is claimed.

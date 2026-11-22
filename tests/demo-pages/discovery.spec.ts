@@ -147,10 +147,10 @@ test("keeps the static fallback accessible when the application script is unavai
 
 test("keeps project and package discovery available after navigating the interactive walkthrough", async ({ page }) => {
   await page.goto("./#/technical");
-  await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toContainText(/inside the EHS application/i);
+  await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toContainText(/trace the conveyor-guard packet/i);
   const project = page.locator("#project-overview");
   await expect(project).toBeVisible();
-  await expect(project).toContainText(/synthetic field round/i);
+  await expect(project).toContainText(/synthetic conveyor case/i);
   for (const href of resourceURLs) await expect(project.locator(`a[href="${href}"]`)).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", canonicalURL);
 });

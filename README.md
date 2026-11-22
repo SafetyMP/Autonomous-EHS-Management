@@ -6,7 +6,7 @@
 
 Autonomous EHS Management is **Apache-2.0 environmental, health and safety (EHS) software** for corporate teams coordinating incidents, corrective and preventive actions (CAPA), approvals, and evidence across sites. The full application runs on **Next.js, authentication, role-based permissions, and PostgreSQL you control**.
 
-In the public case, act as the EHS coordinator at a distribution dock after a pedestrian and a lift truck shared an aisle. Choose field stops across the receiving and dispatch shifts, compare accounts, and issue a handover to the next reviewer. The [technical reference](https://safetymp.github.io/Autonomous-EHS-Management/#/technical) traces the full application’s corrective-action checks and audit transaction. People retain approval and closure authority.
+In the public case, a conveyor guard has been installed after a near miss at North plant. Read the installation log and operators’ accounts at three handoff times, route the packet, and compare the first-year cost of email, a standardized tracker and a self-hosted pilot. The [technical workspace](https://safetymp.github.io/Autonomous-EHS-Management/#/technical) carries that handoff into a verification trace with three replayable evidence trials. People retain approval and closure authority.
 
 **[Explore the live demo](https://safetymp.github.io/Autonomous-EHS-Management/)** · **[Download a release](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)** · **[Container package](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web)** · **[Run locally](#run-the-demo)** · **[Documentation](docs/README.md)**
 
@@ -14,10 +14,10 @@ In the public case, act as the EHS coordinator at a distribution dock after a pe
 
 | | Public GitHub Pages demo | Full application package |
 |---|---|---|
-| Purpose | Walk two dock shifts, collect observations and hand a corrective action to its next owner | Run the EHS workflows in your own environment |
+| Purpose | Review conveyor-guard evidence, choose a handoff and compare the sponsor’s pilot options | Run the EHS workflows in your own environment |
 | Data | Synthetic, read-only examples | Your PostgreSQL database and organization records |
 | Access | No sign-in; static HTML, CSS, and JavaScript | Better Auth sessions and server-enforced permissions |
-| Actions | Plan field rounds and compare handovers in browser memory | Permission-gated mutations, human approvals, and workflow controls |
+| Actions | Compare shift packets and verification trials in the browser | Permission-gated mutations, human approvals, and workflow controls |
 | Start | [Open the walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/) | [Local setup](#run-the-demo) or [self-hosting guide](docs/self-host-quickstart.md) |
 
 The walkthrough is published from [`demo/`](demo/) and has its own [verification and deployment workflow](.github/workflows/pages-demo.yml). It does not exercise backend authorization or prove deployment readiness. The previous Vercel public demo is deprecated; GitHub Pages is the public walkthrough. See [demo scope](docs/github-pages-demo.md).
