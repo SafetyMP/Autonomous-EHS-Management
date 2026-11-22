@@ -67,7 +67,10 @@ function readLocation() {
   for (const [name, fallback] of Object.entries(assumptions)) {
     const value = params.get(name);
     saved[name] =
-      value !== null && /^-?\d{0,11}(?:\.\d{0,8})?$/.test(value)
+      value !== null &&
+      (value === "" ||
+        (/^-?(?:\d+|\d*\.\d+)(?:e[+-]?\d+)?$/i.test(value) &&
+          Number.isFinite(Number(value))))
         ? value
         : fallback;
   }

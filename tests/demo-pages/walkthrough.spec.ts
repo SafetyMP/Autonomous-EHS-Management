@@ -114,6 +114,23 @@ for (const width of [1440, 375]) {
   });
 }
 
+test("a permalink preserves exponent and fractional worksheet inputs supported by the numeric controls", async ({
+  page,
+}) => {
+  await page.goto("./#/case?rate=5e-2&console-cost=0.000000001");
+  await expect(page.locator("#case-rate")).toHaveValue("5e-2");
+  await expect(page.locator("#case-console-cost")).toHaveValue("0.000000001");
+  await page
+    .getByRole("link", { name: "Trace this packet through verification" })
+    .click();
+  await page.reload();
+  await page
+    .getByRole("link", { name: "Return to this case and worksheet" })
+    .click();
+  await expect(page.locator("#case-rate")).toHaveValue("5e-2");
+  await expect(page.locator("#case-console-cost")).toHaveValue("0.000000001");
+});
+
 test("three independent technical fixtures distinguish blocked input, human hold and an eligible transaction", async ({
   page,
 }) => {
