@@ -28,10 +28,9 @@ test.describe("discovery without application JavaScript", () => {
     await expect(project.getByRole("heading", { level: 2 })).toContainText(/self-hosted.*EHS/i);
     await expect(project).toContainText(/PostgreSQL as the system of record/i);
     await expect(project).toContainText(/authentication, permission checks, and an audit trail/i);
-    await expect(project).toContainText(/AI can suggest wording; people review and close records/i);
+    await expect(project).toContainText(/AI can suggest wording. People review and close records/i);
     await expect(project).toContainText(/module maturity varies/i);
-    await expect(project).toContainText(/does not replace the self-hosted application/i);
-    await expect(project).toContainText(/does not claim OSHA certification/i);
+    await expect(project).toContainText(/no certification or filing determination/i);
 
     const resources = page.getByRole("navigation", { name: "Package and documentation" });
     for (const href of resourceURLs) {
@@ -147,11 +146,11 @@ test("keeps the static fallback accessible when the application script is unavai
 });
 
 test("keeps project and package discovery available after navigating the interactive walkthrough", async ({ page }) => {
-  await page.goto("./#/incidents/INC-1042");
-  await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toContainText(/unguarded transfer point/i);
+  await page.goto("./#/technical");
+  await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toContainText(/inside the EHS application/i);
   const project = page.locator("#project-overview");
   await expect(project).toBeVisible();
-  await expect(project).toContainText(/synthetic, read-only/i);
+  await expect(project).toContainText(/synthetic field round/i);
   for (const href of resourceURLs) await expect(project.locator(`a[href="${href}"]`)).toBeVisible();
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", canonicalURL);
 });
