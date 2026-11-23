@@ -24,6 +24,12 @@ The walkthrough is published from [`demo/`](demo/) and has its own [verification
 
 The full application is distributed as source releases and a [GHCR container](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web): `ghcr.io/safetymp/autonomous-ehs-management/ehs-web:<full-git-sha>`. Choose a published SHA or image digest and follow the [deployment requirements](docs/self-host-quickstart.md). GitHub release tags identify source releases; this is not an npm package.
 
+### Trace a handover into the implementation
+
+- **What goes to the next shift?** On the River Distribution dock, each notebook entry records a stop and shift. Issuing a handover preserves the observations available at that moment. The guide reopens the selected round so a reviewer can inspect what the team knew. [Dock round model](demo/field-round.js) · [Interactive trace](demo/technical-guide.js)
+- **Who can verify the conveyor repair?** In the full application, the CAPA router checks the reviewer’s organization and update permission, the allowed change of status, and the verification notes. The reviewer judges whether the guard worked in the field. [CAPA mutation](src/server/trpc/routers/capa.ts) · [Transition rules](src/lib/workflow/capaTransitions.ts)
+- **What does the next reviewer see?** A successful status change writes the action, workflow transition and audit event in one PostgreSQL transaction. The browser guide replays a hypothetical transition on synthetic records. [Stored record definitions](src/server/db/schema.ts) · [Transition tests](tests/unit/workflow/capaTransitions.test.ts) · [Trace an evening handoff](https://safetymp.github.io/Autonomous-EHS-Management/#/technical?handoff=advanced&trial=evening&phase=record)
+
 ## Incident and CAPA workflow
 
 ![Corporate EHS overview showing work that needs attention, site context, and links to incidents and corrective actions.](docs/qa/corporate-redesign/overview.jpg)
