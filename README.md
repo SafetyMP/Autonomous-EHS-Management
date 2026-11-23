@@ -4,17 +4,19 @@
 [![Pages demo](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/pages-demo.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Autonomous-EHS-Management/actions/workflows/pages-demo.yml)
 [![License: Apache-2.0](docs/assets/badges/license-apache-2.0.svg)](LICENSE)
 
-Autonomous EHS Management is **Apache-2.0 environmental, health and safety (EHS) software** for corporate teams coordinating incidents, corrective and preventive actions (CAPA), approvals, and evidence across sites. The full application runs on **Next.js, authentication, role-based permissions, and PostgreSQL you control**.
+A conveyor guard is back in place after a near miss at North plant. Maintenance can say what it installed. Operators on the next shifts observe how it behaves during work. Maya owns the corrective action, and Alex must decide whether the available observations support verification or another field check. [Open the shift handoff](https://safetymp.github.io/Autonomous-EHS-Management/)
 
-The [public EHS case](https://safetymp.github.io/Autonomous-EHS-Management/) starts with a shift change after a near miss. Walk River Distribution’s dock during receiving and dispatch, choose which observations to collect, and issue a handover. At North plant, use a separate conveyor-guard record to route a corrective action for human review. The [technical guide](https://safetymp.github.io/Autonomous-EHS-Management/#/technical) traces field evidence, permissions and the recorded outcome. A sponsor worksheet compares email, a shared tracker and the self-hosted console.
+Autonomous EHS connects an incident to a corrective action with a named owner in a self-hosted PostgreSQL application. When an authorized reviewer records a status change, the server saves the action, transition and audit event together. If the reviewer verifies the action, the record also stores who verified it and the notes explaining why. The next shift can read those notes on the verified action. In the browser, gather dock observations at River Distribution and hand them over, then apply the same reasoning to Maya’s conveyor file. [Follow the handover into the implementation](#trace-a-handover-into-the-implementation)
 
-**[Explore the live demo](https://safetymp.github.io/Autonomous-EHS-Management/)** · **[Download a release](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)** · **[Container package](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web)** · **[Run locally](#run-the-demo)** · **[Documentation](docs/README.md)**
+For a pilot, the EHS director can compare matched actions handled by email, a shared tracker and the console. Have the site coordinator time each review and count packets returned for missing evidence. Ask operators which observations survived the handoff. The plant manager can weigh that evidence against first-year setup and running costs. [Case and pilot assumptions](docs/github-pages-demo.md)
+
+**[Open the technical guide](https://safetymp.github.io/Autonomous-EHS-Management/#/technical)** · **[Download a release](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)** · **[Container package](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web)** · **[Run locally](#run-the-demo)** · **[Documentation](docs/README.md)**
 
 ## Public walkthrough and full application
 
 | | Public GitHub Pages demo | Full application package |
 |---|---|---|
-| Purpose | Review conveyor-guard evidence, choose a handoff and compare the sponsor’s pilot options | Run the EHS workflows in your own environment |
+| Purpose | Gather cross-shift observations at the dock, review a conveyor-guard packet and compare pilot options | Run the EHS workflows in your own environment |
 | Data | Synthetic, read-only examples | Your PostgreSQL database and organization records |
 | Access | No sign-in; static HTML, CSS, and JavaScript | Better Auth sessions and server-enforced permissions |
 | Actions | Compare shift packets and verification trials in the browser | Permission-gated mutations, human approvals, and workflow controls |
