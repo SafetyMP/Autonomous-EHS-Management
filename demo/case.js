@@ -43,11 +43,11 @@ const example = {
     shifts: "Day operator · 08:10. Evening operator · 20:40.",
     returned: [
       "Maya receives both shift accounts for follow-up",
-      "The operators give different accounts of the same guard. Maya keeps both notes with the action and asks the shift supervisors to establish what changed between the two observations. Alex has no signed closure to record.",
+      "The operators give different accounts of the same guard. The shift supervisor handles the reported condition under site procedures. Maya keeps both accounts with the open action so Alex can follow up.",
     ],
     advanced: [
       "Alex holds closure review and returns both notes",
-      "Passing on a longer packet did not resolve the discrepancy. The day note cannot establish the guard’s condition at 20:40. Alex sends the two accounts back to Maya, adding a review round.",
+      "Passing on a longer packet did not resolve the discrepancy. The day note cannot establish the guard’s condition at 20:40. The shift supervisor handles the reported condition under site procedures. Alex sends both notes back to Maya for follow-up, adding a review round.",
     ],
   },
 };
@@ -80,18 +80,44 @@ export const assumptions = {
   "console-cost": "5000",
 };
 
-function page(action) {
+export function renderBrief(container) {
+  container.innerHTML = `<article class="shift-brief">
+    <header class="shift-hero">
+      <div><p class="case-kicker">Corporate environment, health &amp; safety · Shift briefing</p>
+        <h1>What happens to a safety fix after the shift changes?</h1>
+        <p>At North plant, two crews pack orders on the same conveyor. After a near miss, maintenance installs a guard where cartons pass from one belt to the next. The work order is marked complete. Maya Chen, the action owner, still needs to tell the EHS reviewer how the guard performs during a working shift.</p>
+      </div>
+      <figure class="brief-figure"><figcaption>North plant · Packaging line 3</figcaption>
+        <div class="conveyor-drawing" role="img" aria-label="Two conveyor sections meet at a transfer point, the location of the reported near miss."><span class="guard-callout">Guard at transfer point</span><i class="transfer-guard"></i><i class="conveyor-box"></i><i class="conveyor-bed feed"></i><i class="conveyor-bed discharge"></i></div>
+        <p>Near miss INC-1042 <span aria-hidden="true">→</span> Corrective action CAPA-021</p>
+      </figure>
+    </header>
+    <section class="shift-problem"><h2>One repair, three accounts</h2>
+      <p>Maintenance knows what it installed. Operators see what happens as work changes. The EHS reviewer, Alex Morgan, receives the paperwork later. When the installation log, shift notes and email replies travel separately, Alex can’t tell which conditions anyone checked. Maya spends another shift finding the right operator, while a question about the original hazard stays open.</p>
+      <h2>How Autonomous EHS keeps the follow-up together</h2>
+      <ol class="method-strip">
+        <li><strong>Link the work</strong><span>A near-miss report leads to a corrective action with a named owner. Both records point to the same problem.</span></li>
+        <li><strong>Gather observations</strong><span>The owner brings dated accounts from the people doing the work to the reviewer. A missing shift or a conflicting note becomes a specific follow-up.</span></li>
+        <li><strong>Record the human decision</strong><span>An authorized reviewer can verify the action with notes. The system records the change and its audit history together.</span></li>
+      </ol>
+    </section>
+    <section class="field-invite"><div><p class="case-kicker">Field assignment · River Distribution</p>
+      <h2>Try gathering the evidence yourself</h2>
+      <p>Before opening Maya’s conveyor file, join the same EHS review exercise at a second site. After a near miss, the dock team marked a pedestrian crossing and changed where pallets are staged. You have 20 minutes per round. Where you go and which shift you visit determine what you can hand to the next person.</p></div>
+      <div><a class="work-link" data-section="round" href="#/case?section=round">Walk the dock</a><a data-section="packet" href="#/case?section=packet">Open Maya’s conveyor file</a></div>
+    </section></article>`;
+}
+
+function packetPage(action) {
   return `<article class="case-study">
       <header class="case-lead">
-        <div class="handoff-bar"><span>Shift handoff</span><span>North plant · Packaging line 3</span></div>
-        <h1>The guard is installed. Is the action ready to close?</h1>
+        <div class="handoff-bar"><span>Conveyor file · North plant</span><span>Packaging line 3</span></div>
+        <h1>What can Alex verify about conveyor 3?</h1>
+        <p>The dock round shows why the time and place of an observation matter. Here Maya has a separate action. Read the dated record, decide who needs it next, then move the cutoff to see what another shift adds.</p>
         <dl class="handoff-register">
-          <div><dt>Near miss</dt><dd><a data-trace-link href="#/technical" aria-label="Read incident ${action.incident}">${action.incident}</a></dd></div>
-          <div><dt>Corrective action</dt><dd><a data-trace-link href="#/technical" aria-label="Inspect ${action.id}">${action.id}</a></dd></div>
-          <div><dt>Installation recorded by</dt><dd>${action.owner}</dd></div>
-          <div><dt>Closure reviewer</dt><dd>${action.reviewer}</dd></div>
-        </dl>
-      </header>
+          <div><dt>Near miss</dt><dd>${action.incident}</dd></div><div><dt>Corrective action</dt><dd>${action.id}</dd></div>
+          <div><dt>Action owner</dt><dd>${action.owner}</dd></div><div><dt>Reviewer</dt><dd>${action.reviewer}</dd></div>
+        </dl></header>
       <section class="case-evidence" aria-labelledby="packet-heading">
         <div><h2 id="packet-heading">Evidence at handoff</h2>
         <label for="case-packet">Evidence available to ${action.reviewer}</label>
@@ -103,27 +129,16 @@ function page(action) {
         </div>
         <p class="trace-entry"><a data-trace-link href="#/technical">Trace this packet through verification →</a></p>
       </section>
-      <section class="case-figures" aria-label="Conveyor and review diagrams">
-        <figure class="conveyor-context">
-          <figcaption><strong>Where the near miss occurred</strong><span>Conveyor 3 · conceptual view</span></figcaption>
-          <div class="conveyor-drawing" role="img" aria-label="Two conveyor sections meet at a transfer point. The action record identifies a guard at that point.">
-            <span class="guard-callout">Guard at transfer point</span><i class="transfer-guard"></i><i class="conveyor-box"></i><i class="conveyor-bed feed"></i><i class="conveyor-bed discharge"></i>
-          </div>
-          <p>The report identified the transfer point. The drawing locates the action item.</p>
-        </figure>
-        <figure class="review-trace">
-          <figcaption><strong>How the packet reaches the reviewer</strong><span>Trace the selected evidence</span></figcaption>
-          <ol>
-            <li><b>Action owner</b><span>${action.owner} links the installation record.</span></li>
-            <li><b>Shift team</b><span id="case-operator-trace"></span></li>
-            <li><b>Closure reviewer</b><span>${action.reviewer} weighs the packet and requests follow-up as needed.</span></li>
-          </ol>
-        </figure>
-      </section>
+      <p class="case-next"><a data-section="round" href="#/case?section=round">Revisit the dock round</a><a class="work-link" data-section="pilot" href="#/case?section=pilot">Compare the pilot costs</a></p>
+    </article>`;
+}
+function pilotPage() {
+  return `<article class="case-study">
       <section class="case-model" aria-labelledby="model-heading">
-        <p class="case-kicker">EHS DIRECTOR’S WORKSHEET</p><h2 id="model-heading">What would justify a self-hosted pilot?</h2>
+        <p class="case-kicker">EHS DIRECTOR’S WORKSHEET</p><h1 id="model-heading">What would justify a self-hosted pilot?</h1>
         <p>Consider three ways to assemble the same evidence. Keep the current email handoff, standardize the existing tracker or link records in the EHS console. Compare the staff time spent finding evidence, matching it to the right action and chasing missing records.</p>
-        <fieldset><legend>Illustrative first-year assumptions</legend>
+        <p class="pilot-volumes"><strong>Try an annual workload</strong> <button type="button" data-volume="600">600 reviews</button> <button type="button" data-volume="1200">1,200 reviews</button></p>
+        <details class="pilot-inputs"><summary>Adjust the planning assumptions</summary><fieldset><legend>Illustrative first-year assumptions</legend>
           <div class="case-inputs">
             <label>Actions reviewed per year<input type="number" id="case-volume" min="0" max="1000000" step="1" required value="600"></label>
             <label>Loaded labor cost ($/hour)<input type="number" id="case-rate" min="0" max="10000" step="any" required value="50"></label>
@@ -133,7 +148,7 @@ function page(action) {
             <div><h3>Standardized tracker</h3><label>Minutes per action, tracker<input id="case-tracker-time" type="number" min="0" max="10000" step="any" required value="18"></label><label>Added year-one cost, tracker ($)<input id="case-tracker-cost" type="number" min="0" max="1000000000" step="any" required value="600"></label></div>
             <div><h3>Self-hosted console</h3><label>Minutes per action, console<input id="case-console-time" type="number" min="0" max="10000" step="any" required value="12"></label><label>Added year-one cost, console ($)<input id="case-console-cost" type="number" min="0" max="1000000000" step="any" required value="5000"></label></div>
           </div>
-        </fieldset>
+        </fieldset></details>
         <p>Include setup, training, hosting and support in added costs. Each option assumes the same number of reviews and the same field verification effort.</p>
         <div id="case-totals" class="case-totals" role="status"></div>
         <p>Year-one cost = actions × minutes per action ÷ 60 × loaded hourly cost + added cost. Labor time represents capacity. Injury avoidance and cash savings are outside this estimate.</p>
@@ -141,21 +156,21 @@ function page(action) {
       <section class="case-pilot"><h2>Who decides after the North plant pilot?</h2><p>The plant manager authorizes pilot funding and paid time for operators and shift supervisors to participate. The EHS director owns the evaluation. Have the site coordinator compare handling minutes and the share of packets returned for missing evidence for similar cases in email, the tracker and the console. Count exception handling and support time.</p>
         <p>Ask workers and reviewers which observations each workflow lost at handoff. The director takes the plant manager a cost comparison, a count of late reviews and a sample of packets with operator feedback. Fund expansion only if the extra time recovered covers the extra cost and the pilot preserves field evidence. Keep the tracker if it meets the same standard at lower cost.</p>
         <p>OSHA recommends checking whether installed controls work and involving workers in that assessment. Its program-evaluation guidance identifies timely corrective action as a leading indicator. The worksheet inputs are fictional local planning assumptions.</p>
-        <div class="case-source-links"><a href="https://www.govinfo.gov/content/pkg/GOVPUB-L35-PURL-gpo142334/pdf/GOVPUB-L35-PURL-gpo142334.pdf">OSHA 3885 · Control effectiveness, worker participation and program evaluation (PDF)</a></div>
+        <p><a data-section="packet" href="#/case?section=packet">Return to Maya’s conveyor file</a></p>
+        <div class="case-source-links"><a href="https://www.osha.gov/safety-management/hazard-prevention">OSHA · Checking control effectiveness with workers</a><a href="https://www.govinfo.gov/content/pkg/GOVPUB-L35-PURL-gpo142334/pdf/GOVPUB-L35-PURL-gpo142334.pdf">OSHA 3885 · Control effectiveness, worker participation and program evaluation (PDF)</a></div>
       </section>
     </article>`;
 }
 
-export function renderCase(container, selection, onChange) {
-  container.innerHTML = page(action);
+export function renderPacket(container, selection, onChange) {
+  container.innerHTML = packetPage(action);
   let selectedPacket = selection.packet;
   let selectedAction = selection.handoff;
-  const worksheetValues = new Map(Object.entries(selection.assumptions));
+
   const publish = () =>
     onChange({
       packet: selectedPacket,
       handoff: selectedAction,
-      assumptions: Object.fromEntries(worksheetValues),
     });
   const packet = container.querySelector("#case-packet");
   const outcome = container.querySelector("#case-outcome");
@@ -189,7 +204,7 @@ export function renderCase(container, selection, onChange) {
           `<div><dt>${source}</dt><dd>${excerpt}</dd></div>`,
       )
       .join("");
-    container.querySelector("#case-operator-trace").textContent = record.shifts;
+
     showDecision();
   }
   packet.addEventListener("change", () => {
@@ -203,14 +218,26 @@ export function renderCase(container, selection, onChange) {
       showDecision();
     });
   replay.addEventListener("click", () => {
-    selectedPacket = "evening";
+    selectedPacket = "installation";
     selectedAction = null;
     showPacket();
     packet.focus();
   });
   showPacket();
+}
 
+export function renderPilot(container, selection, onChange) {
+  container.innerHTML = pilotPage();
+  const worksheetValues = new Map(Object.entries(selection.assumptions));
+  const publish = () =>
+    onChange({ assumptions: Object.fromEntries(worksheetValues) });
   const model = container.querySelector(".case-model");
+  for (const button of model.querySelectorAll("[data-volume]")) {
+    button.addEventListener("click", () => {
+      model.querySelector("#case-volume").value = button.dataset.volume;
+      updateCosts();
+    });
+  }
   const totals = model.querySelector("#case-totals");
   const inputs = [...model.querySelectorAll("input")];
   for (const input of inputs) {

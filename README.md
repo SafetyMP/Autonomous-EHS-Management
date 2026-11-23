@@ -6,7 +6,7 @@
 
 Autonomous EHS Management is **Apache-2.0 environmental, health and safety (EHS) software** for corporate teams coordinating incidents, corrective and preventive actions (CAPA), approvals, and evidence across sites. The full application runs on **Next.js, authentication, role-based permissions, and PostgreSQL you control**.
 
-In the public case, a conveyor guard has been installed after a near miss at North plant. Read the installation log and operators’ accounts at three handoff times, route the packet, and compare the first-year cost of email, a standardized tracker and a self-hosted pilot. The [technical workspace](https://safetymp.github.io/Autonomous-EHS-Management/#/technical) carries that handoff into a verification trace with three replayable evidence trials. People retain approval and closure authority.
+The [public EHS case](https://safetymp.github.io/Autonomous-EHS-Management/) starts with a shift change after a near miss. Walk River Distribution’s dock during receiving and dispatch, choose which observations to collect, and issue a handover. At North plant, use a separate conveyor-guard record to route a corrective action for human review. The [technical guide](https://safetymp.github.io/Autonomous-EHS-Management/#/technical) traces field evidence, permissions and the recorded outcome. A sponsor worksheet compares email, a shared tracker and the self-hosted console.
 
 **[Explore the live demo](https://safetymp.github.io/Autonomous-EHS-Management/)** · **[Download a release](https://github.com/SafetyMP/Autonomous-EHS-Management/releases)** · **[Container package](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web)** · **[Run locally](#run-the-demo)** · **[Documentation](docs/README.md)**
 
@@ -23,6 +23,12 @@ In the public case, a conveyor guard has been installed after a near miss at Nor
 The walkthrough is published from [`demo/`](demo/) and has its own [verification and deployment workflow](.github/workflows/pages-demo.yml). It does not exercise backend authorization or prove deployment readiness. The previous Vercel public demo is deprecated; GitHub Pages is the public walkthrough. See [demo scope](docs/github-pages-demo.md).
 
 The full application is distributed as source releases and a [GHCR container](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web): `ghcr.io/safetymp/autonomous-ehs-management/ehs-web:<full-git-sha>`. Choose a published SHA or image digest and follow the [deployment requirements](docs/self-host-quickstart.md). GitHub release tags identify source releases; this is not an npm package.
+
+### Trace a handover into the implementation
+
+- **What goes to the next shift?** On the River Distribution dock, each notebook entry records a stop and shift. Issuing a handover preserves the observations available at that moment. The guide reopens the selected round so a reviewer can inspect what the team knew. [Dock round model](demo/field-round.js) · [Interactive trace](demo/technical-guide.js)
+- **Who can verify the conveyor repair?** In the full application, the CAPA router checks the reviewer’s organization and update permission, the allowed change of status, and the verification notes. The reviewer judges whether the guard worked in the field. [CAPA mutation](src/server/trpc/routers/capa.ts) · [Transition rules](src/lib/workflow/capaTransitions.ts)
+- **What does the next reviewer see?** A successful status change writes the action, workflow transition and audit event in one PostgreSQL transaction. The browser guide replays a hypothetical transition on synthetic records. [Stored record definitions](src/server/db/schema.ts) · [Transition tests](tests/unit/workflow/capaTransitions.test.ts) · [Trace an evening handoff](https://safetymp.github.io/Autonomous-EHS-Management/#/technical?handoff=advanced&trial=evening&phase=record)
 
 ## Incident and CAPA workflow
 

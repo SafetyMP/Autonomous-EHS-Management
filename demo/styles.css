@@ -737,3 +737,165 @@ footer a {
   min-height: 28px;
   padding-block: 0.2rem;
 }
+
+.shift-brief,
+.field-assignment {
+  max-width: 70rem;
+  margin: auto;
+}
+.shift-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  align-items: center;
+  gap: clamp(1rem, 4vw, 3rem);
+  background: #173b35;
+  color: #f7fbf7;
+  padding: clamp(1.4rem, 4vw, 3.5rem);
+  border-bottom: 5px solid #dfad47;
+}
+.shift-hero .case-kicker {
+  color: #f2cf81;
+}
+.shift-hero h1 {
+  font-size: clamp(2.25rem, 4.1vw, 3.85rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  max-width: 17ch;
+  margin: 0.55rem 0 1rem;
+}
+.shift-hero p,
+.round-intro p,
+.shift-problem p,
+.field-invite p,
+.return-plant p {
+  max-width: 74ch;
+  margin: 0.4rem 0;
+}
+.brief-figure {
+  background: #293c38;
+  color: #eef3e8;
+  margin: 0;
+  padding: 1.1rem;
+  border: 1px solid #b9cbbf;
+}
+.brief-figure figcaption {
+  font-weight: 700;
+}
+.brief-figure p {
+  font-size: 0.9rem;
+}
+.shift-problem {
+  padding: clamp(1.25rem, 3.5vw, 2.7rem);
+  background: #fff;
+}
+.shift-problem h2,
+.field-invite h2,
+.return-plant h2 {
+  font-size: clamp(1.4rem, 2.7vw, 2rem);
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+  margin: 0.2rem 0 0.7rem;
+}
+.shift-problem h2:not(:first-child) {
+  margin-top: 1.5rem;
+}
+.method-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+}
+.method-strip li {
+  border-top: 3px solid #587768;
+  padding: 0.6rem 0;
+}
+.method-strip strong,
+.method-strip span {
+  display: block;
+}
+.method-strip strong {
+  color: #203f36;
+  margin-bottom: 0.35rem;
+}
+.field-invite,
+.return-plant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  background: #e9eddf;
+  padding: clamp(1.1rem, 3vw, 2.1rem);
+}
+.field-invite > div:last-child {
+  display: grid;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.work-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  background: #244a3d;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 0.2rem;
+}
+.round-intro {
+  background: #fff;
+  border-top: 4px solid #d7a83e;
+  padding: 1rem clamp(1rem, 3vw, 2rem);
+}
+.round-intro h1 {
+  margin: 0.3rem 0;
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  line-height: 1.05;
+}
+.case-next,
+.pilot-volumes {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.case-next {
+  justify-content: space-between;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #e9eddf;
+}
+.pilot-volumes button,
+.pilot-inputs summary {
+  cursor: pointer;
+  padding: 0.5rem 0.8rem;
+  font-weight: 650;
+}
+.pilot-inputs {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.7rem;
+}
+@media (max-width: 720px) {
+  .shift-hero,
+  .method-strip {
+    grid-template-columns: 1fr;
+  }
+  .field-invite,
+  .return-plant {
+    display: grid;
+    gap: 1rem;
+  }
+  .brief-figure {
+    max-width: 100%;
+  }
+  .method-strip {
+    gap: 0.2rem;
+  }
+  .field-invite > div:last-child {
+    justify-items: start;
+  }
+}

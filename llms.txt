@@ -7,7 +7,7 @@ This optional navigation index helps readers and agents find authoritative proje
 ## Start here
 
 - [Repository and quick start](https://github.com/SafetyMP/Autonomous-EHS-Management): product scope, local full-app setup, contribution links
-- [Public synthetic walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/): conveyor-guard closure case, sponsor worksheet and verification trials
+- [Public synthetic walkthrough](https://safetymp.github.io/Autonomous-EHS-Management/): two-shift dock round, conveyor-guard case, sponsor worksheet and verification guide
 - [Walkthrough navigation index](https://safetymp.github.io/Autonomous-EHS-Management/llms.txt): public demo sources and artifact boundaries
 - [Releases](https://github.com/SafetyMP/Autonomous-EHS-Management/releases): versioned release notes and source archives
 - [Application container](https://github.com/SafetyMP/Autonomous-EHS-Management/pkgs/container/autonomous-ehs-management%2Fehs-web): full application images; select a published full-commit-SHA tag
